@@ -1,0 +1,129 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { getFrameworks, getScenarios } from "@/lib/api"
+import type { FrameworkListItem, ScenarioListItem } from "@/lib/types"
+
+export default function Home() {
+  const router = useRouter()
+  const [frameworks, setFrameworks] = useState<FrameworkListItem[]>([])
+  const [scenarioCount, setScenarioCount] = useState(0)
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+
+  useEffect(() => {
+    getFrameworks().then(setFrameworks).catch(console.error)
+    getScenarios().then((s) => setScenarioCount(s.length)).catch(console.error)
+  }, [])
+
+  const categories = [...new Set(frameworks.map((f) => f.category))]
+  const displayedFrameworks = activeCategory
+    ? frameworks.filter((f) => f.category === activeCategory)
+    : frameworks
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero */}
+      <section className="mx-auto max-w-4xl px-4 py-24 text-center">
+        <h1 className="mb-6 text-5xl font-bold tracking-tight text-dark-900">
+          Navigate Every <span className="text-primary-600">Leadership Decision</span>
+        </h1>
+        <p className="mx-auto mb-10 max-w-2xl text-lg text-dark-500">
+          Your compass through 57 frameworks across 12 domains: decision-making, financial analysis,
+          negotiation, competitive strategy, operations, innovation, and more.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Link
+            href="/scenarios"
+            className="rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
+          >
+            Start a Scenario
+          </Link>
+          <Link
+            href="/frameworks"
+            className="rounded-lg border border-dark-300 px-6 py-3 font-medium text-dark-700 hover:bg-dark-50"
+          >
+            Explore Frameworks
+          </Link>
+        </div>
+      </section>
+
+      {/* Stats — clickable */}
+      <section className="border-t border-dark-100 bg-dark-50">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 divide-x divide-dark-200 px-4 py-10">
+          <button
+            onClick={() => setActiveCategory(null)}
+            className="text-center hover:bg-white/50 transition rounded-lg py-2"
+          >
+            <p className="text-3xl font-bold text-primary-600">{frameworks.length}</p>
+            <p className="text-sm text-dark-500">Frameworks</p>
+          </button>
+          <button
+            onClick={() => setActiveCategory(activeCategory ? null : categories[0] || null)}
+            className="text-center hover:bg-white/50 transition rounded-lg py-2"
+          >
+            <p className="text-3xl font-bold text-primary-600">{categories.length}</p>
+            <p className="text-sm text-dark-500">Domains</p>
+          </button>
+          <Link href="/scenarios" className="text-center hover:bg-white/50 transition rounded-lg py-2 block">
+            <p className="text-3xl font-bold text-primary-600">{scenarioCount}</p>
+            <p className="text-sm text-dark-500">Scenarios</p>
+          </Link>
+        </div>
+      </section>
+
+      {/* Domain filters */}
+      <section className="mx-auto max-w-6xl px-4 pt-12 pb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+              !activeCategory ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200"
+            }`}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+                activeCategory === cat
+                  ? "bg-primary-600 text-white"
+                  : "bg-dark-100 text-dark-600 hover:bg-dark-200"
+              }`}
+            >
+              {cat.replace(/-/g, " ")}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Framework Grid */}
+      <section className="mx-auto max-w-6xl px-4 pb-20">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {displayedFrameworks.map((fw) => (
+            <Link
+              key={fw.id}
+              href={`/frameworks/${fw.slug}`}
+              className="rounded-xl border border-dark-200 p-6 transition hover:border-primary-300 hover:shadow-md"
+            >
+              <div className="mb-3 flex items-center gap-2">
+                <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+                  {fw.category.replace(/-/g, " ")}
+                </span>
+                <span className="rounded-full bg-dark-100 px-2 py-0.5 text-xs text-dark-600">
+                  {fw.difficulty}/5
+                </span>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-dark-900">{fw.title}</h3>
+              <p className="mb-4 text-sm text-dark-500">{fw.description}</p>
+              <p className="text-xs text-dark-400">{fw.estimated_time_minutes} min estimated</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}

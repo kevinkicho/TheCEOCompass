@@ -1,0 +1,617 @@
+[
+  {
+    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "title": "Pricing War Response",
+    "description": "A competitor launches a free tier matching your core features. You have 2 weeks before the board meeting.",
+    "framework_id": "33333333-3333-3333-3333-333333333333",
+    "difficulty": 3,
+    "context": {
+      "company": "SaaS startup, $5M ARR, 45% gross margin, 18% annual churn, 50 employees",
+      "situation": "Major competitor (public company, $500M ARR) just launched a free tier that matches 80% of your core features. Your largest customer (15% of revenue) is evaluating switching. Board meeting in 2 weeks.",
+      "time_pressure": "Board meeting in 2 weeks. Need recommendation with financial impact analysis.",
+      "data_provided": [
+        "Current P&L: $5M ARR, 45% GM, $1.2M S&M, $800k R&D, $600k G&A",
+        "Customer segments: Enterprise (60% ARR, 5% churn), SMB (40% ARR, 30% churn)",
+        "Competitor intel: Free tier has no SSO, no API, 5-user limit, no support",
+        "Switching cost analysis: Average 3-month implementation, data export gaps"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What framework(s) should you apply FIRST to diagnose this situation?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Porter's Five Forces + Competitive Response Matrix",
+            "score": 0.9,
+            "rationale": "Systematically analyzes competitive position and maps response options against rival's move"
+          },
+          {
+            "id": "b",
+            "label": "SWOT Analysis only",
+            "score": 0.3,
+            "rationale": "Too general. Doesn't provide actionable response framework for competitive threat"
+          },
+          {
+            "id": "c",
+            "label": "Immediate 20% price cut across the board",
+            "score": 0.1,
+            "rationale": "Reactive, destroys margins, signals weakness, no strategic framework applied"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Provide CEO-grade feedback on framework selection."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Estimate the quarterly revenue impact if you lose 15% of Enterprise customers and 25% of SMB customers to the free tier. Show your work.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User estimated {response}. Correct: Enterprise $5M\u00d760%\u00d715%=$450k/qtr, SMB $5M\u00d740%\u00d725%=$500k/qtr. Total $950k/qtr ($3.8M ARR at risk). Evaluate their reasoning.",
+        "sample_answer": "Enterprise $5M\u00d760%\u00d715%=$450k/qtr, SMB $5M\u00d740%\u00d725%=$500k/qtr. Total $950k/qtr ($3.8M ARR at risk)."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Choose your strategic response:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Differentiate: Launch 'Pro' tier with SSO, API, unlimited users, dedicated support at current price. Keep 'Starter' at $X. Invest in switching cost moats (integrations, data gravity).",
+            "score": 0.85,
+            "rationale": "Leverages competitor's free tier limitations. Protects Enterprise segment. Builds moats."
+          },
+          {
+            "id": "b",
+            "label": "Match: Launch your own free tier. Hope to convert 5% to paid. Accept 30% revenue hit.",
+            "score": 0.25,
+            "rationale": "Race to bottom. Destroys unit economics. Hard to raise prices later. Signals commoditization."
+          },
+          {
+            "id": "c",
+            "label": "Acquire: Buy a complementary tool to bundle. 6-month timeline. $2M cost.",
+            "score": 0.45,
+            "rationale": "Too slow for immediate threat. Integration risk. Good as secondary play, not primary response."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate strategic logic, financial impact, and execution risk."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Draft the 2-slide board update: Slide 1 = Situation & Analysis. Slide 2 = Recommendation & Ask.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate clarity, data-driven argument, and board-ready framing.",
+        "sample_answer": "A good board update includes: 1) Situation summary with key data points, 2) Financial impact analysis with numbers, 3) Proposed response with rationale, 4) Specific ask from the board (approval, guidance, resources). Keep it concise \u2014 2 slides maximum."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Strategic Differentiation Win",
+        "description": "Launched Pro tier, retained 95% Enterprise, converted 10% SMB to paid. ARR grew to $6.2M in 6 months. Competitor's free tier became lead gen for you."
+      },
+      "acceptable": {
+        "title": "Defensive Hold",
+        "description": "Price-matched selectively, lost 8% revenue short-term but stabilized. Slow bleed risk remains. Need product differentiation within 12 months."
+      },
+      "failure": {
+        "title": "Value Destruction",
+        "description": "Panicked price cuts or free tier launch. Gross margin dropped to 25%. Burn rate unsustainable. Down round or shutdown within 18 months."
+      }
+    },
+    "slug": "pricing-war-response"
+  },
+  {
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "title": "Acquisition Target Evaluation",
+    "description": "Evaluate a $15M acquisition target for technology and team. Board needs your recommendation in 1 week.",
+    "framework_id": "22222222-2222-2222-2222-222222222222",
+    "difficulty": 4,
+    "context": {
+      "company": "Series B SaaS, $12M ARR, $30M cash, 80 employees",
+      "situation": "Target: AI-powered analytics startup, $2M ARR, 15-person team (10 engineers, 3 PhDs), proprietary ML models for predictive analytics. Asking $15M (7.5x ARR). Your product lacks advanced analytics - this would fill a major gap and unlock Enterprise upsell.",
+      "time_pressure": "Exclusivity expires in 1 week. Competitor also looking.",
+      "data_provided": [
+        "Target financials: $2M ARR, 60% GM, $4M burn, 12mo runway, 120% NRR",
+        "Your financials: $12M ARR, 70% GM, $2M burn, 15mo runway",
+        "Synergy model: $3M ARR upsell in Year 1, $8M by Year 3. Cost synergies: $500k (infra, G&A)",
+        "Integration risk: Different tech stack (Python vs your Node), remote team in different timezone, key person risk (2 PhDs)",
+        "Comparable transactions: 5-10x ARR for AI/ML tuck-ins"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What financial frameworks are ESSENTIAL for this evaluation?",
+        "options": [
+          {
+            "id": "a",
+            "label": "DCF + LBO + Synergy Quantification + Earnout Modeling",
+            "score": 0.95,
+            "rationale": "DCF for standalone value, LBO for leverage capacity, synergy model for strategic value, earnout for risk mitigation"
+          },
+          {
+            "id": "b",
+            "label": "Revenue multiple comparison only (7.5x vs 5-10x comps)",
+            "score": 0.2,
+            "rationale": "Ignores cash burn, integration costs, earnout structure, strategic option value"
+          },
+          {
+            "id": "c",
+            "label": "Gut feel + team assessment",
+            "score": 0.1,
+            "rationale": "Insufficient for $15M (50% of cash). Board will reject."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain why comprehensive financial modeling is non-negotiable."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Build the synergy model: Calculate Year 1 combined FCF impact. Assume: Your FCF = $2M. Target FCF = -$2M (burn). Revenue synergies = $3M ARR at 70% GM. Cost synergies = $500k. Integration costs = $1M one-time. Show Year 1 FCF.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User calculated {response}. Correct: $2M + (-$2M) + $2.1M (synergy GP) + $0.5M - $1M = $1.6M combined FCF vs $2M standalone. Dilutive Year 1, accretive Year 2+. Evaluate.",
+        "sample_answer": "$2M + (-$2M) + $2.1M (synergy GP) + $0.5M - $1M = $1.6M combined FCF vs $2M standalone. Dilutive Year 1, accretive Year 2+."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Structure the deal. Choose the best structure:",
+        "options": [
+          {
+            "id": "a",
+            "label": "$10M cash at close + $5M earnout over 2 years tied to ARR milestones ($3M Y1, $8M Y3) + 2-year retention packages for 3 key people",
+            "score": 0.9,
+            "rationale": "Aligns incentives, mitigates key person risk, pays for performance, preserves cash"
+          },
+          {
+            "id": "b",
+            "label": "$15M all cash at close. Clean and simple.",
+            "score": 0.3,
+            "rationale": "50% of cash gone. No protection if team leaves or tech doesn't integrate. All risk on buyer."
+          },
+          {
+            "id": "c",
+            "label": "$5M cash + $10M stock. Shares risk.",
+            "score": 0.5,
+            "rationale": "Better cash preservation but complex valuation, tax issues, misaligned if stock drops"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate risk allocation, incentive alignment, and cash preservation."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Successful Tuck-in",
+        "description": "Earnout achieved. Analytics module launched in 4 months. Enterprise upsell $4M ARR Year 1. Team retained. ROIC > 25% by Year 2."
+      },
+      "acceptable": {
+        "title": "Partial Success",
+        "description": "Tech integrated in 8 months (slower). Only 1 PhD stayed. Upsell $2M Year 1. Break-even Year 3. Distraction from core product."
+      },
+      "failure": {
+        "title": "Failed Integration",
+        "description": "Both PhDs left at 12 months. Tech debt unmaintainable. $15M write-down. Enterprise deals lost due to distraction. Cash crisis."
+      }
+    },
+    "slug": "acquisition-target-evaluation"
+  },
+  {
+    "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "title": "Crisis: Major Security Incident",
+    "description": "Data breach affecting 10,000 customers. 4 hours since discovery. Regulators, customers, board all need communication.",
+    "framework_id": "11111111-1111-1111-1111-111111111111",
+    "difficulty": 5,
+    "context": {
+      "company": "B2B SaaS, $20M ARR, SOC2 certified, 150 employees",
+      "situation": "Unauthorized access to customer PII database discovered 4 hours ago. ~10,000 records exposed (names, emails, company info - no passwords/financials). Attack vector: compromised contractor credentials. Contained 1 hour ago. Legal says 72-hour notification clock started.",
+      "time_pressure": "72 hours for regulatory notification. Customers expecting update NOW. Board emergency call in 2 hours.",
+      "data_provided": [
+        "Incident timeline: Detection \u2192 Containment \u2192 Investigation status",
+        "Data scope: 10,000 records, PII categories, no auth/financial data",
+        "Root cause (preliminary): Contractor MFA bypass via session hijacking",
+        "Regulatory: GDPR (EU customers), CCPA (CA), industry-specific",
+        "Customer impact: 3 Enterprise accounts (\u20ac2M ARR) in affected set"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "First 30 minutes: What are your IMMEDIATE priorities? (Select top 3)",
+        "options": [
+          {
+            "id": "a",
+            "label": "1) Confirm containment 2) Activate incident response team 3) Preserve evidence for forensics",
+            "score": 0.9,
+            "rationale": "Correct priority order: stop bleeding, mobilize, preserve legal position"
+          },
+          {
+            "id": "b",
+            "label": "1) Draft customer email 2) Call lawyer 3) Post on Twitter transparency",
+            "score": 0.2,
+            "rationale": "Communication before containment = misinformation risk. Evidence preservation critical for liability."
+          },
+          {
+            "id": "c",
+            "label": "1) Blame contractor 2) Minimize scope in internal comms 3) Delay notification",
+            "score": 0.05,
+            "rationale": "Destroys trust, legal exposure, regulatory violations. Career-ending for CEO."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain crisis management priority framework."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Board call in 30 min. What's your recommendation on customer notification timing?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Notify affected customers within 24 hours with: what happened, what data, what we're doing, what they should do, dedicated support line",
+            "score": 0.95,
+            "rationale": "Exceeds regulatory minimum. Builds trust. Controls narrative. Reduces legal liability."
+          },
+          {
+            "id": "b",
+            "label": "Wait for full forensic report (5-7 days) then notify",
+            "score": 0.2,
+            "rationale": "Violates GDPR 72-hour rule. Looks like cover-up. Increases fines 4x. Destroys customer trust."
+          },
+          {
+            "id": "c",
+            "label": "Notify only the 3 Enterprise accounts. Keep quiet on others.",
+            "score": 0.1,
+            "rationale": "Discriminatory notification. Regulatory violation. Leaks inevitable. Reputation destroys company."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain regulatory requirements and trust economics."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Trust Strengthened",
+        "description": "Transparent, fast response. Customers appreciate honesty. 0 churn from incident. SOC2 renewed with commendation. Industry case study for crisis done right."
+      },
+      "acceptable": {
+        "title": "Managed Crisis",
+        "description": "Met regulatory minimums. Some customer frustration. 2% churn. $200k fines. Reputation recoverable in 12 months."
+      },
+      "failure": {
+        "title": "Existential Crisis",
+        "description": "Delayed/partial notification. GDPR fine \u20ac4M. Class action lawsuit. 3 Enterprise accounts churn. Board loses confidence. CEO replaced."
+      }
+    },
+    "slug": "crisis-major-security-incident"
+  },
+  {
+    "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+    "title": "Scaling Org from 50 to 200",
+    "description": "Your startup just raised Series B. You need to double the team in 6 months while maintaining culture and performance.",
+    "framework_id": "44444444-4444-4444-4444-444444444444",
+    "difficulty": 3,
+    "context": {
+      "company": "Series B SaaS, $8M ARR, 50 employees, remote-first since seed",
+      "situation": "Just closed $20M Series B. Board expects 200 headcount in 18 months. Current: 3-layer org, 5-person leadership team. Culture: high-autonomy, written-first, transparent. Key risk: two key engineers (15-person team managers) showing burnout signs. VP Sales search has failed twice (3 months).",
+      "time_pressure": "Q1 hiring plan due in 2 weeks. All-hands on Friday expecting culture message.",
+      "data_provided": [
+        "Current org chart (3 layers: CEO > 5 leaders > 45 ICs)",
+        "Hiring pipeline: 8 open roles, 3 offers out, 2 week average to fill",
+        "Engagement survey: 82 eNPS, declining trend",
+        "Burnout indicators: 2 managers working weekends, productivity down 15%",
+        "Competing offers: 3 engineers received 30%+ salary bumps from FAANG"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What org design framework should guide your scaling plan?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Span of Control + Layer Analysis: Map optimal spans, add layer where >10 reports. Create new VP roles.",
+            "score": 0.9,
+            "rationale": "Correct first step. Before hiring, fix structure. Prevents flat-org chaos at 200 people."
+          },
+          {
+            "id": "b",
+            "label": "Hire as fast as possible. Structure will sort itself out.",
+            "score": 0.1,
+            "rationale": "Recipe for chaos. No reporting clarity = decision paralysis and culture breakdown."
+          },
+          {
+            "id": "c",
+            "label": "Implement matrix org with dotted lines to all VPs",
+            "score": 0.3,
+            "rationale": "Over-engineered for 200 people. Matrix orgs need strong PM culture and 500+ headcount to justify overhead."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain org design principles for scaling stages."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "VP Sales hiring has failed twice. Both candidates looked great on paper but quit within 60 days. Options:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Promote internal: top-performing rep with 3 yrs tenure, 180% quota. Give them 6-month trial as interim VP with outsourced coach. Hire strong #2.",
+            "score": 0.85,
+            "rationale": "Internal knows product/customers. Trial period derisks. Coach fills gaps. Better than empty seat for 9 months."
+          },
+          {
+            "id": "b",
+            "label": "Hire external search firm, raise comp to 90th percentile, accept 3-month search timeline",
+            "score": 0.45,
+            "rationale": "Two failures suggest selection problem, not comp. 3 months empty = missed pipeline."
+          },
+          {
+            "id": "c",
+            "label": "Merge Sales under VP Marketing. One fewer hire.",
+            "score": 0.25,
+            "rationale": "Different skill sets. Marketing lacks enterprise sales experience. Overloads existing leader."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate talent strategy trade-offs: speed vs. fit, internal vs. external, cost of vacancy."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Two team managers showing burnout (weekend work, productivity drop). Team of 30 engineers depend on them. What do you do?",
+        "options": [
+          {
+            "id": "a",
+            "label": "1) Immediate: 2-week mandated PTO 2) Structural: Split each 15-person team into two 7-person teams with new managers promoted from within 3) Culture: Publicly model 'no weekend work' norm",
+            "score": 0.9,
+            "rationale": "Addresses root cause (oversized teams) while providing immediate relief. Models desired behavior."
+          },
+          {
+            "id": "b",
+            "label": "Give them each a 20% raise and equity refresh. They deserve it for working hard.",
+            "score": 0.2,
+            "rationale": "Rewards harmful behavior. Burnout won't be solved by money. Reinforces 'martyr hero' culture."
+          },
+          {
+            "id": "c",
+            "label": "Replace them. If they can't handle startup pace, find people who can.",
+            "score": 0.05,
+            "rationale": "Career-ending mistake. Top performers burning out = structural problem, not motivation problem. Replacing loses institutional knowledge."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain burnout prevention and team scaling principles."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Scaled Strong",
+        "description": "200 people in 18 months. Culture preserved. eNPS climbed to 85. Attrition under 8%. IPO-ready org."
+      },
+      "acceptable": {
+        "title": "Growing Pains",
+        "description": "165 people in 18 months (missed target). Some culture erosion in middle layers. Attrition 15%. Correctable."
+      },
+      "failure": {
+        "title": "Culture Collapse",
+        "description": "Both managers left. VP Sales still empty. 35% attrition. eNPS dropped to 35. Series B runway wasted on recruiting churn."
+      }
+    },
+    "slug": "scaling-org-from-50-to-200"
+  },
+  {
+    "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+    "title": "Platform vs Feature Investment",
+    "description": "Your CTO wants 6 months for a platform rewrite. Your VP Product wants to ship 3 new features that paying customers are asking for. You have 40 engineers.",
+    "framework_id": "55555555-5555-5555-5555-555555555555",
+    "difficulty": 4,
+    "context": {
+      "company": "B2B SaaS, $15M ARR, 40 engineers, monolithic Rails app",
+      "situation": "CTO: 'Tech debt is slowing us down. Deploy frequency dropped from daily to weekly. 30% of sprint capacity on bug fixes. We need 6 months to extract core services.' VP Product: '3 enterprise logos ($5M ARR) require SSO, audit logs, and custom reporting to close. Miss these and we miss Q4 targets.'",
+      "time_pressure": "Q4 planning meeting in 3 days. Engineering morale dropping. Customer escalations up.",
+      "data_provided": [
+        "DORA metrics: Deploy freq 1/week (down from daily), Lead time 5 days, CFR 18% (up from 8%), MTTR 4 hours",
+        "Engineering morale: 45 eNPS (down from 72), 3 regrettable losses this quarter",
+        "Customer pipeline: 3 deals worth $5M ARR blocked by missing features",
+        "Platform scope: 6 months, $2M eng cost, projected 3x velocity after",
+        "Feature scope: 2 months each, $600k eng cost, unlocks $5M ARR"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "Apply the Tech Debt Quadrant. What kind of debt is this?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Prudent-Deliberate: Original decisions were reasonable at the time. Now constraints changed and the architecture no longer fits.",
+            "score": 0.85,
+            "rationale": "Rails monolith was correct for first 5 years. At $15M ARR with enterprise customers, the architecture needs to evolve."
+          },
+          {
+            "id": "b",
+            "label": "Reckless-Deliberate: CTO knowingly cut corners to ship faster.",
+            "score": 0.3,
+            "rationale": "No evidence of corner-cutting. Monolith was the right architecture at $1-5M ARR. Context changed."
+          },
+          {
+            "id": "c",
+            "label": "Not tech debt - it's feature requests. Ship the features.",
+            "score": 0.15,
+            "rationale": "DORA metrics deterioration is real tech debt. 18% CFR means 1 in 5 deployments breaks something. Unsustainable."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain the tech debt quadrant and appropriate response per quadrant."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "With 40 engineers, how do you allocate?",
+        "options": [
+          {
+            "id": "a",
+            "label": "70/30 split: 28 engineers on features (SSO, audit, custom reporting) targeting 2-month delivery. 12 engineers on platform (extract 2 core services). Review at 2 months.",
+            "score": 0.9,
+            "rationale": "Addresses both needs simultaneously. Features unblock revenue. Platform investment starts. 2-month review gates commitment."
+          },
+          {
+            "id": "b",
+            "label": "100% platform: Full rewrite for 6 months. No new features.",
+            "score": 0.2,
+            "rationale": "Loses $5M ARR deals. Customers leave. 6 months without customer value = morale collapse and churn."
+          },
+          {
+            "id": "c",
+            "label": "100% features: Ship all 3 features in 6 months (~13 engineers each). Ignore platform.",
+            "score": 0.3,
+            "rationale": "Tech debt compounds. 18% CFR will become 30%. Good engineers leave. Features eventually grind to halt."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain the dual-track approach: how to balance innovation and maintenance investment."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Engineering morale (eNPS 45, 3 losses). What do you do about the team?",
+        "options": [
+          {
+            "id": "a",
+            "label": "1) Share the dual-track plan transparently 2) Give each track a strong TL with decision rights 3) Protect 'no-interrupt' deep work blocks 4) Commit to quarterly retro on approach",
+            "score": 0.9,
+            "rationale": "Transparent plan + autonomy + protected time + feedback loop. Addresses root causes: uncertainty, lack of agency, context switching."
+          },
+          {
+            "id": "b",
+            "label": "Announce 'crunch mode' for next 3 months. Free dinner and Uber credits.",
+            "score": 0.1,
+            "rationale": "Perks don't fix burnout. Crunch mode accelerates attrition. Engineers with options will leave."
+          },
+          {
+            "id": "c",
+            "label": "Hire 10 more engineers. More capacity = less pressure.",
+            "score": 0.3,
+            "rationale": "Brooks' Law: adding people to late projects makes them later. Onboarding load on current team. Doesn't fix root cause."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate engineering team health interventions."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Dual Track Success",
+        "description": "2 features shipped in 3 months ($5M ARR closed). 2 services extracted in 5 months. DORA back to elite. Morale recovered to 70 eNPS."
+      },
+      "acceptable": {
+        "title": "Tense Balance",
+        "description": "1 feature delayed. Platform 1 month behind. Morale stable at 55. Tension between product and platform ongoing. Revenue $3M."
+      },
+      "failure": {
+        "title": "Engineer Exodus",
+        "description": "Crunch mode burned out 12 engineers. Platform stalled. Features buggy (CFR 25%). 3 enterprise deals lost. Rebuild from smaller team."
+      }
+    },
+    "slug": "platform-vs-feature-investment"
+  },
+  {
+    "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+    "title": "Root Cause: Customer Churn Spike",
+    "description": "Monthly churn doubled from 3% to 6% in 30 days. No product changes, no pricing changes, no competitor launches. Find the root cause.",
+    "framework_id": "77777777-7777-7777-7777-777777777777",
+    "difficulty": 3,
+    "context": {
+      "company": "SaaS, $10M ARR, 500 customers, avg ACV $20k",
+      "situation": "Churn spiked from 3% to 6% last month. No obvious trigger: no product changes, no pricing changes, no competitor launch. Support tickets up 40%. NPS dropped from 45 to 28. Sales team reports longer close cycles. Engineering says 'no major outages.'",
+      "time_pressure": "Board update in 5 days. If churn stays at 6%, $600k ARR at risk this quarter.",
+      "data_provided": [
+        "Churn by segment: Enterprise (2% > 4%), Mid-market (3% > 5%), SMB (6% > 15%)",
+        "Support tickets: 'onboarding' issues up 80%, 'data import' up 50%",
+        "Onboarding time: 45 days (was 30 days) per new customer",
+        "Customer success team: same 4 people, caseload up from 50 to 75 accounts each",
+        "NPS verbatims: 'too hard to set up', 'took 2 months to go live', 'training was insufficient'"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "Which cause analysis method should you apply FIRST to identify the root cause?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Fishbone Diagram + 5 Whys: Categorize causes (People, Process, Technology, Measurement), then drill into each with 5 Whys",
+            "score": 0.9,
+            "rationale": "Multi-factor problem (both segments and support data suggest multiple contributors). Fishbone organizes, 5 Whys drills."
+          },
+          {
+            "id": "b",
+            "label": "Fire the Head of Customer Success. Churn is their job.",
+            "score": 0.05,
+            "rationale": "Blaming before understanding = toxic culture + wrong fix. Data suggests systemic issue, not individual."
+          },
+          {
+            "id": "c",
+            "label": "Run an A/B test on different onboarding flows",
+            "score": 0.3,
+            "rationale": "Too slow for 6% monthly churn. Need diagnosis before treatment. A/B test takes 2-3 months."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain which cause analysis method fits this problem type."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Apply the Fishbone. Categorize the data into People, Process, Technology, and Measurement buckets. What pattern emerges?",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User analyzed {response}. Pattern: Process (onboarding stretched from 30 to 45 days because caseload doubled) and Measurement (no leading indicator for churn - only caught at cancellation). Root cause: Customer Success team didn't scale with customer growth. Caseload 50 > 75 = 50% increase in accounts per CSM. Onboarding time degradation directly correlates with churn spike.",
+        "sample_answer": "Process (onboarding stretched from 30 to 45 days because caseload doubled) and Measurement (no leading indicator for churn - only caught at cancellation)."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Given root cause is CS team overloaded (not scaled with growth). Choose your action:",
+        "options": [
+          {
+            "id": "a",
+            "label": "1) Immediate: Hire 2 CSMs, reduce caseload to 50 2) Process: Implement onboarding automation (self-service portal, email sequences) for first 14 days 3) Measurement: Add 'time-to-first-value' and 'onboarding completion' as leading churn indicators",
+            "score": 0.95,
+            "rationale": "Addresses all three levels: capacity (hire), efficiency (automate), monitoring (metrics). Systemic fix."
+          },
+          {
+            "id": "b",
+            "label": "Just hire 4 more CSMs. More people = problem solved.",
+            "score": 0.4,
+            "rationale": "Capacity fix but no process improvement. Same problem at next growth stage. Hiring lag = continued churn."
+          },
+          {
+            "id": "c",
+            "label": "Offer 20% discount to at-risk customers. Buy time.",
+            "score": 0.15,
+            "rationale": "Treats symptom (churn) not cause (poor onboarding). Revenue loss + same problem persists. Customers leave anyway."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate systemic vs symptomatic solutions to root cause."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Root Cause Fixed",
+        "description": "Caseload reduced to 50. Onboarding automated for first 14 days. Time-to-value dropped to 25 days. Churn back to 3% in 3 months. Leading indicators now caught early."
+      },
+      "acceptable": {
+        "title": "Symptom Managed",
+        "description": "Hired 2 CSMs but onboarding still manual. Churn dropped to 4% (not 3%). Process debt accumulating. Same problem at 800 customers."
+      },
+      "failure": {
+        "title": "Spiral Continues",
+        "description": "Discounted churning customers. They left anyway after discount period. CS team burned out (2 quit). Churn hit 8%. ARR declining."
+      }
+    },
+    "slug": "root-cause-customer-churn-spike"
+  }
+]

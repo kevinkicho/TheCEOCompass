@@ -1,0 +1,684 @@
+{
+  "strategic-decision-making": [
+    {
+      "question": "What does First Principles Thinking require you to do?",
+      "options": [
+        "Reason by analogy from competitors",
+        "Break problems down to fundamental truths",
+        "Trust industry best practices",
+        "Follow what worked historically"
+      ],
+      "correct_answer": "Break problems down to fundamental truths",
+      "explanation": "First Principles means decomposing to fundamentals and rebuilding from scratch, not reasoning by analogy.",
+      "framework_concept": "First Principles Thinking"
+    },
+    {
+      "question": "What is the core question in Inversion thinking?",
+      "options": [
+        "How do we succeed faster?",
+        "What's the best-case scenario?",
+        "How could we fail?",
+        "Who should we hire?"
+      ],
+      "correct_answer": "How could we fail?",
+      "explanation": "Inversion asks 'how could this fail?' and designs against failure modes \u2014 Charlie Munger's approach.",
+      "framework_concept": "Inversion"
+    },
+    {
+      "question": "What does OODA stand for?",
+      "options": [
+        "Organize, Order, Delegate, Act",
+        "Observe, Orient, Decide, Act",
+        "Outline, Optimize, Deliver, Assess",
+        "Operate, Organize, Direct, Analyze"
+      ],
+      "correct_answer": "Observe, Orient, Decide, Act",
+      "explanation": "John Boyd's OODA Loop: Observe \u2192 Orient \u2192 Decide \u2192 Act. Speed of cycling beats opponents.",
+      "framework_concept": "OODA Loop"
+    },
+    {
+      "question": "What is a Pre-Mortem analysis?",
+      "options": [
+        "Reviewing a project after it finished",
+        "Imagining a project failed and working backward to prevent failure",
+        "Celebrating before starting a project",
+        "Analyzing competitor post-mortems"
+      ],
+      "correct_answer": "Imagining a project failed and working backward to prevent failure",
+      "explanation": "Pre-mortem: before committing, ask 'it failed \u2014 why?' and fix those issues proactively.",
+      "framework_concept": "Pre-Mortem Analysis"
+    },
+    {
+      "question": "What does Probabilistic Thinking avoid?",
+      "options": [
+        "Using data to make decisions",
+        "Thinking in absolutes (yes/no, success/failure)",
+        "Calculating expected value",
+        "Updating beliefs with new evidence"
+      ],
+      "correct_answer": "Thinking in absolutes (yes/no, success/failure)",
+      "explanation": "Probabilistic thinking means thinking in likelihoods and expected value, not binary outcomes.",
+      "framework_concept": "Probabilistic Thinking"
+    }
+  ],
+  "financial-mastery": [
+    {
+      "question": "What does EBITDA exclude?",
+      "options": [
+        "Revenue and COGS",
+        "Interest, Taxes, Depreciation, and Amortization",
+        "Operating expenses and revenue",
+        "All cash expenses"
+      ],
+      "correct_answer": "Interest, Taxes, Depreciation, and Amortization",
+      "explanation": "EBITDA = Earnings Before Interest, Taxes, Depreciation, and Amortization. Proxy for operating profitability.",
+      "framework_concept": "EBITDA"
+    },
+    {
+      "question": "How do you calculate Free Cash Flow?",
+      "options": [
+        "Revenue minus COGS",
+        "Net Income plus Depreciation",
+        "Operating Cash Flow minus Capital Expenditures",
+        "EBITDA times 0.7"
+      ],
+      "correct_answer": "Operating Cash Flow minus Capital Expenditures",
+      "explanation": "FCF = Operating Cash Flow - CapEx. Cash available to investors after maintaining the business.",
+      "framework_concept": "Free Cash Flow"
+    },
+    {
+      "question": "A company with 15% ROIC and 10% WACC is:",
+      "options": [
+        "Destroying value",
+        "Breaking even",
+        "Creating value",
+        "Insolvent"
+      ],
+      "correct_answer": "Creating value",
+      "explanation": "ROIC > WACC means returns exceed cost of capital \u2014 value creation. 15% > 10%.",
+      "framework_concept": "ROIC"
+    },
+    {
+      "question": "What does DuPont Analysis decompose ROE into?",
+      "options": [
+        "Revenue and costs",
+        "Margin, turnover, and leverage",
+        "Assets and liabilities",
+        "Cash and accruals"
+      ],
+      "correct_answer": "Margin, turnover, and leverage",
+      "explanation": "DuPont: ROE = Net Margin \u00d7 Asset Turnover \u00d7 Financial Leverage. Three drivers of return.",
+      "framework_concept": "DuPont Analysis"
+    },
+    {
+      "question": "In SaaS, a healthy LTV/CAC ratio is typically:",
+      "options": [
+        "Less than 1x",
+        "Exactly 1x",
+        "Greater than 3x",
+        "Greater than 10x"
+      ],
+      "correct_answer": "Greater than 3x",
+      "explanation": "LTV/CAC > 3x means each $1 in acquisition cost returns $3+ in lifetime value. Below 1x is unsustainable.",
+      "framework_concept": "Unit Economics"
+    }
+  ],
+  "competitive-market-analysis": [
+    {
+      "question": "Which is NOT one of Porter's Five Forces?",
+      "options": [
+        "Threat of substitutes",
+        "Government regulation",
+        "Bargaining power of buyers",
+        "Competitive rivalry"
+      ],
+      "correct_answer": "Government regulation",
+      "explanation": "The Five Forces: rivalry, buyer power, supplier power, substitutes, and entry barriers. Government is PESTLE.",
+      "framework_concept": "Porter's Five Forces"
+    },
+    {
+      "question": "What does VRIO test for?",
+      "options": [
+        "Market share potential",
+        "Financial health",
+        "Sustainable competitive advantage",
+        "Customer satisfaction"
+      ],
+      "correct_answer": "Sustainable competitive advantage",
+      "explanation": "VRIO: Valuable, Rare, Inimitable, Organized. Tests if a resource provides sustainable advantage.",
+      "framework_concept": "VRIO"
+    },
+    {
+      "question": "In Jobs-to-be-Done, customers 'hire' products to:",
+      "options": [
+        "Show status",
+        "Get a job done",
+        "Save money",
+        "Replace competitors"
+      ],
+      "correct_answer": "Get a job done",
+      "explanation": "JTBD: customers don't buy products \u2014 they 'hire' them to accomplish specific jobs.",
+      "framework_concept": "Jobs-to-be-Done"
+    },
+    {
+      "question": "In the Ansoff Matrix, selling existing products in new markets is:",
+      "options": [
+        "Market Penetration",
+        "Product Development",
+        "Market Development",
+        "Diversification"
+      ],
+      "correct_answer": "Market Development",
+      "explanation": "Market Development = existing products, new markets. Diversification = new products, new markets (riskiest).",
+      "framework_concept": "Ansoff Matrix"
+    },
+    {
+      "question": "A 'Cash Cow' in the BCG Matrix represents:",
+      "options": [
+        "High growth, high share",
+        "Low growth, high share",
+        "High growth, low share",
+        "Low growth, low share"
+      ],
+      "correct_answer": "Low growth, high share",
+      "explanation": "Cash Cows: mature products, dominant share. Generate cash to fund Stars and Question Marks.",
+      "framework_concept": "BCG Matrix"
+    }
+  ],
+  "organizational-people": [
+    {
+      "question": "What is the optimal span of control for complex work?",
+      "options": [
+        "15-20 direct reports",
+        "7 +/- 3 direct reports",
+        "1-2 direct reports",
+        "25+ direct reports"
+      ],
+      "correct_answer": "7 +/- 3 direct reports",
+      "explanation": "Complex work requires tighter spans (7\u00b13). Simple/repetitive work can handle 15+ direct reports.",
+      "framework_concept": "Span of Control"
+    },
+    {
+      "question": "Where would you place a high performer with high potential in the Nine-Box Grid?",
+      "options": [
+        "Box 1 (bottom left)",
+        "Box 5 (center)",
+        "Box 9 (top right)",
+        "Box 3 (top left)"
+      ],
+      "correct_answer": "Box 9 (top right)",
+      "explanation": "Box 9 = High Performance + High Potential. Promote now, give stretch assignments. These are your future VPs.",
+      "framework_concept": "Nine-Box Grid"
+    },
+    {
+      "question": "What did Google's Project Aristotle identify as the top predictor of team success?",
+      "options": [
+        "IQ of team members",
+        "Years of experience",
+        "Psychological Safety",
+        "Working longer hours"
+      ],
+      "correct_answer": "Psychological Safety",
+      "explanation": "Google studied 180 teams. Psychological safety \u2014 feeling safe to take risks \u2014 was the #1 predictor of success.",
+      "framework_concept": "Psychological Safety"
+    },
+    {
+      "question": "What does OKR stand for?",
+      "options": [
+        "Objectives and Key Results",
+        "Operations and Key Resources",
+        "Organization and Knowledge Retention",
+        "Output and Key Reviews"
+      ],
+      "correct_answer": "Objectives and Key Results",
+      "explanation": "OKRs: Objectives (inspiring goals) + Key Results (measurable outcomes). 3-5 per quarter. Used at Google, Intel.",
+      "framework_concept": "OKRs"
+    },
+    {
+      "question": "What is the Netflix talent philosophy?",
+      "options": [
+        "Hire as many people as possible",
+        "Adequate performance gets a generous severance",
+        "Never fire anyone",
+        "Pay below market and offer equity"
+      ],
+      "correct_answer": "Adequate performance gets a generous severance",
+      "explanation": "Netflix's Talent Density approach: keep only A-players. Average performance = generous exit package.",
+      "framework_concept": "Talent Density"
+    }
+  ],
+  "engineering-product-leadership": [
+    {
+      "question": "Which is NOT one of the four DORA metrics?",
+      "options": [
+        "Deployment Frequency",
+        "Lead Time for Changes",
+        "Customer NPS Score",
+        "Change Failure Rate"
+      ],
+      "correct_answer": "Customer NPS Score",
+      "explanation": "DORA: Deployment Frequency, Lead Time, Change Failure Rate, MTTR. NPS is a customer metric.",
+      "framework_concept": "DORA Metrics"
+    },
+    {
+      "question": "What does RICE stand for in product prioritization?",
+      "options": [
+        "Return, Investment, Cost, Effort",
+        "Reach, Impact, Confidence, Effort",
+        "Revenue, Innovation, Customers, Efficiency",
+        "Risk, Integration, Cost, Estimate"
+      ],
+      "correct_answer": "Reach, Impact, Confidence, Effort",
+      "explanation": "RICE = Reach \u00d7 Impact \u00d7 Confidence / Effort. Quantifies product decisions instead of gut feel.",
+      "framework_concept": "RICE Prioritization"
+    },
+    {
+      "question": "In the Tech Debt Quadrant, which type of debt should be paid down FIRST?",
+      "options": [
+        "Prudent-Deliberate",
+        "Prudent-Inadvertent",
+        "Reckless-Deliberate",
+        "All equally"
+      ],
+      "correct_answer": "Reckless-Deliberate",
+      "explanation": "Reckless-Deliberate (knowingly cutting corners without plans to fix) is the most dangerous. Pay it down first.",
+      "framework_concept": "Tech Debt Quadrant"
+    },
+    {
+      "question": "When should you build software vs. buy it?",
+      "options": [
+        "Always build for control",
+        "Build when it's core/differentiating, buy when it's commodity",
+        "Always buy to save time",
+        "Build when cheaper, buy when faster"
+      ],
+      "correct_answer": "Build when it's core/differentiating, buy when it's commodity",
+      "explanation": "Core (strategic differentiator) = build. Context (commodity) = buy or partner.",
+      "framework_concept": "Build vs Buy"
+    },
+    {
+      "question": "In the Kano Model, a 'Delight' feature is one that:",
+      "options": [
+        "Customers explicitly ask for",
+        "Is expected by all customers",
+        "Customers don't expect but love when present",
+        "Costs the least to build"
+      ],
+      "correct_answer": "Customers don't expect but love when present",
+      "explanation": "Delight features: unexpected, create loyalty, zero downside if absent. Unlike Basic (expected) features.",
+      "framework_concept": "Kano Model"
+    }
+  ],
+  "risk-governance-crisis": [
+    {
+      "question": "In FMEA, RPN (Risk Priority Number) is calculated as:",
+      "options": [
+        "Severity + Occurrence + Detection",
+        "Severity \u00d7 Occurrence \u00d7 Detection",
+        "Severity \u00f7 Occurrence \u00d7 Detection",
+        "Severity \u00d7 Occurrence - Detection"
+      ],
+      "correct_answer": "Severity \u00d7 Occurrence \u00d7 Detection",
+      "explanation": "RPN = Severity \u00d7 Occurrence \u00d7 Detection. Higher = higher priority for mitigation.",
+      "framework_concept": "FMEA"
+    },
+    {
+      "question": "What should a CEO do in the first hour of a crisis?",
+      "options": [
+        "Post on social media immediately",
+        "Wait for all facts before acting",
+        "Contain damage, activate team, preserve evidence, draft statement",
+        "Call the press for a press conference"
+      ],
+      "correct_answer": "Contain damage, activate team, preserve evidence, draft statement",
+      "explanation": "Crisis First Hour: contain, activate IR team, preserve evidence (legal), draft holding statement. Speed + accuracy + empathy.",
+      "framework_concept": "Crisis First Hour"
+    },
+    {
+      "question": "The Business Judgment Rule protects directors when:",
+      "options": [
+        "They make profitable decisions",
+        "They make informed, disinterested, rational decisions",
+        "They follow the CEO's advice",
+        "They have the best intentions"
+      ],
+      "correct_answer": "They make informed, disinterested, rational decisions",
+      "explanation": "Directors are protected if the decision was informed (due diligence), disinterested (no conflict), and rational (not arbitrary).",
+      "framework_concept": "Business Judgment Rule"
+    },
+    {
+      "question": "What are a director's three core fiduciary duties?",
+      "options": [
+        "Loyalty, Obedience, Profitability",
+        "Care, Loyalty, Good Faith",
+        "Speed, Efficiency, Growth",
+        "Transparency, Profitability, Innovation"
+      ],
+      "correct_answer": "Care, Loyalty, Good Faith",
+      "explanation": "Duty of Care (informed), Duty of Loyalty (no self-dealing), Duty of Good Faith (not ignoring red flags).",
+      "framework_concept": "Fiduciary Duties"
+    },
+    {
+      "question": "A turnaround playbook's first phase (0-90 days) should focus on:",
+      "options": [
+        "Launching new products",
+        "Hiring new executives",
+        "Cash survival and stabilization",
+        "Rebranding the company"
+      ],
+      "correct_answer": "Cash survival and stabilization",
+      "explanation": "Turnaround phases: Stabilize (0-90d: cash, stop bleeding) \u2192 Fix (3-18mo: operations) \u2192 Grow (18mo+: strategy).",
+      "framework_concept": "Turnaround Playbook"
+    }
+  ],
+  "cause-analysis-methods": [
+    {
+      "question": "How many 'Whys' should you typically ask in 5 Whys?",
+      "options": [
+        "Exactly 5 every time",
+        "3-5 iterations, stopping at systemic cause",
+        "As many as the team wants",
+        "Until someone confesses"
+      ],
+      "correct_answer": "3-5 iterations, stopping at systemic cause",
+      "explanation": "The number varies. Stop when you reach a systemic cause, not a person. Sometimes it takes 2, sometimes 7.",
+      "framework_concept": "5 Whys"
+    },
+    {
+      "question": "In a Fishbone diagram, what does the 'Measurement' bone cover?",
+      "options": [
+        "The size of the problem",
+        "Metrics, KPIs, reporting accuracy, visibility",
+        "How to measure fish",
+        "Team performance reviews"
+      ],
+      "correct_answer": "Metrics, KPIs, reporting accuracy, visibility",
+      "explanation": "Fishbone 6M: People, Process, Technology, Measurement (metrics/reporting), Environment, Materials.",
+      "framework_concept": "Fishbone / Ishikawa"
+    },
+    {
+      "question": "A Causal Loop Diagram with a reinforcing loop shows a system that:",
+      "options": [
+        "Naturally stabilizes",
+        "Amplifies change exponentially",
+        "Has no feedback",
+        "Always reaches equilibrium"
+      ],
+      "correct_answer": "Amplifies change exponentially",
+      "explanation": "Reinforcing (R) loops amplify change (like compound growth). Balancing (B) loops seek stability (like a thermostat).",
+      "framework_concept": "Causal Loop Diagrams"
+    },
+    {
+      "question": "In Just Culture, a nurse who accidentally grabs the wrong identical-looking vial should be:",
+      "options": [
+        "Fired immediately",
+        "Consoled \u2014 it's a system design flaw",
+        "Given a warning",
+        "Promoted for reporting it"
+      ],
+      "correct_answer": "Consoled \u2014 it's a system design flaw",
+      "explanation": "Human error (slip) = console the person, fix the system. At-risk behavior = coach. Reckless = discipline.",
+      "framework_concept": "Just Culture"
+    },
+    {
+      "question": "Which causal inference method uses a cutoff threshold to create a natural experiment?",
+      "options": [
+        "Difference-in-Differences",
+        "Instrumental Variable",
+        "Regression Discontinuity",
+        "Synthetic Control"
+      ],
+      "correct_answer": "Regression Discontinuity",
+      "explanation": "RDD uses a cutoff (e.g., credit score 700) where people just above/below are essentially random \u2014 like a natural experiment.",
+      "framework_concept": "Causal Inference"
+    }
+  ],
+  "negotiation-deal-making": [
+    {
+      "question": "What does BATNA stand for?",
+      "options": [
+        "Best Alternative to a Negotiated Agreement",
+        "Bargaining and Tactical Negotiation Approach",
+        "Buyer and Trade Negotiation Analysis",
+        "Business Agreement Terms and Notices"
+      ],
+      "correct_answer": "Best Alternative to a Negotiated Agreement",
+      "explanation": "Your BATNA is your best option if the deal fails. A strong BATNA gives you power to walk away.",
+      "framework_concept": "BATNA"
+    },
+    {
+      "question": "ZOPA exists only when:",
+      "options": [
+        "Both parties are friends",
+        "The seller's minimum is below the buyer's maximum",
+        "A third party mediates",
+        "The negotiation is in writing"
+      ],
+      "correct_answer": "The seller's minimum is below the buyer's maximum",
+      "explanation": "ZOPA = Zone of Possible Agreement. Only exists when seller's floor < buyer's ceiling. No overlap = no deal possible.",
+      "framework_concept": "ZOPA"
+    },
+    {
+      "question": "In negotiation, 'anchoring' means:",
+      "options": [
+        "Waiting for the other party to make the first offer",
+        "Using emotional appeals",
+        "The first number put on the table sets the reference point",
+        "Using physical gestures during negotiation"
+      ],
+      "correct_answer": "The first number put on the table sets the reference point",
+      "explanation": "The first number anchors the negotiation range. Skilled negotiators use high (if selling) or low (if buying) anchors.",
+      "framework_concept": "Anchoring"
+    },
+    {
+      "question": "In the Prisoner's Dilemma, the best collective outcome requires:",
+      "options": [
+        "Both parties to confess",
+        "One party to confess",
+        "Both parties to stay silent",
+        "Neither party to negotiate"
+      ],
+      "correct_answer": "Both parties to stay silent",
+      "explanation": "Both silent = 1 year each (best collective). Both confess = 5 years each (worst). But rational self-interest drives both to confess.",
+      "framework_concept": "Game Theory / Prisoner's Dilemma"
+    },
+    {
+      "question": "An earnout in an M&A deal is used to:",
+      "options": [
+        "Pay everything upfront",
+        "Align incentives by paying based on future performance",
+        "Avoid paying taxes",
+        "Speed up the closing process"
+      ],
+      "correct_answer": "Align incentives by paying based on future performance",
+      "explanation": "Earnouts: pay part now, part later if targets are met. Protects buyer and incentivizes seller to ensure success.",
+      "framework_concept": "M&A Deal Structure"
+    }
+  ],
+  "innovation-rd-management": [
+    {
+      "question": "According to Clayton Christensen, disruptive innovation starts by:",
+      "options": [
+        "Serving the best customers with premium products",
+        "Serving overlooked segments with simpler, cheaper products",
+        "Matching competitors feature-for-feature",
+        "Acquiring competitors"
+      ],
+      "correct_answer": "Serving overlooked segments with simpler, cheaper products",
+      "explanation": "Disruptors start at the low end with simpler, cheaper products that incumbents ignore. Then move upmarket.",
+      "framework_concept": "Disruptive Innovation"
+    },
+    {
+      "question": "In Crossing the Chasm, the chasm is between:",
+      "options": [
+        "Innovators and early adopters",
+        "Early adopters and early majority",
+        "Early majority and late majority",
+        "Late majority and laggards"
+      ],
+      "correct_answer": "Early adopters and early majority",
+      "explanation": "The chasm is the gap between visionary early adopters and pragmatic early majority. Most products die here.",
+      "framework_concept": "Crossing the Chasm"
+    },
+    {
+      "question": "What is a Minimum Viable Product (MVP) in Lean Startup?",
+      "options": [
+        "A fully polished product",
+        "The smallest version that can test a hypothesis with real customers",
+        "A detailed business plan",
+        "A prototype with all features"
+      ],
+      "correct_answer": "The smallest version that can test a hypothesis with real customers",
+      "explanation": "MVP = minimum to learn, not minimum to ship. Test your riskiest assumption with the least effort.",
+      "framework_concept": "Lean Startup / Build-Measure-Learn"
+    },
+    {
+      "question": "What is the first step in Design Thinking?",
+      "options": [
+        "Prototype",
+        "Ideate",
+        "Empathize",
+        "Test"
+      ],
+      "correct_answer": "Empathize",
+      "explanation": "Design Thinking: Empathize (understand users) \u2192 Define \u2192 Ideate \u2192 Prototype \u2192 Test. Start with the human, not the solution.",
+      "framework_concept": "Design Thinking"
+    },
+    {
+      "question": "The Innovator's Dilemma states that good companies fail because:",
+      "options": [
+        "They have bad management",
+        "They listen too closely to current customers and ignore disruption",
+        "They don't innovate enough",
+        "They spend too much on R&D"
+      ],
+      "correct_answer": "They listen too closely to current customers and ignore disruption",
+      "explanation": "Listening to best customers and optimizing for current margin makes you blind to disruptive technologies that start small.",
+      "framework_concept": "Innovator's Dilemma"
+    }
+  ],
+  "business-model-strategy": [
+    {
+      "question": "How many building blocks does the Business Model Canvas have?",
+      "options": [
+        "5",
+        "7",
+        "9",
+        "12"
+      ],
+      "correct_answer": "9",
+      "explanation": "9 blocks: Customer Segments, Value Propositions, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, Cost Structure.",
+      "framework_concept": "Business Model Canvas"
+    },
+    {
+      "question": "According to Porter, what is the WORST competitive position?",
+      "options": [
+        "Cost Leadership",
+        "Differentiation",
+        "Focus",
+        "Stuck in the Middle"
+      ],
+      "correct_answer": "Stuck in the Middle",
+      "explanation": "Stuck in the middle = neither low cost nor differentiated. You compete against both and win against neither.",
+      "framework_concept": "Porter's Generic Strategies"
+    },
+    {
+      "question": "Honda's core competency is:",
+      "options": [
+        "Marketing and brand management",
+        "Small engine design and manufacturing",
+        "Supply chain logistics",
+        "Software development"
+      ],
+      "correct_answer": "Small engine design and manufacturing",
+      "explanation": "Honda's one competency powers cars, motorcycles, lawn mowers, generators, marine engines, and jets.",
+      "framework_concept": "Core Competency"
+    },
+    {
+      "question": "The Balanced Scorecard has how many perspectives?",
+      "options": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "correct_answer": "4",
+      "explanation": "Four perspectives: Financial, Customer, Internal Process, Learning & Growth. Strategy across all dimensions, not just financial.",
+      "framework_concept": "Balanced Scorecard"
+    },
+    {
+      "question": "What does MECE stand for in McKinsey problem-solving?",
+      "options": [
+        "Mutually Exclusive, Collectively Exhaustive",
+        "Measurable, Efficient, Cost-Effective",
+        "Management Excellence and Customer Engagement",
+        "Market Entry and Competitive Evaluation"
+      ],
+      "correct_answer": "Mutually Exclusive, Collectively Exhaustive",
+      "explanation": "MECE: categories must not overlap (no double-counting) and must cover everything (no gaps). Foundation of structured thinking.",
+      "framework_concept": "MECE Principle"
+    }
+  ],
+  "operations-quality-management": [
+    {
+      "question": "What does DMAIC stand for in Six Sigma?",
+      "options": [
+        "Design, Measure, Act, Implement, Control",
+        "Define, Measure, Analyze, Improve, Control",
+        "Develop, Monitor, Assess, Integrate, Communicate",
+        "Deliver, Manage, Audit, Inspect, Correct"
+      ],
+      "correct_answer": "Define, Measure, Analyze, Improve, Control",
+      "explanation": "DMAIC is the Six Sigma problem-solving framework: Define \u2192 Measure \u2192 Analyze \u2192 Improve \u2192 Control.",
+      "framework_concept": "Six Sigma / DMAIC"
+    },
+    {
+      "question": "According to Theory of Constraints, you should focus improvement on:",
+      "options": [
+        "Every process equally",
+        "The fastest process",
+        "The ONE bottleneck",
+        "Customer-facing processes only"
+      ],
+      "correct_answer": "The ONE bottleneck",
+      "explanation": "Improve the bottleneck, improve the whole system. Improving non-bottlenecks is wasted effort.",
+      "framework_concept": "Theory of Constraints"
+    },
+    {
+      "question": "Which is NOT one of the 7 wastes (muda) in Lean?",
+      "options": [
+        "Overproduction",
+        "Innovation",
+        "Waiting",
+        "Defects"
+      ],
+      "correct_answer": "Innovation",
+      "explanation": "The 7 wastes (TIMWOOD): Transport, Inventory, Motion, Waiting, Overproduction, Over-processing, Defects. Innovation is NOT waste.",
+      "framework_concept": "Lean Manufacturing / TPS"
+    },
+    {
+      "question": "The Pareto Principle states that roughly:",
+      "options": [
+        "50% of effects come from 50% of causes",
+        "80% of effects come from 20% of causes",
+        "100% of effects come from 100% of causes",
+        "20% of effects come from 80% of causes"
+      ],
+      "correct_answer": "80% of effects come from 20% of causes",
+      "explanation": "80/20 rule: focus on the vital 20% that drives 80% of results. Fix the few defects causing most complaints.",
+      "framework_concept": "Pareto Principle (80/20)"
+    },
+    {
+      "question": "Hoshin Kanri is also known as:",
+      "options": [
+        "Daily standup",
+        "Policy Deployment",
+        "SWOT analysis",
+        "Cost accounting"
+      ],
+      "correct_answer": "Policy Deployment",
+      "explanation": "Hoshin Kanri = Policy Deployment. Cascading strategic goals from CEO to front line with 'catchball' (two-way negotiation) at each level.",
+      "framework_concept": "Hoshin Kanri / Policy Deployment"
+    }
+  ]
+}
