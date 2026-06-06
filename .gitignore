@@ -17,3 +17,4 @@ nextdev.log
 coverage/
 coverage.json
 playwright-report/
+.gh_token
