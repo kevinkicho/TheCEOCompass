@@ -4,11 +4,6 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { getFrameworkBySlug, getScenarios } from "@/lib/api"
 import type { Framework, FrameworkConcept, ScenarioListItem } from "@/lib/types"
-import slugs from "@/data/slugs.json"
-
-export function generateStaticParams() {
-  return slugs.frameworks.map((slug) => ({ slug }))
-}
 
 export default function FrameworkDetailPage() {
   const { slug } = useParams<{ slug: string }>()

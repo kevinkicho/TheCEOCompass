@@ -31,7 +31,9 @@ jobs:
       - name: Build static export
         run: |
           cd frontend
+          cp next.config.export.js next.config.js
           npx next build
+          cp next.config.js next.config.export.js
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
