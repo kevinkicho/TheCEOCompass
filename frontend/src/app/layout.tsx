@@ -35,6 +35,9 @@ export default function RootLayout({
           </div>
         </nav>
         <main className="pt-14">{children}</main>
+        <footer className="border-t border-dark-200 py-6 text-center text-xs text-dark-400">
+          <p>Static demo — <a href="https://github.com/kevinkicho/TheCEOCompass" className="text-primary-500 hover:underline">run locally</a> for full interactive experience</p>
+        </footer>
       </body>
     </html>
   )
