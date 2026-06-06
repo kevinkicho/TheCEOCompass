@@ -1141,7 +1141,71 @@
           "competitive-analysis"
         ],
         "order_index": 1,
-        "example": "Airlines: High rivalry (many competitors), high buyer power (price comparison), high supplier power (Boeing/Airbus duopoly), medium substitutes (trains, video calls), low barriers (anyone can lease planes). Result: terrible industry returns. | Soft drinks (Coke/Pepsi): Low rivalry (duopoly), low buyer power (brand loyalty), low supplier power (commodity ingredients), low substitutes, HIGH barriers (distribution network, brand). Result: 30%+ ROIC. | Streaming (Netflix): Rivalry rising (Disney+, HBO, Apple). Supplier power rising (content costs). Substitutes: YouTube, gaming. Barriers dropping."
+        "example": "Airlines: High rivalry (many competitors), high buyer power (price comparison), high supplier power (Boeing/Airbus duopoly), medium substitutes (trains, video calls), low barriers (anyone can lease planes). Result: terrible industry returns. | Soft drinks (Coke/Pepsi): Low rivalry (duopoly), low buyer power (brand loyalty), low supplier power (commodity ingredients), low substitutes, HIGH barriers (distribution network, brand). Result: 30%+ ROIC. | Streaming (Netflix): Rivalry rising (Disney+, HBO, Apple). Supplier power rising (content costs). Substitutes: YouTube, gaming. Barriers dropping.",
+        "why_it_matters": "Every industry has a natural profit pool determined by five structural forces. No amount of operational excellence can overcome a structurally terrible industry (think: airlines, where all five forces are unfavorable). Porter's Five Forces tells you whether you're swimming upstream or downstream BEFORE you commit resources. This is the first analysis every CEO should do before approving a major strategic move.",
+        "steps": [
+          {
+            "title": "Assess threat of new entrants",
+            "description": "What are the barriers to entry? Capital requirements, economies of scale, switching costs, regulatory licenses, brand equity, access to distribution. High barriers = low threat."
+          },
+          {
+            "title": "Assess supplier power",
+            "description": "How many suppliers? How differentiated are their products? What are switching costs? If your key component has only 2 global suppliers, they have pricing power over you."
+          },
+          {
+            "title": "Assess buyer power",
+            "description": "How concentrated are your customers? Can they backward-integrate? A company with 3 customers representing 80% of revenue has a buyer power problem regardless of product quality."
+          },
+          {
+            "title": "Assess threat of substitutes",
+            "description": "Not just direct competitors — substitutes. Video calls didn't compete with airlines; they substituted for business travel entirely. Ask: 'What else could solve the customer's problem?'"
+          },
+          {
+            "title": "Assess competitive rivalry",
+            "description": "How many competitors, how fast is industry growth, how high are exit barriers? Slow growth + high fixed costs + low differentiation = price wars."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Treating forces as static",
+            "description": "Forces shift. Deregulation can eliminate entry barriers overnight. Technology can create substitutes that didn't exist last year. Reassess forces annually."
+          },
+          {
+            "title": "Confusing industry attractiveness with company performance",
+            "description": "A great company in a terrible industry can still generate returns through superior execution — but eventually, the industry structure wins. Know the difference between a performance problem and a structural problem."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "SWOT",
+            "relationship": "Forces analyzes the INDUSTRY; SWOT analyzes the COMPANY within that industry"
+          },
+          {
+            "name": "VRIO",
+            "relationship": "Forces tell you if the industry is attractive; VRIO tells you if your resources can sustain advantage within it"
+          },
+          {
+            "name": "Blue Ocean Strategy",
+            "relationship": "When all five forces are unfavorable, Blue Ocean shows how to redefine industry boundaries and change the forces themselves"
+          }
+        ],
+        "case_study": {
+          "company": "US Airline Industry (Post-1978 Deregulation)",
+          "situation": "After deregulation, airlines became a textbook case of unfavorable forces: low barriers to entry, powerful suppliers (Boeing/Airbus duopoly, unionized pilots), powerful buyers (Expedia/Kayak created perfect price transparency), infinite substitutes, and brutal rivalry. Buffett quipped that investors would be richer if the Wright brothers had never been born.",
+          "application": "Every airline CEO tried to fight the forces with better operations: loyalty programs, hub-and-spoke, fuel hedging. But the forces were stronger than any strategy. From 1978-2020, the US airline industry generated negative cumulative returns.",
+          "result": "Buffett bought airline stocks in 2016 and sold all in 2020 at a loss during COVID. The forces reasserted themselves. The lesson: when Porter's Five Forces are comprehensively unfavorable, temporary profits are exactly that."
+        },
+        "exercise": {
+          "scenario": "You're entering the EV charging market. Low barriers, powerful suppliers (utilities, landlords), powerful buyers (price-sensitive drivers), substitutes (home charging), intense rivalry. Should you enter?",
+          "options": [
+            "Yes — the EV market is growing rapidly",
+            "Only if you have a structural advantage that neutralizes at least two forces",
+            "No — all five forces are unfavorable",
+            "Enter with a price war to gain market share"
+          ],
+          "correct": 1,
+          "explanation": "Fast growth doesn't overcome structural disadvantage. Tesla's Supercharger network succeeded because it was exclusive to Tesla vehicles (differentiation), broadly deployed before competitors (first-mover), and integrated with vehicle purchase (switching cost). Enter only if you identify structural countermeasures."
+        }
       },
       {
         "name": "VRIO",
@@ -1151,7 +1215,71 @@
           "competitive-advantage"
         ],
         "order_index": 2,
-        "example": "Coca-Cola brand: Valuable (drives purchase), Rare (one of top 5 global brands), Inimitable (130+ years of marketing can't be copied), Organized (global distribution system). Sustainable competitive advantage. | Google search algorithm: Valuable (80%+ of search ad revenue), Rare (only one at this scale), Inimitable (20+ years of data + engineering), Organized (massive infrastructure). | Generic retailer's 'great customer service': Valuable, not rare (everyone claims it), not inimitable (competitors can copy policies). Temporary parity, not advantage."
+        "example": "Coca-Cola brand: Valuable (drives purchase), Rare (one of top 5 global brands), Inimitable (130+ years of marketing can't be copied), Organized (global distribution system). Sustainable competitive advantage. | Google search algorithm: Valuable (80%+ of search ad revenue), Rare (only one at this scale), Inimitable (20+ years of data + engineering), Organized (massive infrastructure). | Generic retailer's 'great customer service': Valuable, not rare (everyone claims it), not inimitable (competitors can copy policies). Temporary parity, not advantage.",
+        "why_it_matters": "Not all resources create competitive advantage. Most create competitive parity at best. VRIO (Valuable, Rare, Inimitable, Organized) is the acid test for whether your strategic asset is actually strategic. Only resources scoring high on all four dimensions deliver sustained competitive advantage. Most companies spend billions on resources that are merely Valuable — VRIO explains why those investments don't translate to superior returns.",
+        "steps": [
+          {
+            "title": "Valuable",
+            "description": "Does it neutralize a threat or exploit an opportunity? If the resource doesn't increase revenue or reduce costs, it's not strategic. Stop here."
+          },
+          {
+            "title": "Rare",
+            "description": "How many competitors have it? If everyone has it, it's competitive parity. A CRM system is valuable but not rare. Ten years of proprietary customer behavior data is both."
+          },
+          {
+            "title": "Inimitable",
+            "description": "Can competitors copy it? How long and at what cost? Sources of inimitability: historical conditions, causal ambiguity ('we can't explain exactly why it works'), social complexity (culture, trust)."
+          },
+          {
+            "title": "Organized",
+            "description": "Is the company structured to capture value from this resource? A brilliant AI research team (Valuable, Rare, Inimitable) is wasted if they report to a VP who doesn't understand AI and won't fund their projects."
+          },
+          {
+            "title": "Score and prioritize",
+            "description": "Score each resource on V/R/I/O (1-5). Invest in resources scoring high on all four. Divest those scoring high on V but low on R/I/O — they're necessary but not differentiating."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Overestimating rarity",
+            "description": "Every CEO thinks their culture and team are unique. Most aren't. The test: if you described this resource to a competitor without naming your company, would they say 'we have that too'?"
+          },
+          {
+            "title": "Confusing inimitability with temporary lead",
+            "description": "A 6-month technology lead is imitable. True inimitability comes from path dependence, causal ambiguity, or social complexity built over decades."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Porter's Five Forces",
+            "relationship": "Forces assess INDUSTRY attractiveness; VRIO assesses COMPANY-LEVEL resources that create advantage within that industry"
+          },
+          {
+            "name": "Core Competency",
+            "relationship": "A core competency is a bundle of resources and capabilities that passes the VRIO test"
+          },
+          {
+            "name": "SWOT",
+            "relationship": "VRIO analyzes internal Strengths in depth — use VRIO for Strengths/Weaknesses and Forces for Opportunities/Threats"
+          }
+        ],
+        "case_study": {
+          "company": "Netflix Recommendation Algorithm",
+          "situation": "Netflix invested heavily in its recommendation algorithm. It was Valuable (increased engagement, reduced churn) and Rare (200M+ users generating data competitors couldn't match). But was it Inimitable?",
+          "application": "Competitors like Disney+ launched without sophisticated recommendation — but they could build it. The algorithm IS imitable given enough data and engineering investment. Result: recommendation is a temporary competitive advantage, not a sustained one. As competitors accumulated their own data, Netflix's data advantage eroded.",
+          "result": "Netflix stock dropped from $700 to $180 in 2022 as subscriber growth stalled. Competitors caught up faster than expected. Netflix pivoted to new advantages (gaming, live sports, ad tier) as VRIO predicted the old advantage would decay."
+        },
+        "exercise": {
+          "scenario": "Your company has: 1) Strong brand (valuable, somewhat rare, somewhat imitable), 2) Proprietary manufacturing process (valuable, rare, inimitable — trade secret), 3) Talented sales team (valuable, not rare). You can only invest in ONE. Which?",
+          "options": [
+            "The brand — most visible and impacts customer perception",
+            "The manufacturing process — highest VRIO potential for sustained advantage",
+            "The sales team — talent drives execution",
+            "Split across all three"
+          ],
+          "correct": 1,
+          "explanation": "The manufacturing process is Valuable, Rare, and Inimitable (trade secret) — the highest VRIO potential. The brand is imitable (Tesla had no brand in 2010). The sales team is not rare. Invest where competitors cannot replicate even with unlimited money and time."
+        }
       },
       {
         "name": "Jobs-to-be-Done",
@@ -1162,7 +1290,71 @@
           "customer",
           "product"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "why_it_matters": "Customers don't buy products — they 'hire' them to do a job. Understanding the job means you compete against ANYTHING that does that job, not just direct competitors. When Intuit asked 'what job do people hire QuickBooks for?', the answer wasn't 'accounting software' — it was 'avoid IRS trouble.' That reframing revealed competitors like 'doing nothing and hoping' and 'hiring a bookkeeper.' Jobs-to-be-Done prevents the most common strategic error: defining your market too narrowly.",
+        "steps": [
+          {
+            "title": "Identify the functional job",
+            "description": "What is the customer trying to accomplish? 'Ensure my small business pays the right taxes on time without spending 10 hours a week on bookkeeping.'"
+          },
+          {
+            "title": "Identify the emotional jobs",
+            "description": "Personal: 'feel confident about compliance.' Social: 'look professional with accountants.' Emotional jobs often drive purchase decisions more than functional ones."
+          },
+          {
+            "title": "Map hiring and firing process",
+            "description": "What solution did they 'hire' before? Why did they 'fire' it? The switching moment reveals unmet needs that the old solution wasn't addressing."
+          },
+          {
+            "title": "Identify non-consumption competitors",
+            "description": "Who is NOT using any product for this job? Non-consumers are often the biggest market — they're 'hiring' workarounds and manual processes."
+          },
+          {
+            "title": "Define the job spec, not the product spec",
+            "description": "'Help me know within 5 minutes whether I'm compliant' — not 'tax compliance dashboard.' The job is stable; the solution can change."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Defining the job too narrowly or too broadly",
+            "description": "Too narrow: 'drill a quarter-inch hole.' Too broad: 'improve my home.' Right level: 'hang a picture without damaging the wall' — here you can see substitutes like adhesive hooks."
+          },
+          {
+            "title": "Assuming customers can articulate the job",
+            "description": "Customers describe symptoms and frustrations. Observe them in their environment — watching them work around your product reveals the real job better than any survey."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Blue Ocean Strategy",
+            "relationship": "JTBD reveals the job; Blue Ocean's ERRC Grid shows how to deliver that job with a fundamentally different value proposition"
+          },
+          {
+            "name": "First Principles Thinking",
+            "relationship": "JTBD is First Principles applied to customers: decompose 'what they want' to the fundamental job, not the current product category"
+          },
+          {
+            "name": "Product-Market Fit",
+            "relationship": "PMF is achieved when your product is the OBVIOUS choice for a specific job — customers hire it without deliberation"
+          }
+        ],
+        "case_study": {
+          "company": "Intuit QuickBooks (1990s)",
+          "situation": "Small business accounting was a crowded market. Competitors competed on features: more reports, more integrations. Intuit founder Scott Cook visited small business owners and watched them actually do their books at their desks.",
+          "application": "Cook discovered they didn't want 'accounting software' — they wanted to avoid IRS penalties. The job: 'Make sure I don't get in trouble with tax authorities without understanding accounting.' Intuit simplified: interview-style data entry, plain-language explanations, tax compliance checks. Features not serving the 'avoid IRS trouble' job were removed.",
+          "result": "QuickBooks captured 80%+ market share. Competitors who competed on accounting features were answering a question customers weren't asking. Intuit grew from ~$100M to $10B+."
+        },
+        "exercise": {
+          "scenario": "A customer buys a drill. What's the job they're hiring it for?",
+          "options": [
+            "To make a hole in the wall",
+            "To hang a picture that makes their home look good when guests visit",
+            "To have a drill in their toolbox for future projects",
+            "To feel like a capable DIY person"
+          ],
+          "correct": 1,
+          "explanation": "The full job includes functional AND emotional dimensions. If you only solve the functional job (making holes), you miss why they chose a drill instead of adhesive hooks or hiring a handyman. Understanding the full job — including social and emotional dimensions — reveals competition far broader than 'other power tool brands.'"
+        }
       },
       {
         "name": "SWOT",
@@ -1172,7 +1364,71 @@
           "analysis"
         ],
         "order_index": 4,
-        "example": "Tesla (2020): Strengths: brand, tech lead. Weaknesses: production scaling, cash burn. Opportunities: EV mandates, battery cost decline. Threats: legacy OEMs catching up. | Netflix (2023): Strengths: 230M subs, content library. Weaknesses: rising content costs, password sharing crackdown backlash. Opportunities: ads tier, gaming. Threats: Disney+ bundling. | Local restaurant: Strengths: chef reputation, loyal regulars. Weaknesses: no delivery, small marketing budget. Opportunities: UberEats partnership, catering. Threats: chain restaurant opening nearby."
+        "example": "Tesla (2020): Strengths: brand, tech lead. Weaknesses: production scaling, cash burn. Opportunities: EV mandates, battery cost decline. Threats: legacy OEMs catching up. | Netflix (2023): Strengths: 230M subs, content library. Weaknesses: rising content costs, password sharing crackdown backlash. Opportunities: ads tier, gaming. Threats: Disney+ bundling. | Local restaurant: Strengths: chef reputation, loyal regulars. Weaknesses: no delivery, small marketing budget. Opportunities: UberEats partnership, catering. Threats: chain restaurant opening nearby.",
+        "why_it_matters": "SWOT is the most widely used strategy framework — and the most frequently misused. Done right, SWOT forces disciplined separation between internal factors (Strengths/Weaknesses — you control) and external factors (Opportunities/Threats — you don't). The key is pairing Strengths with Opportunities (S-O strategies) and Weaknesses with Threats (W-T strategies). These pairings are where strategy lives.",
+        "steps": [
+          {
+            "title": "List Strengths (internal, evidence-based)",
+            "description": "What does your company do better than competitors? Use data: patents, market share, NPS scores, cost benchmarks. 'Great culture' isn't a strength without evidence."
+          },
+          {
+            "title": "List Weaknesses (internal, honest)",
+            "description": "What do competitors do better? Where do you lose deals? If you can't name at least 5 significant weaknesses, you're not trying."
+          },
+          {
+            "title": "List Opportunities (external, future)",
+            "description": "What trends, market shifts, or regulatory changes could benefit your company?"
+          },
+          {
+            "title": "List Threats (external, future)",
+            "description": "What external changes could harm you? New competitors, substitute technologies, regulatory crackdowns."
+          },
+          {
+            "title": "Generate S-O and W-T strategies",
+            "description": "S-O: Use strengths to capture opportunities. W-T: Minimize weaknesses to avoid threats. The best strategies come from these cross-pairings."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Confusing internal and external",
+            "description": "'Poor brand awareness' is internal (you could fix it). 'Competitor launching marketing campaign' is external (you can't stop them). Force every item into one box."
+          },
+          {
+            "title": "Listing without prioritizing",
+            "description": "A list of 25 strengths and 20 weaknesses is useless. Force-rank to top 3-5 in each category. Strategies come from specific pairings, not generic lists."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Porter's Five Forces",
+            "relationship": "Forces is a structured way to populate the Threats/Opportunities quadrants of SWOT"
+          },
+          {
+            "name": "VRIO",
+            "relationship": "VRIO provides rigorous analysis for the Strengths quadrant of SWOT"
+          },
+          {
+            "name": "TOWS Matrix",
+            "relationship": "TOWS is SWOT in reverse: start with external factors first, then assess internal factors against them"
+          }
+        ],
+        "case_study": {
+          "company": "Netflix Pivot from DVDs to Streaming (2007)",
+          "situation": "Netflix's SWOT in 2007: Strengths — brand, customer base, recommendation algorithm. Weaknesses — no content ownership, dependent on USPS. Opportunities — broadband growing, YouTube proving people watch online. Threats — Blockbuster, Amazon, Apple, cable VOD.",
+          "application": "Netflix paired Strength (algorithm + customer relationships) with Opportunity (streaming) to create Watch Instantly. They paired Weakness (DVD dependency) with Threat (broadband replacing physical) to create a self-disruption W-T strategy: transition customers before DVD demand collapsed.",
+          "result": "Blockbuster filed for bankruptcy in 2010. Netflix grew from 7M subscribers to 260M+. The SWOT pairings correctly identified proactive self-disruption as the winning strategy."
+        },
+        "exercise": {
+          "scenario": "Which is correctly categorized in a SWOT for a retail chain?",
+          "options": [
+            "'E-commerce growing 15%' is a Weakness because our online sales are low",
+            "'E-commerce growing 15%' is an Opportunity because we could capture it",
+            "'E-commerce growing 15%' is a Threat because it threatens stores",
+            "It could be Opportunity OR Threat depending on our response — but it's EXTERNAL either way"
+          ],
+          "correct": 3,
+          "explanation": "The same external trend can be BOTH opportunity and threat. List it twice and develop strategies for both. What matters for SWOT purity: it's external. Whether it's positive or negative depends on your specific situation and response capability."
+        }
       },
       {
         "name": "BCG Matrix",
@@ -1182,7 +1438,71 @@
           "portfolio"
         ],
         "order_index": 5,
-        "example": "Apple: iPhone = Star (high growth, high share). Mac = Cash Cow (low growth, high share). Apple Vision Pro = Question Mark (high growth, low share). iPod = Dog (killed in 2022). | Google: Search ads = Cash Cow (funds everything else). YouTube = Star (still growing). Waymo = Question Mark (huge investment, no profit yet). Google+ = Dog (killed). | Portfolio rebalancing: Use Cash Cow profits to fund Question Marks. If Question Mark can't become Star in 2-3 years, kill it. Don't let Stars starve."
+        "example": "Apple: iPhone = Star (high growth, high share). Mac = Cash Cow (low growth, high share). Apple Vision Pro = Question Mark (high growth, low share). iPod = Dog (killed in 2022). | Google: Search ads = Cash Cow (funds everything else). YouTube = Star (still growing). Waymo = Question Mark (huge investment, no profit yet). Google+ = Dog (killed). | Portfolio rebalancing: Use Cash Cow profits to fund Question Marks. If Question Mark can't become Star in 2-3 years, kill it. Don't let Stars starve.",
+        "why_it_matters": "The BCG Growth-Share Matrix forces a portfolio-level view. Most CEOs manage each business unit as if it's the only one. BCG corrects this: cash cows should fund stars and select question marks. Dogs should be divested. The fundamental insight — mature businesses should fund growth businesses — seems obvious but is consistently violated by CEOs who let cash cows hoard cash while starving stars of investment.",
+        "steps": [
+          {
+            "title": "Plot each business unit",
+            "description": "X-axis: Relative Market Share (your share / largest competitor). Y-axis: Market Growth Rate (%)."
+          },
+          {
+            "title": "Classify into quadrants",
+            "description": "Stars: high share, high growth (invest). Cash Cows: high share, low growth (milk). Question Marks: low share, high growth (invest selectively or divest). Dogs: low share, low growth (divest)."
+          },
+          {
+            "title": "Map cash flow between quadrants",
+            "description": "Stars consume roughly as much cash as they generate. Cash Cows generate surplus. Question Marks consume cash. The healthy portfolio: Cash Cows fund Question Marks that become Stars."
+          },
+          {
+            "title": "Identify success sequence",
+            "description": "Question Mark → Star → Cash Cow → Dog. Each business unit should have a trajectory."
+          },
+          {
+            "title": "Make resource decisions",
+            "description": "Cash Cows: maximize cash. Stars: invest aggressively. Question Marks: pick 1-2 winners. Dogs: sell, shut down, or harvest with zero new investment."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Using market growth as sole proxy",
+            "description": "Some low-growth markets are extraordinarily profitable. Some high-growth markets destroy value. Supplement with profit pool analysis."
+          },
+          {
+            "title": "Killing Question Marks too early",
+            "description": "Most future Stars start as Question Marks. If you divest all Question Marks, you have no future Stars. Look for increasing market share trajectory even if absolute share is low."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Capital Allocation Framework",
+            "relationship": "BCG tells you WHERE to allocate capital; the Capital Allocation Framework tells you HOW to evaluate each investment"
+          },
+          {
+            "name": "Ansoff Matrix",
+            "relationship": "BCG assesses current portfolio; Ansoff identifies growth paths for individual business units"
+          },
+          {
+            "name": "MECE Principle",
+            "relationship": "BCG quadrants should be MECE: mutually exclusive and collectively exhaustive"
+          }
+        ],
+        "case_study": {
+          "company": "GE Under Jack Welch (1981-2001)",
+          "situation": "When Welch became CEO, GE was a conglomerate of hundreds of businesses. Welch explicitly applied BCG thinking: every GE business must be #1 or #2 in its market or face divestiture.",
+          "application": "Lighting/Appliances were Cash Cows (milked). Jet Engines/Medical Systems were Stars (invested heavily). NBC/GE Capital were Question Marks — GE Capital became a massive profit engine. Over 200 businesses were divested. Cash from Dogs funded Stars and Question Marks.",
+          "result": "GE market cap grew from $14B to $400B. However, after Welch's departure, GE Capital grew from Cash Cow to over-concentrated bet — nearly destroying the company in 2008 — illustrating that BCG classification must be continuously updated."
+        },
+        "exercise": {
+          "scenario": "Three divisions: A (40% share, 3% market growth), B (15% share, 25% growth), C (5% share, 2% growth). How to allocate capital?",
+          "options": [
+            "Invest equally in all three",
+            "A=Cash Cow (milk), B=Question Mark (selective), C=Dog (divest)",
+            "A=Cash Cow (milk), B=Star (invest heavily), C=Dog (divest)",
+            "A=Star (invest), B=Question Mark (kill), C=Cash Cow (milk)"
+          ],
+          "correct": 1,
+          "explanation": "A: 40% share in slow growth = Cash Cow. B: 15% share in high growth — if the leader has 25%, relative share is 0.6x = not a Star, it's a Question Mark. C: 5% share, slow growth = Dog. Cash from A funds B (the Question Mark with best chance of becoming Star). C adds no strategic value."
+        }
       },
       {
         "name": "Ansoff Matrix",
@@ -1192,7 +1512,71 @@
           "growth"
         ],
         "order_index": 6,
-        "example": "Market Penetration: Coca-Cola increasing ad spend in existing US market to gain share from Pepsi. Lowest risk. | Market Development: Netflix expanding from US to 190 countries. Same product (streaming), new geography. Medium risk. | Product Development: Apple adding Apple Watch to existing iPhone customer base. New product, same customers. Medium risk."
+        "example": "Market Penetration: Coca-Cola increasing ad spend in existing US market to gain share from Pepsi. Lowest risk. | Market Development: Netflix expanding from US to 190 countries. Same product (streaming), new geography. Medium risk. | Product Development: Apple adding Apple Watch to existing iPhone customer base. New product, same customers. Medium risk.",
+        "why_it_matters": "The Ansoff Matrix is the simplest growth framework. Every growth initiative fits one of four boxes: Market Penetration (safest), Market Development (moderate risk), Product Development (moderate risk), Diversification (highest risk). The matrix makes explicit what many CEOs avoid: true growth requires risk. The CEO's job is to allocate the growth portfolio intentionally across the four boxes, with more bets in safer quadrants and fewer — but potentially transformational — bets in Diversification.",
+        "steps": [
+          {
+            "title": "Categorize all initiatives",
+            "description": "Market Penetration: same products, same markets. Market Development: same products, new markets. Product Development: new products, same markets. Diversification: new products, new markets."
+          },
+          {
+            "title": "Audit current allocation",
+            "description": "What percentage sits in each box? Most companies are 80%+ Market Penetration. Healthy: 50% penetration, 20% market development, 20% product development, 10% diversification."
+          },
+          {
+            "title": "Risk-assess each initiative",
+            "description": "Penetration: lowest risk, lowest upside. Diversification: highest risk, can be transformational. Size bets accordingly."
+          },
+          {
+            "title": "Identify the adjacent possible",
+            "description": "Adjacent moves (new products for existing customers, existing products for adjacent segments) have much higher success rates than true diversification."
+          },
+          {
+            "title": "Set explicit targets",
+            "description": "'We expect $10M from Penetration (80% confidence), $5M from Market Development (50% confidence), and one Diversification bet at $20M or $0 (10% confidence).' This honest board conversation is what most CEOs avoid."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Over-investing in Market Penetration as markets saturate",
+            "description": "Spending 2x on sales doesn't deliver 2x growth at 40% market share. Know your saturation point and shift resources BEFORE returns collapse."
+          },
+          {
+            "title": "Treating Diversification as the exciting stuff",
+            "description": "Diversification is the most likely to fail. Base rates for corporate ventures into new markets are poor. Diversification bets should be small, numerous, and treated as options."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "BCG Matrix",
+            "relationship": "Ansoff tells you HOW to grow; BCG tells you WHICH business units deserve growth investment"
+          },
+          {
+            "name": "Blue Ocean Strategy",
+            "relationship": "Ansoff operates within industry boundaries; Blue Ocean shows how to create NEW market space that transcends the product/market distinction"
+          },
+          {
+            "name": "Business Model Canvas",
+            "relationship": "When Ansoff identifies a growth vector, the Canvas helps design the business model to serve it"
+          }
+        ],
+        "case_study": {
+          "company": "Amazon's Ansoff Evolution (1995-2020)",
+          "situation": "Amazon's trajectory perfectly illustrates Ansoff: 1995-1999 (Penetration: more books online), 1999-2005 (Product Development: electronics, toys to existing shoppers), 2005-2015 (Market Development: international + Prime + AWS as adjacent Product Development), 2015-present (Diversification: Alexa, physical stores, healthcare).",
+          "application": "Each move was adjacent, not random. AWS was adjacent because Amazon already operated massive data centers. Kindle was adjacent because they already sold books. The adjacency principle explains Amazon's success rate.",
+          "result": "Amazon grew from $500K (1995) to $575B+ (2024). The Ansoff sequence — penetration → product development → market development → adjacent diversification — was methodically executed over 25 years."
+        },
+        "exercise": {
+          "scenario": "Your B2B SaaS sells HR software to mid-market US companies ($50M ARR, 30% share). Which Ansoff strategy has the best success chance for next growth phase?",
+          "options": [
+            "Market Penetration: sell more HR to more mid-market US companies",
+            "Product Development: build payroll software for existing HR customers",
+            "Market Development: sell HR software to enterprise (>5000 employees)",
+            "Diversification: launch consumer mobile app for career management"
+          ],
+          "correct": 1,
+          "explanation": "Product Development (new product to existing market) is the highest-probability adjacent move. You already have relationships, trust, and integration. This is the Salesforce playbook: Sales Cloud → Service Cloud → Marketing Cloud."
+        }
       },
       {
         "name": "Blue Ocean",
@@ -1202,7 +1586,71 @@
           "innovation"
         ],
         "order_index": 7,
-        "example": "Cirque du Soleil: Eliminated animals and star performers (reduced cost). Raised artistic quality and unique venue. Created entirely new market between circus and theater. | Nintendo Wii: Eliminated cutting-edge graphics. Reduced console cost. Raised motion controls and family gaming. Created casual gaming market (non-gamers). | Yellow Tail wine: Eliminated wine jargon and aging claims. Reduced complexity. Raised fun branding and easy-drinking taste. Created market of beer drinkers switching to wine."
+        "example": "Cirque du Soleil: Eliminated animals and star performers (reduced cost). Raised artistic quality and unique venue. Created entirely new market between circus and theater. | Nintendo Wii: Eliminated cutting-edge graphics. Reduced console cost. Raised motion controls and family gaming. Created casual gaming market (non-gamers). | Yellow Tail wine: Eliminated wine jargon and aging claims. Reduced complexity. Raised fun branding and easy-drinking taste. Created market of beer drinkers switching to wine.",
+        "why_it_matters": "Competing in red oceans means fighting for existing demand — margins compress and everyone loses. Blue Ocean Strategy creates uncontested market space. The ERRC Grid (Eliminate, Reduce, Raise, Create) forces simultaneous pursuit of differentiation AND low cost. The strategic move is to stop playing the existing game and create a new one where you set the rules.",
+        "steps": [
+          {
+            "title": "Map the strategy canvas",
+            "description": "List key competitive factors. Plot your company and top 3 competitors on each (1-10). You'll likely find convergence — all players look similar."
+          },
+          {
+            "title": "Apply ERRC Grid",
+            "description": "Eliminate: which factors should be removed? Reduce: which should be below standard? Raise: which above standard? Create: which have never been offered?"
+          },
+          {
+            "title": "Reconstruct market boundaries",
+            "description": "Look across alternative industries, strategic groups, buyer chain, complementary products, functional-emotional orientation, and time/trends."
+          },
+          {
+            "title": "Design the new value curve",
+            "description": "It should diverge from competitors, have a compelling tagline, and focus on 3-4 factors where you'll be dramatically better."
+          },
+          {
+            "title": "Reach beyond existing customers",
+            "description": "Target non-customers: soon-to-be (about to leave), refusing (consciously choose against), unexplored (never considered). Tier 3 is the biggest Blue Ocean."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Confusing Blue Ocean with technology",
+            "description": "Most Blue Oceans come from value innovation, not tech. Cirque du Soleil merged circus with theater — no new technology. The innovation was in the VALUE CURVE."
+          },
+          {
+            "title": "Creating a Blue Ocean with no barriers",
+            "description": "A Blue Ocean without defensibility becomes Red within 2-3 years. Build inimitability through brand, patents, network effects, or cost structure."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Porter's Five Forces",
+            "relationship": "Five Forces describes the Red Ocean; Blue Ocean shows how to escape it"
+          },
+          {
+            "name": "Jobs-to-be-Done",
+            "relationship": "JTBD reveals the job; Blue Ocean designs a new value proposition for that job"
+          },
+          {
+            "name": "Business Model Canvas",
+            "relationship": "The Canvas operationalizes the Blue Ocean strategy once the value curve is designed"
+          }
+        ],
+        "case_study": {
+          "company": "Cirque du Soleil (1984-present)",
+          "situation": "In the 1980s, circuses were in decline. They competed on star performers, animal acts, multiple rings, and low-cost concessions. Red ocean: declining demand, increasing costs, animal rights concerns.",
+          "application": "ERRC: ELIMINATED animal acts and star performers. REDUCED number of rings (one instead of three). RAISED artistic sophistication and venue quality. CREATED storyline and thematic through-line. Result: a new category — 'artistic entertainment' — between circus and theater, attracting adults at $100+ tickets.",
+          "result": "Grew from Quebec street performers to $850M+ annual revenue, 180M+ audience across 450+ cities. Competitors couldn't enter because the value proposition was different from both circus AND theater."
+        },
+        "exercise": {
+          "scenario": "You're CEO of a business hotel chain. Industry competes on: location, room quality, business amenities, loyalty, price. Apply Blue Ocean ERRC.",
+          "options": [
+            "Eliminate loyalty, Reduce room quality, Raise WiFi, Create minibars",
+            "Eliminate business amenities, Reduce price 50%, become ultra-low-cost",
+            "Eliminate front desk (mobile check-in), Reduce room size, Raise community spaces (co-working lobby), Create local experience (curated guides, local food)",
+            "Blue Ocean doesn't apply to mature hotel categories"
+          ],
+          "correct": 2,
+          "explanation": "Option 3 describes CitizenM and similar affordable luxury hotels. Eliminated traditional front desk (expensive, slow), reduced room size (more rooms per floor), raised lobby experience (co-working/social), created sense of place. Value innovation: lower cost AND higher perceived value."
+        }
       },
       {
         "name": "Network Effects",
@@ -1212,7 +1660,71 @@
           "moat"
         ],
         "order_index": 9,
-        "example": "Direct: WhatsApp — each new user makes it more valuable for existing users (more people to message). | Two-sided: Uber — more riders attract more drivers; more drivers reduce wait times attracting more riders. Self-reinforcing loop. | Data: Google Search — more searches = more data = better results = more users. Competitors can't replicate 20 years of click data."
+        "example": "Direct: WhatsApp — each new user makes it more valuable for existing users (more people to message). | Two-sided: Uber — more riders attract more drivers; more drivers reduce wait times attracting more riders. Self-reinforcing loop. | Data: Google Search — more searches = more data = better results = more users. Competitors can't replicate 20 years of click data.",
+        "why_it_matters": "Network effects are the strongest moat in the digital economy. When a product becomes MORE valuable as MORE people use it, you get a self-reinforcing cycle competitors can't break. But network effects aren't a strategy — they're an outcome. CEOs need to understand which type (direct, indirect, data, platform), the tipping point, and vulnerabilities (multi-tenanting, niche competitors). Companies like Facebook, LinkedIn, and Uber designed their products specifically to create and strengthen network effects.",
+        "steps": [
+          {
+            "title": "Identify your network effect type",
+            "description": "Direct (more users = more value per user — messaging), Indirect/Two-Sided (more of group A attracts more of group B — marketplaces), Data (more users = more data = better product), Platform (more developers = more apps = more users)."
+          },
+          {
+            "title": "Measure effect strength",
+            "description": "How much does each additional user increase value? Linear vs Exponential (Metcalfe's Law: value ~ N²). Measure retention and engagement as user base grows."
+          },
+          {
+            "title": "Solve the chicken-and-egg problem",
+            "description": "Marketplaces: no buyers without sellers. Solutions: subsidize one side, start constrained (Facebook at Harvard only), provide standalone value first (OpenTable gave restaurants management system even with zero diners)."
+          },
+          {
+            "title": "Prevent multi-tenanting",
+            "description": "If users use multiple platforms (Uber AND Lyft), network effect is weakened. Increase switching costs: ratings, data history, exclusive contracts."
+          },
+          {
+            "title": "Monitor for reversal",
+            "description": "Network effects work in reverse: users leaving → less value → more leaving. This killed MySpace and Friendster. Monitor engagement and retention weekly."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Assuming network effects automatically create moats",
+            "description": "Only a moat if switching costs are high. If users easily multi-tenant, network effect doesn't prevent competition — it just raises the floor."
+          },
+          {
+            "title": "Ignoring the network effect ceiling",
+            "description": "LinkedIn at 800M users isn't meaningfully more valuable than at 400M. At the ceiling, product quality becomes more important than network size. Keep innovating."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Platform Business Models",
+            "relationship": "Platform businesses derive value from network effects — understanding effect types is essential for platform design"
+          },
+          {
+            "name": "Porter's Five Forces",
+            "relationship": "Strong network effects are barriers to entry and reduce rivalry — making industry structure more favorable"
+          },
+          {
+            "name": "Crossing the Chasm",
+            "relationship": "The chasm is between early adopters and mainstream. Network effects don't kick in until you cross it"
+          }
+        ],
+        "case_study": {
+          "company": "Uber vs Traditional Taxis",
+          "situation": "Traditional taxi markets had no network effects. Uber designed a two-sided marketplace: more riders → more drivers (make more money) → shorter wait times → more riders. Classic marketplace flywheel.",
+          "application": "Uber subsidized riders aggressively (below-cost fares) to build the rider base, attracting drivers who earned more than traditional taxis. At scale, new entrants couldn't compete — worse wait times AND fewer drivers created a value deficit on both sides.",
+          "result": "Grew from SF black car service (2010) to 130M+ monthly users across 70+ countries. Traditional taxi medallion values dropped from $1M+ to under $100K. The network effect — not technology (taxis had apps too) — was the competitive weapon."
+        },
+        "exercise": {
+          "scenario": "You're building a new professional social network to compete with LinkedIn (800M+ users). Best strategy?",
+          "options": [
+            "Build better product with more features",
+            "Find niche LinkedIn doesn't serve well and build specialized network before expanding",
+            "Lower prices than LinkedIn",
+            "Large marketing campaign"
+          ],
+          "correct": 1,
+          "explanation": "LinkedIn's network effect means a general-purpose competitor can't win — even with better product. Start with a niche where LinkedIn is weakest (GitHub for developers, Dribbble for designers). Expand only after niche network effect is strong. Every successful social network competitor started narrow, not broad."
+        }
       }
     ]
   },
@@ -1717,7 +2229,71 @@
           "negotiation",
           "strategy"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "why_it_matters": "Your negotiating power doesn't come from charm, arguments, or leverage tactics. It comes from one thing: what happens if you walk away. A strong BATNA means you can afford to say no. A weak BATNA means you can't — and they know it. The single highest-ROI activity before any negotiation is improving your BATNA. Don't spend 10 hours preparing talking points — spend 10 hours making your BATNA stronger.",
+        "steps": [
+          {
+            "title": "Identify your current BATNA",
+            "description": "What is your best option if this negotiation fails? Be specific: 'sign with Supplier X at $Y price within Z weeks.' Quantify it."
+          },
+          {
+            "title": "Improve your BATNA before negotiating",
+            "description": "Get a competing offer. Qualify a backup supplier. Identify an alternative strategy. A BATNA that goes from 'do nothing' to 'sign with Competitor X at 10% less' transforms your position."
+          },
+          {
+            "title": "Estimate THEIR BATNA",
+            "description": "What happens to them if the deal fails? Your power is the GAP between your BATNA and theirs."
+          },
+          {
+            "title": "Never reveal your BATNA unless it's strong",
+            "description": "Weak BATNA: don't mention it. Strong BATNA: strategically reference it without threatening. Never bluff — getting caught destroys credibility permanently."
+          },
+          {
+            "title": "Set your reservation price at your BATNA value",
+            "description": "If the deal is worse than your BATNA, walk. Period. This sounds obvious but is violated constantly — CEOs fall in love with deals and negotiate past their walk-away point."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Confusing BATNA with worst case",
+            "description": "BATNA is your best ALTERNATIVE, not the worst outcome. Your BATNA is your floor, not the abyss."
+          },
+          {
+            "title": "Not updating your BATNA during negotiation",
+            "description": "A competing job offer might expire. A market window might close. Reassess your BATNA before every session — last week's truth may not hold today."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "ZOPA",
+            "relationship": "BATNA defines each side's walk-away point; ZOPA is the space between them"
+          },
+          {
+            "name": "Anchoring",
+            "relationship": "Your BATNA determines how far you can deviate from their anchor before walking away"
+          },
+          {
+            "name": "Principled Negotiation",
+            "relationship": "BATNA is your source of power in principled negotiation — it's what allows you to insist on objective criteria"
+          }
+        ],
+        "case_study": {
+          "company": "Disney's Acquisition of Pixar (2006)",
+          "situation": "Steve Jobs (Pixar CEO) had a strong BATNA: Pixar could partner with another distributor or self-distribute. Disney CEO Bob Iger had a weaker BATNA: Disney's animation studio was struggling. The power asymmetry was entirely about BATNAs.",
+          "application": "Iger recognized the BATNA asymmetry and made a transformative move: instead of negotiating a better distribution deal, he proposed Disney ACQUIRE Pixar for $7.4B — essentially buying out Jobs' BATNA by making him Disney's largest shareholder.",
+          "result": "The acquisition closed in 2006. Jobs became Disney's largest individual shareholder. Pixar leadership took over Disney Animation. Combined company produced a historic run of hits. Iger's recognition of BATNA asymmetry — and willingness to transform the negotiation rather than fight at a disadvantage — saved Disney's animation business."
+        },
+        "exercise": {
+          "scenario": "Negotiating job offer: Company A offers $150K. Your current job pays $130K. No other offers. What's your BATNA and power?",
+          "options": [
+            "BATNA is $150K (the offer). Strong power.",
+            "BATNA is $130K (current salary). Weak power — can't walk from $20K raise.",
+            "BATNA is $130K but BLUFF another offer for $160K.",
+            "Pause and get another offer before continuing — improve your BATNA first."
+          ],
+          "correct": 3,
+          "explanation": "Current BATNA: $130K (stay at current job). Weak. The right move: pause, get another offer. With a second offer, your BATNA rises. The best time to negotiate is when you can credibly say no."
+        }
       },
       {
         "name": "ZOPA",
@@ -1727,7 +2303,71 @@
           "negotiation",
           "valuation"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "why_it_matters": "ZOPA (Zone of Possible Agreement) is the space between the seller's walk-away point and the buyer's maximum. If the seller won't go below $10M and the buyer won't go above $12M, the ZOPA is $10M-$12M. Every deal within the ZOPA is better than no deal for both parties. The CEO's job is to: 1) Estimate the ZOPA before negotiating (is there even a deal to be done?), 2) Identify where in the ZOPA the final agreement will land (ideally near their walk-away point, not yours), 3) Recognize when NO ZOPA exists and walk away rather than force a value-destroying deal. Many failed negotiations happen because one party doesn't realize there's no ZOPA — they keep negotiating when no mutually acceptable outcome exists.",
+        "steps": [
+          {
+            "title": "Estimate your reservation point",
+            "description": "Based on your BATNA, what's the worst deal you'd accept? Be precise: not 'less than $10M' but '$9.5M with 90-day payment terms.' This is your walk-away point."
+          },
+          {
+            "title": "Estimate their reservation point",
+            "description": "Based on their BATNA, what's the worst deal they'd accept? This is harder but critical. Research their alternatives, time pressure, and stated objectives. Their reservation point is likely far from their opening position."
+          },
+          {
+            "title": "Determine if a ZOPA exists",
+            "description": "If your minimum > their maximum (or vice versa), no ZOPA exists. The only productive move is to change one of the reservation points — improve a BATNA, reframe value, or bring in new issues to expand the pie."
+          },
+          {
+            "title": "Identify the bargaining range",
+            "description": "The ZOPA range determines how much value is contested. A $1M ZOPA (seller will take $10M, buyer will pay up to $11M) means $1M is up for negotiation. A $10M ZOPA means $10M is contestable — much more at stake in negotiation tactics."
+          },
+          {
+            "title": "Aim for their reservation point, not the midpoint",
+            "description": "The midpoint feels fair but isn't optimal. If their walk-away is $12M and yours is $10M, the midpoint is $11M. But you should aim for $10.2M — just above their walk-away. Studying their BATNA is how you find their reservation point."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Assuming the ZOPA is fixed",
+            "description": "The ZOPA can be expanded by changing what's being negotiated. If price is the only issue and no ZOPA exists, add non-price terms: payment schedule, transition services, earnout provisions, IP licensing. Expanding the issues often creates a ZOPA where none existed on price alone."
+          },
+          {
+            "title": "Revealing your reservation point",
+            "description": "Once the other side knows your walk-away point, they'll offer exactly that. Never say 'our absolute minimum is X.' If pressed, respond with: 'I can't give you a single number — it depends on the overall package. If the terms are right, we can be flexible on price.'"
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "BATNA",
+            "relationship": "BATNA defines each side's reservation point. The ZOPA is the overlap between those points. Strengthening your BATNA widens the ZOPA in your favor"
+          },
+          {
+            "name": "Anchoring",
+            "relationship": "The anchor should be OUTSIDE the ZOPA on your side, pulling the midpoint of the negotiation toward your reservation point"
+          },
+          {
+            "name": "Integrative Negotiation",
+            "relationship": "When a ZOPA for price is narrow or nonexistent, integrative negotiation expands the issues — creating value on non-price dimensions to make a deal possible"
+          }
+        ],
+        "case_study": {
+          "company": "Major League Baseball Labor Negotiations (Multiple Strikes)",
+          "situation": "MLB owners and players repeatedly failed to reach agreement, resulting in strikes in 1972, 1981, 1994 (which cancelled the World Series), and a lockout in 2022. In each case, the declared positions were far apart — owners wanted salary caps, players wanted free agency — suggesting no ZOPA existed.",
+          "application": "The 1994 strike cancelled the World Series because neither side believed a ZOPA existed. Owners wanted a salary cap; players refused. But the actual ZOPA was larger than either side acknowledged: owners didn't NEED a hard cap, players didn't NEED unlimited free agency. The failure was in ZOPA estimation — both sides underestimated the other's flexibility and overestimated their own resolve.",
+          "result": "The 1994 strike cost MLB an estimated $1B in revenue and took years to recover fan interest. Post-strike analysis revealed that a ZOPA existed all along — owners would have accepted a luxury tax instead of a cap, players would have accepted restricted free agency with revenue sharing. Neither side tested the other's reservation point because positional bargaining prevented genuine ZOPA exploration."
+        },
+        "exercise": {
+          "scenario": "You're selling your company. You won't accept less than $15M (BATNA: continue operating independently, valued at $15M DCF). The buyer won't pay more than $20M (BATNA: acquire a different company for $20M). What's the ZOPA?",
+          "options": [
+            "$15M-$20M — any price in that range is a better outcome than walking away for both parties",
+            "No ZOPA — the spread is too narrow",
+            "The ZOPA is $17.5M — the midpoint is always the fair outcome",
+            "Can't determine without knowing each side's negotiating style"
+          ],
+          "correct": 0,
+          "explanation": "The ZOPA is $15M-$20M. Every price in this range is better than each party's BATNA (seller gets >$15M, buyer pays <$20M). The negotiation determines WHERE in that $5M range the agreement lands — this is the distributative phase. But the existence of a ZOPA means a deal SHOULD happen — both parties are better off with an agreement in this range than without one. If they can't agree, it's a negotiation failure, not a ZOPA failure."
+        }
       },
       {
         "name": "Anchoring",
@@ -1737,7 +2377,71 @@
           "negotiation",
           "psychology"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "why_it_matters": "The first number mentioned becomes the gravitational center of the entire discussion — even when both parties know it shouldn't. Skilled negotiators make the first offer and make it aggressive but defensible. The unskilled wait for the other side to go first — and spend the rest of the negotiation fighting against an anchor they didn't set. Anchoring can swing outcomes by 20-30% or more.",
+        "steps": [
+          {
+            "title": "Prepare your anchor with objective criteria",
+            "description": "Ground in market data, precedent transactions, cost analysis. '$50M because comparable transactions close at 5-7x ARR, and our $10M ARR at 5x is the low end.'"
+          },
+          {
+            "title": "Make the first offer",
+            "description": "If you have good ZOPA information, go first. First offers predict final outcomes more than any other single factor."
+          },
+          {
+            "title": "If they anchor first, reset the conversation",
+            "description": "Don't counter-anchor against theirs. 'That number is based on assumptions we don't share. Let me explain how we think about value, then I'll share a proposal.'"
+          },
+          {
+            "title": "Use precise numbers, not round ones",
+            "description": "$47,350 anchors more effectively than $50,000. Precision signals detailed analysis. Round numbers signal approximation and invite negotiation."
+          },
+          {
+            "title": "Anchor on multiple dimensions",
+            "description": "Price, payment terms, scope, timeline, risk allocation. Multiple anchors create a package harder to deconstruct than a single price anchor."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Setting an anchor so extreme you lose credibility",
+            "description": "$500M for a $50M company causes the other side to question your competence. The anchor must be within a range where a reasonable person could argue it."
+          },
+          {
+            "title": "Forgetting you're also susceptible",
+            "description": "Even when you KNOW you're being anchored, the effect still works. Judges given random anchors (dice roll) showed effects on sentencing. Adjust your counter-offer more than feels comfortable."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "BATNA",
+            "relationship": "Your anchor should be set relative to your BATNA and their estimated BATNA — not based on wishful thinking"
+          },
+          {
+            "name": "ZOPA",
+            "relationship": "The anchor should be OUTSIDE the ZOPA on your side to pull the final agreement in your direction"
+          },
+          {
+            "name": "Cognitive Biases",
+            "relationship": "Anchoring is one of the most powerful cognitive biases. Understanding it helps you recognize when it's being used on you"
+          }
+        ],
+        "case_study": {
+          "company": "Facebook's Acquisition of Instagram (2012)",
+          "situation": "Instagram had 30M users, 13 employees, $0 revenue. Twitter had offered ~$500M. Kevin Systrom set an anchor with Facebook: $2 billion. Aggressive — Instagram had no revenue, and social media acquisitions rarely exceeded $1B.",
+          "application": "Zuckerberg, aware of Twitter's interest and Instagram's growth, didn't dismiss the $2B anchor. He negotiated within that frame. The anchor shifted the conversation from 'what's a 13-person photo app worth?' to 'how much discount from $2B can we get?'",
+          "result": "Facebook acquired Instagram for $1 billion — half the anchor but 2x Twitter's offer. By 2024, Instagram was estimated worth $100B+, making Systrom's aggressive anchor look like a bargain."
+        },
+        "exercise": {
+          "scenario": "Buying a company. Seller opens: 'We want $30M.' Your analysis: worth $15-22M. How do you respond?",
+          "options": [
+            "Counter at $15M (your low-end)",
+            "Counter at $12M (below range to offset anchor)",
+            "Reset the frame: 'Let's agree on valuation methodology first. Once we agree on framework, the number follows.'",
+            "Accept their $30M anchor and negotiate down"
+          ],
+          "correct": 2,
+          "explanation": "Option C refuses their anchor frame entirely. Countering at $15M makes midpoint = $22.5M — above your range. Instead, agree on methodology (multiple of EBITDA? DCF with agreed assumptions?). Once methodology is agreed, the number follows — and you haven't been pulled toward their anchor."
+        }
       },
       {
         "name": "Integrative Negotiation",
@@ -1747,7 +2451,71 @@
           "negotiation",
           "win-win"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "why_it_matters": "Most negotiations are framed as win-lose: 'I get more, you get less.' This is distributative negotiation, and it's appropriate when interests are directly opposed and the pie is fixed. But most complex business negotiations — partnerships, strategic alliances, M&A integration terms, employment agreements for key hires — have a much larger 'integrative' component: both parties can gain more by expanding the pie before dividing it. The CEO's skill is knowing when to shift from distributive (claiming value) to integrative (creating value). Shift too early and you leave money on the table. Shift too late and you miss opportunities to make deals better for everyone. The best negotiators create value AND claim it — they're not 'soft' or 'hard,' they're effective.",
+        "steps": [
+          {
+            "title": "Separate interests from positions",
+            "description": "Their position: 'I need $200K salary.' Their underlying interest: 'I need financial security for my family and recognition for my impact.' The position might be non-negotiable; the interest might have multiple solutions (bonus structure, equity, benefits, title, flexible work)."
+          },
+          {
+            "title": "Share information strategically to identify shared interests",
+            "description": "Reveal your interests — not your BATNA or reservation point, but WHY certain issues matter. 'Timeline matters to us because our fiscal year ends in June, and we need to close before then for tax reasons.' This helps them propose solutions you hadn't considered."
+          },
+          {
+            "title": "Brainstorm options before committing",
+            "description": "Separate invention from decision. Spend 20 minutes generating options ('what if we...') without evaluating them. Then evaluate. The best integrative solutions often combine multiple options into packages."
+          },
+          {
+            "title": "Trade across issues based on different valuations",
+            "description": "Find issues they value highly that cost you little, and vice versa. If the seller cares about a 12-month transition period (high value to them) and you don't mind it (low cost to you), give them the transition in exchange for a lower purchase price. These are 'logrolling' trades that create value for both sides."
+          },
+          {
+            "title": "Use objective criteria to resolve remaining differences",
+            "description": "After value creation, some conflict remains. Use market data, precedents, industry standards, or third-party appraisals to decide the contested issues. This prevents positional standoffs on the remaining items."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Being integrative when the other side is purely distributive",
+            "description": "If the other party is taking a hard positional line and has no interest in value creation, being integrative alone just makes you vulnerable. Match their approach: protect your interests, then probe for integrative opportunities. Don't be the only one creating value in a negotiation where the other side is just trying to take it."
+          },
+          {
+            "title": "Creating 'value' that isn't actually valuable",
+            "description": "Integrative negotiation requires understanding what the other side TRULY values — not what you ASSUME they value. Giving them a 5-year contract extension they didn't want isn't value creation, it's annoying. Ask questions before proposing solutions."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Distributive Negotiation",
+            "relationship": "Integrative creates value; distributive claims it. Every negotiation has both components. Know which phase you're in — creating or claiming — and don't confuse the two"
+          },
+          {
+            "name": "Principled Negotiation",
+            "relationship": "Fisher & Ury's framework explicitly includes separating interests from positions and inventing options for mutual gain — the core of integrative negotiation"
+          },
+          {
+            "name": "Game Theory",
+            "relationship": "The Prisoner's Dilemma is a game where cooperating (integrative) produces better joint outcomes than defecting (distributive), but defection dominates individually. Understanding these dynamics helps navigate the integrate-vs-claim decision"
+          }
+        ],
+        "case_study": {
+          "company": "Microsoft and IBM (1980 DOS Deal)",
+          "situation": "In 1980, IBM was developing its first personal computer and needed an operating system fast. Microsoft didn't have one but knew where to get one (QDOS from Seattle Computer Products for $50K). The negotiation wasn't just about price — it was about the structure of the deal.",
+          "application": "Gates used integrative negotiation: instead of selling the OS to IBM for a one-time fee (IBM's initial position), he proposed a non-exclusive license with per-unit royalties. IBM's interest: get an OS quickly and cheaply. Microsoft's interest: build a platform business. The integrative solution: IBM got what it wanted (fast, cheap OS), Microsoft got what it wanted (ownership of the platform and the right to license to others). Gates identified that IBM valued speed and low upfront cost while Microsoft valued platform ownership and per-unit revenue. They traded across different valuations.",
+          "result": "IBM sold PCs with Microsoft's DOS, creating the IBM PC standard. Microsoft licensed DOS to COMPAQ, Dell, and every other clone manufacturer. The per-unit royalty structure meant Microsoft profited from the PC industry's explosive growth regardless of which manufacturer won. Microsoft's market cap grew from millions to trillions. The integrative deal structure — non-exclusive licensing instead of one-time sale — was the most valuable business decision of the 20th century."
+        },
+        "exercise": {
+          "scenario": "You're negotiating an office lease. The landlord wants $50/sq ft (position) because they need to cover their mortgage (interest). You want $40/sq ft (position) because your budget is tight (interest). What's an integrative approach?",
+          "options": [
+            "Split the difference at $45 — fair for both parties",
+            "Offer $40/sq ft for the first 2 years, stepping up to $50/sq ft in years 3-5. Landlord gets their total revenue, you get cash flow relief when you need it most.",
+            "Find another building — this negotiation is clearly distributive only",
+            "Insist on $40 — your budget is fixed and non-negotiable"
+          ],
+          "correct": 1,
+          "explanation": "The landlord's interest is total revenue over the lease term. Your interest is lower payments in the early years when cash is tight. A graduated lease satisfies both interests: landlord gets $50/sq ft average over 5 years, you get $40 in year 1-2 when cash matters most. This is value creation through different time preferences — the landlord can wait for revenue, you can't wait for cash. Neither party sacrificed their core interest."
+        }
       },
       {
         "name": "Distributive Negotiation",
@@ -1757,7 +2525,71 @@
           "negotiation",
           "zero-sum"
         ],
-        "order_index": 5
+        "order_index": 5,
+        "why_it_matters": "Not all negotiations can be win-win. When interests are directly opposed — price, salary, budget allocation — one party's gain IS the other's loss. Distributive negotiation is the art of claiming value when the pie is fixed. CEOs who only know integrative negotiation get taken advantage of by counterparts who claim value aggressively. The skill is knowing when to shift between integrative (creating value) and distributive (claiming it). Most negotiations have both phases. Confuse them at your peril: being integrative when the other side is distributive makes you a mark; being distributive when value could be created leaves money on the table.",
+        "steps": [
+          {
+            "title": "Set aggressive but realistic initial positions",
+            "description": "Your opening should be at the edge of defensibility — not so extreme you lose credibility, not so moderate you leave no room to negotiate. Research supports: extreme but defensible openings produce better outcomes."
+          },
+          {
+            "title": "Make small, decreasing concessions",
+            "description": "Start with large concession room, then narrow each subsequent concession. Decreasing concessions signal you're approaching your limit. Constant-sized concessions signal you have more room."
+          },
+          {
+            "title": "Use silence strategically",
+            "description": "After making an offer or receiving one, stay silent. Most people are uncomfortable with silence and will fill it — often with concessions or information. The first person to speak after an offer usually loses."
+          },
+          {
+            "title": "Never make unilateral concessions",
+            "description": "Every concession should be exchanged for something: 'I can move on price if you can move on payment terms.' Unilateral concessions signal weakness and invite more demands."
+          },
+          {
+            "title": "Know when to walk away",
+            "description": "The ultimate distributive power is the willingness to walk. If the deal is worse than your BATNA, walk. No exceptions. The best deals happen when you're genuinely willing to say no."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Over-negotiating and damaging relationships",
+            "description": "Claiming every last dollar in a distributive negotiation leaves the other side feeling exploited. This destroys future deals and reputation. Leave something on the table — not out of weakness, but as investment in the relationship. The 80/20 rule: claim 80% of the available value, leave 20% for goodwill."
+          },
+          {
+            "title": "Assuming every negotiation is distributive",
+            "description": "Some negotiators treat EVERY issue as distributive when integrative value exists. Before claiming value, check whether the pie could be expanded. The most expensive mistake in negotiation is fighting over a $100 pie when a $200 pie was available."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Integrative Negotiation",
+            "relationship": "Every negotiation has integrative AND distributive phases. Integrative creates value; distributive claims it. Know which phase you're in"
+          },
+          {
+            "name": "BATNA",
+            "relationship": "Your BATNA is your ultimate distributive weapon — it determines your walk-away point and prevents you from accepting value-destroying deals"
+          },
+          {
+            "name": "Anchoring",
+            "relationship": "Anchoring is the primary distributive tactic — the first number sets the negotiation range. Master anchoring to master distributive negotiation"
+          }
+        ],
+        "case_study": {
+          "company": "Major League Baseball Free Agency Negotiations",
+          "situation": "MLB free agent negotiations are highly distributive: there's one player, one contract, and a fixed economic value. The agent's gain is the team's loss. Scott Boras, baseball's most famous agent, is a master of distributive negotiation.",
+          "application": "Boras' technique: 1) Set an extreme but defensible anchor based on comparable player contracts, 2) Create a bidding war (improving his BATNA by getting multiple teams interested), 3) Make small, calculated concessions that signal approaching limits, 4) Use media strategically to apply pressure, 5) Never accept the first or second offer, even if it meets his target — always extract one more concession. His $100M+ contracts are the result of masterful distributive technique.",
+          "result": "Boras has negotiated over $4B in player contracts, including record-breaking deals across every position. Teams know his tactics but still pay — because his distributive skill extracts maximum value regardless of counterparty awareness."
+        },
+        "exercise": {
+          "scenario": "You're buying a used car. Seller asks $15K. Your research says $10-12K is fair. After some negotiation, seller says '$13K is my absolute final offer.' What do you do?",
+          "options": [
+            "Accept $13K — you're still in your range",
+            "Counter at $12.5K — always get one more concession",
+            "Say: 'I appreciate that. I can do $12.5K if you can include the extended warranty and fill the tank. Otherwise, I'll need to think about it.' Then stay silent.",
+            "Walk away — 'final offer' is always a bluff"
+          ],
+          "correct": 2,
+          "explanation": "Option C applies distributive technique: never accept a unilateral statement of finality without testing it, but also never directly challenge it (that escalates). Instead, trade: accept their 'final' price in exchange for non-price items. The silence after is crucial — it lets them feel the pressure of potentially losing the deal. If they agree to your add-ons, you got more value without re-opening price. If they don't, you can still accept $13K if it's within your range."
+        }
       },
       {
         "name": "Principled Negotiation (Getting to Yes)",
@@ -1767,7 +2599,71 @@
           "negotiation",
           "framework"
         ],
-        "order_index": 6
+        "order_index": 6,
+        "why_it_matters": "Fisher and Ury's 'Getting to Yes' framework is the most influential negotiation methodology ever developed — and the most misunderstood. It's not 'be soft and hope for the best.' It's a rigorous methodology: 1) Separate people from the problem (deal with emotions and relationship issues directly, not through concessions), 2) Focus on interests, not positions (why they want something, not what they say they want), 3) Invent options for mutual gain before deciding (brainstorm without commitment), 4) Insist on objective criteria (market data, precedent, expert opinion — not 'because I said so'). For CEOs, this framework transforms negotiations from contests of will into joint problem-solving exercises. It works even — especially — when the other side isn't using it, because asking 'what's your interest behind that position?' disarms positional negotiators and reveals information they didn't intend to share.",
+        "steps": [
+          {
+            "title": "Separate the people from the problem",
+            "description": "Address relationship issues directly: 'I want to acknowledge that the last deal between our companies had issues. I want this one to be different. Let's agree that if we get stuck, we'll pause and address the working relationship before continuing.' Don't make substantive concessions to repair relationship damage — that confuses two separate issues."
+          },
+          {
+            "title": "Focus on interests, not positions",
+            "description": "For every position they state, ask: 'Help me understand — what makes that important to you?' Behind 'we need a 3-year contract' is an interest: 'we need predictability for our planning.' Addressing the interest ('how about a 1-year contract with a 60-day renewal notice?') may satisfy them without granting the position."
+          },
+          {
+            "title": "Generate options for mutual gain",
+            "description": "Use a 'single negotiating text' approach: draft a complete agreement, ask for their feedback on every point, revise, and repeat. This is more efficient than negotiating point by point. Each draft is a full proposal, not a piecemeal concession."
+          },
+          {
+            "title": "Insist on using objective criteria",
+            "description": "Never concede to pressure — only to principle. 'I understand you need a lower price. Let's look at what comparable companies have paid for similar services. If the market data supports a lower number, I'm prepared to adjust.' This shifts the conversation from willpower to evidence."
+          },
+          {
+            "title": "Develop your BATNA as your source of power",
+            "description": "Principled negotiation doesn't rely on power tactics — but it DOES rely on a strong BATNA. The ability to walk away is what allows you to insist on objective criteria rather than capitulate to pressure."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Treating 'objective criteria' as a weapon",
+            "description": "Some negotiators hide behind 'objective criteria' to disguise positional bargaining: 'Market research says the price should be X' (citing the one study that supports their position while ignoring three others). Genuine principled negotiation means agreeing on the criteria TOGETHER before looking at data. 'What types of evidence would convince both of us?'"
+          },
+          {
+            "title": "Being principled when the other side is dealing in bad faith",
+            "description": "Principled negotiation assumes both parties want a fair outcome. If the other side lies, makes threats, or negotiates in bad faith, principled techniques won't work — and attempting them makes you look naive. Recognize when you need to shift from principled to protective negotiation (document everything, use lawyers, involve third parties)."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "BATNA",
+            "relationship": "BATNA is the source of power in principled negotiation — it's what allows you to insist on objective criteria instead of capitulating to pressure"
+          },
+          {
+            "name": "Integrative Negotiation",
+            "relationship": "Principled negotiation is the methodological framework; integrative negotiation is the value-creation phase within that framework"
+          },
+          {
+            "name": "Distributive Negotiation",
+            "relationship": "When interests ARE directly opposed (fixed pie), principled negotiation shifts to objective criteria to determine the split — market data, not arm wrestling"
+          }
+        ],
+        "case_study": {
+          "company": "The Camp David Accords (1978)",
+          "situation": "Egypt and Israel had been in conflict for 30 years. The Sinai Peninsula was Israeli-occupied territory that Egypt demanded back. Positions: Israel — 'we keep the Sinai.' Egypt — 'we get ALL of it back.' These positions appeared completely incompatible. President Carter brought both sides to Camp David for 13 days of negotiations.",
+          "application": "Carter and his team applied principled negotiation techniques. They separated positions from interests: Israel's position (keep the Sinai) masked an interest (security — ensuring no Egyptian tanks on their border). Egypt's position (get the Sinai back) masked an interest (sovereignty — the land was Egyptian territory). The integrative solution: Egypt gets full sovereignty over the Sinai (interest satisfied), but the Sinai is largely demilitarized (Israel's security interest satisfied). Both got what they needed, not what they said they wanted.",
+          "result": "The Egypt-Israel peace treaty, signed in 1979, has held for over 45 years — one of the most durable peace agreements in modern history. The negotiation succeeded because it shifted from positions (land boundaries) to interests (security + sovereignty) and found a creative solution that satisfied both. This is the textbook example of principled negotiation at the highest stakes."
+        },
+        "exercise": {
+          "scenario": "Your VP of Engineering demands a 30% raise or she'll leave. Position: 'I need $260K.' What's the principled negotiation approach?",
+          "options": [
+            "Counter at 15% — it's a reasonable midpoint",
+            "Ask: 'What makes the $260K number important to you right now?' — she reveals her interest is feeling undervalued after a competitor reached out with an offer. You address the interest: faster promotion track, expanded scope, title change — without matching the $260K position.",
+            "Give her the 30% to prevent losing her",
+            "Call her bluff — nobody actually leaves over money"
+          ],
+          "correct": 1,
+          "explanation": "Option B applies principled negotiation: discover the INTEREST behind the position. If the interest is feeling valued and having career growth, you can satisfy that through means other than salary (promotion, scope, title, equity). If the interest is purely financial ('my market value is $260K'), that's a different conversation requiring objective criteria (comp benchmarks). The key is asking WHY before countering. You lose nothing by understanding their interests, and you gain information that may reveal solutions neither party had considered."
+        }
       },
       {
         "name": "Game Theory / Prisoner's Dilemma",
