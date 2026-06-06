@@ -165,7 +165,7 @@ export async function getCalibration(): Promise<CalibrationSummary> {
     const { data } = await api.get("/progress/calibration")
     return data
   } catch {
-    return { total_predictions: 0, average_confidence: 0, accuracy: 0, average_brier_score: 0, calibration_by_confidence: {}, calibration_by_domain: {}, trend: [] }
+    return { total_predictions: 0, average_confidence: 0, accuracy: 0, average_brier_score: 0, calibration_by_confidence: {}, trend: [] }
   }
 }
 
