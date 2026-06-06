@@ -16,12 +16,30 @@
 
 @layer base {
   * {
-    @apply border-dark-200;
+    @apply border-dark-200 dark:border-dark-700;
   }
   body {
-    @apply bg-white text-dark-900 antialiased;
+    @apply bg-white text-dark-900 antialiased dark:bg-dark-950 dark:text-dark-100;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+@layer components {
+  .dark .card-glass {
+    @apply bg-dark-900/80 border-dark-700;
+  }
+}
+
+/* Dark mode: form inputs */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: rgb(15 23 42);
+  color: rgb(248 250 252);
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgb(100 116 139);
 }
 
 @layer utilities {

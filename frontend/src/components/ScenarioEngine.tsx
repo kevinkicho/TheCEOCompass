@@ -61,18 +61,18 @@ export function ScenarioEngine({ scenario }: Props) {
 
   if (!attempt) {
     return (
-      <div className="rounded-xl border border-dark-200 p-8">
+      <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-8">
         <div className="mb-6">
-          <h2 className="mb-3 text-lg font-semibold text-dark-800">Context</h2>
-          <div className="space-y-3 text-sm text-dark-600">
+          <h2 className="mb-3 text-lg font-semibold text-dark-800 dark:text-dark-200">Context</h2>
+          <div className="space-y-3 text-sm text-dark-600 dark:text-dark-300 dark:text-dark-600">
             <p><strong>Company:</strong> {scenario.context.company}</p>
             <p><strong>Situation:</strong> {scenario.context.situation}</p>
             <p><strong>Pressure:</strong> {scenario.context.time_pressure}</p>
           </div>
         </div>
         <div className="mb-6">
-          <h3 className="mb-2 text-sm font-semibold text-dark-700">Available Data</h3>
-          <ul className="list-inside list-disc space-y-1 text-sm text-dark-600">
+          <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-300 dark:text-dark-600">Available Data</h3>
+          <ul className="list-inside list-disc space-y-1 text-sm text-dark-600 dark:text-dark-300 dark:text-dark-600">
             {scenario.context.data_provided.map((data, i) => (
               <li key={i}>{data}</li>
             ))}
@@ -94,18 +94,18 @@ export function ScenarioEngine({ scenario }: Props) {
   if (isComplete && finalOutcome) {
     const outcomeBranch = scenario.outcome_branches[finalOutcome.outcome_branch || "acceptable"]
     return (
-      <div className="animate-fade-in rounded-xl border border-dark-200 p-8">
+      <div className="animate-fade-in rounded-xl border border-dark-200 dark:border-dark-700 p-8">
         <div className="mb-6 text-center">
           <div className="mb-4 text-5xl">
             {finalOutcome.outcome_branch === "optimal" ? "🏆" : finalOutcome.outcome_branch === "acceptable" ? "✅" : "⚠️"}
           </div>
-          <h2 className="mb-2 text-2xl font-bold text-dark-900">{outcomeBranch?.title || "Complete"}</h2>
-          <p className="text-dark-500">{outcomeBranch?.description}</p>
+          <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{outcomeBranch?.title || "Complete"}</h2>
+          <p className="text-dark-500 dark:text-dark-400 dark:text-dark-500">{outcomeBranch?.description}</p>
         </div>
 
         {finalOutcome.final_score !== undefined && (
-          <div className="mb-6 rounded-lg bg-dark-50 p-4 text-center">
-            <p className="text-sm text-dark-500">Final Score</p>
+          <div className="mb-6 rounded-lg dark:bg-dark-900 bg-dark-50 dark:bg-dark-900 p-4 text-center">
+            <p className="text-sm text-dark-500 dark:text-dark-400 dark:text-dark-500">Final Score</p>
             <p className="text-3xl font-bold text-primary-600">
               {Math.round(finalOutcome.final_score * 100)}%
             </p>
@@ -121,7 +121,7 @@ export function ScenarioEngine({ scenario }: Props) {
               setIsComplete(false)
               setFinalOutcome(null)
             }}
-            className="flex-1 rounded-lg border border-dark-300 px-6 py-3 font-medium text-dark-700 hover:bg-dark-50"
+            className="flex-1 rounded-lg border border-dark-300 dark:border-dark-600 px-6 py-3 font-medium text-dark-700 dark:text-dark-300 dark:text-dark-600 hover:bg-dark-50 dark:hover:bg-dark-800"
           >
             Try Again
           </button>
@@ -140,16 +140,16 @@ export function ScenarioEngine({ scenario }: Props) {
   const stageNumber = scenario.stages.findIndex((s) => s.id === stage.id) + 1
 
   return (
-    <div className="animate-fade-in rounded-xl border border-dark-200 p-8">
+    <div className="animate-fade-in rounded-xl border border-dark-200 dark:border-dark-700 p-8">
       {/* Progress */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-dark-500">Stage {stageNumber} of {scenario.stages.length}</span>
+          <span className="text-dark-500 dark:text-dark-400 dark:text-dark-500">Stage {stageNumber} of {scenario.stages.length}</span>
           <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
             {stage.type}
           </span>
         </div>
-        <div className="h-1.5 w-full rounded-full bg-dark-100">
+        <div className="h-1.5 w-full rounded-full bg-dark-100 dark:bg-dark-800">
           <div
             className="h-full rounded-full bg-primary-500 transition-all"
             style={{ width: `${(stageNumber / scenario.stages.length) * 100}%` }}
@@ -159,7 +159,7 @@ export function ScenarioEngine({ scenario }: Props) {
 
       {/* Prompt */}
       <div className="mb-6">
-        <h3 className="mb-4 text-lg font-semibold text-dark-800">{stage.prompt}</h3>
+        <h3 className="mb-4 text-lg font-semibold text-dark-800 dark:text-dark-200">{stage.prompt}</h3>
 
         {!feedback ? (
           <DecisionPrompt
@@ -198,7 +198,7 @@ function DecisionPrompt({
           value={freeResponse}
           onChange={(e) => setFreeResponse(e.target.value)}
           rows={6}
-          className="mb-4 w-full resize-none rounded-lg border border-dark-200 p-4 text-sm text-dark-800 placeholder:text-dark-400 focus:border-primary-400 focus:outline-none"
+          className="mb-4 w-full resize-none rounded-lg border border-dark-200 dark:border-dark-700 p-4 text-sm text-dark-800 dark:text-dark-200 placeholder:text-dark-400 dark:text-dark-500 focus:border-primary-400 focus:outline-none"
           placeholder="Type your analysis, calculation, or response..."
         />
         
@@ -214,7 +214,7 @@ function DecisionPrompt({
             {showAnswer && (
               <div className="mt-2 animate-slide-up rounded-lg border border-amber-200 bg-amber-50 p-4">
                 <p className="text-xs font-medium text-amber-800 mb-1">Model Answer</p>
-                <p className="text-sm text-dark-700 whitespace-pre-wrap">{stage.sample_answer}</p>
+                <p className="text-sm text-dark-700 dark:text-dark-300 dark:text-dark-600 whitespace-pre-wrap">{stage.sample_answer}</p>
               </div>
             )}
           </div>
@@ -241,18 +241,18 @@ function DecisionPrompt({
             className={`w-full rounded-lg border p-4 text-left transition ${
               selectedChoice === option.id
                 ? "border-primary-400 bg-primary-50 shadow-sm"
-                : "border-dark-200 hover:border-dark-300"
+                : "border-dark-200 dark:border-dark-700 hover:border-dark-300 dark:border-dark-600"
             }`}
           >
             <div className="flex items-start gap-3">
               <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${
                 selectedChoice === option.id
                   ? "border-primary-500 bg-primary-500 text-white"
-                  : "border-dark-300 text-dark-400"
+                  : "border-dark-300 dark:border-dark-600 text-dark-400 dark:text-dark-500"
               }`}>
                 {option.id.toUpperCase()}
               </span>
-              <span className="text-sm text-dark-700">{option.label}</span>
+              <span className="text-sm text-dark-700 dark:text-dark-300 dark:text-dark-600">{option.label}</span>
             </div>
           </button>
         ))}
@@ -271,8 +271,8 @@ function DecisionPrompt({
             <p className="text-xs font-medium text-amber-800 mb-2">Best Approach</p>
             {stage.options.map(o => (
               <div key={o.id} className="mb-2 last:mb-0">
-                <span className="text-sm font-medium text-dark-800">{o.label}</span>
-                <p className="text-xs text-dark-600">{o.rationale}</p>
+                <span className="text-sm font-medium text-dark-800 dark:text-dark-200">{o.label}</span>
+                <p className="text-xs text-dark-600 dark:text-dark-300 dark:text-dark-600">{o.rationale}</p>
               </div>
             ))}
           </div>
@@ -306,18 +306,18 @@ function FeedbackPanel({
       </div>
 
       {/* Feedback */}
-      <div className="rounded-lg border border-dark-200 p-4">
-        <p className="text-sm font-semibold text-dark-700 mb-1">AI Coach Feedback</p>
-        <p className="text-sm text-dark-600">{feedback.feedback}</p>
+      <div className="rounded-lg border border-dark-200 dark:border-dark-700 p-4">
+        <p className="text-sm font-semibold text-dark-700 dark:text-dark-300 dark:text-dark-600 mb-1">AI Coach Feedback</p>
+        <p className="text-sm text-dark-600 dark:text-dark-300 dark:text-dark-600">{feedback.feedback}</p>
       </div>
 
       {/* Insights */}
       {feedback.key_insights.length > 0 && (
         <div>
-          <p className="mb-2 text-sm font-semibold text-dark-700">Key Insights</p>
+          <p className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-300 dark:text-dark-600">Key Insights</p>
           <ul className="space-y-1">
             {feedback.key_insights.map((insight, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-dark-600">
+              <li key={i} className="flex items-start gap-2 text-sm text-dark-600 dark:text-dark-300 dark:text-dark-600">
                 <span className="mt-0.5 text-primary-500">&bull;</span>
                 {insight}
               </li>
@@ -328,7 +328,7 @@ function FeedbackPanel({
 
       {/* Next Framework */}
       {feedback.next_framework_suggestion && (
-        <div className="rounded-lg bg-dark-50 p-3 text-sm text-dark-500">
+        <div className="rounded-lg dark:bg-dark-900 bg-dark-50 dark:bg-dark-900 p-3 text-sm text-dark-500 dark:text-dark-400 dark:text-dark-500">
           <strong>Suggested next framework:</strong> {feedback.next_framework_suggestion}
         </div>
       )}

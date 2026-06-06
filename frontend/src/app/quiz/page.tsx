@@ -107,20 +107,20 @@ export default function QuizPage() {
   if (!questions.length) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
-        <h1 className="mb-2 text-4xl font-bold text-dark-900">Quiz</h1>
-        <p className="mb-4 text-dark-500">Test your knowledge of CEO frameworks with AI-generated questions.</p>
+        <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Quiz</h1>
+        <p className="mb-4 text-dark-500 dark:text-dark-400 dark:text-dark-500">Test your knowledge of CEO frameworks with AI-generated questions.</p>
 
         <StaticModeBanner
           feature="AI-Generated Quizzes"
           description="Real-time LLM-generated questions with answer evaluation"
         />
 
-        <div className="rounded-xl border border-dark-200 p-6">
-          <label className="mb-2 block text-sm font-medium text-dark-700">Select a framework</label>
+        <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-6">
+          <label className="mb-2 block text-sm font-medium text-dark-700 dark:text-dark-300 dark:text-dark-600">Select a framework</label>
           <select
             value={selectedFramework}
             onChange={(e) => setSelectedFramework(e.target.value)}
-            className="mb-4 w-full rounded-lg border border-dark-200 px-4 py-2 text-sm focus:border-primary-400 focus:outline-none"
+            className="mb-4 w-full rounded-lg border border-dark-200 dark:border-dark-700 px-4 py-2 text-sm focus:border-primary-400 focus:outline-none"
           >
             <option value="">Choose a framework...</option>
             {frameworks.map((fw) => (
@@ -148,9 +148,9 @@ export default function QuizPage() {
 
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
-        <div className="rounded-xl border border-dark-200 p-8 text-center">
+        <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-8 text-center">
           <div className="mb-4 text-5xl">{emoji}</div>
-          <h2 className="mb-2 text-2xl font-bold text-dark-900">{msg}</h2>
+          <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{msg}</h2>
           <div className="mb-6 rounded-lg bg-primary-50 p-4">
             <p className="text-3xl font-bold text-primary-600">{score}/{questions.length}</p>
             <p className="text-sm text-primary-700">{pct}% correct</p>
@@ -162,10 +162,10 @@ export default function QuizPage() {
               const isCorrect = score > i // simple heuristic
               return (
                 <div key={q.id} className={`rounded-lg border p-3 text-sm ${isCorrect ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
-                  <p className="font-medium text-dark-800">{i + 1}. {q.question}</p>
-                  <p className="mt-1 text-dark-600">Your answer: <span className={isCorrect ? "text-green-700" : "text-red-700"}>{isCorrect ? "Correct" : "Incorrect"}</span></p>
-                  {!isCorrect && <p className="mt-1 text-dark-500">Correct: {q.correct_answer}</p>}
-                  <p className="mt-1 text-dark-500 text-xs">{q.explanation}</p>
+                  <p className="font-medium text-dark-800 dark:text-dark-200">{i + 1}. {q.question}</p>
+                  <p className="mt-1 text-dark-600 dark:text-dark-300 dark:text-dark-600">Your answer: <span className={isCorrect ? "text-green-700" : "text-red-700"}>{isCorrect ? "Correct" : "Incorrect"}</span></p>
+                  {!isCorrect && <p className="mt-1 text-dark-500 dark:text-dark-400 dark:text-dark-500">Correct: {q.correct_answer}</p>}
+                  <p className="mt-1 text-dark-500 dark:text-dark-400 dark:text-dark-500 text-xs">{q.explanation}</p>
                 </div>
               )
             })}
@@ -189,10 +189,10 @@ export default function QuizPage() {
       {/* Progress */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-dark-500">Question {currentQ + 1} of {questions.length}</span>
-          <span className="text-dark-500">Score: {score}/{currentQ + (evalResult ? 1 : 0)}</span>
+          <span className="text-dark-500 dark:text-dark-400 dark:text-dark-500">Question {currentQ + 1} of {questions.length}</span>
+          <span className="text-dark-500 dark:text-dark-400 dark:text-dark-500">Score: {score}/{currentQ + (evalResult ? 1 : 0)}</span>
         </div>
-        <div className="h-1.5 w-full rounded-full bg-dark-100">
+        <div className="h-1.5 w-full rounded-full bg-dark-100 dark:bg-dark-800">
           <div
             className="h-full rounded-full bg-primary-500 transition-all"
             style={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
@@ -201,18 +201,18 @@ export default function QuizPage() {
       </div>
 
       {/* Question */}
-      <div className="mb-6 rounded-xl border border-dark-200 p-6">
+      <div className="mb-6 rounded-xl border border-dark-200 dark:border-dark-700 p-6">
         <div className="mb-4 flex items-center gap-2">
           <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
             {q.framework_concept}
           </span>
           {q.type && (
-            <span className="rounded-full bg-dark-100 px-2 py-0.5 text-xs text-dark-500">
+            <span className="rounded-full bg-dark-100 dark:bg-dark-800 px-2 py-0.5 text-xs text-dark-500 dark:text-dark-400 dark:text-dark-500">
               {q.type}
             </span>
           )}
         </div>
-        <h3 className="mb-4 text-lg font-semibold text-dark-900">{q.question}</h3>
+        <h3 className="mb-4 text-lg font-semibold text-dark-900 dark:text-dark-100">{q.question}</h3>
 
         {!evalResult ? (
           <div>
@@ -224,7 +224,7 @@ export default function QuizPage() {
                   className={`w-full rounded-lg border p-3 text-left text-sm transition ${
                     selectedAnswer === opt
                       ? "border-primary-400 bg-primary-50"
-                      : "border-dark-200 hover:border-dark-300"
+                      : "border-dark-200 dark:border-dark-700 hover:border-dark-300 dark:border-dark-600"
                   }`}
                 >
                   {opt}
@@ -246,14 +246,14 @@ export default function QuizPage() {
                 {evalResult.is_correct ? "Correct!" : "Incorrect"}
               </p>
               {!evalResult.is_correct && (
-                <p className="mt-1 text-sm text-dark-600">
-                  Correct answer: <strong className="text-dark-800">{evalResult.correct_answer}</strong>
+                <p className="mt-1 text-sm text-dark-600 dark:text-dark-300 dark:text-dark-600">
+                  Correct answer: <strong className="text-dark-800 dark:text-dark-200">{evalResult.correct_answer}</strong>
                 </p>
               )}
             </div>
             <div className="rounded-lg border border-primary-100 bg-primary-50/50 p-4">
               <p className="text-xs font-semibold text-primary-700 uppercase tracking-wide mb-1">Explanation</p>
-              <p className="text-sm text-dark-600 leading-relaxed">{evalResult.explanation || q.explanation}</p>
+              <p className="text-sm text-dark-600 dark:text-dark-300 dark:text-dark-600 leading-relaxed">{evalResult.explanation || q.explanation}</p>
             </div>
             <button
               onClick={isLastQ ? undefined : handleNext}

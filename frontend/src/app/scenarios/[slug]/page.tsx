@@ -18,7 +18,7 @@ export default function ScenarioPage() {
   if (!scenario) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <p className="text-dark-500">Loading scenario...</p>
+        <p className="text-dark-500 dark:text-dark-400 dark:text-dark-500">Loading scenario...</p>
       </div>
     )
   }
@@ -26,8 +26,8 @@ export default function ScenarioPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
       <div className="mb-10">
-        <h1 className="mb-2 text-4xl font-bold text-dark-900">{scenario.title}</h1>
-        <p className="mb-4 text-lg text-dark-500">{scenario.description}</p>
+        <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">{scenario.title}</h1>
+        <p className="mb-4 text-lg text-dark-500 dark:text-dark-400 dark:text-dark-500">{scenario.description}</p>
       </div>
       <StaticModeBanner
         feature="AI Feedback"
