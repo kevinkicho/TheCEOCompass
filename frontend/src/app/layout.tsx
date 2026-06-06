@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "CEO Compass",
   description: "Navigate every leadership decision with 57 frameworks, interactive scenarios, and AI-powered coaching",
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/TheCEOCompass/favicon.svg" },
 }
 
 export default function RootLayout({
