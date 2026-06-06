@@ -44,7 +44,7 @@ export default function CheatsheetPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-16">
       <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Quick Reference</h1>
-      <p className="mb-8 text-dark-500 dark:text-dark-400 dark:text-dark-500">Compact definitions and real-world examples. Click &ldquo;Examples&rdquo; to see full details.</p>
+      <p className="mb-8 text-dark-500 dark:text-dark-400">Compact definitions and real-world examples. Click &ldquo;Examples&rdquo; to see full details.</p>
 
       {/* Tabs */}
       <div className="mb-8 flex flex-wrap gap-2">
@@ -52,11 +52,7 @@ export default function CheatsheetPage() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
-              activeTab === tab.key
-                ? "bg-primary-600 text-white"
-                : "bg-dark-100 text-dark-600 dark:text-dark-300 dark:text-dark-600 hover:bg-dark-200 dark:hover:bg-dark-600"
-            }`}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${ activeTab === tab.key ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200" } dark:text-dark-300`}
           >
             {tab.label}
           </button>
@@ -77,17 +73,17 @@ export default function CheatsheetPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-dark-200 dark:border-dark-700 text-left">
-                    <th className="py-2 pr-4 font-medium text-dark-500 dark:text-dark-400 dark:text-dark-500 w-48">Concept</th>
-                    <th className="py-2 pr-4 font-medium text-dark-500 dark:text-dark-400 dark:text-dark-500">One-Liner</th>
-                    <th className="py-2 font-medium text-dark-500 dark:text-dark-400 dark:text-dark-500 w-24">Examples</th>
+                  <tr className="border-b border-dark-200 text-left dark:border-dark-700">
+                    <th className="py-2 pr-4 font-medium text-dark-500 w-48 dark:text-dark-400">Concept</th>
+                    <th className="py-2 pr-4 font-medium text-dark-500 dark:text-dark-400">One-Liner</th>
+                    <th className="py-2 font-medium text-dark-500 w-24 dark:text-dark-400">Examples</th>
                   </tr>
                 </thead>
                 <tbody>
                   {fw.concepts?.map((concept) => (
-                    <tr key={concept.id} className="border-b border-dark-100 dark:border-dark-800 hover:bg-dark-50 dark:hover:bg-dark-800/50">
+                    <tr key={concept.id} className="border-b border-dark-100 hover:bg-dark-50/50 dark:border-dark-800">
                       <td className="py-2.5 pr-4 font-medium text-dark-800 dark:text-dark-200">{concept.name}</td>
-                      <td className="py-2.5 pr-4 text-dark-600 dark:text-dark-300 dark:text-dark-600">{concept.definition}</td>
+                      <td className="py-2.5 pr-4 text-dark-600 dark:text-dark-300">{concept.definition}</td>
                       <td className="py-2.5">
                         <button
                           onClick={() => setModalConcept(concept)}
@@ -114,20 +110,20 @@ export default function CheatsheetPage() {
           onClick={() => setModalConcept(null)}
         >
           <div
-            className="w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-xl dark:bg-dark-900 bg-white dark:bg-dark-900 p-6 shadow-2xl animate-slide-up"
+            className="w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl animate-slide-up dark:bg-dark-900"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-xl font-bold text-dark-900 dark:text-dark-100">{modalConcept.name}</h3>
               <button
                 onClick={() => setModalConcept(null)}
-                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-dark-100 dark:hover:bg-dark-700 text-dark-400 dark:text-dark-500"
+                className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-dark-100 text-dark-400 dark:hover:bg-dark-700 dark:text-dark-500"
               >
                 ✕
               </button>
             </div>
 
-            <p className="mb-5 text-base leading-relaxed text-dark-800 dark:text-dark-200 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400">
+            <p className="mb-5 text-base leading-relaxed text-dark-800 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400 dark:text-dark-200">
               {modalConcept.definition}
             </p>
 
@@ -139,14 +135,14 @@ export default function CheatsheetPage() {
 
             {modalConcept.example && (
               <div className="mb-4">
-                <p className="text-xs font-semibold text-dark-400 dark:text-dark-500 uppercase tracking-wide mb-3">
+                <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide mb-3 dark:text-dark-500">
                   Real-World Examples
                 </p>
                 <ul className="space-y-3">
                   {modalConcept.example.split(" | ").map((ex, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 text-sm text-dark-700 dark:text-dark-300 bg-dark-50 dark:bg-dark-900 rounded-lg p-3"
+                      className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300"
                     >
                       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
                         {i + 1}

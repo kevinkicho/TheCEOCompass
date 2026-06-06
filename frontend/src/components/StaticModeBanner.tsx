@@ -24,47 +24,47 @@ export function StaticModeBanner({ feature, description }: { feature: string; de
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowModal(false)}>
-          <div className="w-full max-w-lg rounded-xl dark:bg-dark-900 bg-white dark:bg-dark-900 p-6 shadow-2xl animate-slide-up" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl animate-slide-up dark:bg-dark-900" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-dark-900 dark:text-dark-100">{feature} — Run locally to access</h3>
-              <button onClick={() => setShowModal(false)} className="text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:text-dark-300 dark:text-dark-600 text-lg">&times;</button>
+              <button onClick={() => setShowModal(false)} className="text-dark-400 hover:text-dark-600 text-lg dark:text-dark-500">&times;</button>
             </div>
 
-            <p className="text-dark-600 dark:text-dark-300 dark:text-dark-600 mb-5">This feature needs the Python backend and LLM API keys. Here&apos;s what you get running locally:</p>
+            <p className="text-dark-600 mb-5 dark:text-dark-300">This feature needs the Python backend and LLM API keys. Here&apos;s what you get running locally:</p>
 
-            <div className="space-y-3 text-left text-dark-600 dark:text-dark-300 dark:text-dark-600 mb-5">
+            <div className="space-y-3 text-left text-dark-600 mb-5 dark:text-dark-300">
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">🎯</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">AI-Coached Scenarios</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400 dark:text-dark-500">6 branching decision simulations where an LLM coach evaluates your choices and gives personalized feedback</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400">6 branching decision simulations where an LLM coach evaluates your choices and gives personalized feedback</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">📝</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">AI-Generated Quizzes</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400 dark:text-dark-500">Generate quiz questions on any framework with real-time answer evaluation and explanations</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400">Generate quiz questions on any framework with real-time answer evaluation and explanations</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">📊</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">Decision Journal & Calibration</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400 dark:text-dark-500">Log decisions, record outcomes over time, and see your calibration analytics</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400">Log decisions, record outcomes over time, and see your calibration analytics</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">🧠</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">Full Concept Library</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400 dark:text-dark-500">All 57 frameworks with ~200 concepts, definitions, formulas, and 3 real-world examples each</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400">All 57 frameworks with ~200 concepts, definitions, formulas, and 3 real-world examples each</p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg dark:bg-dark-900 bg-dark-50 dark:bg-dark-900 p-4 mb-4">
-              <p className="text-xs font-semibold text-dark-700 dark:text-dark-300 dark:text-dark-600 mb-2">Quick setup</p>
+            <div className="rounded-lg bg-dark-50 p-4 mb-4 dark:bg-dark-900">
+              <p className="text-xs font-semibold text-dark-700 mb-2 dark:text-dark-300">Quick setup</p>
               <div className="rounded bg-dark-800 p-3 font-mono text-[11px] text-green-300 text-left overflow-x-auto">
                 <p>git clone https://github.com/kevinkicho/TheCEOCompass.git</p>
                 <p>cd TheCEOCompass/ceo-platform</p>
@@ -76,7 +76,7 @@ export function StaticModeBanner({ feature, description }: { feature: string; de
               </div>
             </div>
 
-            <p className="text-xs text-dark-400 dark:text-dark-500 text-center">
+            <p className="text-xs text-dark-400 text-center dark:text-dark-500">
               <a href="https://github.com/kevinkicho/TheCEOCompass#quick-start" target="_blank" rel="noopener" className="text-primary-500 hover:underline">Full README</a> &middot; Built by DeepSeek V4 Pro via OpenCode Go
             </p>
           </div>

@@ -51,12 +51,12 @@ export default function PathwayPage() {
     <div className="mx-auto max-w-3xl px-4 py-16">
       <div className="mb-8">
         <h1 className="text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Learning Pathway</h1>
-        <p className="mt-2 text-dark-500 dark:text-dark-400 dark:text-dark-500">Structured curriculum from strategic thinking to crisis management.</p>
+        <p className="mt-2 text-dark-500 dark:text-dark-400">Structured curriculum from strategic thinking to crisis management.</p>
       </div>
 
       {/* Progress Summary */}
       <div className="mb-8 rounded-xl bg-primary-50 p-6">
-        <div className="grid grid-cols-3 gap-4 text-center sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-3xl font-bold text-primary-600">{completedIds.length}</p>
             <p className="text-sm text-primary-700">Completed</p>
@@ -85,16 +85,11 @@ export default function PathwayPage() {
           return (
             <div
               key={step.id}
-              className={`rounded-xl border p-5 transition ${isAvailable ? "border-dark-200 dark:border-dark-700 bg-white" : "border-dark-100 dark:border-dark-800 dark:bg-dark-900 bg-dark-50 dark:bg-dark-900 opacity-60"}`}
+              className={`rounded-xl border p-5 transition ${isAvailable ? "border-dark-200 bg-white" : "border-dark-100 bg-dark-50 opacity-60"} dark:bg-dark-900`}
             >
               <div className="flex items-center gap-4">
                 {/* Step Number */}
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                  status === "completed" ? "bg-green-500 text-white"
-                  : status === "in-progress" ? "bg-primary-500 text-white"
-                  : isAvailable ? "bg-dark-100 text-dark-600 dark:text-dark-300 dark:text-dark-600"
-                  : "bg-dark-100 text-dark-300 dark:text-dark-600"
-                }`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold ${ status === "completed" ? "bg-green-500 text-white" : status === "in-progress" ? "bg-primary-500 text-white" : isAvailable ? "bg-dark-100 text-dark-600" : "bg-dark-100 text-dark-300" }`}>
                   {status === "completed" ? (
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -105,24 +100,20 @@ export default function PathwayPage() {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className={`font-semibold ${isAvailable ? "text-dark-900 dark:text-dark-100" : "text-dark-400 dark:text-dark-500"}`}>{step.title}</h3>
+                    <h3 className={`font-semibold ${isAvailable ? "text-dark-900" : "text-dark-400"}`}>{step.title}</h3>
                     {framework && <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">{framework.category}</span>}
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${status === "completed" ? "bg-green-100 text-green-700" : status === "in-progress" ? "bg-primary-100 text-primary-700" : "bg-dark-100 text-dark-500 dark:text-dark-400 dark:text-dark-500"}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${status === "completed" ? "bg-green-100 text-green-700" : status === "in-progress" ? "bg-primary-100 text-primary-700" : "bg-dark-100 text-dark-500"}`}>
                       {status === "completed" ? "Done" : status === "in-progress" ? "Active" : isAvailable ? "Start" : "Locked"}
                     </span>
                   </div>
-                  {framework && <p className="mt-1 text-sm text-dark-500 dark:text-dark-400 dark:text-dark-500">{framework.description}</p>}
+                  {framework && <p className="mt-1 text-sm text-dark-500 dark:text-dark-400">{framework.description}</p>}
                 </div>
 
                 {/* Action */}
                 {isAvailable && (
                   <button
                     onClick={() => router.push(`/frameworks/${step.slug}`)}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                      status === "completed" ? "bg-green-100 text-green-700 hover:bg-green-200"
-                      : status === "in-progress" ? "bg-primary-600 text-white hover:bg-primary-700"
-                      : "bg-primary-600 text-white hover:bg-primary-700"
-                    }`}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${ status === "completed" ? "bg-green-100 text-green-700 hover:bg-green-200" : status === "in-progress" ? "bg-primary-600 text-white hover:bg-primary-700" : "bg-primary-600 text-white hover:bg-primary-700" }`}
                   >
                     {status === "completed" ? "Review" : status === "in-progress" ? "Continue" : "Start"}
                   </button>

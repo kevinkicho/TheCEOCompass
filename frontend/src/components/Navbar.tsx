@@ -22,7 +22,7 @@ export function Navbar() {
     <>
       <nav className="fixed top-0 z-50 w-full border-b border-dark-200 bg-white/80 backdrop-blur dark:border-dark-700 dark:bg-dark-950/80">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-bold text-dark-900 dark:text-dark-50" onClick={() => setOpen(false)}>
+          <Link href="/" className="text-xl font-bold text-dark-900 dark:text-dark-100" onClick={() => setOpen(false)}>
             CEO<span className="text-primary-600 dark:text-primary-400">Compass</span>
           </Link>
 
@@ -32,7 +32,7 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2 text-sm rounded-md text-dark-600 hover:text-dark-900 hover:bg-dark-100 dark:text-dark-300 dark:hover:text-dark-50 dark:hover:bg-dark-800 transition-colors"
+                className="px-3 py-2 text-sm rounded-md text-dark-600 dark:text-dark-300 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
               >
                 {item.label}
               </Link>
@@ -43,7 +43,7 @@ export function Navbar() {
             {/* Dark mode toggle */}
             <button
               onClick={toggle}
-              className="h-9 w-9 flex items-center justify-center rounded-md text-dark-500 hover:text-dark-900 hover:bg-dark-100 dark:text-dark-400 dark:hover:text-dark-50 dark:hover:bg-dark-800 transition-colors"
+              className="h-9 w-9 flex items-center justify-center rounded-md text-dark-500 dark:text-dark-400 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
@@ -52,7 +52,7 @@ export function Navbar() {
             {/* Hamburger */}
             <button
               onClick={() => setOpen(!open)}
-              className="md:hidden h-9 w-9 flex items-center justify-center rounded-md text-dark-500 hover:text-dark-900 hover:bg-dark-100 dark:text-dark-400 dark:hover:text-dark-50 dark:hover:bg-dark-800 transition-colors"
+              className="md:hidden h-9 w-9 flex items-center justify-center rounded-md text-dark-500 dark:text-dark-400 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
               aria-label="Toggle menu"
             >
               {open ? <XIcon /> : <MenuIcon />}
@@ -75,7 +75,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="block px-3 py-2.5 rounded-md text-sm font-medium text-dark-700 hover:text-dark-900 hover:bg-dark-100 dark:text-dark-200 dark:hover:text-dark-50 dark:hover:bg-dark-800 transition-colors"
+                  className="block px-3 py-2.5 rounded-md text-sm font-medium text-dark-700 dark:text-dark-300 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
                 >
                   {item.label}
                 </Link>
