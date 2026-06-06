@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react"
 import type { Framework, FrameworkConcept } from "@/lib/types"
 
+import { staticFrameworks } from "@/lib/staticData"
+
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
+const isStaticHosting = typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")
 
 export default function CheatsheetPage() {
   const [frameworks, setFrameworks] = useState<Framework[]>([])
@@ -11,6 +14,10 @@ export default function CheatsheetPage() {
   const [modalConcept, setModalConcept] = useState<FrameworkConcept | null>(null)
 
   useEffect(() => {
+    if (isStaticHosting) {
+      setFrameworks(staticFrameworks as Framework[])
+      return
+    }
     fetch(`${API}/frameworks`)
       .then((r) => r.json())
       .then(async (list: { id: string }[]) => {

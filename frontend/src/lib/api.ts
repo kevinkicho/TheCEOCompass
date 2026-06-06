@@ -25,7 +25,11 @@ export async function getFramework(id: string): Promise<Framework> {
 }
 
 export async function getFrameworkBySlug(slug: string): Promise<Framework> {
-  if (isStaticHosting) return getFramework(slug)
+  if (isStaticHosting) {
+    const fw = staticFrameworks.find(f => f.slug === slug || f.id === slug) as unknown as Framework | undefined
+    if (fw) return fw
+    throw new Error("Not found")
+  }
   try { const { data } = await api.get(`/frameworks/slug/${slug}`); return data } catch { throw new Error("Not found") }
 }
 

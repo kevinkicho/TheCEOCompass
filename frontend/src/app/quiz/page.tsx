@@ -4,7 +4,10 @@ import { useState, useEffect } from "react"
 import { getFrameworks } from "@/lib/api"
 import type { FrameworkListItem } from "@/lib/types"
 
+import { staticFrameworks } from "@/lib/staticData"
+
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
+const isStaticHosting = typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")
 
 interface QuizQuestion {
   id: string
@@ -34,6 +37,10 @@ export default function QuizPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    if (isStaticHosting) {
+      setFrameworks(staticFrameworks as FrameworkListItem[])
+      return
+    }
     getFrameworks().then(setFrameworks).catch(console.error)
   }, [])
 
