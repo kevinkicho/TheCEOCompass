@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { getJournalEntries, createJournalEntry, createJournalOutcome } from "@/lib/api"
+import { StaticModeBanner } from "@/components/StaticModeBanner"
 import type { JournalEntry } from "@/lib/types"
 
 export default function JournalPage() {
@@ -94,6 +95,11 @@ export default function JournalPage() {
           <h1 className="text-4xl font-bold text-dark-900">Decision Journal</h1>
           <p className="mt-1 text-dark-500">Track decisions, review outcomes, calibrate judgment.</p>
         </div>
+
+        <StaticModeBanner
+          feature="Decision Journal"
+          description="Log decisions, record outcomes, and track calibration over time"
+        />
         <button
           onClick={() => setShowEntryModal(true)}
           className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700"

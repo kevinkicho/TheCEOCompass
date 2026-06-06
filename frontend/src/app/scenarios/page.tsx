@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getScenarios } from "@/lib/api"
+import { StaticModeBanner } from "@/components/StaticModeBanner"
 import type { ScenarioListItem } from "@/lib/types"
 
 export default function ScenariosPage() {
@@ -22,9 +23,14 @@ export default function ScenariosPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16">
       <h1 className="mb-2 text-4xl font-bold text-dark-900">Scenarios</h1>
-      <p className="mb-8 text-dark-500">
+      <p className="mb-4 text-dark-500">
         Apply frameworks to real-world CEO situations. Get AI-powered feedback on your decisions.
       </p>
+
+      <StaticModeBanner
+        feature="AI Scenarios"
+        description="Interactive decision simulations with LLM coaching feedback"
+      />
 
       <div className="grid gap-6">
         {scenarios.map((scenario) => {

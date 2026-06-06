@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { getFrameworks } from "@/lib/api"
+import { StaticModeBanner } from "@/components/StaticModeBanner"
+import { staticFrameworks } from "@/lib/staticData"
 import type { FrameworkListItem } from "@/lib/types"
 
 import { staticFrameworks } from "@/lib/staticData"
@@ -107,7 +109,12 @@ export default function QuizPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <h1 className="mb-2 text-4xl font-bold text-dark-900">Quiz</h1>
-        <p className="mb-8 text-dark-500">Test your knowledge of CEO frameworks with AI-generated questions.</p>
+        <p className="mb-4 text-dark-500">Test your knowledge of CEO frameworks with AI-generated questions.</p>
+
+        <StaticModeBanner
+          feature="AI-Generated Quizzes"
+          description="Real-time LLM-generated questions with answer evaluation"
+        />
 
         <div className="rounded-xl border border-dark-200 p-6">
           <label className="mb-2 block text-sm font-medium text-dark-700">Select a framework</label>

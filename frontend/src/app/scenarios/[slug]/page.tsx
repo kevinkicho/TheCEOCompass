@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { getScenario } from "@/lib/api"
 import { ScenarioEngine } from "@/components/ScenarioEngine"
+import { StaticModeBanner } from "@/components/StaticModeBanner"
 import type { Scenario } from "@/lib/types"
 
 export default function ScenarioPage() {
@@ -26,8 +27,12 @@ export default function ScenarioPage() {
     <div className="mx-auto max-w-3xl px-4 py-16">
       <div className="mb-10">
         <h1 className="mb-2 text-4xl font-bold text-dark-900">{scenario.title}</h1>
-        <p className="text-lg text-dark-500">{scenario.description}</p>
+        <p className="mb-4 text-lg text-dark-500">{scenario.description}</p>
       </div>
+      <StaticModeBanner
+        feature="AI Feedback"
+        description="This scenario requires the backend for LLM-powered coaching and evaluation"
+      />
       <ScenarioEngine scenario={scenario} />
     </div>
   )
