@@ -15,7 +15,7 @@ export default function CheatsheetPage() {
 
   useEffect(() => {
     if (isStaticHosting) {
-      setFrameworks(staticFrameworks as Framework[])
+      setFrameworks(staticFrameworks as unknown as Framework[])
       return
     }
     fetch(`${API}/frameworks`)

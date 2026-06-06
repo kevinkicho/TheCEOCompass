@@ -38,7 +38,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (isStaticHosting) {
-      setFrameworks(staticFrameworks as FrameworkListItem[])
+      setFrameworks(staticFrameworks as unknown as FrameworkListItem[])
       return
     }
     getFrameworks().then(setFrameworks).catch(console.error)
