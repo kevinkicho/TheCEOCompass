@@ -1,5 +1,7 @@
 # CEO Compass
 
+**[Live Demo →](https://kevinkicho.github.io/TheCEOCompass/)**
+
 > Navigate every leadership decision with 57 frameworks, interactive scenarios, and AI-powered coaching.
 
 **CEO Compass** is a full-stack web application that helps leaders master the frameworks of world-class CEOs. It combines an encyclopedia of decision-making tools with an interactive scenario simulator, quiz engine, and personal decision journal.

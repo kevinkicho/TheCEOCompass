@@ -5,6 +5,11 @@ import { useParams } from "next/navigation"
 import { getScenario } from "@/lib/api"
 import { ScenarioEngine } from "@/components/ScenarioEngine"
 import type { Scenario } from "@/lib/types"
+import slugs from "@/data/slugs.json"
+
+export function generateStaticParams() {
+  return slugs.scenarios.map((slug) => ({ slug }))
+}
 
 export default function ScenarioPage() {
   const { slug } = useParams<{ slug: string }>()
