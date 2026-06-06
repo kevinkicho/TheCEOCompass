@@ -6,6 +6,7 @@ const nextConfig = {
   distDir: "out",
   basePath: "/TheCEOCompass",
   assetPrefix: "/TheCEOCompass",
+  trailingSlash: true,
   images: { unoptimized: true },
 }
 
