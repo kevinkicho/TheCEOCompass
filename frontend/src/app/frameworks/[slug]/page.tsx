@@ -49,7 +49,7 @@ export default function FrameworkDetailPage() {
       {/* Header */}
       <div className="mb-10">
         <div className="mb-3 flex items-center gap-2">
-          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
             {framework.category.replace(/-/g, " ")}
           </span>
           <span className="text-sm text-dark-400 dark:text-dark-300">
@@ -71,7 +71,7 @@ export default function FrameworkDetailPage() {
               <button
                 key={name}
                 onClick={() => concept && setModalConcept(concept)}
-                className={`rounded-lg border px-3.5 py-3 text-center w-full transition hover:border-primary-300 hover:shadow-sm ${ concept ? "border-dark-200 cursor-pointer hover:bg-primary-50 dark:border-dark-700" : "border-dark-100 bg-dark-50 cursor-default opacity-60 dark:bg-dark-900 dark:border-dark-800" }`}
+                className={`rounded-lg border px-3.5 py-3 text-center w-full transition hover:border-primary-300 hover:shadow-sm ${ concept ? "border-dark-200 cursor-pointer hover:bg-primary-50 dark:border-dark-700 dark:hover:bg-primary-900/20" : "border-dark-100 bg-dark-50 cursor-default opacity-60 dark:bg-dark-900 dark:border-dark-800" }`}
               >
                 <span className="text-[13px] sm:text-sm font-medium text-dark-700 leading-snug break-words dark:text-dark-300">
                   {name}
@@ -103,11 +103,11 @@ export default function FrameworkDetailPage() {
               <button
                 key={scenario.id}
                 onClick={() => router.push(`/scenarios/${scenario.slug}`)}
-                className="flex items-center justify-between rounded-xl border border-primary-200 bg-primary-50 p-5 text-left transition hover:bg-primary-100"
+                className="flex items-center justify-between rounded-xl border border-primary-200 bg-primary-50 p-5 text-left transition hover:bg-primary-100 dark:bg-primary-900/20 dark:hover:bg-primary-900/30 dark:border-primary-800/40"
               >
                 <div>
-                  <h3 className="font-semibold text-primary-900">{scenario.title}</h3>
-                  <p className="text-sm text-primary-700">{scenario.description}</p>
+                  <h3 className="font-semibold text-primary-900 dark:text-primary-200">{scenario.title}</h3>
+                  <p className="text-sm text-primary-700 dark:text-primary-300">{scenario.description}</p>
                 </div>
                 <span className="text-primary-600">&rarr;</span>
               </button>
@@ -134,7 +134,7 @@ export default function FrameworkDetailPage() {
             </button>
           </div>
           
-          <p className="mb-5 text-base leading-relaxed text-dark-800 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400 dark:text-dark-200">
+          <p className="mb-5 text-base leading-relaxed text-dark-800 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400 dark:text-dark-200 dark:bg-primary-900/20">
             {modalConcept.definition}
           </p>
           
@@ -150,7 +150,7 @@ export default function FrameworkDetailPage() {
               <ul className="space-y-3">
                 {modalConcept.example.split(" | ").map((ex, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                       {i + 1}
                     </span>
                     <span className="leading-relaxed">{ex}</span>
@@ -163,7 +163,7 @@ export default function FrameworkDetailPage() {
           {modalConcept.tags && modalConcept.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {modalConcept.tags.map((tag) => (
-                <span key={tag} className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700">
+                <span key={tag} className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                   {tag}
                 </span>
               ))}

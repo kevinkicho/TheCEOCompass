@@ -151,9 +151,9 @@ export default function QuizPage() {
         <div className="rounded-xl border border-dark-200 p-8 text-center dark:border-dark-700">
           <div className="mb-4 text-5xl">{emoji}</div>
           <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{msg}</h2>
-          <div className="mb-6 rounded-lg bg-primary-50 p-4">
+          <div className="mb-6 rounded-lg bg-primary-50 p-4 dark:bg-primary-900/20">
             <p className="text-3xl font-bold text-primary-600">{score}/{questions.length}</p>
-            <p className="text-sm text-primary-700">{pct}% correct</p>
+            <p className="text-sm text-primary-700 dark:text-primary-300">{pct}% correct</p>
           </div>
 
           {/* Review all answers */}
@@ -203,7 +203,7 @@ export default function QuizPage() {
       {/* Question */}
       <div className="mb-6 rounded-xl border border-dark-200 p-6 dark:border-dark-700">
         <div className="mb-4 flex items-center gap-2">
-          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
             {q.framework_concept}
           </span>
           {q.type && (
@@ -221,7 +221,7 @@ export default function QuizPage() {
                 <button
                   key={opt}
                   onClick={() => setSelectedAnswer(opt)}
-                  className={`w-full rounded-lg border p-3 text-left text-sm transition ${ selectedAnswer === opt ? "border-primary-400 bg-primary-50" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
+                  className={`w-full rounded-lg border p-3 text-left text-sm transition ${ selectedAnswer === opt ? "border-primary-400 bg-primary-50 dark:bg-primary-900/20" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
                 >
                   {opt}
                 </button>
@@ -247,8 +247,8 @@ export default function QuizPage() {
                 </p>
               )}
             </div>
-            <div className="rounded-lg border border-primary-100 bg-primary-50/50 p-4">
-              <p className="text-xs font-semibold text-primary-700 uppercase tracking-wide mb-1">Explanation</p>
+            <div className="rounded-lg border border-primary-100 bg-primary-50/50 p-4 dark:bg-primary-900/20 dark:border-primary-900/30">
+              <p className="text-xs font-semibold text-primary-700 uppercase tracking-wide mb-1 dark:text-primary-300">Explanation</p>
               <p className="text-sm text-dark-600 leading-relaxed dark:text-dark-300">{evalResult.explanation || q.explanation}</p>
             </div>
             <button

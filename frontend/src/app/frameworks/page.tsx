@@ -48,7 +48,7 @@ export default function FrameworksPage() {
             className="group rounded-xl border border-dark-200 p-6 transition hover:border-primary-300 hover:shadow-md dark:border-dark-700"
           >
             <div className="mb-3 flex items-center gap-2">
-              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                 {fw.category.replace(/-/g, " ")}
               </span>
               <div className="flex gap-0.5">

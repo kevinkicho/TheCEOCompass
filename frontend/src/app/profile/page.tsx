@@ -153,10 +153,10 @@ export default function ProfilePage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <button
           onClick={() => router.push("/scenarios")}
-          className="rounded-xl border border-primary-200 bg-primary-50 p-5 text-left hover:bg-primary-100 transition"
+          className="rounded-xl border border-primary-200 bg-primary-50 p-5 text-left hover:bg-primary-100 transition dark:bg-primary-900/20 dark:hover:bg-primary-900/30 dark:border-primary-800/40"
         >
-          <h3 className="font-semibold text-primary-900">Scenarios</h3>
-          <p className="text-sm text-primary-700">Practice CEO decision-making</p>
+          <h3 className="font-semibold text-primary-900 dark:text-primary-200">Scenarios</h3>
+          <p className="text-sm text-primary-700 dark:text-primary-300">Practice CEO decision-making</p>
         </button>
         <button
           onClick={() => router.push("/journal")}

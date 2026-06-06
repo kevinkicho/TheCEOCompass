@@ -10,7 +10,7 @@ export function DemoFooter() {
       <div className="flex flex-col items-center gap-3">
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-4 py-2 text-xs font-medium text-primary-700 hover:bg-primary-100 transition border border-primary-200 shadow-sm"
+          className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-4 py-2 text-xs font-medium text-primary-700 hover:bg-primary-100 transition border border-primary-200 shadow-sm dark:bg-primary-900/20 dark:hover:bg-primary-900/30 dark:border-primary-800/40 dark:text-primary-300"
         >
           <span className="h-2 w-2 rounded-full bg-primary-500 animate-pulse"></span>
           Run locally for full experience

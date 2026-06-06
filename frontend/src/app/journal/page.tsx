@@ -132,7 +132,7 @@ export default function JournalPage() {
             >
               <div className="mb-3 flex items-center gap-3">
                 <h2 className="font-semibold text-dark-900 dark:text-dark-100">{entry.title}</h2>
-                <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+                <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                   Confidence: {entry.confidence}/10
                 </span>
                 <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${entry.outcome_captured ? "bg-green-100 text-green-700" : isPastReview(entry.review_date) ? "bg-amber-100 text-amber-700" : "bg-dark-100 text-dark-600 dark:bg-dark-800 dark:text-dark-300"}`}>
@@ -173,7 +173,7 @@ export default function JournalPage() {
                         lesson: "",
                       })
                     }}
-                    className="rounded-lg border border-primary-300 px-4 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50"
+                    className="rounded-lg border border-primary-300 px-4 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:border-primary-800/50 dark:text-primary-300"
                   >
                     Record Outcome
                   </button>

@@ -145,7 +145,7 @@ export function ScenarioEngine({ scenario }: Props) {
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-dark-500 dark:text-dark-300">Stage {stageNumber} of {scenario.stages.length}</span>
-          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+          <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
             {stage.type}
           </span>
         </div>
@@ -238,7 +238,7 @@ function DecisionPrompt({
           <button
             key={option.id}
             onClick={() => setSelectedChoice(option.id)}
-            className={`w-full rounded-lg border p-4 text-left transition ${ selectedChoice === option.id ? "border-primary-400 bg-primary-50 shadow-sm" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
+            className={`w-full rounded-lg border p-4 text-left transition ${ selectedChoice === option.id ? "border-primary-400 bg-primary-50 shadow-sm dark:bg-primary-900/20" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
           >
             <div className="flex items-start gap-3">
               <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${ selectedChoice === option.id ? "border-primary-500 bg-primary-500 text-white" : "border-dark-300 text-dark-400 dark:text-dark-300 dark:border-dark-600" }`}>
@@ -292,8 +292,8 @@ function FeedbackPanel({
   return (
     <div className="animate-slide-up space-y-4">
       {/* Score */}
-      <div className="rounded-lg bg-primary-50 p-4 text-center">
-        <p className="text-sm text-primary-700">Score</p>
+      <div className="rounded-lg bg-primary-50 p-4 text-center dark:bg-primary-900/20">
+        <p className="text-sm text-primary-700 dark:text-primary-300">Score</p>
         <p className="text-2xl font-bold text-primary-600">{Math.round(feedback.score * 100)}%</p>
       </div>
 

@@ -55,22 +55,22 @@ export default function PathwayPage() {
       </div>
 
       {/* Progress Summary */}
-      <div className="mb-8 rounded-xl bg-primary-50 p-6">
+      <div className="mb-8 rounded-xl bg-primary-50 p-6 dark:bg-primary-900/20">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-3xl font-bold text-primary-600">{completedIds.length}</p>
-            <p className="text-sm text-primary-700">Completed</p>
+            <p className="text-sm text-primary-700 dark:text-primary-300">Completed</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-primary-600">{PATHWAY_STEPS.length - completedIds.length}</p>
-            <p className="text-sm text-primary-700">Remaining</p>
+            <p className="text-sm text-primary-700 dark:text-primary-300">Remaining</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-primary-600">{completedIds.length > 0 ? Math.round((completedIds.length / PATHWAY_STEPS.length) * 100) : 0}%</p>
-            <p className="text-sm text-primary-700">Progress</p>
+            <p className="text-sm text-primary-700 dark:text-primary-300">Progress</p>
           </div>
         </div>
-        <div className="mt-4 h-2 w-full rounded-full bg-primary-100">
+        <div className="mt-4 h-2 w-full rounded-full bg-primary-100 dark:bg-primary-900/30">
           <div className="h-full rounded-full bg-primary-600 transition-all" style={{ width: `${completedIds.length > 0 ? (completedIds.length / PATHWAY_STEPS.length) * 100 : 0}%` }} />
         </div>
       </div>
@@ -101,8 +101,8 @@ export default function PathwayPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className={`font-semibold ${isAvailable ? "text-dark-900 dark:text-dark-100" : "text-dark-400 dark:text-dark-300"}`}>{step.title}</h3>
-                    {framework && <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">{framework.category}</span>}
-                    <span className={`rounded-full px-2 py-0.5 text-xs ${status === "completed" ? "bg-green-100 text-green-700" : status === "in-progress" ? "bg-primary-100 text-primary-700" : "bg-dark-100 text-dark-500 dark:bg-dark-800 dark:text-dark-300"}`}>
+                    {framework && <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{framework.category}</span>}
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${status === "completed" ? "bg-green-100 text-green-700" : status === "in-progress" ? "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" : "bg-dark-100 text-dark-500 dark:bg-dark-800 dark:text-dark-300"}`}>
                       {status === "completed" ? "Done" : status === "in-progress" ? "Active" : isAvailable ? "Start" : "Locked"}
                     </span>
                   </div>

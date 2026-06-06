@@ -65,7 +65,7 @@ export default function CheatsheetPage() {
           <div key={fw.id}>
             <div className="mb-2 flex items-center gap-2">
               <h2 className="text-lg font-semibold text-dark-900 dark:text-dark-100">{fw.title}</h2>
-              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
+              <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                 {fw.category}
               </span>
             </div>
@@ -87,7 +87,7 @@ export default function CheatsheetPage() {
                       <td className="py-2.5">
                         <button
                           onClick={() => setModalConcept(concept)}
-                          className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 transition"
+                          className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100 transition dark:bg-primary-900/20 dark:hover:bg-primary-900/30 dark:text-primary-300"
                         >
                           {concept.example
                             ? `${concept.example.split(" | ").length} examples`
@@ -123,7 +123,7 @@ export default function CheatsheetPage() {
               </button>
             </div>
 
-            <p className="mb-5 text-base leading-relaxed text-dark-800 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400 dark:text-dark-200">
+            <p className="mb-5 text-base leading-relaxed text-dark-800 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400 dark:text-dark-200 dark:bg-primary-900/20">
               {modalConcept.definition}
             </p>
 
@@ -144,7 +144,7 @@ export default function CheatsheetPage() {
                       key={i}
                       className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300"
                     >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                         {i + 1}
                       </span>
                       <span className="leading-relaxed">{ex}</span>
@@ -159,7 +159,7 @@ export default function CheatsheetPage() {
                 {modalConcept.tags.map((tag: string) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700"
+                    className="rounded-full bg-primary-100 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
                   >
                     {tag}
                   </span>
