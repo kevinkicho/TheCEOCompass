@@ -43,7 +43,7 @@ export function Navbar() {
             {/* Dark mode toggle */}
             <button
               onClick={toggle}
-              className="h-9 w-9 flex items-center justify-center rounded-md text-dark-500 dark:text-dark-400 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
+              className="h-9 w-9 flex items-center justify-center rounded-md text-dark-500 dark:text-dark-300 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? <SunIcon /> : <MoonIcon />}
@@ -52,7 +52,7 @@ export function Navbar() {
             {/* Hamburger */}
             <button
               onClick={() => setOpen(!open)}
-              className="md:hidden h-9 w-9 flex items-center justify-center rounded-md text-dark-500 dark:text-dark-400 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
+              className="md:hidden h-9 w-9 flex items-center justify-center rounded-md text-dark-500 dark:text-dark-300 hover:text-dark-900 dark:hover:text-dark-50 hover:bg-dark-100 dark:hover:bg-dark-800 transition-colors"
               aria-label="Toggle menu"
             >
               {open ? <XIcon /> : <MenuIcon />}

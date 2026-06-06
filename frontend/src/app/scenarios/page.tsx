@@ -23,7 +23,7 @@ export default function ScenariosPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16">
       <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Scenarios</h1>
-      <p className="mb-4 text-dark-500 dark:text-dark-400">
+      <p className="mb-4 text-dark-500 dark:text-dark-300">
         Apply frameworks to real-world CEO situations. Get AI-powered feedback on your decisions.
       </p>
 
@@ -47,7 +47,7 @@ export default function ScenariosPage() {
                 </span>
               </div>
               <h3 className="mb-2 text-xl font-semibold text-dark-900 dark:text-dark-100">{scenario.title}</h3>
-              <p className="text-dark-500 dark:text-dark-400">{scenario.description}</p>
+              <p className="text-dark-500 dark:text-dark-300">{scenario.description}</p>
             </div>
           )
         })}

@@ -33,7 +33,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16">
-        <p className="text-dark-500 dark:text-dark-400">Loading profile...</p>
+        <p className="text-dark-500 dark:text-dark-300">Loading profile...</p>
       </div>
     )
   }
@@ -73,15 +73,15 @@ export default function ProfilePage() {
           <div className="mb-4 grid grid-cols-3 gap-4">
             <div className="rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
               <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{Math.round(calibration.accuracy * 100)}%</p>
-              <p className="text-xs text-dark-500 dark:text-dark-400">Accuracy</p>
+              <p className="text-xs text-dark-500 dark:text-dark-300">Accuracy</p>
             </div>
             <div className="rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
               <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{Math.round(calibration.average_confidence * 100)}%</p>
-              <p className="text-xs text-dark-500 dark:text-dark-400">Avg Confidence</p>
+              <p className="text-xs text-dark-500 dark:text-dark-300">Avg Confidence</p>
             </div>
             <div className="rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
               <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{calibration.average_brier_score.toFixed(2)}</p>
-              <p className="text-xs text-dark-500 dark:text-dark-400">Brier Score</p>
+              <p className="text-xs text-dark-500 dark:text-dark-300">Brier Score</p>
             </div>
           </div>
           
@@ -91,7 +91,7 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 {Object.entries(calibration.calibration_by_confidence).map(([bucket, data]) => (
                   <div key={bucket} className="flex items-center gap-3 text-sm">
-                    <span className="w-16 text-dark-500 dark:text-dark-400">{bucket}</span>
+                    <span className="w-16 text-dark-500 dark:text-dark-300">{bucket}</span>
                     <div className="flex-1 h-5 flex rounded-full overflow-hidden bg-dark-100 dark:bg-dark-800">
                       <div
                         className="bg-primary-500 transition-all"
@@ -100,7 +100,7 @@ export default function ProfilePage() {
                       <div className="bg-dark-200 transition-all dark:bg-dark-700" style={{ width: `${(1 - data.accuracy) * 100}%` }} />
                     </div>
                     <span className="w-10 text-right text-dark-600 dark:text-dark-300">{Math.round(data.accuracy * 100)}%</span>
-                    <span className="w-8 text-right text-dark-400 dark:text-dark-500">n={data.count}</span>
+                    <span className="w-8 text-right text-dark-400 dark:text-dark-300">n={data.count}</span>
                   </div>
                 ))}
               </div>
@@ -114,7 +114,7 @@ export default function ProfilePage() {
                 {calibration.trend.map((point) => (
                   <div key={point.month} className="flex flex-1 flex-col items-center gap-1">
                     <div className="w-full rounded-t bg-primary-500 transition-all" style={{ height: `${point.accuracy * 100}%` }} />
-                    <span className="text-[10px] text-dark-400 dark:text-dark-500">{point.month.slice(2)}</span>
+                    <span className="text-[10px] text-dark-400 dark:text-dark-300">{point.month.slice(2)}</span>
                   </div>
                 ))}
               </div>
@@ -138,7 +138,7 @@ export default function ProfilePage() {
                   >
                     {fw.title}
                   </button>
-                  <span className="text-dark-500 dark:text-dark-400">{Math.round(mastery)}%</span>
+                  <span className="text-dark-500 dark:text-dark-300">{Math.round(mastery)}%</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-dark-100 dark:bg-dark-800">
                   <div className="h-full rounded-full bg-primary-500 transition-all" style={{ width: `${mastery}%` }} />
@@ -163,14 +163,14 @@ export default function ProfilePage() {
           className="rounded-xl border border-dark-200 p-5 text-left hover:bg-dark-50 transition dark:hover:bg-dark-800 dark:border-dark-700"
         >
           <h3 className="font-semibold text-dark-900 dark:text-dark-100">Decision Journal</h3>
-          <p className="text-sm text-dark-500 dark:text-dark-400">Review your decisions and calibrate</p>
+          <p className="text-sm text-dark-500 dark:text-dark-300">Review your decisions and calibrate</p>
         </button>
         <button
           onClick={() => router.push("/pathway")}
           className="rounded-xl border border-dark-200 p-5 text-left hover:bg-dark-50 transition dark:hover:bg-dark-800 dark:border-dark-700"
         >
           <h3 className="font-semibold text-dark-900 dark:text-dark-100">Learning Pathway</h3>
-          <p className="text-sm text-dark-500 dark:text-dark-400">Follow the structured curriculum</p>
+          <p className="text-sm text-dark-500 dark:text-dark-300">Follow the structured curriculum</p>
         </button>
       </div>
     </div>
@@ -182,7 +182,7 @@ function StatsCard({ label, value, subtitle }: { label: string; value: string | 
     <div className="rounded-xl border border-dark-200 p-5 text-center dark:border-dark-700">
       <p className="text-3xl font-bold text-dark-900 dark:text-dark-100">{value}</p>
       <p className="text-sm font-medium text-dark-700 dark:text-dark-300">{label}</p>
-      {subtitle && <p className="text-xs text-dark-500 dark:text-dark-400">{subtitle}</p>}
+      {subtitle && <p className="text-xs text-dark-500 dark:text-dark-300">{subtitle}</p>}
     </div>
   )
 }

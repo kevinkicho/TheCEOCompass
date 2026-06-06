@@ -22,7 +22,7 @@ export default function FrameworksPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-16">
       <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Frameworks</h1>
-      <p className="mb-8 text-dark-500 dark:text-dark-400">
+      <p className="mb-8 text-dark-500 dark:text-dark-300">
         Master the analytical tools that world-class CEOs rely on.
       </p>
 
@@ -32,7 +32,7 @@ export default function FrameworksPage() {
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${ category === cat ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200" } dark:text-dark-300`}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${ category === cat ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200 dark:bg-dark-800 dark:text-dark-300 dark:hover:bg-dark-600" }`}
           >
             {cat === "all" ? "All" : cat.replace(/-/g, " ")}
           </button>
@@ -55,7 +55,7 @@ export default function FrameworksPage() {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span
                     key={i}
-                    className={`h-1.5 w-1.5 rounded-full ${ i < fw.difficulty ? "bg-primary-400" : "bg-dark-200" }`}
+                    className={`h-1.5 w-1.5 rounded-full ${ i < fw.difficulty ? "bg-primary-400" : "bg-dark-200 dark:bg-dark-700" }`}
                   />
                 ))}
               </div>
@@ -63,8 +63,8 @@ export default function FrameworksPage() {
             <h3 className="mb-2 text-lg font-semibold text-dark-900 group-hover:text-primary-600 dark:text-dark-100">
               {fw.title}
             </h3>
-            <p className="mb-4 text-sm text-dark-500 dark:text-dark-400">{fw.description}</p>
-            <div className="flex items-center justify-between text-xs text-dark-400 dark:text-dark-500">
+            <p className="mb-4 text-sm text-dark-500 dark:text-dark-300">{fw.description}</p>
+            <div className="flex items-center justify-between text-xs text-dark-400 dark:text-dark-300">
               <span>{fw.estimated_time_minutes} min to learn</span>
               <span className="text-primary-600 opacity-0 group-hover:opacity-100 transition">
                 Open &rarr;

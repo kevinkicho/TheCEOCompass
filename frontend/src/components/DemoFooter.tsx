@@ -6,7 +6,7 @@ export function DemoFooter() {
   const [showModal, setShowModal] = useState(false)
 
   return (
-    <footer className="border-t border-dark-200 py-6 text-center text-xs text-dark-400 dark:text-dark-500 dark:border-dark-700">
+    <footer className="border-t border-dark-200 py-6 text-center text-xs text-dark-400 dark:text-dark-300 dark:border-dark-700">
       <div className="flex flex-col items-center gap-3">
         <button
           onClick={() => setShowModal(true)}
@@ -23,7 +23,7 @@ export function DemoFooter() {
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl animate-slide-up dark:bg-dark-900" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-dark-900 dark:text-dark-100">Run locally & unlock</h3>
-              <button onClick={() => setShowModal(false)} className="text-dark-400 hover:text-dark-600 text-lg dark:text-dark-500">&times;</button>
+              <button onClick={() => setShowModal(false)} className="text-dark-400 hover:text-dark-600 text-lg dark:text-dark-300">&times;</button>
             </div>
 
             <div className="space-y-3 text-left text-dark-600 mb-5 dark:text-dark-300">
@@ -31,28 +31,28 @@ export function DemoFooter() {
                 <span className="text-lg shrink-0">🎯</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">AI-Coached Scenarios</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400">6 branching decision simulations where an LLM coach evaluates your choices and gives personalized feedback</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-300">6 branching decision simulations where an LLM coach evaluates your choices and gives personalized feedback</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">📝</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">AI-Generated Quizzes</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400">Generate quiz questions on any framework with real-time answer evaluation and explanations</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-300">Generate quiz questions on any framework with real-time answer evaluation and explanations</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">📊</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">Decision Calibration</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400">Log decisions, record outcomes over time, and see your accuracy-vs-confidence calibration chart</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-300">Log decisions, record outcomes over time, and see your accuracy-vs-confidence calibration chart</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <span className="text-lg shrink-0">🧠</span>
                 <div>
                   <p className="font-medium text-dark-800 dark:text-dark-200">Full Concept Library</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400">All 57 frameworks with ~200 concepts, definitions, formulas, and 3 real-world CEO examples each</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-300">All 57 frameworks with ~200 concepts, definitions, formulas, and 3 real-world CEO examples each</p>
                 </div>
               </div>
             </div>
@@ -70,7 +70,7 @@ export function DemoFooter() {
               </div>
             </div>
 
-            <p className="text-xs text-dark-400 text-center dark:text-dark-500">
+            <p className="text-xs text-dark-400 text-center dark:text-dark-300">
               <a href="https://github.com/kevinkicho/TheCEOCompass#quick-start" target="_blank" rel="noopener" className="text-primary-500 hover:underline">Full README</a> &middot; Built by DeepSeek V4 Pro via OpenCode Go
             </p>
           </div>

@@ -108,7 +108,7 @@ export default function QuizPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Quiz</h1>
-        <p className="mb-4 text-dark-500 dark:text-dark-400">Test your knowledge of CEO frameworks with AI-generated questions.</p>
+        <p className="mb-4 text-dark-500 dark:text-dark-300">Test your knowledge of CEO frameworks with AI-generated questions.</p>
 
         <StaticModeBanner
           feature="AI-Generated Quizzes"
@@ -164,8 +164,8 @@ export default function QuizPage() {
                 <div key={q.id} className={`rounded-lg border p-3 text-sm ${isCorrect ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
                   <p className="font-medium text-dark-800 dark:text-dark-200">{i + 1}. {q.question}</p>
                   <p className="mt-1 text-dark-600 dark:text-dark-300">Your answer: <span className={isCorrect ? "text-green-700" : "text-red-700"}>{isCorrect ? "Correct" : "Incorrect"}</span></p>
-                  {!isCorrect && <p className="mt-1 text-dark-500 dark:text-dark-400">Correct: {q.correct_answer}</p>}
-                  <p className="mt-1 text-dark-500 text-xs dark:text-dark-400">{q.explanation}</p>
+                  {!isCorrect && <p className="mt-1 text-dark-500 dark:text-dark-300">Correct: {q.correct_answer}</p>}
+                  <p className="mt-1 text-dark-500 text-xs dark:text-dark-300">{q.explanation}</p>
                 </div>
               )
             })}
@@ -189,8 +189,8 @@ export default function QuizPage() {
       {/* Progress */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-dark-500 dark:text-dark-400">Question {currentQ + 1} of {questions.length}</span>
-          <span className="text-dark-500 dark:text-dark-400">Score: {score}/{currentQ + (evalResult ? 1 : 0)}</span>
+          <span className="text-dark-500 dark:text-dark-300">Question {currentQ + 1} of {questions.length}</span>
+          <span className="text-dark-500 dark:text-dark-300">Score: {score}/{currentQ + (evalResult ? 1 : 0)}</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-dark-100 dark:bg-dark-800">
           <div
@@ -207,7 +207,7 @@ export default function QuizPage() {
             {q.framework_concept}
           </span>
           {q.type && (
-            <span className="rounded-full bg-dark-100 px-2 py-0.5 text-xs text-dark-500 dark:bg-dark-800 dark:text-dark-400">
+            <span className="rounded-full bg-dark-100 px-2 py-0.5 text-xs text-dark-500 dark:bg-dark-800 dark:text-dark-300">
               {q.type}
             </span>
           )}
@@ -221,7 +221,7 @@ export default function QuizPage() {
                 <button
                   key={opt}
                   onClick={() => setSelectedAnswer(opt)}
-                  className={`w-full rounded-lg border p-3 text-left text-sm transition ${ selectedAnswer === opt ? "border-primary-400 bg-primary-50" : "border-dark-200 hover:border-dark-300" }`}
+                  className={`w-full rounded-lg border p-3 text-left text-sm transition ${ selectedAnswer === opt ? "border-primary-400 bg-primary-50" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
                 >
                   {opt}
                 </button>

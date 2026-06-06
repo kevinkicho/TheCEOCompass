@@ -23,7 +23,7 @@ export function BackendRequiredModal({ show, onClose, feature }: { show: boolean
           <h3 className="text-lg font-bold text-dark-900 dark:text-dark-100">
             <span className="text-amber-500 mr-1">⚡</span> Local backend required
           </h3>
-          <button onClick={onClose} className="text-dark-400 hover:text-dark-600 text-lg dark:text-dark-500">&times;</button>
+          <button onClick={onClose} className="text-dark-400 hover:text-dark-600 text-lg dark:text-dark-300">&times;</button>
         </div>
 
         <p className="text-dark-600 mb-4 dark:text-dark-300">
@@ -41,7 +41,7 @@ export function BackendRequiredModal({ show, onClose, feature }: { show: boolean
           </div>
         </div>
 
-        <p className="text-xs text-dark-400 text-center dark:text-dark-500">
+        <p className="text-xs text-dark-400 text-center dark:text-dark-300">
           <a href="https://github.com/kevinkicho/TheCEOCompass#quick-start" target="_blank" rel="noopener" className="text-primary-500 hover:underline">Full setup guide</a>
         </p>
       </div>

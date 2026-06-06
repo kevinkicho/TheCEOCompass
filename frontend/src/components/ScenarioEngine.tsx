@@ -100,12 +100,12 @@ export function ScenarioEngine({ scenario }: Props) {
             {finalOutcome.outcome_branch === "optimal" ? "🏆" : finalOutcome.outcome_branch === "acceptable" ? "✅" : "⚠️"}
           </div>
           <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{outcomeBranch?.title || "Complete"}</h2>
-          <p className="text-dark-500 dark:text-dark-400">{outcomeBranch?.description}</p>
+          <p className="text-dark-500 dark:text-dark-300">{outcomeBranch?.description}</p>
         </div>
 
         {finalOutcome.final_score !== undefined && (
           <div className="mb-6 rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
-            <p className="text-sm text-dark-500 dark:text-dark-400">Final Score</p>
+            <p className="text-sm text-dark-500 dark:text-dark-300">Final Score</p>
             <p className="text-3xl font-bold text-primary-600">
               {Math.round(finalOutcome.final_score * 100)}%
             </p>
@@ -144,7 +144,7 @@ export function ScenarioEngine({ scenario }: Props) {
       {/* Progress */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
-          <span className="text-dark-500 dark:text-dark-400">Stage {stageNumber} of {scenario.stages.length}</span>
+          <span className="text-dark-500 dark:text-dark-300">Stage {stageNumber} of {scenario.stages.length}</span>
           <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
             {stage.type}
           </span>
@@ -238,10 +238,10 @@ function DecisionPrompt({
           <button
             key={option.id}
             onClick={() => setSelectedChoice(option.id)}
-            className={`w-full rounded-lg border p-4 text-left transition ${ selectedChoice === option.id ? "border-primary-400 bg-primary-50 shadow-sm" : "border-dark-200 hover:border-dark-300" }`}
+            className={`w-full rounded-lg border p-4 text-left transition ${ selectedChoice === option.id ? "border-primary-400 bg-primary-50 shadow-sm" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
           >
             <div className="flex items-start gap-3">
-              <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${ selectedChoice === option.id ? "border-primary-500 bg-primary-500 text-white" : "border-dark-300 text-dark-400" }`}>
+              <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${ selectedChoice === option.id ? "border-primary-500 bg-primary-500 text-white" : "border-dark-300 text-dark-400 dark:text-dark-300 dark:border-dark-600" }`}>
                 {option.id.toUpperCase()}
               </span>
               <span className="text-sm text-dark-700 dark:text-dark-300">{option.label}</span>
@@ -320,7 +320,7 @@ function FeedbackPanel({
 
       {/* Next Framework */}
       {feedback.next_framework_suggestion && (
-        <div className="rounded-lg bg-dark-50 p-3 text-sm text-dark-500 dark:bg-dark-900 dark:text-dark-400">
+        <div className="rounded-lg bg-dark-50 p-3 text-sm text-dark-500 dark:bg-dark-900 dark:text-dark-300">
           <strong>Suggested next framework:</strong> {feedback.next_framework_suggestion}
         </div>
       )}

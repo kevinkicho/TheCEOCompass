@@ -94,7 +94,7 @@ export default function JournalPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Decision Journal</h1>
-          <p className="mt-1 text-dark-500 dark:text-dark-400">Track decisions, review outcomes, calibrate judgment.</p>
+          <p className="mt-1 text-dark-500 dark:text-dark-300">Track decisions, review outcomes, calibrate judgment.</p>
         </div>
 
         <StaticModeBanner
@@ -113,7 +113,7 @@ export default function JournalPage() {
 
       {entries.length === 0 ? (
         <div className="rounded-xl border border-dark-200 p-12 text-center dark:border-dark-700">
-          <p className="mb-4 text-dark-500 dark:text-dark-400">No decisions logged yet. Complete a scenario or log your first decision.</p>
+          <p className="mb-4 text-dark-500 dark:text-dark-300">No decisions logged yet. Complete a scenario or log your first decision.</p>
           <BackendGuard feature="Decision Journal">
             <button
             onClick={() => setShowEntryModal(true)}
@@ -135,7 +135,7 @@ export default function JournalPage() {
                 <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
                   Confidence: {entry.confidence}/10
                 </span>
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${entry.outcome_captured ? "bg-green-100 text-green-700" : isPastReview(entry.review_date) ? "bg-amber-100 text-amber-700" : "bg-dark-100 text-dark-600"}`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${entry.outcome_captured ? "bg-green-100 text-green-700" : isPastReview(entry.review_date) ? "bg-amber-100 text-amber-700" : "bg-dark-100 text-dark-600 dark:bg-dark-800 dark:text-dark-300"}`}>
                   {entry.outcome_captured
                     ? "Outcome Recorded"
                     : isPastReview(entry.review_date)
@@ -145,7 +145,7 @@ export default function JournalPage() {
               </div>
               <p className="mb-2 text-sm text-dark-600 dark:text-dark-300">{entry.context}</p>
               <p className="mb-2 text-sm text-dark-600 dark:text-dark-300"><strong>Decision:</strong> {entry.decision}</p>
-              <p className="text-sm text-dark-500 dark:text-dark-400"><strong>Rationale:</strong> {entry.rationale}</p>
+              <p className="text-sm text-dark-500 dark:text-dark-300"><strong>Rationale:</strong> {entry.rationale}</p>
 
               {/* Recorded Outcome */}
               {entry.outcome_captured && entry.outcomes?.[0] && (
@@ -155,7 +155,7 @@ export default function JournalPage() {
                   <p className="text-sm text-dark-600 dark:text-dark-300"><strong>Was I right?</strong> {entry.outcomes[0].was_right === "yes" ? "Yes" : entry.outcomes[0].was_right === "partially" ? "Partially" : "No"}</p>
                   <p className="text-sm text-dark-600 dark:text-dark-300"><strong>Updated confidence:</strong> {entry.outcomes[0].updated_confidence}/10</p>
                   {entry.outcomes[0].lesson && (
-                    <p className="mt-2 text-sm text-dark-500 italic dark:text-dark-400">&ldquo;{entry.outcomes[0].lesson}&rdquo;</p>
+                    <p className="mt-2 text-sm text-dark-500 italic dark:text-dark-300">&ldquo;{entry.outcomes[0].lesson}&rdquo;</p>
                   )}
                 </div>
               )}

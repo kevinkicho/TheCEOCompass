@@ -22,7 +22,7 @@ export default function FrameworkDetailPage() {
   if (!framework) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16">
-        <p className="text-dark-500 dark:text-dark-400">Loading...</p>
+        <p className="text-dark-500 dark:text-dark-300">Loading...</p>
       </div>
     )
   }
@@ -41,7 +41,7 @@ export default function FrameworkDetailPage() {
       {/* Back button */}
       <button
         onClick={() => router.push("/frameworks")}
-        className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-400"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
       >
         <span className="text-lg leading-none">&larr;</span> Back to Frameworks
       </button>
@@ -52,12 +52,12 @@ export default function FrameworkDetailPage() {
           <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700">
             {framework.category.replace(/-/g, " ")}
           </span>
-          <span className="text-sm text-dark-400 dark:text-dark-500">
+          <span className="text-sm text-dark-400 dark:text-dark-300">
             {framework.estimated_time_minutes} min &middot; Difficulty {framework.difficulty}/5
           </span>
         </div>
         <h1 className="mb-3 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">{framework.title}</h1>
-        <p className="text-lg text-dark-500 dark:text-dark-400">{framework.description}</p>
+        <p className="text-lg text-dark-500 dark:text-dark-300">{framework.description}</p>
       </div>
 
       {/* Key Concepts — responsive grid with modal */}
@@ -71,7 +71,7 @@ export default function FrameworkDetailPage() {
               <button
                 key={name}
                 onClick={() => concept && setModalConcept(concept)}
-                className={`rounded-lg border px-3.5 py-3 text-center w-full transition hover:border-primary-300 hover:shadow-sm ${ concept ? "border-dark-200 cursor-pointer hover:bg-primary-50" : "border-dark-100 bg-dark-50 cursor-default opacity-60" } dark:bg-dark-900`}
+                className={`rounded-lg border px-3.5 py-3 text-center w-full transition hover:border-primary-300 hover:shadow-sm ${ concept ? "border-dark-200 cursor-pointer hover:bg-primary-50 dark:border-dark-700" : "border-dark-100 bg-dark-50 cursor-default opacity-60 dark:bg-dark-900 dark:border-dark-800" }`}
               >
                 <span className="text-[13px] sm:text-sm font-medium text-dark-700 leading-snug break-words dark:text-dark-300">
                   {name}
@@ -128,7 +128,7 @@ export default function FrameworkDetailPage() {
             <h3 className="text-xl font-bold text-dark-900 dark:text-dark-100">{modalConcept.name}</h3>
             <button
               onClick={() => setModalConcept(null)}
-              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-dark-100 text-dark-400 dark:hover:bg-dark-700 dark:text-dark-500"
+              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-dark-100 text-dark-400 dark:hover:bg-dark-700 dark:text-dark-300"
             >
               ✕
             </button>
@@ -146,7 +146,7 @@ export default function FrameworkDetailPage() {
           
           {modalConcept.example && (
             <div className="mb-4">
-              <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide mb-3 dark:text-dark-500">Real-World Examples</p>
+              <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide mb-3 dark:text-dark-300">Real-World Examples</p>
               <ul className="space-y-3">
                 {modalConcept.example.split(" | ").map((ex, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300">

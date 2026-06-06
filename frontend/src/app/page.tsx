@@ -29,7 +29,7 @@ export default function Home() {
         <h1 className="mb-6 text-3xl sm:text-5xl font-bold tracking-tight text-dark-900 dark:text-dark-100">
           Navigate Every <span className="text-primary-600">Leadership Decision</span>
         </h1>
-        <p className="mx-auto mb-10 max-w-2xl text-lg text-dark-500 dark:text-dark-400">
+        <p className="mx-auto mb-10 max-w-2xl text-lg text-dark-500 dark:text-dark-300">
           Your compass through 57 frameworks across 12 domains: decision-making, financial analysis,
           negotiation, competitive strategy, operations, innovation, and more.
         </p>
@@ -57,18 +57,18 @@ export default function Home() {
             className="text-center hover:bg-white/50 transition rounded-lg py-2 dark:hover:bg-dark-700"
           >
             <p className="text-3xl font-bold text-primary-600">{frameworks.length}</p>
-            <p className="text-sm text-dark-500 dark:text-dark-400">Frameworks</p>
+            <p className="text-sm text-dark-500 dark:text-dark-300">Frameworks</p>
           </button>
           <button
             onClick={() => setActiveCategory(activeCategory ? null : categories[0] || null)}
             className="text-center hover:bg-white/50 transition rounded-lg py-2 dark:hover:bg-dark-700"
           >
             <p className="text-3xl font-bold text-primary-600">{categories.length}</p>
-            <p className="text-sm text-dark-500 dark:text-dark-400">Domains</p>
+            <p className="text-sm text-dark-500 dark:text-dark-300">Domains</p>
           </button>
           <Link href="/scenarios" className="text-center hover:bg-white/50 transition rounded-lg py-2 block dark:hover:bg-dark-700">
             <p className="text-3xl font-bold text-primary-600">{scenarioCount}</p>
-            <p className="text-sm text-dark-500 dark:text-dark-400">Scenarios</p>
+            <p className="text-sm text-dark-500 dark:text-dark-300">Scenarios</p>
           </Link>
         </div>
       </section>
@@ -78,7 +78,7 @@ export default function Home() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setActiveCategory(null)}
-            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${ !activeCategory ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200" } dark:text-dark-300`}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${ !activeCategory ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200 dark:bg-dark-800 dark:text-dark-300 dark:hover:bg-dark-600" }`}
           >
             All
           </button>
@@ -86,7 +86,7 @@ export default function Home() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${ activeCategory === cat ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200" } dark:text-dark-300`}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${ activeCategory === cat ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200 dark:bg-dark-800 dark:text-dark-300 dark:hover:bg-dark-600" }`}
             >
               {cat.replace(/-/g, " ")}
             </button>
@@ -112,8 +112,8 @@ export default function Home() {
                 </span>
               </div>
               <h3 className="mb-2 text-lg font-semibold text-dark-900 dark:text-dark-100">{fw.title}</h3>
-              <p className="mb-4 text-sm text-dark-500 dark:text-dark-400">{fw.description}</p>
-              <p className="text-xs text-dark-400 dark:text-dark-500">{fw.estimated_time_minutes} min estimated</p>
+              <p className="mb-4 text-sm text-dark-500 dark:text-dark-300">{fw.description}</p>
+              <p className="text-xs text-dark-400 dark:text-dark-300">{fw.estimated_time_minutes} min estimated</p>
             </Link>
           ))}
         </div>
