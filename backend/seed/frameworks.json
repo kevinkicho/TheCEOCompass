@@ -511,7 +511,71 @@
           "financial",
           "metrics"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "why_it_matters": "EBITDA is the lingua franca of business valuation and debt covenants. Every buyer, lender, and board member will ask for it. But EBITDA is NOT cash flow — it excludes capex, working capital changes, and debt service. CEOs who conflate EBITDA with cash end up overpaying for acquisitions, signing unsustainable debt agreements, and wondering why a 'profitable' company can't make payroll. The skill is knowing when EBITDA is the right metric (mature, asset-light businesses) and when it's dangerously misleading (capital-intensive, high-growth companies where depreciation is a real economic cost).",
+        "steps": [
+          {
+            "title": "Calculate baseline EBITDA",
+            "description": "Revenue - COGS - OpEx + D&A addback. This is your starting point. Verify that depreciation and amortization figures match what's on the cash flow statement — not just the P&L."
+          },
+          {
+            "title": "Calculate Adjusted EBITDA",
+            "description": "Add back one-time, non-recurring items: restructuring costs, legal settlements, stock-based compensation (debatable), and 'non-recurring' items that somehow recur every year. Adjusted EBITDA is what buyers and lenders use — and it's always higher than reported EBITDA."
+          },
+          {
+            "title": "Bridge to free cash flow",
+            "description": "EBITDA - Capex - Change in Working Capital - Cash Taxes - Cash Interest = Free Cash Flow. If this number is consistently below 50% of EBITDA, your business is far more capital-intensive than EBITDA suggests."
+          },
+          {
+            "title": "Compare to industry multiples",
+            "description": "EBITDA multiple = Enterprise Value / EBITDA. Know your industry's range: SaaS trades at 20-40x, manufacturing at 6-10x, retail at 4-8x. If your multiple is below industry, ask why — and fix it before a transaction."
+          },
+          {
+            "title": "Monitor debt covenants",
+            "description": "Most credit agreements tie to EBITDA: Debt/EBITDA < 3-4x, EBITDA/Interest > 2.5-3x. If you're approaching these thresholds, act before you're in breach — renegotiation is easier from a position of compliance."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Treating EBITDA as cash",
+            "description": "A company with $50M EBITDA but $30M in maintenance capex and $15M in working capital growth has only $5M in free cash flow. The EBITDA looks healthy; the cash position is precarious. Always bridge EBITDA to actual cash."
+          },
+          {
+            "title": "Over-adjusting EBITDA",
+            "description": "'We're excluding stock-based compensation, restructuring, COVID impacts, the CEO's salary, and last quarter's bad decisions — our Adjusted EBITDA is great!' Buyers and lenders discount excessive add-backs. If your adjustments exceed 20% of EBITDA, expect skepticism."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Free Cash Flow",
+            "relationship": "EBITDA stops at operating profit; FCF continues through capex and working capital — the actual cash available to shareholders"
+          },
+          {
+            "name": "DCF Valuation",
+            "relationship": "EBITDA is the typical starting point for projecting the free cash flows that feed a DCF model"
+          },
+          {
+            "name": "DuPont Analysis",
+            "relationship": "EBITDA margin is a key input to DuPont — it drives the profitability component of ROE decomposition"
+          }
+        ],
+        "case_study": {
+          "company": "WeWork (2019 IPO attempt)",
+          "situation": "WeWork filed for IPO in 2019 touting 'Community Adjusted EBITDA' — a metric that excluded essentially all costs of running the business: rent, marketing, pre-opening expenses, and even general administrative costs. Reported EBITDA: -$1.7B. Community Adjusted EBITDA: -$450M (still negative but marketed as 'near breakeven').",
+          "application": "The IPO prospectus introduced a bewildering array of adjustments. Rent — the company's single largest expense — was excluded from Community Adjusted EBITDA because buildings weren't yet 'mature.' This is like a restaurant excluding food costs because the menu isn't finalized. Investors and journalists immediately flagged the metric as meaningless.",
+          "result": "The IPO collapsed. WeWork's valuation dropped from $47B to ~$8B. The CEO was ousted. The company narrowly avoided bankruptcy through a SoftBank bailout. The episode permanently damaged the credibility of 'Adjusted EBITDA' and led to SEC guidance on non-GAAP metrics."
+        },
+        "exercise": {
+          "scenario": "You're evaluating two acquisition targets. Company A: $20M EBITDA, 10% EBITDA growth, $8M annual capex. Company B: $10M EBITDA, 30% EBITDA growth, $2M annual capex. Both priced at 10x EBITDA. Which has better free cash flow conversion?",
+          "options": [
+            "Company A — higher EBITDA means more cash",
+            "Company B — lower capex means more of the EBITDA reaches shareholders",
+            "They're roughly equal — different profiles but similar value",
+            "Can't tell from EBITDA alone — need working capital and tax data"
+          ],
+          "correct": 3,
+          "explanation": "EBITDA alone can't answer this. Company A: $20M EBITDA - $8M capex = $12M operating cash flow before working capital. Company B: $10M - $2M = $8M. But Company B is growing faster (30% vs 10%), which likely consumes more working capital. And at 10x EBITDA, Company A costs $200M, Company B costs $100M. Without working capital, tax rates, and growth capital needs, you can't compare. Never evaluate an acquisition on EBITDA multiple alone."
+        }
       },
       {
         "name": "Free Cash Flow",
@@ -523,7 +587,71 @@
           "metrics",
           "valuation"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "why_it_matters": "Free cash flow is the only metric that can't be gamed. Revenue can be pulled forward with discounts. EBITDA can be adjusted into fantasy. Net income includes non-cash items. But FCF — actual cash generated after maintaining the business — is the unvarnished truth about whether your company creates or consumes resources. FCF funds dividends, buybacks, acquisitions, debt repayment, and survival during downturns. A CEO who doesn't track FCF obsessively is flying without instruments. Most corporate disasters (Enron, WorldCom, Valeant) involved companies that reported strong earnings while bleeding cash.",
+        "steps": [
+          {
+            "title": "Calculate unlevered FCF",
+            "description": "EBIT × (1 - tax rate) + Depreciation & Amortization - Capex - Change in Working Capital. This is cash available to both debt and equity holders — the number a buyer would use in a DCF."
+          },
+          {
+            "title": "Calculate levered FCF",
+            "description": "Unlevered FCF - Interest Payments - Mandatory Debt Repayments. This is cash actually available to equity holders after debt obligations are met."
+          },
+          {
+            "title": "Track FCF conversion rate",
+            "description": "FCF / Net Income (or FCF / EBITDA). Healthy businesses convert 80%+ of earnings to cash. If your conversion is below 60%, investigate: is capex too high, are receivables ballooning, or are you building inventory that isn't selling?"
+          },
+          {
+            "title": "Forecast FCF trajectory",
+            "description": "Project FCF for the next 12-24 months under three scenarios. FCF negative in the base case = you need external capital or cost cuts. FCF positive but declining = competitive pressure building. FCF growing = strategic flexibility."
+          },
+          {
+            "title": "Allocate FCF strategically",
+            "description": "Prioritize: 1) Maintenance capex (non-negotiable), 2) Debt service (non-negotiable), 3) Growth investments (highest ROIC opportunities), 4) Shareholder returns (buybacks if undervalued, dividends if mature). This is the CEO's capital allocation decision tree."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Confusing FCF with cash balance",
+            "description": "A company can generate strong FCF and still have a declining cash balance if it's paying down debt, buying back shares, or making acquisitions. FCF measures generation; cash balance measures accumulation. Both matter for different reasons."
+          },
+          {
+            "title": "Ignoring FCF quality",
+            "description": "FCF boosted by slashing maintenance capex is fake FCF — you're borrowing from the future. FCF boosted by stretching payables (not paying suppliers) is unsustainable — they'll eventually demand payment or stop shipping. Check WHY FCF improved before celebrating."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "DCF Valuation",
+            "relationship": "DCF is literally the sum of all future free cash flows, discounted back to present value — FCF is the raw material of all intrinsic valuation"
+          },
+          {
+            "name": "ROIC",
+            "relationship": "ROIC = NOPAT / Invested Capital. FCF tells you how much cash is generated; ROIC tells you how efficiently that cash was generated relative to the capital deployed"
+          },
+          {
+            "name": "Capital Allocation Framework",
+            "relationship": "FCF is the pool of resources you're allocating. The Capital Allocation Framework tells you where to deploy it for maximum shareholder value"
+          }
+        ],
+        "case_study": {
+          "company": "Apple (2013-2024)",
+          "situation": "By 2013, Apple was generating enormous free cash flow — over $40B annually — driven by the iPhone's extraordinary profitability. The cash pile reached $150B+. Activist investor Carl Icahn pressured Apple to return more cash to shareholders. The question: what do you do with more cash than you can productively reinvest?",
+          "application": "Apple's capital allocation strategy: 1) Fund R&D and capex (modest — Apple's business model is asset-light), 2) Pay dividends (~$15B/year), 3) Aggressively repurchase shares. From 2013-2024, Apple bought back over $600B of its own stock, reducing share count by roughly 40%. This is the most massive share repurchase program in corporate history — enabled entirely by free cash flow generation.",
+          "result": "EPS grew faster than net income because the denominator (shares) was shrinking. A shareholder who owned 1% of Apple in 2013 owns roughly 1.7% of the same company in 2024 without buying a single additional share. Apple's market cap grew from ~$500B to over $3T. FCF was the engine behind every component of this outcome."
+        },
+        "exercise": {
+          "scenario": "Your company reports $10M net income. Depreciation is $3M. Capex is $5M. Receivables increased by $2M. Inventory increased by $1M. Payables increased by $1M. What's free cash flow?",
+          "options": [
+            "$10M (same as net income)",
+            "$13M (net income + depreciation)",
+            "$8M (net income + depreciation - capex)",
+            "$6M (net income + depreciation - capex - working capital change)"
+          ],
+          "correct": 3,
+          "explanation": "FCF = Net Income ($10M) + Depreciation ($3M) - Capex ($5M) - Change in Working Capital. Working capital change = (Receivables +$2M) + (Inventory +$1M) - (Payables +$1M) = +$2M. So FCF = $10M + $3M - $5M - $2M = $6M. The company earned $10M but only generated $6M in actual cash — the other $4M is tied up in fixed assets and working capital. This is exactly why FCF matters more than net income."
+        }
       },
       {
         "name": "ROIC",
@@ -535,7 +663,71 @@
           "metrics",
           "capital-allocation"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "why_it_matters": "ROIC (Return on Invested Capital) answers the single most important question in business: are we creating value or destroying it? If ROIC > WACC (Weighted Average Cost of Capital), the business creates value with every dollar invested. If ROIC < WACC, growth actually DESTROYS value — the faster you grow, the more value you incinerate. This is why 'revenue growth' alone is a dangerous metric. A company growing 50% with 3% ROIC when its cost of capital is 10% is racing toward bankruptcy. The best CEOs obsess over ROIC because it separates value-creating growth from vanity growth.",
+        "steps": [
+          {
+            "title": "Calculate NOPAT",
+            "description": "Net Operating Profit After Tax = EBIT × (1 - effective tax rate). This is operating profit available to both debt and equity holders, tax-adjusted."
+          },
+          {
+            "title": "Calculate Invested Capital",
+            "description": "Total Debt + Total Equity - Cash - Goodwill (for industrial companies; keep goodwill for acquisition-heavy businesses). This is the total capital deployed in the business."
+          },
+          {
+            "title": "Compute ROIC",
+            "description": "ROIC = NOPAT / Average Invested Capital (use average of beginning and end of period). Track this over time — declining ROIC signals competitive erosion."
+          },
+          {
+            "title": "Compare ROIC to WACC",
+            "description": "Calculate WACC (cost of equity × % equity + cost of debt after tax × % debt). If ROIC - WACC > 0, you have a value-creating business. If the spread is widening, your moat is strengthening."
+          },
+          {
+            "title": "Segment ROIC by business unit",
+            "description": "Calculate ROIC for each product line, geography, or customer segment. Cut the ones with ROIC < WACC that have no path to improvement. Feed the ones with high and rising ROIC."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Comparing ROIC across industries",
+            "description": "Software companies can have 30%+ ROIC (asset-light, IP-based). Manufacturers might have 10-12% (capital-intensive). A 15% ROIC in manufacturing is excellent; in software it's mediocre. Always benchmark within your industry."
+          },
+          {
+            "title": "Chasing ROIC at the expense of growth",
+            "description": "A business with 40% ROIC but 2% growth is a melting ice cube — profitable but shrinking. The goal is to maintain high ROIC WHILE growing. If you have to trade off, accept slightly lower ROIC for growth that's still above WACC. A 15% ROIC growing at 20% creates more value than a 40% ROIC growing at 2%."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "DuPont Analysis",
+            "relationship": "DuPont decomposes ROE; ROIC decomposes capital efficiency. Use DuPont to understand profit drivers, ROIC to understand capital allocation quality"
+          },
+          {
+            "name": "Capital Allocation Framework",
+            "relationship": "Every capital allocation decision should be evaluated through ROIC: if the project's ROIC > WACC, invest. If not, return capital to shareholders"
+          },
+          {
+            "name": "Free Cash Flow",
+            "relationship": "High ROIC generates high FCF. But high FCF doesn't guarantee high ROIC — a company can generate cash while deploying capital inefficiently"
+          }
+        ],
+        "case_study": {
+          "company": "Costco vs Traditional Retailers",
+          "situation": "Traditional retailers like Sears and Macy's operated with 6-8% operating margins and heavy capital investment in stores and inventory. Costco chose a fundamentally different model: membership fees cover overhead, products sold at near-cost, inventory turns much faster than competitors.",
+          "application": "Costco's ROIC consistently exceeds 20% — far above WACC of ~8%. How? 1) Negative working capital: Costco sells inventory BEFORE paying suppliers (days payable outstanding > days inventory outstanding), 2) Asset-light relative to revenue: $1 of invested capital generates ~$6 in revenue, 3) Membership fees: $4.6B in annual membership income with near-zero associated capital. The membership model is a ROIC machine because the fee revenue requires essentially no invested capital.",
+          "result": "Costco's market cap grew to over $300B. While other retailers struggled with online competition, Costco's warehouse model proved internet-resistant. The ROIC advantage — generated by the membership model and inventory efficiency — is the structural reason Costco thrives while department stores fail."
+        },
+        "exercise": {
+          "scenario": "Your company has two divisions. Division A: $50M NOPAT, $200M invested capital, growing 5%. Division B: $30M NOPAT, $300M invested capital, growing 25%. WACC is 10%. Which division is creating more value?",
+          "options": [
+            "Division A — higher ROIC (25% vs 10%)",
+            "Division B — faster growth (25% vs 5%)",
+            "Division A — higher total profit ($50M vs $30M)",
+            "Neither — both have issues"
+          ],
+          "correct": 0,
+          "explanation": "Division A: ROIC = $50M/$200M = 25%, spread over WACC = 15%. Division B: ROIC = $30M/$300M = 10%, spread = 0%. Division B is growing fast but exactly AT its cost of capital — growth creates zero value. Division A creates 15% excess returns on every dollar invested AND is growing — that's value creation. Division B needs to improve ROIC before growth matters. This is the trap: fast growth feels productive even when it destroys no value."
+        }
       },
       {
         "name": "DuPont Analysis",
@@ -545,7 +737,71 @@
           "analysis"
         ],
         "order_index": 4,
-        "example": "Nike: high margins (brand power) × moderate turnover × moderate leverage. ROE driven by pricing power, not debt. | Walmart: low margins (discount model) × very high turnover (inventory velocity) × some leverage. ROE from efficiency, not margin. | Bank: low margins × moderate turnover × HIGH leverage (10x+). ROE from financial engineering. Very different risk profile."
+        "example": "Nike: high margins (brand power) × moderate turnover × moderate leverage. ROE driven by pricing power, not debt. | Walmart: low margins (discount model) × very high turnover (inventory velocity) × some leverage. ROE from efficiency, not margin. | Bank: low margins × moderate turnover × HIGH leverage (10x+). ROE from financial engineering. Very different risk profile.",
+        "why_it_matters": "ROE (Return on Equity) is one number, but it contains three completely different stories. DuPont Analysis breaks ROE into Net Profit Margin (operational efficiency), Asset Turnover (capital efficiency), and Financial Leverage (risk). A CEO who only knows 'ROE = 18%' can't act. A CEO who knows '18% ROE = 6% margin × 1.5x turnover × 2x leverage' knows exactly where to intervene: improve pricing (margin), speed inventory (turnover), or reduce debt if leverage is dangerous. This decomposition turns a single outcome metric into three actionable levers. Every board presentation of company performance should include a DuPont breakdown.",
+        "steps": [
+          {
+            "title": "Calculate the three components",
+            "description": "Net Profit Margin = Net Income / Revenue. Asset Turnover = Revenue / Total Assets. Equity Multiplier (Leverage) = Total Assets / Shareholders' Equity. ROE = Margin × Turnover × Leverage."
+          },
+          {
+            "title": "Trend each component over 5 years",
+            "description": "Plot margin, turnover, and leverage separately. Is ROE improvement coming from better operations (margin up) or more debt (leverage up)? The first is sustainable; the second is dangerous."
+          },
+          {
+            "title": "Compare to industry peers",
+            "description": "Different industries have different DuPont profiles. Retail: low margin, high turnover, moderate leverage (Walmart: 2.5% margin × 2.3x turnover). Software: high margin, low turnover, low leverage (Microsoft: 35% margin × 0.5x turnover). Don't benchmark components across industries."
+          },
+          {
+            "title": "Identify the binding constraint",
+            "description": "Which component has the most room for improvement relative to peers? If your margin is in line but turnover is half the industry average, you have an asset utilization problem, not a pricing problem."
+          },
+          {
+            "title": "Model improvement scenarios",
+            "description": "What happens to ROE if you improve each component by 10%? A 10% margin improvement × 10% turnover improvement compounds to a 21% ROE improvement. Small operational gains compound through the DuPont framework."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Chasing ROE through leverage",
+            "description": "The fastest way to boost ROE is to add debt. A company with 10% ROE can double it to 20% by doubling leverage. But leverage amplifies losses too — a bad year with 2x leverage becomes a catastrophic year. ROE improvement through leverage is a trap unless the underlying business is stable and predictable."
+          },
+          {
+            "title": "Ignoring off-balance-sheet leverage",
+            "description": "Operating leases, accounts receivable factoring, and special purpose vehicles don't appear in the equity multiplier but create real financial obligations. Airlines with billions in operating lease commitments show artificially low leverage. Adjust for off-balance-sheet obligations before drawing DuPont conclusions."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "ROIC",
+            "relationship": "DuPont decomposes ROE (equity holders' return); ROIC measures return to ALL capital providers. Use together to understand both equity efficiency and total capital efficiency"
+          },
+          {
+            "name": "EBITDA",
+            "relationship": "EBITDA margin is an alternative to net profit margin in DuPont — it removes the effects of capital structure and tax planning, isolating operating efficiency"
+          },
+          {
+            "name": "Value Driver Tree Analysis",
+            "relationship": "DuPont is the original value driver tree — it traces a top-level metric (ROE) down to its operational components (margin, turnover, leverage)"
+          }
+        ],
+        "case_study": {
+          "company": "Walmart vs Tiffany (2019)",
+          "situation": "Both Walmart and Tiffany & Co. generated roughly 18% ROE in 2019. Superficially, they delivered the same shareholder return. But the DuPont breakdowns reveal completely different businesses with completely different risk profiles.",
+          "application": "Walmart: 2.5% Net Margin × 2.3x Asset Turnover × 3.1x Equity Multiplier = 17.9% ROE. High volume, low margin, moderate leverage — the classic retailer profile. Tiffany: 12.5% Net Margin × 0.8x Asset Turnover × 1.8x Equity Multiplier = 18.0% ROE. High margin, low turnover, low leverage — the luxury brand profile. Same ROE, but Walmart earns it through efficiency at scale while Tiffany earns it through pricing power and brand equity.",
+          "result": "When COVID hit in 2020, Walmart's ROE held steady — people still needed groceries. Tiffany's ROE collapsed as luxury spending contracted — high-margin models are more exposed to demand shocks. DuPont reveals not just performance but resilience. The same 18% ROE carries very different risk depending on its composition."
+        },
+        "exercise": {
+          "scenario": "Your company's ROE dropped from 20% to 16%. DuPont shows: margin fell from 10% to 8%, turnover stayed at 1.0x, leverage rose from 2.0x to 2.0x. What's the right response?",
+          "options": [
+            "Add more leverage to bring ROE back to 20%",
+            "Focus on restoring the 10% margin — the drop is an operational problem, not a capital structure problem",
+            "Sell assets to improve turnover",
+            "ROE of 16% is still above average — no action needed"
+          ],
+          "correct": 1,
+          "explanation": "The margin decline drove the ROE drop (8% × 1.0 × 2.0 = 16%). Adding leverage to compensate (option A) would create a riskier business with the same underlying problem. The margin issue needs to be diagnosed — is it pricing pressure (competition), cost inflation (suppliers), or mix shift (selling more low-margin products)? Each has a different fix. DuPont identifies WHERE to focus."
+        }
       },
       {
         "name": "DCF Valuation",
@@ -555,7 +811,71 @@
           "valuation"
         ],
         "order_index": 5,
-        "example": "Startup: Project 5 years of FCF: -$2M, -$1M, $0, $3M, $10M. Terminal value at 15x = $150M. Discounted at 25% = ~$60M valuation. | Mature company: Stable $100M FCF, 3% growth, 10% discount rate = $100M/(0.10-0.03) = $1.43B terminal value. | Real estate: $50k annual rent, 5% growth, 8% discount, 10 year hold + sale at 6% cap rate = DCF value ~$800k."
+        "example": "Startup: Project 5 years of FCF: -$2M, -$1M, $0, $3M, $10M. Terminal value at 15x = $150M. Discounted at 25% = ~$60M valuation. | Mature company: Stable $100M FCF, 3% growth, 10% discount rate = $100M/(0.10-0.03) = $1.43B terminal value. | Real estate: $50k annual rent, 5% growth, 8% discount, 10 year hold + sale at 6% cap rate = DCF value ~$800k.",
+        "why_it_matters": "Discounted Cash Flow (DCF) is the only valuation method grounded in economic reality: a business is worth the present value of all the cash it will ever generate. Multiples (P/E, EV/EBITDA) are shortcuts. DCF is the real math. Every CEO should understand DCF to evaluate acquisition offers, negotiate sale prices, and explain to the board why 'the market is undervaluing us.' A CEO who can't build a simple DCF is dependent on bankers whose incentives (close the deal) may not align with yours (get the right price). You don't need to be the analyst — but you need to understand the assumptions driving the output.",
+        "steps": [
+          {
+            "title": "Project free cash flows (5-10 years)",
+            "description": "Start with revenue growth assumptions, then margin assumptions, then capex and working capital assumptions. Years 1-3: detailed projections. Years 4-10: simpler trend projections. Be conservative — DCF is most sensitive to terminal assumptions."
+          },
+          {
+            "title": "Determine the discount rate (WACC)",
+            "description": "WACC = (E/V × Cost of Equity) + (D/V × Cost of Debt × (1-T)). Cost of equity via CAPM: Risk-Free Rate + Beta × Equity Risk Premium. A 1% change in WACC can swing valuation by 15-20%."
+          },
+          {
+            "title": "Calculate terminal value",
+            "description": "Two methods: 1) Gordon Growth Model: Final Year FCF × (1+g) / (WACC - g), where g = long-term growth rate (usually 2-3%). 2) Exit Multiple: Final Year EBITDA × industry multiple. Terminal value typically represents 60-80% of total DCF value — get this assumption right."
+          },
+          {
+            "title": "Discount all cash flows to present",
+            "description": "PV of each year's FCF = FCF / (1 + WACC)^year. Sum all years + terminal value = Enterprise Value. Subtract net debt, add cash = Equity Value. Divide by shares outstanding = intrinsic value per share."
+          },
+          {
+            "title": "Sensitivity test your assumptions",
+            "description": "Build a sensitivity table: WACC vs Terminal Growth Rate. This shows the range of possible values. If the range is too wide for comfort (valuation could be $500M or $1.5B), your assumptions need more research before you make a decision."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Garbage in, garbage out",
+            "description": "DCF precision is seductive — you get an exact number to two decimal places. But every input is an estimate. A DCF is only as good as its assumptions. Treat the output as a range ('$40-55/share'), not a point estimate ('$47.32/share')."
+          },
+          {
+            "title": "Terminal value dominating the analysis",
+            "description": "If your terminal value is 90% of enterprise value, your explicit forecast period doesn't matter — you're really just betting on the terminal growth rate. Extend the explicit forecast period until terminal value is <70% of total."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Free Cash Flow",
+            "relationship": "FCF is the raw material of DCF — you're discounting future FCF streams. Improving FCF improves DCF value directly"
+          },
+          {
+            "name": "Decision Tree Analysis",
+            "relationship": "DCF values one path; Decision Tree Analysis values multiple paths with probabilities — use both for decisions with branching outcomes"
+          },
+          {
+            "name": " Monte Carlo Simulation",
+            "relationship": "Instead of single-point DCF assumptions, Monte Carlo runs thousands of scenarios with probability distributions for each assumption — a probabilistic DCF"
+          }
+        ],
+        "case_study": {
+          "company": "Microsoft's Acquisition of LinkedIn (2016)",
+          "situation": "Microsoft announced the acquisition of LinkedIn for $26.2B in cash — a 50% premium over LinkedIn's market price. Wall Street was skeptical: 'Microsoft overpaid.' Satya Nadella and CFO Amy Hood had to justify the price to their board and shareholders.",
+          "application": "Microsoft's internal DCF modeled LinkedIn's future cash flows under three scenarios: base (continued growth), synergy (Microsoft integration accelerates growth), and downside (growth stalls). Key assumptions: LinkedIn's revenue growing from $3B to $15B+ over 10 years through integration with Office 365, Dynamics CRM, and Microsoft's enterprise sales force. The synergy case showed a DCF value significantly above $26.2B — but only if integration succeeded. The model made the bet explicit: 'We're paying $26.2B because we believe we can accelerate LinkedIn's FCF by integrating it into the Microsoft ecosystem.'",
+          "result": "LinkedIn revenue grew from $3.7B (2016) to over $16B (2024). The acquisition is widely considered one of the most successful tech acquisitions in history. DCF provided the framework for evaluating whether the premium was justified — and the synergy assumptions proved conservative."
+        },
+        "exercise": {
+          "scenario": "A company generates $100M FCF growing at 5% annually. WACC is 10%. You're offered to buy it at $1.5B. Quick terminal value: assume perpetual growth at 3% beyond year 1. Is $1.5B a fair price?",
+          "options": [
+            "Yes — $1.5B is approximately the DCF value",
+            "No — the DCF value is significantly higher than $1.5B",
+            "No — the DCF value is significantly lower than $1.5B",
+            "Can't calculate from this information alone"
+          ],
+          "correct": 0,
+          "explanation": "Terminal Value = Year 1 FCF × (1 + g) / (WACC - g) = $100M × 1.05 × 1.03 / (0.10 - 0.03) = $100M × 1.05 × 1.03 / 0.07. Wait — that's double-counting growth. Actually: Year 1 FCF = $100M × 1.05 = $105M. Terminal Value = $105M × (1.03) / (0.10 - 0.03) = $108.15M / 0.07 = $1,545M. PV of Year 1 FCF = $105M / 1.10 = $95.5M. PV of Terminal Value = $1,545M / 1.10 = $1,404.5M. Enterprise Value = $95.5M + $1,404.5M = $1,500M. The $1.5B offer is approximately fair value."
+        }
       },
       {
         "name": "LBO Modeling",
@@ -565,7 +885,71 @@
           "m&a"
         ],
         "order_index": 6,
-        "example": "PE firm buys company for $100M: $40M equity + $60M debt. Grows EBITDA from $12M to $20M in 5 years. Sells at 10x = $200M. Pay off $40M debt. Equity returns: $160M / $40M = 4x MOIC. | Dell/Silver Lake 2013: $24.4B LBO. Used Dell's steady cash flow to pay down debt. Went public again in 2018 at 3x original equity. | Failed LBO: Too much debt (8x EBITDA), recession hits, EBITDA drops 30%, can't service debt. Equity wiped out. Lesson: leverage cuts both ways."
+        "example": "PE firm buys company for $100M: $40M equity + $60M debt. Grows EBITDA from $12M to $20M in 5 years. Sells at 10x = $200M. Pay off $40M debt. Equity returns: $160M / $40M = 4x MOIC. | Dell/Silver Lake 2013: $24.4B LBO. Used Dell's steady cash flow to pay down debt. Went public again in 2018 at 3x original equity. | Failed LBO: Too much debt (8x EBITDA), recession hits, EBITDA drops 30%, can't service debt. Equity wiped out. Lesson: leverage cuts both ways.",
+        "why_it_matters": "LBO (Leveraged Buyout) modeling isn't just for private equity. It's the framework for understanding how debt creates (and destroys) equity value. The core insight: if you can buy an asset, improve its cash flows, and sell it later, the returns to equity are magnified by debt — but so are the losses. Every CEO who uses debt to fund growth, acquisitions, or share buybacks is implicitly running an LBO on their own company. Understanding LBO math means understanding when debt is your friend and when it's a ticking time bomb. It's also essential for negotiating with PE buyers who WILL model your company this way.",
+        "steps": [
+          {
+            "title": "Determine the purchase price and capital structure",
+            "description": "Enterprise Value = Purchase Price. Divide into: Debt (senior, subordinated, mezzanine) + Equity (sponsor's cash investment). Typical: 50-70% debt, 30-50% equity. Calculate interest expense on each debt tranche."
+          },
+          {
+            "title": "Project cash flows and debt paydown",
+            "description": "Use the company's FCF to pay down debt each year. Model mandatory amortization + optional prepayments with excess cash. The faster debt is paid down, the more equity value is created."
+          },
+          {
+            "title": "Estimate exit value",
+            "description": "Year 5 EBITDA × Exit Multiple (usually same as entry multiple or slightly lower). Subtract remaining debt, add remaining cash = Equity Value at Exit. This is what the sponsor gets."
+          },
+          {
+            "title": "Calculate returns",
+            "description": "IRR: the discount rate that makes NPV of equity investment and return = 0. MOIC (Multiple on Invested Capital): Exit Equity Value / Initial Equity Investment. PE targets: 20%+ IRR, 2.5x+ MOIC."
+          },
+          {
+            "title": "Stress test with downside scenarios",
+            "description": "What if EBITDA is flat? What if exit multiple drops 2 turns? What if interest rates rise? The sponsor needs to know: can the company survive the downside case without breaching debt covenants? If not, the deal is too levered."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Underestimating the cost of debt",
+            "description": "Floating-rate debt looks cheap at 4% — until rates rise to 8% and your interest expense doubles. Always model rate increases. If the company can't service debt at 300bps above current rates, you're taking excessive risk."
+          },
+          {
+            "title": "Ignoring the 'J-Curve' of operational improvement",
+            "description": "LBO models often assume operational improvements start on Day 1. In reality, there's a transition period where performance drops: new management, integration costs, distracted employees. The first 6-12 months often look worse before they look better. Build a realistic transition curve, not immediate improvement."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Free Cash Flow",
+            "relationship": "FCF drives LBO returns — it's used to pay down debt, which creates equity value at exit. The more FCF, the faster the deleveraging, the higher the IRR"
+          },
+          {
+            "name": "Capital Allocation Framework",
+            "relationship": "An LBO is an extreme case of capital allocation: maximum debt, minimum equity, and all FCF dedicated to debt repayment until the capital structure normalizes"
+          },
+          {
+            "name": "M&A Financial Modeling",
+            "relationship": "LBO is one acquisition structure; the M&A modeling framework covers all structures including all-stock, cash, earnouts, and hybrids"
+          }
+        ],
+        "case_study": {
+          "company": "Dell Technologies (2013 Buyout)",
+          "situation": "In 2013, Michael Dell and Silver Lake Partners took Dell private in a $24.9B leveraged buyout — the largest tech LBO in history. Dell was struggling: the PC market was declining, and the market valued the company at a low multiple. Michael Dell believed he could transform the company away from public market scrutiny.",
+          "application": "The capital structure: $17B in debt (loans + bonds), Michael Dell's existing ~16% stake rolled over, and $3.4B in new equity from Silver Lake and Michael Dell. The thesis: use Dell's strong FCF from its legacy business to service the debt while pivoting toward enterprise solutions (servers, storage, software, services). The debt load was aggressive — Debt/EBITDA over 6x at closing.",
+          "result": "Dell used the private window to acquire EMC for $67B in 2016 (creating Dell Technologies), restructure operations, and return to public markets in 2018. Michael Dell's initial stake went from ~$3.8B to over $30B. The LBO succeeded because: 1) Strong FCF from legacy business covered debt service, 2) The transformation to enterprise solutions increased company value, 3) The exit environment (public markets) was favorable. Silver Lake's MOIC exceeded 5x."
+        },
+        "exercise": {
+          "scenario": "A PE firm buys a company for $100M: $60M debt (6% interest), $40M equity. Year 1 FCF is $8M. All FCF used to repay debt. After year 1, what's the equity value if the company is still worth $100M? What's the MOIC?",
+          "options": [
+            "Equity: $40M, MOIC: 1.0x (no value created)",
+            "Equity: $48M, MOIC: 1.2x (FCF increased equity value)",
+            "Equity: $32M, MOIC: 0.8x (interest reduced equity value)",
+            "Equity: $100M, MOIC: 2.5x (company value divided by initial equity)"
+          ],
+          "correct": 1,
+          "explanation": "After Year 1: Debt = $60M - ($8M FCF - $3.6M interest) = $60M - $4.4M = $55.6M (simplified — interest is paid from FCF, then remaining FCF pays principal). Actually more precisely: FCF = $8M. Interest = $60M × 6% = $3.6M. Remaining = $4.4M to pay down debt. Debt at year end = $55.6M. Company value = $100M. Equity = $100M - $55.6M = $44.4M. MOIC = $44.4M / $40M = 1.11x. The equity value increased because debt was reduced — that's the LBO engine."
+        }
       },
       {
         "name": "Unit Economics",
@@ -575,7 +959,71 @@
           "saas"
         ],
         "order_index": 7,
-        "example": "SaaS: CAC = $10k (sales + marketing per customer). LTV = $150/month × 36 months × 70% GM = $3,780. LTV/CAC = 0.38 < 1x. Dying business. | Healthy SaaS: CAC = $5k, LTV = $20k. LTV/CAC = 4x. Payback in 12 months. Unit economics work — invest in growth. | E-commerce: $100 AOV, $30 COGS, $20 shipping, $15 marketing = $35 contribution per order. 2.3 repeat purchases/year means $80 LTV per customer."
+        "example": "SaaS: CAC = $10k (sales + marketing per customer). LTV = $150/month × 36 months × 70% GM = $3,780. LTV/CAC = 0.38 < 1x. Dying business. | Healthy SaaS: CAC = $5k, LTV = $20k. LTV/CAC = 4x. Payback in 12 months. Unit economics work — invest in growth. | E-commerce: $100 AOV, $30 COGS, $20 shipping, $15 marketing = $35 contribution per order. 2.3 repeat purchases/year means $80 LTV per customer.",
+        "why_it_matters": "If you can't articulate your unit economics, you don't understand your business. Unit economics — LTV (Lifetime Value), CAC (Customer Acquisition Cost), payback period, contribution margin per unit — tell you whether each customer is profitable BEFORE you add the noise of overhead, R&D, and corporate costs. A company with positive unit economics but negative net income can be fixed with scale. A company with negative unit economics and positive net income is a fraud waiting to collapse — it's only profitable because accounting conventions hide the truth. This is why Amazon investors tolerated years of thin margins: unit economics were always positive. The contribution profit from each additional sale was real.",
+        "steps": [
+          {
+            "title": "Calculate CAC",
+            "description": "Total Sales & Marketing spend / Number of new customers acquired. Segment by channel: Google Ads CAC vs Content Marketing CAC vs Sales Team CAC. If one channel has 3x better CAC, shift budget there."
+          },
+          {
+            "title": "Calculate LTV",
+            "description": "Average Revenue Per User (ARPU) × Gross Margin % / Monthly Churn Rate. If ARPU = $100/mo, Gross Margin = 80%, Monthly Churn = 2.5%, then LTV = $100 × 0.80 / 0.025 = $3,200. Only include gross margin, not contribution margin — LTV should be conservative."
+          },
+          {
+            "title": "Compute LTV/CAC ratio",
+            "description": "Healthy SaaS: LTV/CAC > 3x. Below 3x: you're spending too much to acquire customers or they're not staying long enough. Above 5x: you're probably UNDER-investing in growth — there's room to spend more on acquisition."
+          },
+          {
+            "title": "Compute CAC payback period",
+            "description": "CAC / (ARPU × Gross Margin). SaaS target: < 12 months. If payback is 24+ months, you need too much capital to grow — each new customer consumes cash for 2 years before contributing."
+          },
+          {
+            "title": "Track unit economics over cohorts",
+            "description": "Calculate LTV/CAC for each monthly cohort. Is it improving (product getting better, brand strengthening) or declining (market saturation, competition)? The TREND is more important than the absolute number."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Inflating LTV with unrealistic retention assumptions",
+            "description": "LTV = ARPU / Churn assumes the customer stays forever. The formula is mathematically correct but managerially dangerous — it extrapolates this month's churn to perpetuity. Supplement with cohort-based LTV that follows actual customer behavior over time."
+          },
+          {
+            "title": "Ignoring CAC bloat as you scale",
+            "description": "Your first 100 customers come from personal networks, content, and early adopters — CAC is low. Customers 10,000-50,000 come from paid channels, sales teams, and mainstream markets — CAC is much higher. The CAC that worked at $1M ARR will not work at $100M ARR. Plan for CAC to increase as you exhaust easy acquisition channels."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Cohort Analysis",
+            "relationship": "Unit economics should ALWAYS be tracked by cohort — the aggregate LTV/CAC hides whether your newest customers are better or worse than your oldest ones"
+          },
+          {
+            "name": "A/B Testing & Experiments",
+            "relationship": "A/B testing is how you improve unit economics: test pricing (ARPU), onboarding (churn/retention), and ad creative (CAC) to optimize all three levers simultaneously"
+          },
+          {
+            "name": "Free Cash Flow",
+            "relationship": "Positive unit economics but negative FCF means you're investing in growth — acceptable. Negative unit economics AND negative FCF means you're incinerating capital — fatal"
+          }
+        ],
+        "case_study": {
+          "company": "Blue Apron (IPO 2017)",
+          "situation": "Blue Apron went public in 2017 at $10/share, valuing the company at $2B. The meal-kit company had grown rapidly: $800M in revenue, 1 million customers. But unit economics told a different story.",
+          "application": "Blue Apron's unit economics: Average Order Value ~$60. COGS ~$40 (ingredients + packaging + shipping). Gross Margin ~33%. CAC: approximately $94 per customer via paid marketing. Average customer ordered ~4.5 times before churning. LTV = 4.5 orders × $60 × 33% = ~$90. LTV/CAC = $90/$94 ≈ 0.96x. The company was spending more to acquire customers than those customers would ever generate in gross profit. Every new customer destroyed value.",
+          "result": "Blue Apron's stock fell from $10 to under $1 within two years. Revenue declined as marketing spend was cut. The company never achieved positive unit economics at scale — the meal-kit model had too many substitutes (groceries, restaurants, competitors) to support the CAC required. Unit economics predicted this outcome before the IPO."
+        },
+        "exercise": {
+          "scenario": "Your SaaS company has: ARPU $50/month, Gross Margin 80%, Monthly Churn 4%, CAC $400. What's LTV? What's LTV/CAC?",
+          "options": [
+            "LTV: $1,000. LTV/CAC: 2.5x. Below the 3x threshold — investigate churn or CAC.",
+            "LTV: $1,000. LTV/CAC: 2.5x. Healthy — above 2x is acceptable.",
+            "LTV: $600. LTV/CAC: 1.5x. Critical — every customer destroys value.",
+            "LTV: $12,500. LTV/CAC: 31x. Exceptionally healthy."
+          ],
+          "correct": 0,
+          "explanation": "LTV = ARPU × Gross Margin / Churn = $50 × 0.80 / 0.04 = $1,000. LTV/CAC = $1,000 / $400 = 2.5x. Below the 3x threshold. The 4% monthly churn means average customer lifetime = 1/0.04 = 25 months (~2 years). Two levers: reduce churn to 3% (LTV → $1,333, LTV/CAC → 3.3x) or reduce CAC to $333 (LTV/CAC → 3.0x). Both are addressable — this isn't fatal, but requires attention."
+        }
       },
       {
         "name": "Cap Table",
@@ -585,7 +1033,71 @@
           "fundraising"
         ],
         "order_index": 8,
-        "example": "Seed: Founders 80%, Seed investors 20% ($2M at $10M post). Series A: $10M at $40M pre = dilution to 60%/15%/25% new. Founders go from 80% to 60%. | Liquidation preference: Series A has 1x non-participating. If company sells for $30M, Series A gets $10M back first. Founders split $20M. | ESOP pool: Create 10% option pool pre-Series A. Dilution hits founders (from 80% to 72%) not investors. Timing matters."
+        "example": "Seed: Founders 80%, Seed investors 20% ($2M at $10M post). Series A: $10M at $40M pre = dilution to 60%/15%/25% new. Founders go from 80% to 60%. | Liquidation preference: Series A has 1x non-participating. If company sells for $30M, Series A gets $10M back first. Founders split $20M. | ESOP pool: Create 10% option pool pre-Series A. Dilution hits founders (from 80% to 72%) not investors. Timing matters.",
+        "why_it_matters": "The cap table tells the real story of who owns what, who gets paid when, and who controls which decisions. It's the most political document in a company and the one most CEOs don't understand until a liquidity event when it's too late. Liquidation preferences can mean founders get zero in a $100M exit. Participation rights can double-dip investors at employee expense. Anti-dilution provisions can crush founders in a down round. Every CEO should be able to model the waterfall: if the company sells for $X, who gets how much? If you can't answer that question for multiple X values, you don't understand your own capitalization.",
+        "steps": [
+          {
+            "title": "Model the liquidation waterfall",
+            "description": "Start from the most senior security (usually Series C or later), work down to common. At each tier: does the investor take their liquidation preference OR convert to common? The decision depends on the exit value — model both and take the higher outcome for each investor."
+          },
+          {
+            "title": "Calculate fully-diluted shares",
+            "description": "Outstanding shares + options issued + options available in the pool + warrants + convertible notes (if in the money). This is what acquirers care about — they buy the fully-diluted company."
+          },
+          {
+            "title": "Identify blocker rights",
+            "description": "Which investors have veto power over a sale? Which have board seats? Which have protective provisions (can block new financing, acquisitions, charter changes)? Knowing who can say 'no' is as important as knowing who owns what."
+          },
+          {
+            "title": "Model dilution scenarios",
+            "description": "If you raise $10M at $40M pre-money (20% dilution), what does each stakeholder's ownership become? Model the next round too — a Series A investor today will participate in Series B pro-rata, changing the dilution math for everyone else."
+          },
+          {
+            "title": "Run exit scenarios at multiple valuations",
+            "description": "What does each shareholder receive at a $50M exit? $100M? $200M? $500M? The waterfall changes at each level as different investors choose between participation and conversion. This is the conversation every founder should have with every employee with equity."
+          }
+        ],
+        "pitfalls": [
+          {
+            "title": "Confusing ownership percentage with economic interest",
+            "description": "An investor with 20% ownership and 2x participating preferred liquidation preference gets 2x their money back FIRST, THEN 20% of what's left. In a modest exit, they might take 50%+ of proceeds while owning only 20%. Common shareholders (founders, employees) get crushed. The cap table percentage ≠ the economic split."
+          },
+          {
+            "title": "Forgetting about the option pool",
+            "description": "The option pool is a lien on common shareholders. A 10% unissued option pool means 10% of the company is reserved for future employees — but it's carved out of the founders' and existing shareholders' ownership. Always model the cap table on a fully-diluted basis including the unissued pool."
+          }
+        ],
+        "related_concepts": [
+          {
+            "name": "Fundraising & Capital Structure",
+            "relationship": "The cap table is the OUTPUT of fundraising decisions. Every term sheet provision (liquidation preference, participation, anti-dilution) has a specific cap table consequence"
+          },
+          {
+            "name": "M&A Financial Modeling",
+            "relationship": "M&A models determine total consideration; the cap table determines how that consideration is distributed among shareholders"
+          },
+          {
+            "name": "Compensation & Incentive Design",
+            "relationship": "Equity compensation only works if employees understand what their options are worth — which requires understanding the cap table waterfall"
+          }
+        ],
+        "case_study": {
+          "company": "Good Technology (acquired by BlackBerry, 2015)",
+          "situation": "Good Technology raised over $290M in venture funding across multiple rounds. In 2015, BlackBerry agreed to acquire the company for $425M in cash. On paper, a $425M exit sounds like a win. In reality, the cap table made it a disaster for common shareholders.",
+          "application": "Good's cap table was stacked with liquidation preferences: Series D investors had 2x participating preferred, Series C had 1.5x, earlier rounds had 1x with participation. After paying all the liquidation preferences and participation rights, nothing remained for common shareholders. Employees who had worked for years with stock options received $0. Founders received $0. The $425M went entirely to preferred investors — who still lost money overall because they'd invested $290M+.",
+          "result": "The acquisition closed, but the employee blowback was severe. The episode became a cautionary tale in Silicon Valley about the dangers of stacking liquidation preferences across multiple down rounds. Several employees sued. The moral: a high exit price doesn't matter if the waterfall sends all proceeds to investors."
+        },
+        "exercise": {
+          "scenario": "Your company has: $10M Series A (1x non-participating preferred for 20%), founders and employees own 80% common. The company sells for $30M. Who gets what?",
+          "options": [
+            "Investors: $6M (20%). Common: $24M (80%).",
+            "Investors: $10M (their investment back). Common: $20M (remainder).",
+            "Investors: $10M + 20% of $20M = $14M. Common: $16M.",
+            "Investors choose: either $10M preference OR convert to common and get 20% of $30M = $6M. They take the $10M. Common gets $20M."
+          ],
+          "correct": 3,
+          "explanation": "With non-participating preferred, investors must choose: EITHER their $10M liquidation preference OR convert to common and take 20% of $30M = $6M. They choose $10M (the higher amount). Common gets the remaining $20M. If the company sold for $100M, investors would convert to common and take 20% = $20M (higher than their $10M preference). At some exit value (~$50M), the conversion becomes better than the preference. This is the 'conversion point' — know where it is on your cap table."
+        }
       }
     ]
   },
