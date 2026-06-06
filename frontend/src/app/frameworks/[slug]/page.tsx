@@ -143,7 +143,118 @@ export default function FrameworkDetailPage() {
               {modalConcept.formula}
             </div>
           )}
-          
+
+          {/* Why It Matters */}
+          {modalConcept.why_it_matters && (
+            <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
+              <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-2">Why It Matters for CEOs</p>
+              <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{modalConcept.why_it_matters}</p>
+            </div>
+          )}
+
+          {/* Steps */}
+          {modalConcept.steps && modalConcept.steps.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">How to Apply</p>
+              <ol className="space-y-2.5">
+                {modalConcept.steps.map((step, i) => (
+                  <li key={i} className="flex gap-3 text-sm">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 text-xs font-bold text-primary-700 dark:text-primary-300 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-dark-800 dark:text-dark-200">{step.title}</p>
+                      <p className="text-dark-600 dark:text-dark-400">{step.description}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {/* Pitfalls */}
+          {modalConcept.pitfalls && modalConcept.pitfalls.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Common Pitfalls</p>
+              <div className="space-y-2">
+                {modalConcept.pitfalls.map((pf, i) => (
+                  <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
+                    <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">{pf.title}</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-400/80 leading-relaxed">{pf.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Related Concepts */}
+          {modalConcept.related_concepts && modalConcept.related_concepts.length > 0 && (
+            <div className="mb-4">
+              <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Connected Concepts</p>
+              <div className="space-y-1.5">
+                {modalConcept.related_concepts.map((rc, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm">
+                    <span className="text-primary-500 mt-0.5">&#8594;</span>
+                    <div>
+                      <span className="font-medium text-dark-800 dark:text-dark-200">{rc.name}</span>
+                      <span className="text-dark-500 dark:text-dark-400"> &mdash; {rc.relationship}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Case Study */}
+          {modalConcept.case_study && (
+            <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
+              <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Case Study: {modalConcept.case_study.company}</p>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <p className="font-medium text-dark-700 dark:text-dark-300">Situation</p>
+                  <p className="text-dark-600 dark:text-dark-400">{modalConcept.case_study.situation}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-dark-700 dark:text-dark-300">Application</p>
+                  <p className="text-dark-600 dark:text-dark-400">{modalConcept.case_study.application}</p>
+                </div>
+                <div>
+                  <p className="font-medium text-dark-700 dark:text-dark-300">Result</p>
+                  <p className="text-dark-600 dark:text-dark-400">{modalConcept.case_study.result}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Exercise */}
+          {modalConcept.exercise && (
+            <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4">
+              <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-3">Test Yourself</p>
+              <p className="text-sm text-dark-700 dark:text-dark-300 mb-3 leading-relaxed">{modalConcept.exercise.scenario}</p>
+              <div className="space-y-1.5 mb-3">
+                {modalConcept.exercise.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      const el = document.getElementById(`exercise-feedback-${modalConcept.name.replace(/\s+/g, '-')}`)
+                      if (el) {
+                        const isCorrect = i === modalConcept.exercise!.correct
+                        el.innerHTML = isCorrect
+                          ? '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; Correct!</span>'
+                          : '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; Not quite.</span>'
+                        el.className = `mt-2 text-xs ${isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`
+                      }
+                    }}
+                    className="w-full text-left rounded-lg border border-dark-200 dark:border-dark-700 px-3 py-2 text-xs text-dark-600 dark:text-dark-400 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition"
+                  >
+                    {String.fromCharCode(65 + i)}. {opt}
+                  </button>
+                ))}
+              </div>
+              <div id={`exercise-feedback-${modalConcept.name.replace(/\s+/g, '-')}`} className="text-xs"></div>
+            </div>
+          )}
+
           {modalConcept.example && (
             <div className="mb-4">
               <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide mb-3 dark:text-dark-300">Real-World Examples</p>

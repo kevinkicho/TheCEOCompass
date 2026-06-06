@@ -38,8 +38,14 @@ class FrameworkConcept(Base):
     definition: Mapped[str] = mapped_column(Text, nullable=False)
     formula: Mapped[str | None] = mapped_column(Text, nullable=True)
     example: Mapped[str | None] = mapped_column(Text, nullable=True)
-    tags: Mapped[str] = mapped_column(Text, default="[]")  # JSON array
+    tags: Mapped[str] = mapped_column(Text, default="[]")
     order_index: Mapped[int] = mapped_column(Integer, default=0)
+    why_it_matters: Mapped[str | None] = mapped_column(Text, nullable=True)
+    steps: Mapped[str | None] = mapped_column(Text, default="[]")
+    pitfalls: Mapped[str | None] = mapped_column(Text, default="[]")
+    related_concepts: Mapped[str | None] = mapped_column(Text, default="[]")
+    case_study: Mapped[str | None] = mapped_column(Text, nullable=True)
+    exercise: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

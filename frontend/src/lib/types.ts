@@ -8,6 +8,35 @@ export interface FrameworkListItem {
   estimated_time_minutes: number
 }
 
+export interface ConceptStep {
+  title: string
+  description: string
+}
+
+export interface ConceptPitfall {
+  title: string
+  description: string
+}
+
+export interface RelatedConcept {
+  name: string
+  relationship: string
+}
+
+export interface CaseStudy {
+  company: string
+  situation: string
+  application: string
+  result: string
+}
+
+export interface ConceptExercise {
+  scenario: string
+  options: string[]
+  correct: number
+  explanation: string
+}
+
 export interface FrameworkConcept {
   id: string
   name: string
@@ -15,6 +44,13 @@ export interface FrameworkConcept {
   formula?: string
   example?: string
   tags: string[]
+  order_index?: number
+  why_it_matters?: string
+  steps?: ConceptStep[]
+  pitfalls?: ConceptPitfall[]
+  related_concepts?: RelatedConcept[]
+  case_study?: CaseStudy
+  exercise?: ConceptExercise
 }
 
 export interface Framework extends FrameworkListItem {

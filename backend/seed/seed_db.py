@@ -51,6 +51,12 @@ async def seed_frameworks(session: AsyncSession):
                 example=concept_data.get("example"),
                 tags=json.dumps(concept_data.get("tags", [])),
                 order_index=concept_data.get("order_index", i),
+                why_it_matters=concept_data.get("why_it_matters"),
+                steps=json.dumps(concept_data.get("steps", [])),
+                pitfalls=json.dumps(concept_data.get("pitfalls", [])),
+                related_concepts=json.dumps(concept_data.get("related_concepts", [])),
+                case_study=json.dumps(concept_data.get("case_study")) if concept_data.get("case_study") else None,
+                exercise=json.dumps(concept_data.get("exercise")) if concept_data.get("exercise") else None,
             )
             session.add(concept)
     

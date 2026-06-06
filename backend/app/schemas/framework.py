@@ -4,6 +4,35 @@ import json
 import uuid
 
 
+class ConceptStep(BaseModel):
+    title: str
+    description: str
+
+
+class ConceptPitfall(BaseModel):
+    title: str
+    description: str
+
+
+class RelatedConcept(BaseModel):
+    name: str
+    relationship: str
+
+
+class CaseStudy(BaseModel):
+    company: str
+    situation: str
+    application: str
+    result: str
+
+
+class ConceptExercise(BaseModel):
+    scenario: str
+    options: list[str]
+    correct: int
+    explanation: str
+
+
 class FrameworkConceptRead(BaseModel):
     id: uuid.UUID
     name: str
@@ -11,14 +40,27 @@ class FrameworkConceptRead(BaseModel):
     formula: Optional[str] = None
     example: Optional[str] = None
     tags: list[str] = []
-    order_index: int
+    order_index: int = 0
+    why_it_matters: Optional[str] = None
+    steps: Optional[list[ConceptStep]] = None
+    pitfalls: Optional[list[ConceptPitfall]] = None
+    related_concepts: Optional[list[RelatedConcept]] = None
+    case_study: Optional[CaseStudy] = None
+    exercise: Optional[ConceptExercise] = None
 
-    @field_validator("tags", mode="before")
+    @field_validator("tags", "steps", "pitfalls", "related_concepts", mode="before")
     @classmethod
-    def parse_tags(cls, v: Any) -> list[str]:
+    def parse_json_lists(cls, v: Any) -> Any:
         if isinstance(v, str):
             return json.loads(v)
         return v or []
+    
+    @field_validator("case_study", "exercise", mode="before")
+    @classmethod
+    def parse_json_objects(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            return json.loads(v)
+        return v
 
     class Config:
         from_attributes = True
