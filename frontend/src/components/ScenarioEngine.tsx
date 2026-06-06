@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { startScenario, evaluateChoice } from "@/lib/api"
+import { BackendGuard } from "@/components/RequiresBackend"
 import type { Scenario, ScenarioStage, StageResult, FeedbackResponse, ScenarioAttempt } from "@/lib/types"
 
 interface Props {
@@ -77,13 +78,15 @@ export function ScenarioEngine({ scenario }: Props) {
             ))}
           </ul>
         </div>
-        <button
+        <BackendGuard feature="AI Scenario Engine">
+          <button
           onClick={handleStart}
           disabled={isLoading}
           className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
         >
           {isLoading ? "Starting..." : "Start Scenario"}
         </button>
+        </BackendGuard>
       </div>
     )
   }
