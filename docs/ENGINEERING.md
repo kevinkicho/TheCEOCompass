@@ -100,11 +100,9 @@ The deploy workflow copies `next.config.export.js` → `next.config.js` before b
 ```
 
 ### Static Data Strategy
-- `backend/seed/frameworks.json` is the single source of truth
-- A Python script extracts concepts → `frontend/src/lib/staticData.ts`
-- The static data file uses `@ts-nocheck` to bypass strict type checking on the 271KB generated file
-- `api.ts` detects static hosting: `!window.location.hostname.includes("localhost")`
-- On static hosting, all API calls return static data (no network requests)
+- The static export uses a live backend; all content is served via API
+- On static hosting (GitHub Pages), API calls return empty data and `BackendGuard`/`StaticModeBanner` components show "Run locally" modals
+- No mock or fallback data is served — if the backend is unavailable, the UI shows empty states with setup instructions
 
 ### Route Prerendering
 Dynamic routes (`[slug]`) require `generateStaticParams` in a server layout file:

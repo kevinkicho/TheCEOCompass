@@ -1,7 +1,6 @@
 import json
-import os
 from typing import Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from app.config import settings
 
 
@@ -10,11 +9,7 @@ class LLMFeedback:
     feedback: str
     score: float
     next_framework_suggestion: Optional[str] = None
-    key_insights: list[str] = None
-
-    def __post_init__(self):
-        if self.key_insights is None:
-            self.key_insights = []
+    key_insights: list[str] = field(default_factory=list)
 
 
 class LLMService:
@@ -22,7 +17,7 @@ class LLMService:
         self.provider = settings.llm_provider
         self.model = settings.llm_model
         self._client = None
-    
+
     @property
     def client(self):
         if self._client is None:
@@ -33,7 +28,13 @@ class LLMService:
                 from anthropic import AsyncAnthropic
                 self._client = AsyncAnthropic(api_key=settings.anthropic_api_key)
         return self._client
-    
+
+    def _check_api(self):
+        if not self.client:
+            raise RuntimeError(
+                "No LLM API key configured. Set OPENAI_API_KEY or ANTHROPIC_API_KEY in backend/.env"
+            )
+
     async def evaluate_scenario_response(
         self,
         stage_context: str,
@@ -42,25 +43,16 @@ class LLMService:
         correct_answer: Optional[str] = None,
         framework_context: str = "",
     ) -> LLMFeedback:
-        """Evaluate user's response to a scenario stage."""
-        
+        self._check_api()
         prompt = self._build_evaluation_prompt(
             stage_context, stage_type, user_response, correct_answer, framework_context
         )
-        
-        try:
-            if self.provider == "openai" and self.client:
-                response = await self._call_openai(prompt)
-            elif self.provider == "anthropic" and self.client:
-                response = await self._call_anthropic(prompt)
-            else:
-                return self._mock_feedback(stage_type, user_response)
-            
-            return self._parse_feedback(response)
-        except Exception as e:
-            print(f"LLM evaluation error: {e}")
-            return self._mock_feedback(stage_type, user_response)
-    
+        if self.provider == "openai":
+            response = await self._call_openai(prompt)
+        else:
+            response = await self._call_anthropic(prompt)
+        return self._parse_feedback(response)
+
     async def generate_scenario(
         self,
         framework_name: str,
@@ -68,8 +60,7 @@ class LLMService:
         difficulty: int,
         context_hint: str = "",
     ) -> dict:
-        """Generate a new scenario using LLM."""
-        
+        self._check_api()
         prompt = f"""
 Create a CEO decision scenario for the "{framework_name}" framework.
 
@@ -118,20 +109,12 @@ Generate a JSON scenario with this exact structure:
 
 Return ONLY valid JSON.
 """
-        
-        try:
-            if self.provider == "openai" and self.client:
-                response = await self._call_openai(prompt, temperature=0.7)
-            elif self.provider == "anthropic" and self.client:
-                response = await self._call_anthropic(prompt, temperature=0.7)
-            else:
-                return self._mock_scenario(framework_name, difficulty)
-            
-            return json.loads(response)
-        except Exception as e:
-            print(f"LLM scenario generation error: {e}")
-            return self._mock_scenario(framework_name, difficulty)
-    
+        if self.provider == "openai":
+            response = await self._call_openai(prompt, temperature=0.7)
+        else:
+            response = await self._call_anthropic(prompt, temperature=0.7)
+        return json.loads(response)
+
     async def generate_quiz_questions(
         self,
         framework_name: str,
@@ -139,8 +122,7 @@ Return ONLY valid JSON.
         num_questions: int,
         difficulty: str,
     ) -> list[dict]:
-        """Generate quiz questions for a framework."""
-        
+        self._check_api()
         prompt = f"""
 Create {num_questions} quiz questions for the "{framework_name}" framework.
 
@@ -163,20 +145,12 @@ Generate JSON array of questions:
 Mix question types. For calculation questions, include realistic numbers.
 Return ONLY valid JSON array.
 """
-        
-        try:
-            if self.provider == "openai" and self.client:
-                response = await self._call_openai(prompt, temperature=0.5)
-            elif self.provider == "anthropic" and self.client:
-                response = await self._call_anthropic(prompt, temperature=0.5)
-            else:
-                return self._mock_questions(framework_name, num_questions)
-            
-            return json.loads(response)
-        except Exception as e:
-            print(f"LLM quiz generation error: {e}")
-            return self._mock_questions(framework_name, num_questions)
-    
+        if self.provider == "openai":
+            response = await self._call_openai(prompt, temperature=0.5)
+        else:
+            response = await self._call_anthropic(prompt, temperature=0.5)
+        return json.loads(response)
+
     def _build_evaluation_prompt(
         self,
         stage_context: str,
@@ -192,10 +166,8 @@ Stage type: {stage_type}
 Situation: {stage_context}
 User's response: {user_response}
 """
-        
         if correct_answer:
             base += f"Correct answer/approach: {correct_answer}\n"
-        
         base += """
 Provide feedback as JSON:
 {
@@ -208,7 +180,7 @@ Provide feedback as JSON:
 Be rigorous but encouraging. CEO-grade feedback.
 """
         return base
-    
+
     async def _call_openai(self, prompt: str, temperature: float = 0.3) -> str:
         response = await self.client.chat.completions.create(
             model=self.model,
@@ -220,7 +192,7 @@ Be rigorous but encouraging. CEO-grade feedback.
             response_format={"type": "json_object"},
         )
         return response.choices[0].message.content
-    
+
     async def _call_anthropic(self, prompt: str, temperature: float = 0.3) -> str:
         response = await self.client.messages.create(
             model=self.model,
@@ -230,7 +202,7 @@ Be rigorous but encouraging. CEO-grade feedback.
             messages=[{"role": "user", "content": prompt}]
         )
         return response.content[0].text
-    
+
     def _parse_feedback(self, response: str) -> LLMFeedback:
         try:
             data = json.loads(response)
@@ -242,59 +214,6 @@ Be rigorous but encouraging. CEO-grade feedback.
             )
         except Exception:
             return LLMFeedback(feedback="Feedback parsing error.", score=0.5)
-    
-    def _mock_feedback(self, stage_type: str, user_response: str) -> LLMFeedback:
-        return LLMFeedback(
-            feedback=f"Good {stage_type} work. In practice, ensure you quantify assumptions and consider second-order effects.",
-            score=0.7,
-            next_framework_suggestion="Financial Mastery" if stage_type == "analysis" else "Strategic Decision-Making",
-            key_insights=["Quantify impact", "Consider stakeholder perspectives"],
-        )
-    
-    def _mock_scenario(self, framework_name: str, difficulty: int) -> dict:
-        return {
-            "title": f"{framework_name} Challenge",
-            "description": f"A scenario testing {framework_name} application.",
-            "difficulty": difficulty,
-            "context": {
-                "company": "Mid-market SaaS company, $10M ARR",
-                "situation": "Facing strategic decision requiring framework application",
-                "time_pressure": "Board meeting in 2 weeks",
-                "data_provided": ["Financial summary", "Market data", "Team capacity"]
-            },
-            "stages": [
-                {
-                    "id": "stage-1",
-                    "type": "diagnosis",
-                    "prompt": "Which framework applies first?",
-                    "options": [
-                        {"id": "a", "label": framework_name, "score": 0.9, "rationale": "Directly addresses the core challenge"},
-                        {"id": "b", "label": "SWOT Analysis", "score": 0.3, "rationale": "Too general for this specific decision"},
-                        {"id": "c", "label": "Gut instinct", "score": 0.1, "rationale": "Insufficient for high-stakes decision"}
-                    ],
-                    "feedback_prompt_template": "User chose {option}."
-                }
-            ],
-            "outcome_branches": {
-                "optimal": {"title": "Strategic Win", "description": "Framework applied correctly, strong outcome"},
-                "acceptable": {"title": "Mixed Results", "description": "Partial application, survivable outcome"},
-                "failure": {"title": "Value Destruction", "description": "Wrong framework, poor outcome"}
-            }
-        }
-    
-    def _mock_questions(self, framework_name: str, num_questions: int) -> list[dict]:
-        questions = []
-        for i in range(num_questions):
-            questions.append({
-                "id": f"q{i+1}",
-                "question": f"Sample question about {framework_name} concept {i+1}",
-                "type": "multiple_choice",
-                "options": ["Option A", "Option B", "Option C", "Option D"],
-                "correct_answer": "Option A",
-                "explanation": "This is correct because...",
-                "framework_concept": f"Concept {i+1}"
-            })
-        return questions
 
 
 llm_service = LLMService()
