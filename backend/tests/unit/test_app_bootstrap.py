@@ -17,17 +17,17 @@ def test_config_loads():
 
 
 def test_routers_registered():
-    """Verify all routers are registered by checking route paths"""
+    """Verify all routes are registered by checking the route list"""
     from app.main import app
-    from starlette.routing import Route
-    paths = []
+    paths = set()
     for r in app.routes:
-        if isinstance(r, Route):
-            paths.append(r.path)
-        elif hasattr(r, 'routes'):
-            for sub in r.routes:
-                if hasattr(sub, 'path'):
-                    paths.append(getattr(r, 'prefix', '') + sub.path)
+        p = getattr(r, 'path', None) or getattr(r, 'prefix', None)
+        if p:
+            paths.add(p)
+        for sub in getattr(r, 'routes', []):
+            sub_p = getattr(sub, 'path', None)
+            if sub_p:
+                paths.add(getattr(r, 'prefix', '') + sub_p)
     for prefix in ("frameworks", "scenarios", "quiz", "journal", "progress", "search"):
         assert any(f"/api/{prefix}" in p for p in paths), f"/api/{prefix} not found"
 
