@@ -9,20 +9,10 @@ from datetime import datetime
 
 from app.models.database import get_session
 from app.models.journal import JournalEntry, JournalOutcome
-from app.models.user import User
+from app.routers.auth import get_default_user
 from app.schemas.journal import JournalEntryCreate, JournalEntryRead, JournalEntryUpdate, JournalOutcomeCreate, JournalOutcomeRead
 
 router = APIRouter()
-
-
-async def get_demo_user(session: AsyncSession) -> User:
-    result = await session.execute(select(User).limit(1))
-    user = result.scalar_one_or_none()
-    if not user:
-        user = User(email="demo@ceo.local", hashed_password="demo")
-        session.add(user)
-        await session.flush()
-    return user
 
 
 @router.post("", response_model=JournalEntryRead, status_code=201)
@@ -30,7 +20,7 @@ async def create_journal_entry(
     entry: JournalEntryCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     
     db_entry = JournalEntry(
         user_id=user.id,
@@ -62,7 +52,7 @@ async def create_journal_entry(
 async def list_journal_entries(
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     result = await session.execute(
         select(JournalEntry)
         .options(selectinload(JournalEntry.outcomes))
@@ -78,7 +68,7 @@ async def get_journal_entry(
     entry_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     result = await session.execute(
         select(JournalEntry)
         .options(selectinload(JournalEntry.outcomes))
@@ -97,7 +87,7 @@ async def update_journal_entry(
     entry_update: JournalEntryUpdate,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     result = await session.execute(
         select(JournalEntry)
         .where(JournalEntry.id == entry_id)
@@ -124,7 +114,7 @@ async def create_journal_outcome(
     outcome: JournalOutcomeCreate,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     result = await session.execute(
         select(JournalEntry)
         .where(JournalEntry.id == entry_id)

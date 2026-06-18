@@ -7,7 +7,7 @@ import json
 
 from app.models.database import get_session
 from app.models.scenario import Scenario, ScenarioAttempt
-from app.models.user import User
+from app.routers.auth import get_default_user
 from app.schemas.scenario import ScenarioRead, ScenarioListItem, ScenarioAttemptRead, ScenarioEvaluateRequest, ScenarioEvaluateResponse, FeedbackResponse
 from app.services.scenario_service import ScenarioEngine
 from app.services.llm_service import LLMService
@@ -90,13 +90,7 @@ async def start_scenario(
     scenario_id: uuid.UUID,
     session: AsyncSession = Depends(get_session),
 ):
-    # For MVP, use a default user (no auth yet)
-    result = await session.execute(select(User).limit(1))
-    user = result.scalar_one_or_none()
-    if not user:
-        user = User(email="demo@ceo.local", hashed_password="demo")
-        session.add(user)
-        await session.flush()
+    user = await get_default_user(session)
     
     # Check for existing in-progress attempt
     result = await session.execute(
@@ -134,11 +128,7 @@ async def evaluate_choice(
     request: ScenarioEvaluateRequest,
     session: AsyncSession = Depends(get_session),
 ):
-    # Get user (demo for MVP)
-    result = await session.execute(select(User).limit(1))
-    user = result.scalar_one_or_none()
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
+    user = await get_default_user(session)
     
     # Get attempt
     result = await session.execute(

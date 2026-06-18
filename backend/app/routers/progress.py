@@ -9,27 +9,17 @@ from datetime import datetime, timedelta
 from app.models.database import get_session
 from app.models.progress import UserProgress, CalibrationRecord
 from app.models.journal import JournalEntry, JournalOutcome
-from app.models.user import User
+from app.routers.auth import get_default_user
 from app.schemas.progress import ProgressRead, CalibrationRecordRead, CalibrationSummary
 
 router = APIRouter()
-
-
-async def get_demo_user(session: AsyncSession) -> User:
-    result = await session.execute(select(User).limit(1))
-    user = result.scalar_one_or_none()
-    if not user:
-        user = User(email="demo@ceo.local", hashed_password="demo")
-        session.add(user)
-        await session.flush()
-    return user
 
 
 @router.get("", response_model=ProgressRead)
 async def get_progress(
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     result = await session.execute(
         select(UserProgress).where(UserProgress.user_id == user.id)
     )
@@ -62,7 +52,7 @@ async def get_progress(
 async def get_calibration(
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     
     # Get all calibration records
     result = await session.execute(
@@ -161,7 +151,7 @@ async def record_calibration(
     was_correct: bool,
     session: AsyncSession = Depends(get_session),
 ):
-    user = await get_demo_user(session)
+    user = await get_default_user(session)
     
     brier = calculate_brier_score(confidence, was_correct)
     

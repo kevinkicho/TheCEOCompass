@@ -4,8 +4,6 @@ from sqlalchemy import select
 from typing import List
 import uuid
 import json
-import random
-from pathlib import Path
 
 from app.models.database import get_session
 from app.models.framework import Framework
@@ -13,11 +11,6 @@ from app.schemas.quiz import QuizGenerateRequest, QuizQuestionRead, QuizEvaluate
 from app.services.llm_service import llm_service
 
 router = APIRouter()
-
-# Load curated quiz questions from seed file
-_quiz_seed_path = Path(__file__).parent.parent.parent / "seed" / "quiz_questions.json"
-with open(_quiz_seed_path) as f:
-    _quiz_seed = json.load(f)
 
 
 @router.post("/generate", response_model=List[QuizQuestionRead])
@@ -31,19 +24,7 @@ async def generate_quiz(
     framework = result.scalar_one_or_none()
     if not framework:
         raise HTTPException(status_code=404, detail="Framework not found")
-    
-    seed_questions = _quiz_seed.get(framework.slug, [])
-    
-    if seed_questions:
-        # Shuffle and pick the requested number
-        available = seed_questions.copy()
-        random.shuffle(available)
-        selected = available[:request.num_questions]
-        return [
-            {"id": f"q{i+1}", "type": "multiple_choice", **q} for i, q in enumerate(selected)
-        ]
-    
-    # Fallback to LLM if no seed questions for this framework
+
     concepts = json.loads(framework.key_concepts) if framework.key_concepts else []
     questions = await llm_service.generate_quiz_questions(
         framework_name=framework.title,
