@@ -19,7 +19,7 @@ def test_config_loads():
 def test_routers_registered():
     """Verify all routers are registered"""
     from app.main import app
-    routes = [r.path for r in app.routes]
+    routes = [r.path for r in app.routes if hasattr(r, 'path')]
     assert any("/api/frameworks" in r for r in routes)
     assert any("/api/scenarios" in r for r in routes)
     assert any("/api/quiz" in r for r in routes)
