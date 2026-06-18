@@ -8,6 +8,9 @@ const nextConfig = {
   assetPrefix: "/TheCEOCompass",
   trailingSlash: true,
   images: { unoptimized: true },
+  env: {
+    NEXT_PUBLIC_BASE_PATH: "/TheCEOCompass",
+  },
 }
 
 module.exports = nextConfig
