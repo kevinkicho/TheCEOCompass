@@ -17,15 +17,19 @@ def test_config_loads():
 
 
 def test_routers_registered():
-    """Verify all routers are registered"""
+    """Verify all routers are registered by checking route paths"""
     from app.main import app
-    routes = [r.path for r in app.routes if hasattr(r, 'path')]
-    assert any("/api/frameworks" in r for r in routes)
-    assert any("/api/scenarios" in r for r in routes)
-    assert any("/api/quiz" in r for r in routes)
-    assert any("/api/journal" in r for r in routes)
-    assert any("/api/progress" in r for r in routes)
-    assert any("/api/search" in r for r in routes)
+    from starlette.routing import Route
+    paths = []
+    for r in app.routes:
+        if isinstance(r, Route):
+            paths.append(r.path)
+        elif hasattr(r, 'routes'):
+            for sub in r.routes:
+                if hasattr(sub, 'path'):
+                    paths.append(getattr(r, 'prefix', '') + sub.path)
+    for prefix in ("frameworks", "scenarios", "quiz", "journal", "progress", "search"):
+        assert any(f"/api/{prefix}" in p for p in paths), f"/api/{prefix} not found"
 
 
 def test_models_import():
