@@ -15,7 +15,7 @@ function ollamaHeaders(): Record<string, string> {
     const s = JSON.parse(raw)
     const h: Record<string, string> = {}
     if (s.ollamaUrl && s.ollamaUrl !== "http://localhost:11434") h["X-Ollama-Url"] = s.ollamaUrl
-    if (s.ollamaModel && s.ollamaModel !== "gemma3:latest") h["X-Ollama-Model"] = s.ollamaModel
+    if (s.ollamaModel && s.ollamaModel !== "gemma4cloud") h["X-Ollama-Model"] = s.ollamaModel
     return h
   } catch { return {} }
 }

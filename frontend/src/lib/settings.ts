@@ -9,7 +9,7 @@ export interface AppSettings {
 
 const DEFAULT_SETTINGS: AppSettings = {
   ollamaUrl: "http://localhost:11434",
-  ollamaModel: "gemma3:latest",
+  ollamaModel: "gemma4cloud",
 }
 
 const STORAGE_KEY = "ceocompass_settings"

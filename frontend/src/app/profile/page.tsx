@@ -198,9 +198,9 @@ export default function ProfilePage() {
               value={settings.ollamaModel}
               onChange={(e) => setSettings({ ...settings, ollamaModel: e.target.value })}
               className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
-              placeholder="gemma3:latest"
+              placeholder="gemma4cloud"
             />
-            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model name to use with Ollama (e.g. gemma3:latest, llama3, mistral).</p>
+            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model name to use with Ollama (e.g. gemma4cloud, llama3, mistral).</p>
           </div>
           <div className="rounded-lg bg-primary-50 dark:bg-primary-900/10 p-3">
             <p className="text-xs text-primary-700 dark:text-primary-300">

@@ -18,7 +18,7 @@ class LLMService:
         self.provider = settings.llm_provider
         self.model = settings.llm_model
         self.ollama_url = ollama_url or settings.ollama_base_url or "http://localhost:11434"
-        self.ollama_model = ollama_model or settings.ollama_model or "gemma3:latest"
+        self.ollama_model = ollama_model or settings.ollama_model or "gemma4cloud"
         self._client = None
 
     @property
