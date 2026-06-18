@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     environment: str = Field(default="development", alias="ENVIRONMENT")
     api_prefix: str = "/api"
     
+    ollama_base_url: str = Field(default="http://localhost:11434", alias="OLLAMA_BASE_URL")
+    ollama_model: str = Field(default="gemma3:latest", alias="OLLAMA_MODEL")
+    
     cors_origins: list[str] = []
 
     class Config:

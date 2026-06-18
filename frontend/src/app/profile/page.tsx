@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getProgress, getCalibration, getJournalEntries, getFrameworks } from "@/lib/api"
 import type { Progress, CalibrationSummary, JournalEntry, FrameworkListItem } from "@/lib/types"
+import { useSettings } from "@/lib/settings"
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -12,6 +13,7 @@ export default function ProfilePage() {
   const [journalCount, setJournalCount] = useState(0)
   const [frameworks, setFrameworks] = useState<FrameworkListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { settings, setSettings, loaded } = useSettings()
 
   useEffect(() => {
     Promise.all([
@@ -172,6 +174,41 @@ export default function ProfilePage() {
           <h3 className="font-semibold text-dark-900 dark:text-dark-100">Learning Pathway</h3>
           <p className="text-sm text-dark-500 dark:text-dark-300">Follow the structured curriculum</p>
         </button>
+      </div>
+
+      {/* Settings */}
+      <div className="mb-8">
+        <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Settings</h2>
+        <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-5 space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Ollama URL</label>
+            <input
+              type="text"
+              value={settings.ollamaUrl}
+              onChange={(e) => setSettings({ ...settings, ollamaUrl: e.target.value })}
+              className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
+              placeholder="http://localhost:11434"
+            />
+            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Default Ollama endpoint. Change the port if yours runs on a different port.</p>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Ollama Model</label>
+            <input
+              type="text"
+              value={settings.ollamaModel}
+              onChange={(e) => setSettings({ ...settings, ollamaModel: e.target.value })}
+              className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
+              placeholder="gemma3:latest"
+            />
+            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model name to use with Ollama (e.g. gemma3:latest, llama3, mistral).</p>
+          </div>
+          <div className="rounded-lg bg-primary-50 dark:bg-primary-900/10 p-3">
+            <p className="text-xs text-primary-700 dark:text-primary-300">
+              <strong>Using Ollama?</strong> Set LLM_PROVIDER=ollama in backend/.env and ensure Ollama is running on the URL above.
+              AI features (scenario coaching, quiz generation) will use your local model.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -7,6 +7,19 @@ import type {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
 const isStaticHosting = typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")
 
+function ollamaHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {}
+  try {
+    const raw = localStorage.getItem("ceocompass_settings")
+    if (!raw) return {}
+    const s = JSON.parse(raw)
+    const h: Record<string, string> = {}
+    if (s.ollamaUrl && s.ollamaUrl !== "http://localhost:11434") h["X-Ollama-Url"] = s.ollamaUrl
+    if (s.ollamaModel && s.ollamaModel !== "gemma3:latest") h["X-Ollama-Model"] = s.ollamaModel
+    return h
+  } catch { return {} }
+}
+
 const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "application/json" } })
 
 export async function getFrameworks(category?: string): Promise<FrameworkListItem[]> {
@@ -14,14 +27,14 @@ export async function getFrameworks(category?: string): Promise<FrameworkListIte
   try { const { data } = await api.get("/frameworks", { params: category ? { category } : {} }); return data } catch { return [] }
 }
 
-export async function getFramework(id: string): Promise<Framework> {
-  if (isStaticHosting) { throw new Error("Backend required") }
-  try { const { data } = await api.get(`/frameworks/${id}`); return data } catch { throw new Error("Not found") }
+export async function getFramework(id: string): Promise<Framework | null> {
+  if (isStaticHosting) return null
+  try { const { data } = await api.get(`/frameworks/${id}`); return data } catch { return null }
 }
 
-export async function getFrameworkBySlug(slug: string): Promise<Framework> {
-  if (isStaticHosting) { throw new Error("Backend required") }
-  try { const { data } = await api.get(`/frameworks/slug/${slug}`); return data } catch { throw new Error("Not found") }
+export async function getFrameworkBySlug(slug: string): Promise<Framework | null> {
+  if (isStaticHosting) return null
+  try { const { data } = await api.get(`/frameworks/slug/${slug}`); return data } catch { return null }
 }
 
 export async function getScenarios(frameworkId?: string): Promise<ScenarioListItem[]> {
@@ -29,9 +42,9 @@ export async function getScenarios(frameworkId?: string): Promise<ScenarioListIt
   try { const { data } = await api.get("/scenarios", { params: frameworkId ? { framework_id: frameworkId } : {} }); return data } catch { return [] }
 }
 
-export async function getScenario(id: string): Promise<Scenario> {
-  if (isStaticHosting) { throw new Error("Backend required") }
-  try { const { data } = await api.get(`/scenarios/slug/${id}`); return data } catch { throw new Error("Not found") }
+export async function getScenario(id: string): Promise<Scenario | null> {
+  if (isStaticHosting) return null
+  try { const { data } = await api.get(`/scenarios/slug/${id}`); return data } catch { return null }
 }
 
 export async function startScenario(id: string): Promise<ScenarioAttempt> {
@@ -67,16 +80,18 @@ export async function createJournalOutcome(entryId: string, outcome: { what_happ
   await api.post(`/journal/${entryId}/outcome`, outcome)
 }
 
-export async function getProgress(): Promise<Progress> {
-  if (isStaticHosting) { throw new Error("Backend required") }
-  const { data } = await api.get("/progress"); return data
+export async function getProgress(): Promise<Progress | null> {
+  if (isStaticHosting) return null
+  try { const { data } = await api.get("/progress"); return data } catch { return null }
 }
 
-export async function getCalibration(): Promise<CalibrationSummary> {
-  if (isStaticHosting) { throw new Error("Backend required") }
-  const { data } = await api.get("/progress/calibration"); return data
+export async function getCalibration(): Promise<CalibrationSummary | null> {
+  if (isStaticHosting) return null
+  try { const { data } = await api.get("/progress/calibration"); return data } catch { return null }
 }
 
-export async function searchFrameworks(query: string) {
-  const { data } = await api.get(`/search?q=${encodeURIComponent(query)}`); return data
+export async function generateQuiz(frameworkId: string, numQuestions: number, difficulty: string) {
+  const { data } = await api.post("/quiz/generate", { framework_id: frameworkId, num_questions: numQuestions, difficulty }, { headers: ollamaHeaders() }); return data
 }
+
+export { isStaticHosting }

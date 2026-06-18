@@ -14,6 +14,7 @@ export default function FrameworkDetailPage() {
 
   useEffect(() => {
     getFrameworkBySlug(slug).then((fw) => {
+      if (!fw) return
       setFramework(fw)
       getScenarios(fw.id).then(setScenarios).catch(console.error)
     }).catch(console.error)

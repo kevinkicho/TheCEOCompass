@@ -1,12 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getFrameworks } from "@/lib/api"
+import { getFrameworks, generateQuiz } from "@/lib/api"
 import { StaticModeBanner } from "@/components/StaticModeBanner"
 import { BackendGuard } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
 
 interface QuizQuestion {
   id: string
@@ -43,16 +42,7 @@ export default function QuizPage() {
     if (!selectedFramework) return
     setIsLoading(true)
     try {
-      const res = await fetch(`${API}/quiz/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          framework_id: selectedFramework,
-          num_questions: 5,
-          difficulty: "medium",
-        }),
-      })
-      const data = await res.json()
+      const data = await generateQuiz(selectedFramework, 5, "medium")
       setQuestions(data)
       setCurrentQ(0)
       setScore(0)

@@ -1,6 +1,7 @@
 import json
 from typing import Optional
 from dataclasses import dataclass, field
+import httpx
 from app.config import settings
 
 
@@ -13,9 +14,11 @@ class LLMFeedback:
 
 
 class LLMService:
-    def __init__(self):
+    def __init__(self, ollama_url: str = "", ollama_model: str = ""):
         self.provider = settings.llm_provider
         self.model = settings.llm_model
+        self.ollama_url = ollama_url or settings.ollama_base_url or "http://localhost:11434"
+        self.ollama_model = ollama_model or settings.ollama_model or "gemma3:latest"
         self._client = None
 
     @property
@@ -27,13 +30,29 @@ class LLMService:
             elif self.provider == "anthropic" and settings.anthropic_api_key:
                 from anthropic import AsyncAnthropic
                 self._client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+            elif self.provider == "ollama":
+                return "ollama_ready"
         return self._client
 
     def _check_api(self):
+        if self.provider == "ollama":
+            return  # Ollama requires no API key
         if not self.client:
             raise RuntimeError(
-                "No LLM API key configured. Set OPENAI_API_KEY or ANTHROPIC_API_KEY in backend/.env"
+                "No LLM API key configured. Set OPENAI_API_KEY or ANTHROPIC_API_KEY in backend/.env, "
+                "or set LLM_PROVIDER=ollama to use a local Ollama instance."
             )
+
+    def _get_system_prompt(self) -> str:
+        return "You are an expert CEO coach and business strategy expert. Respond only with valid JSON."
+
+    async def _call_provider(self, prompt: str, temperature: float = 0.3) -> str:
+        if self.provider == "openai":
+            return await self._call_openai(prompt, temperature)
+        elif self.provider == "anthropic":
+            return await self._call_anthropic(prompt, temperature)
+        else:
+            return await self._call_ollama(prompt, temperature)
 
     async def evaluate_scenario_response(
         self,
@@ -47,10 +66,7 @@ class LLMService:
         prompt = self._build_evaluation_prompt(
             stage_context, stage_type, user_response, correct_answer, framework_context
         )
-        if self.provider == "openai":
-            response = await self._call_openai(prompt)
-        else:
-            response = await self._call_anthropic(prompt)
+        response = await self._call_provider(prompt)
         return self._parse_feedback(response)
 
     async def generate_scenario(
@@ -109,10 +125,7 @@ Generate a JSON scenario with this exact structure:
 
 Return ONLY valid JSON.
 """
-        if self.provider == "openai":
-            response = await self._call_openai(prompt, temperature=0.7)
-        else:
-            response = await self._call_anthropic(prompt, temperature=0.7)
+        response = await self._call_provider(prompt, temperature=0.7)
         return json.loads(response)
 
     async def generate_quiz_questions(
@@ -145,10 +158,7 @@ Generate JSON array of questions:
 Mix question types. For calculation questions, include realistic numbers.
 Return ONLY valid JSON array.
 """
-        if self.provider == "openai":
-            response = await self._call_openai(prompt, temperature=0.5)
-        else:
-            response = await self._call_anthropic(prompt, temperature=0.5)
+        response = await self._call_provider(prompt, temperature=0.5)
         return json.loads(response)
 
     def _build_evaluation_prompt(
@@ -185,7 +195,7 @@ Be rigorous but encouraging. CEO-grade feedback.
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": "You are an expert CEO coach and business strategy expert. Respond only with valid JSON."},
+                {"role": "system", "content": self._get_system_prompt()},
                 {"role": "user", "content": prompt}
             ],
             temperature=temperature,
@@ -198,10 +208,23 @@ Be rigorous but encouraging. CEO-grade feedback.
             model=self.model,
             max_tokens=2000,
             temperature=temperature,
-            system="You are an expert CEO coach and business strategy expert. Respond only with valid JSON.",
+            system=self._get_system_prompt(),
             messages=[{"role": "user", "content": prompt}]
         )
         return response.content[0].text
+
+    async def _call_ollama(self, prompt: str, temperature: float = 0.3) -> str:
+        url = f"{self.ollama_url.rstrip('/')}/api/generate"
+        async with httpx.AsyncClient(timeout=120) as client:
+            resp = await client.post(url, json={
+                "model": self.ollama_model,
+                "prompt": f"{self._get_system_prompt()}\n\n{prompt}",
+                "stream": False,
+                "options": {"temperature": temperature},
+            })
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("response", "")
 
     def _parse_feedback(self, response: str) -> LLMFeedback:
         try:
