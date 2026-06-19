@@ -10,7 +10,6 @@ import { fileURLToPath } from "url"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-// Find service account key: try GOOGLE_APPLICATION_CREDENTIALS, then scan for *.json
 function loadServiceAccount() {
   const fromEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS
   if (fromEnv) {
@@ -20,7 +19,7 @@ function loadServiceAccount() {
   if (files.length > 0) {
     return JSON.parse(readFileSync(join(__dirname, files[0]), "utf8"))
   }
-  throw new Error("No service account key found. Download it from Firebase Console and save it in the agent/ directory.")
+  throw new Error("No service account key found.")
 }
 
 const serviceAccount = loadServiceAccount()
@@ -37,6 +36,22 @@ const ollamaUrl = "http://localhost:11434/api/generate"
 console.log("✓ Agent connected to Firebase RTDB")
 console.log(`  Watching /requests → ${ollamaUrl}`)
 
+// Stale request sweep on startup
+async function sweepStaleRequests() {
+  const snap = await requestsRef.orderByChild("status").equalTo("processing").once("value")
+  let count = 0
+  snap.forEach((child) => {
+    const data = child.val()
+    if (data.started_at && Date.now() - data.started_at > 300000) {
+      child.ref.update({ status: "pending" })
+      count++
+      console.log(`  ↻ Reset stale [${child.key}]`)
+    }
+  })
+  if (count > 0) console.log(`  Swept ${count} stale requests`)
+}
+sweepStaleRequests()
+
 requestsRef.on("child_added", async (snapshot) => {
   const requestId = snapshot.key
   const data = snapshot.val()
@@ -49,7 +64,7 @@ requestsRef.on("child_added", async (snapshot) => {
   console.log(`\n→ [${requestId}] Processing: ${data.type || "generate"}`)
 
   try {
-    await requestRef.update({ status: "processing" })
+    await requestRef.update({ status: "processing", started_at: Date.now() })
 
     const ollamaRes = await fetch(ollamaUrl, {
       method: "POST",
@@ -72,11 +87,23 @@ requestsRef.on("child_added", async (snapshot) => {
       result = result.slice(0, -3).trim()
     }
 
-    await responseRef.set({
+    const responseData = {
       result,
       model: data.payload.model || "gemma4:latest",
       created_at: Date.now(),
-    })
+    }
+
+    // Write to flat path
+    await responseRef.set(responseData)
+
+    // Write to indexed path for caching
+    const { framework_slug, concept_slug } = data
+    if (framework_slug) {
+      const indexPath = concept_slug
+        ? `framework/${framework_slug}/${concept_slug}/responses/${requestId}`
+        : `framework/${framework_slug}/quiz/responses/${requestId}`
+      await db.ref(indexPath).set(responseData)
+    }
 
     await requestRef.update({ status: "done" })
     console.log(`  ✓ [${requestId}] Done (${result.length} chars)`)

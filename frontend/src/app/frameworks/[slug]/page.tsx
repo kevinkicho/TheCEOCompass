@@ -49,7 +49,7 @@ export default function FrameworkDetailPage() {
     setAiLoading(true)
     setAiExplanation(null)
     try {
-      const data = await explainConcept(modalConcept.name, modalConcept.definition, framework.title)
+      const data = await explainConcept(modalConcept.name, modalConcept.definition, slug)
       setAiExplanation(data)
     } catch (err) {
       console.error(err)

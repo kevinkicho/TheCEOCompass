@@ -58,7 +58,7 @@ export default function QuizPage() {
     setElapsed(0)
     try {
       const fw = frameworks.find((f) => f.id === selectedFramework)
-      const data = await generateQuiz(selectedFramework, 5, "medium", fw?.title)
+      const data = await generateQuiz(fw?.slug || "", 5, "medium")
       setQuestions(data)
       setCurrentQ(0)
       setScore(0)

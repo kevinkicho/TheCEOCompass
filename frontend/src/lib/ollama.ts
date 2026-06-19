@@ -1,11 +1,12 @@
-import { db, ref, set, onValue, off, get, update } from "./firebase"
+import { db, ref, set, onValue, off, get, update, query, orderByChild, limitToLast } from "./firebase"
+import { staticFrameworks } from "./staticData"
 
 function generateId(): string {
   return crypto.randomUUID()
 }
 
-function systemPrompt(): string {
-  return "You are an expert CEO coach and business strategy expert. Respond only with valid JSON."
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 }
 
 function loadSettings(): Record<string, string> {
@@ -17,30 +18,80 @@ function loadSettings(): Record<string, string> {
   }
 }
 
+function getFrameworkMeta(slug: string) {
+  const fw = (staticFrameworks as any[]).find((f) => f.slug === slug)
+  if (!fw) return null
+  return {
+    slug: fw.slug,
+    title: fw.title,
+    category: fw.category,
+    difficulty: fw.difficulty,
+    use_cases: fw.use_cases || [],
+    key_concepts: fw.key_concepts || [],
+  }
+}
+
+function buildSystemPrompt(type: "explain" | "quiz"): string {
+  if (type === "explain") {
+    return "You are a CEO coach explaining a specific framework concept to a busy executive. Be concise and actionable. Respond only with valid JSON."
+  }
+  return "You are a business school professor creating an assessment for MBA students. Questions should test understanding, not recall. Respond only with valid JSON."
+}
+
+async function checkCache(
+  database: ReturnType<typeof import("firebase/database").getDatabase>,
+  frameworkSlug: string,
+  conceptSlug: string | null,
+): Promise<string | null> {
+  const cachePath = conceptSlug
+    ? `framework/${frameworkSlug}/${conceptSlug}/responses`
+    : `framework/${frameworkSlug}/quiz/responses`
+
+  const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
+  const snap = await get(cacheQuery)
+  if (!snap.exists()) return null
+
+  const entries = snap.val()
+  const latest = Object.values(entries)[0] as any
+  if (!latest || !latest.result) return null
+  if (Date.now() - (latest.created_at || 0) > 86400000) return null
+
+  return latest.result
+}
+
 async function callOllamaViaFirebase(
   model: string,
   prompt: string,
-  temperature: number = 0.3,
+  temperature: number,
+  frameworkSlug: string,
+  conceptSlug: string | null,
+  type: "explain" | "quiz",
 ): Promise<string> {
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
 
+  const database = db!
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
-  const requestId = generateId()
 
-  const database = db!
+  const cached = await checkCache(database, frameworkSlug, conceptSlug)
+  if (cached) return cached
+
+  const requestId = generateId()
+  const fullPrompt = `${buildSystemPrompt(type)}\n\n${prompt}`
 
   const payload = {
     model: actualModel,
-    prompt: `${systemPrompt()}\n\n${prompt}`,
+    prompt: fullPrompt,
     stream: false,
     options: { temperature },
   }
 
   await set(ref(database, `requests/${requestId}`), {
-    type: "generate",
+    type,
+    framework_slug: frameworkSlug,
+    concept_slug: conceptSlug,
     payload,
     status: "pending",
     created_at: Date.now(),
@@ -53,8 +104,7 @@ async function callOllamaViaFirebase(
 
     const unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
-      const status = snap.val()
-      if (status === "error") {
+      if (snap.val() === "error") {
         done = true
         unsubStatus()
         unsubResp()
@@ -80,21 +130,25 @@ async function callOllamaViaFirebase(
 }
 
 export async function generateQuiz(
-  frameworkId: string,
-  _numQuestions: number,
-  _difficulty: string,
-  frameworkTitle?: string,
+  frameworkSlug: string,
+  numQuestions: number,
+  difficulty: string,
 ) {
-  const num = _numQuestions || 5
-  const diff = _difficulty || "medium"
-  const title = frameworkTitle || "Strategic Decision-Making"
+  const meta = getFrameworkMeta(frameworkSlug)
+  if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
 
-  const prompt = `Create ${num} quiz questions for the "${title}" framework.
+  const num = numQuestions || 5
+  const diff = difficulty || "medium"
 
-Concepts to test: various leadership and strategy concepts
-Difficulty: ${diff}
+  const concepts = meta.key_concepts.join(", ")
 
-Generate JSON array of questions:
+  const prompt = `Framework: ${meta.title}
+Domain: ${meta.category}
+Difficulty: ${diff} (easy=recall definition, medium=apply to business scenario, hard=compare/contrast concepts or analyze tradeoffs)
+Use cases: ${meta.use_cases.join(", ")}
+Concepts to cover: ${concepts}
+
+Generate ${num} questions as a JSON array. Mix question types across the concepts:
 [
   {
     "id": "q1",
@@ -107,23 +161,31 @@ Generate JSON array of questions:
   }
 ]
 
-Mix question types. For calculation questions, include realistic numbers.
 Return ONLY valid JSON array.`
 
-  const response = await callOllamaViaFirebase("", prompt, 0.5)
+  const response = await callOllamaViaFirebase("", prompt, 0.5, frameworkSlug, null, "quiz")
   return JSON.parse(response)
 }
 
 export async function explainConcept(
   conceptName: string,
   definition: string,
-  frameworkTitle: string,
+  frameworkSlug: string,
 ) {
-  const prompt = `You are an expert CEO coach. Provide a concise, actionable explanation of this concept.
+  const meta = getFrameworkMeta(frameworkSlug)
+  if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
+
+  const conceptSlug = slugify(conceptName)
+  const related = meta.key_concepts.filter((k: string) => k !== conceptName).join(", ")
+
+  const prompt = `Framework: ${meta.title}
+Domain: ${meta.category}
+Difficulty: ${meta.difficulty}/5
+Use cases: ${meta.use_cases.join(", ")}
+Related concepts in this framework: ${related}
 
 Concept: ${conceptName}
 Definition: ${definition}
-Framework: ${frameworkTitle}
 
 Return a JSON object with these fields:
 {
@@ -135,6 +197,8 @@ Return a JSON object with these fields:
 
 Return ONLY valid JSON.`
 
-  const response = await callOllamaViaFirebase("", prompt, 0.4)
+  const response = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain")
   return JSON.parse(response)
 }
+
+export { slugify }
