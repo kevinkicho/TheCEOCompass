@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getFrameworkBySlug, getScenarios } from "@/lib/api"
+import { getFrameworkBySlug, getScenarios, explainConcept } from "@/lib/api"
 import type { Framework, FrameworkConcept, ScenarioListItem } from "@/lib/types"
 
 export default function FrameworkDetailPage() {
@@ -11,6 +11,21 @@ export default function FrameworkDetailPage() {
   const [framework, setFramework] = useState<Framework | null>(null)
   const [scenarios, setScenarios] = useState<ScenarioListItem[]>([])
   const [modalConcept, setModalConcept] = useState<FrameworkConcept | null>(null)
+  const [aiExplanation, setAiExplanation] = useState<Record<string, string> | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiElapsed, setAiElapsed] = useState(0)
+  const aiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (aiLoading) {
+      setAiElapsed(0)
+      aiTimerRef.current = setInterval(() => setAiElapsed((e) => e + 1), 1000)
+    } else {
+      if (aiTimerRef.current) clearInterval(aiTimerRef.current)
+      aiTimerRef.current = null
+    }
+    return () => { if (aiTimerRef.current) clearInterval(aiTimerRef.current) }
+  }, [aiLoading])
 
   useEffect(() => {
     getFrameworkBySlug(slug).then((fw) => {
@@ -26,6 +41,19 @@ export default function FrameworkDetailPage() {
         <p className="text-dark-500 dark:text-dark-300">Loading...</p>
       </div>
     )
+  }
+
+  const handleExplain = async () => {
+    if (!modalConcept || !framework) return
+    setAiLoading(true)
+    setAiExplanation(null)
+    try {
+      const data = await explainConcept(modalConcept.name, modalConcept.definition, framework.title)
+      setAiExplanation(data)
+    } catch (err) {
+      console.error(err)
+    }
+    setAiLoading(false)
   }
 
   const conceptMap = new Map<string, FrameworkConcept>()
@@ -281,6 +309,54 @@ export default function FrameworkDetailPage() {
               ))}
             </div>
           )}
+          
+          {/* AI Explain */}
+          <div className="mb-4 mt-4">
+            <button
+              onClick={handleExplain}
+              disabled={aiLoading}
+              className="w-full rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-4 py-3 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-100/50 dark:hover:bg-primary-900/20 transition disabled:opacity-50"
+            >
+              {aiLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Generating AI explanation... {aiElapsed}s
+                </span>
+              ) : "Explain Further with AI"}
+            </button>
+
+            {aiExplanation && (
+              <div className="mt-3 space-y-3 animate-slide-up">
+                {aiExplanation.real_world_example && (
+                  <div className="rounded-lg border border-dark-200 dark:border-dark-700 p-3">
+                    <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-1">Real-World Example</p>
+                    <p className="text-sm text-dark-700 dark:text-dark-300">{aiExplanation.real_world_example}</p>
+                  </div>
+                )}
+                {aiExplanation.ceo_insight && (
+                  <div className="rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-3">
+                    <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-1">CEO Insight</p>
+                    <p className="text-sm text-dark-700 dark:text-dark-300">{aiExplanation.ceo_insight}</p>
+                  </div>
+                )}
+                {aiExplanation.common_mistake && (
+                  <div className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50/30 dark:bg-amber-900/10 p-3">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">Common Mistake</p>
+                    <p className="text-sm text-dark-700 dark:text-dark-300">{aiExplanation.common_mistake}</p>
+                  </div>
+                )}
+                {aiExplanation.related_tip && (
+                  <div className="rounded-lg border border-green-200 dark:border-green-800/40 bg-green-50/30 dark:bg-green-900/10 p-3">
+                    <p className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1">Quick Tip</p>
+                    <p className="text-sm text-dark-700 dark:text-dark-300">{aiExplanation.related_tip}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )}

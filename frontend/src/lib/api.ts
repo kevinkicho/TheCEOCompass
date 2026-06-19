@@ -105,4 +105,8 @@ export async function generateQuiz(frameworkId: string, numQuestions: number, di
   const { data } = await api.post("/quiz/generate", { framework_id: frameworkId, num_questions: numQuestions, difficulty }, { headers: ollamaHeaders() }); return data
 }
 
+export async function explainConcept(conceptName: string, definition: string, frameworkTitle: string) {
+  const { data } = await api.post("/quiz/explain", { concept_name: conceptName, definition, framework_title: frameworkTitle }, { headers: ollamaHeaders() }); return data
+}
+
 export { isStaticHosting }
