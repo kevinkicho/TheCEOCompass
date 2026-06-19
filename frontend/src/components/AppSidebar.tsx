@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect } from "react"
+import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
@@ -37,14 +37,6 @@ export function AppSidebar() {
   const conceptSlug = pathname.startsWith(`/frameworks/${currentSlug}/`) && currentSlug
     ? pathname.split("/").pop() || ""
     : ""
-
-  // Auto-expand current framework
-  useEffect(() => {
-    setExpanded((prev) => {
-      if (prev.has(currentSlug)) return prev
-      return new Set(prev).add(currentSlug)
-    })
-  }, [currentSlug])
 
   const toggleExpand = useCallback((fwSlug: string) => {
     setExpanded((prev) => {
@@ -124,7 +116,7 @@ export function AppSidebar() {
           {displayItems.map((fw) => {
             const concepts = filteredFws ? fw.concepts : (filteredMap?.[fw.slug] || [])
             const isFwActive = !filter && pathname === `/frameworks/${fw.slug}`
-            const isExpanded = !filter && (expanded.has(fw.slug) || pathname.startsWith(`/frameworks/${fw.slug}/`))
+            const isExpanded = expanded.has(fw.slug)
 
             return (
                 <div key={fw.slug} className="mb-0.5">
