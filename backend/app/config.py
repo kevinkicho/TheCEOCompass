@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     
     ollama_base_url: str = Field(default="http://localhost:11434", alias="OLLAMA_BASE_URL")
     ollama_model: str = Field(default="gemma4:31b-cloud", alias="OLLAMA_MODEL")
+    ollama_api_key: str | None = Field(default=None, alias="OLLAMA_API_KEY")
     
     cors_origins: list[str] = []
 

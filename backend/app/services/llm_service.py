@@ -214,14 +214,27 @@ Be rigorous but encouraging. CEO-grade feedback.
         return response.content[0].text
 
     async def _call_ollama(self, prompt: str, temperature: float = 0.3) -> str:
-        url = f"{self.ollama_url.rstrip('/')}/api/generate"
+        api_key = settings.ollama_api_key
+        if api_key:
+            # Ollama Cloud API
+            url = "https://api.ollama.com/api/generate"
+            headers = {"Authorization": f"Bearer {api_key}"}
+        else:
+            # Local Ollama
+            url = f"{self.ollama_url.rstrip('/')}/api/generate"
+            headers = {}
         async with httpx.AsyncClient(timeout=120) as client:
             resp = await client.post(url, json={
-                "model": self.ollama_model,
+                "model": self.ollama_model.replace(":cloud", ""),
                 "prompt": f"{self._get_system_prompt()}\n\n{prompt}",
                 "stream": False,
                 "options": {"temperature": temperature},
-            })
+            }, headers=headers)
+            if resp.status_code == 429:
+                raise RuntimeError(
+                    "Ollama Cloud rate limit reached. Upgrade at https://ollama.com/upgrade "
+                    "or pull a local model: ollama pull gemma3"
+                )
             resp.raise_for_status()
             data = resp.json()
             return data.get("response", "")
