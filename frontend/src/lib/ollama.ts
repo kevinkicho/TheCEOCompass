@@ -1,9 +1,9 @@
-// Direct Ollama client — calls http://localhost:11434 from the browser
-// If that fails due to CORS, tries http://localhost:8080 (CORS proxy)
-// Requires Ollama to be started with: OLLAMA_ORIGINS=* ollama serve
+// Direct Ollama client — tries multiple ports automatically
+//  1. 11434  (default Ollama, needs OLLAMA_ORIGINS=*)
+//  2. 11435  (CORS-enabled Ollama, user runs separately)
+//  3. 8080   (CORS proxy, user runs node proxy.js)
 
-const OLLAMA_URL = "http://localhost:11434"
-const PROXY_URL = "http://localhost:8080"
+const OLLAMA_PORTS = [11434, 11435, 8080]
 
 function systemPrompt(): string {
   return "You are an expert CEO coach and business strategy expert. Respond only with valid JSON."
@@ -23,13 +23,12 @@ async function callOllama(
     options: { temperature },
   })
 
-  // Try direct Ollama first, then proxy fallback
-  const urls = [OLLAMA_URL, PROXY_URL]
+  // Try each port until one works
   let lastError: Error | null = null
-
-  for (const baseUrl of urls) {
+  for (const port of OLLAMA_PORTS) {
     try {
-      const res = await fetch(`${baseUrl}/api/generate`, {
+      const url = `http://localhost:${port}/api/generate`
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body,
@@ -40,6 +39,12 @@ async function callOllama(
       }
       if (!res.ok) {
         const text = await res.text()
+        // CORS failures show as network errors, not HTTP errors
+        // So if we get here, Ollama responded but rejected our origin
+        if (res.status === 403) {
+          console.warn(`[Ollama] Port ${port} rejects origin, trying next...`)
+          continue
+        }
         throw new Error(`Ollama error (${res.status}): ${text.substring(0, 200)}`)
       }
 
@@ -57,16 +62,11 @@ async function callOllama(
       return text
     } catch (e: any) {
       lastError = e
-      // If direct failed and proxy is next, try proxy
-      if (baseUrl === OLLAMA_URL && urls.indexOf(PROXY_URL) > urls.indexOf(OLLAMA_URL)) {
-        console.warn(`[Ollama] Direct call failed (${e.message}), trying proxy...`)
-        continue
-      }
-      break
+      console.warn(`[Ollama] Port ${port} failed: ${e.message}`)
     }
   }
 
-  throw lastError || new Error("Failed to reach Ollama")
+  throw lastError || new Error("Failed to reach Ollama on any port (11434, 11435, 8080)")
 }
 
 function loadSettings() {

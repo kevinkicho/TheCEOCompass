@@ -198,14 +198,14 @@ export default function ProfilePage() {
               value={settings.ollamaModel}
               onChange={(e) => setSettings({ ...settings, ollamaModel: e.target.value })}
               className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
-              placeholder="gemma4:31b-cloud"
+              placeholder="gemma4:latest"
             />
-            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model name to use with Ollama (e.g. gemma4:31b-cloud, llama3, mistral).</p>
+            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model name to use with Ollama (e.g. gemma4:latest, llama3, mistral).</p>
           </div>
           <div className="rounded-lg bg-primary-50 dark:bg-primary-900/10 p-3">
             <p className="text-xs text-primary-700 dark:text-primary-300">
-              <strong>Using Ollama?</strong> Set LLM_PROVIDER=ollama in backend/.env and ensure Ollama is running on the URL above.
-              AI features (scenario coaching, quiz generation) will use your local model.
+              The app auto-detects Ollama on ports 11434, 11435, and 8080.
+              To enable AI features from GitHub Pages, run: <code className="font-mono bg-primary-100 dark:bg-primary-900/30 px-1 rounded">OLLAMA_ORIGINS=* OLLAMA_HOST=127.0.0.1:11435 ollama serve</code>
             </p>
           </div>
         </div>
