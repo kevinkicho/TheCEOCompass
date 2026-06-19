@@ -30,6 +30,8 @@ async function callOllamaViaFirebase(
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
   const requestId = generateId()
 
+  const database = db!
+
   const payload = {
     model: actualModel,
     prompt: `${systemPrompt()}\n\n${prompt}`,
@@ -37,7 +39,7 @@ async function callOllamaViaFirebase(
     options: { temperature },
   }
 
-  await set(ref(db, `requests/${requestId}`), {
+  await set(ref(database, `requests/${requestId}`), {
     type: "generate",
     payload,
     status: "pending",
@@ -45,8 +47,8 @@ async function callOllamaViaFirebase(
   })
 
   return new Promise((resolve, reject) => {
-    const responseRef = ref(db, `responses/${requestId}`)
-    const statusRef = ref(db, `requests/${requestId}/status`)
+    const responseRef = ref(database, `responses/${requestId}`)
+    const statusRef = ref(database, `requests/${requestId}/status`)
     let done = false
 
     const unsubStatus = onValue(statusRef, (snap) => {
