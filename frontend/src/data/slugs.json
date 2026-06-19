@@ -65,5 +65,403 @@
     "scaling-org-from-50-to-200",
     "platform-vs-feature-investment",
     "root-cause-customer-churn-spike"
-  ]
+  ],
+  "concepts": {
+    "strategic-decision-making": [
+      "first-principles-thinking",
+      "inversion",
+      "ooda-loop",
+      "second-order-thinking",
+      "probabilistic-thinking",
+      "pre-mortem-analysis"
+    ],
+    "financial-mastery": [
+      "ebitda",
+      "free-cash-flow",
+      "roic",
+      "dupont-analysis",
+      "dcf-valuation",
+      "lbo-modeling",
+      "unit-economics",
+      "cap-table"
+    ],
+    "competitive-market-analysis": [
+      "porter-s-five-forces",
+      "vrio",
+      "jobs-to-be-done",
+      "swot",
+      "bcg-matrix",
+      "ansoff-matrix",
+      "blue-ocean",
+      "network-effects"
+    ],
+    "organizational-people": [
+      "span-of-control",
+      "nine-box-grid",
+      "psychological-safety",
+      "okrs",
+      "adkar-change-management",
+      "org-design-span-layer",
+      "talent-density",
+      "kotter-s-8-step-change-model"
+    ],
+    "engineering-product-leadership": [
+      "dora-metrics",
+      "rice-prioritization",
+      "tech-debt-quadrant",
+      "build-vs-buy",
+      "kano-model",
+      "rice-ice-wsjf-prioritization",
+      "space-framework",
+      "tech-debt-management"
+    ],
+    "risk-governance-crisis": [
+      "fmea",
+      "crisis-first-hour",
+      "business-judgment-rule",
+      "coso-erm",
+      "iso-31000",
+      "crisis-communication",
+      "fiduciary-duties",
+      "board-governance",
+      "turnaround-playbook"
+    ],
+    "cause-analysis-methods": [
+      "5-whys",
+      "fishbone-ishikawa",
+      "causal-loop-diagrams",
+      "root-cause-analysis",
+      "fault-tree-analysis",
+      "just-culture",
+      "causal-inference"
+    ],
+    "negotiation-deal-making": [
+      "batna",
+      "zopa",
+      "anchoring",
+      "integrative-negotiation",
+      "distributive-negotiation",
+      "principled-negotiation-getting-to-yes",
+      "game-theory-prisoner-s-dilemma",
+      "m-a-deal-structure"
+    ],
+    "innovation-rd-management": [
+      "disruptive-innovation",
+      "crossing-the-chasm",
+      "lean-startup-build-measure-learn",
+      "design-thinking",
+      "stage-gate-process",
+      "ambidextrous-organization",
+      "technology-s-curve",
+      "innovator-s-dilemma"
+    ],
+    "business-model-strategy": [
+      "business-model-canvas",
+      "porter-s-generic-strategies",
+      "core-competency",
+      "balanced-scorecard",
+      "strategy-map",
+      "gap-analysis",
+      "ogsm-framework",
+      "mece-principle"
+    ],
+    "operations-quality-management": [
+      "six-sigma-dmaic",
+      "theory-of-constraints",
+      "lean-manufacturing-tps",
+      "pareto-principle-80-20",
+      "just-in-time-jit",
+      "hoshin-kanri-policy-deployment",
+      "statistical-process-control",
+      "total-quality-management-tqm"
+    ],
+    "decision-tree-analysis": [
+      "expected-value-calculation",
+      "decision-nodes-vs-chance-nodes",
+      "value-of-information",
+      "real-options-in-decision-trees",
+      "bayesian-updating-in-trees",
+      "sensitivity-at-decision-nodes"
+    ],
+    "sensitivity-analysis": [
+      "tornado-charts",
+      "break-even-analysis",
+      "scenario-testing",
+      "assumption-auditing",
+      "spider-charts",
+      "one-way-vs-two-way-sensitivity"
+    ],
+    "stakeholder-analysis": [
+      "power-interest-grid",
+      "stakeholder-salience",
+      "raci-mapping",
+      "influence-networks",
+      "communication-planning",
+      "coalition-building"
+    ],
+    "cohort-analysis": [
+      "retention-cohorts",
+      "revenue-cohorts",
+      "cohort-vs-aggregate-metrics",
+      "leading-churn-indicators",
+      "cohort-definition-time-vs-behavior",
+      "cohort-lifecycle-patterns"
+    ],
+    "monte-carlo-simulation": [
+      "distribution-thinking",
+      "confidence-intervals-p10-p50-p90",
+      "value-at-risk-var",
+      "correlated-assumptions",
+      "convergence-testing"
+    ],
+    "value-driver-tree": [
+      "dupont-style-driver-trees",
+      "leading-vs-lagging-indicators",
+      "operational-levers",
+      "kpi-design-from-driver-trees",
+      "top-down-decomposition",
+      "cost-driver-trees"
+    ],
+    "ab-testing-experiments": [
+      "randomized-controlled-trials",
+      "sample-size-power",
+      "the-peeking-problem",
+      "practical-vs-statistical-significance",
+      "a-a-testing",
+      "confidence-intervals-in-experiments"
+    ],
+    "force-field-analysis": [
+      "driving-vs-restraining-forces",
+      "force-scoring",
+      "force-reduction-strategy",
+      "change-management-integration",
+      "restraining-forces",
+      "equilibrium-analysis"
+    ],
+    "cognitive-biases-debiasing": [
+      "confirmation-bias",
+      "anchoring-bias",
+      "overconfidence-bias",
+      "availability-bias",
+      "survivorship-bias",
+      "sunk-cost-fallacy",
+      "framing-effect",
+      "hindsight-bias"
+    ],
+    "multi-criteria-decision-analysis": [
+      "weighted-scoring-matrix",
+      "analytic-hierarchy-process-ahp",
+      "trade-off-curves",
+      "criteria-weighting-methods",
+      "sensitivity-at-decision-points",
+      "non-compensatory-rules"
+    ],
+    "decision-quality-framework": [
+      "appropriate-frame",
+      "creative-alternatives",
+      "sound-reasoning",
+      "commitment-to-action",
+      "meaningful-information",
+      "clear-values-trade-offs"
+    ],
+    "intuition-vs-analysis": [
+      "klein-s-recognition-primed-decision-rpd",
+      "when-intuition-works",
+      "when-intuition-fails",
+      "combining-intuition-analysis",
+      "the-deliberation-without-attention-effect",
+      "calibrating-expert-judgment"
+    ],
+    "decision-speed-velocity": [
+      "type-1-vs-type-2-decisions-bezos",
+      "70-rule-bezos",
+      "disagree-and-commit",
+      "decision-fatigue",
+      "decision-batching-cadence",
+      "escalation-paths"
+    ],
+    "red-teaming-wargaming": [
+      "red-team-structure",
+      "competitor-simulation",
+      "pre-mortem-vs-war-game",
+      "after-action-review-aar-for-war-games",
+      "after-action-review"
+    ],
+    "systems-architecture-design": [
+      "monolith-vs-microservices-decision-framework",
+      "conway-s-law-in-practice",
+      "coupling-cohesion",
+      "evolutionary-architecture",
+      "strangler-fig-pattern"
+    ],
+    "site-reliability-engineering": [
+      "sli-slo-sla-hierarchy",
+      "error-budgets",
+      "blameless-postmortems",
+      "chaos-engineering"
+    ],
+    "technical-diligence": [
+      "code-architecture-quality-assessment",
+      "engineering-team-assessment",
+      "tech-debt-audit",
+      "scalability-infrastructure-assessment"
+    ],
+    "data-strategy-analytics": [
+      "data-warehouse-vs-lake-vs-mesh",
+      "metrics-layer-single-source-of-truth",
+      "data-quality-observability",
+      "gdpr-ccpa-compliance-engineering"
+    ],
+    "ai-ml-engineering-mlops": [
+      "ml-model-lifecycle",
+      "feature-stores-training-pipelines",
+      "llm-foundation-model-strategy",
+      "ai-governance-responsible-ai"
+    ],
+    "security-compliance-engineering": [
+      "shift-left-security-devsecops",
+      "zero-trust-architecture",
+      "threat-modeling-stride",
+      "soc2-iso-27001-compliance"
+    ],
+    "capital-allocation": [
+      "capital-allocation-hierarchy",
+      "roic-vs-wacc-test",
+      "share-buyback-math",
+      "dividend-policy"
+    ],
+    "working-capital-management": [
+      "cash-conversion-cycle-ccc",
+      "days-sales-outstanding-dso",
+      "negative-working-capital",
+      "working-capital-optimization"
+    ],
+    "fundraising-capital-structure": [
+      "debt-vs-equity-decision",
+      "liquidation-preferences",
+      "dilution-waterfall",
+      "venture-debt"
+    ],
+    "ma-financial-modeling": [
+      "accretion-dilution-analysis",
+      "synergy-quantification",
+      "goodwill-intangibles",
+      "earnout-modeling"
+    ],
+    "investor-relations-earnings": [
+      "earnings-call-strategy",
+      "guidance-philosophy",
+      "shareholder-letter-writing",
+      "activist-investor-defense"
+    ],
+    "hiring-talent-acquisition": [
+      "structured-interviewing",
+      "hiring-scorecards",
+      "bar-raiser-programs",
+      "onboarding-acceleration"
+    ],
+    "performance-management": [
+      "okr-linked-performance-reviews",
+      "360-degree-feedback",
+      "calibration-sessions",
+      "performance-improvement-plans-pips"
+    ],
+    "compensation-incentive-design": [
+      "total-rewards-philosophy",
+      "equity-grant-design",
+      "sales-compensation-models",
+      "performance-based-bonus-structures"
+    ],
+    "business-continuity-planning": [
+      "rto-rpo-recovery-objectives",
+      "business-impact-analysis-bia",
+      "failover-testing"
+    ],
+    "regulatory-risk-compliance": [
+      "regulatory-landscape-mapping",
+      "compliance-program-design",
+      "audit-readiness"
+    ],
+    "cross-cultural-negotiation": [
+      "high-context-vs-low-context-communication",
+      "relationship-first-vs-deal-first",
+      "face-saving-dynamics"
+    ],
+    "supply-chain-management": [
+      "supplier-diversification-strategy",
+      "just-in-time-vs-just-in-case",
+      "supply-chain-risk-mapping"
+    ],
+    "product-market-fit": [
+      "pmf-survey-sean-ellis-test",
+      "growth-loops-vs-funnels",
+      "flywheel-design",
+      "expansion-revenue-mechanics"
+    ],
+    "platform-business-models": [
+      "network-effect-types",
+      "chicken-and-egg-problem",
+      "platform-pricing-which-side-to-charge"
+    ],
+    "disruption-defense": [
+      "disruption-detection",
+      "ignore-vs-acquire-vs-compete-framework",
+      "self-disruption-separate-unit"
+    ],
+    "blue-ocean-strategy": [
+      "errc-grid",
+      "strategy-canvas",
+      "three-tiers-of-non-customers"
+    ],
+    "capacity-planning-forecasting": [
+      "little-s-law",
+      "the-bullwhip-effect",
+      "demand-forecasting-methods"
+    ],
+    "process-mining-optimization": [
+      "process-discovery-from-event-logs",
+      "conformance-checking",
+      "bottleneck-identification"
+    ],
+    "intellectual-property-strategy": [
+      "patent-portfolio-strategy",
+      "trade-secret-vs-patent-decision",
+      "freedom-to-operate-fto"
+    ],
+    "open-innovation-corporate-venturing": [
+      "open-innovation-models",
+      "corporate-venture-capital-cvc",
+      "innovation-scouting"
+    ],
+    "multi-party-coalition-negotiation": [
+      "coalition-formation-strategy",
+      "minimum-winning-coalition",
+      "multi-party-agenda-setting"
+    ],
+    "quantitative-risk-assessment": [
+      "risk-matrix-likelihood-impact",
+      "value-at-risk-var-cvar",
+      "risk-appetite-statements"
+    ],
+    "insurance-risk-transfer": [
+      "risk-transfer-spectrum",
+      "captive-insurance",
+      "parametric-insurance"
+    ],
+    "cyber-risk-framework": [
+      "nist-cybersecurity-framework",
+      "fair-model-breach-quantification",
+      "ransomware-readiness"
+    ],
+    "geopolitical-risk-analysis": [
+      "country-risk-assessment",
+      "sanctions-export-controls",
+      "supply-chain-geopolitical-mapping"
+    ],
+    "financial-risk-management": [
+      "fx-hedging-strategies",
+      "counterparty-credit-risk",
+      "treasury-policy-design"
+    ]
+  }
 }
