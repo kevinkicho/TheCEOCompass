@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from "firebase/app"
 import { getDatabase, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update } from "firebase/database"
+import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "firebase/auth"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
@@ -13,10 +14,18 @@ const firebaseConfig = {
 
 const hasConfig = firebaseConfig.apiKey.length > 0 && firebaseConfig.projectId.length > 0
 let db: ReturnType<typeof getDatabase> | null = null
+let auth: ReturnType<typeof getAuth> | null = null
 
 if (hasConfig) {
   const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
   db = getDatabase(app)
+  auth = getAuth(app)
 }
 
-export { db, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update }
+const googleProvider = new GoogleAuthProvider()
+
+export {
+  db, auth, googleProvider,
+  ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update,
+  signInWithPopup, signInAnonymously, onAuthStateChanged, signOut,
+}

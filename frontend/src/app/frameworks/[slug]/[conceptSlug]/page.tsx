@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
 import { explainConcept, checkCache, slugify } from "@/lib/ollama"
+import { db, ref, set, query, orderByChild, limitToLast, get } from "@/lib/firebase"
+import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
 function findConcept(slug: string, conceptSlug: string): { framework: Framework; concept: FrameworkConcept } | null {
@@ -17,12 +19,17 @@ function findConcept(slug: string, conceptSlug: string): { framework: Framework;
 export default function ConceptDetailPage() {
   const { slug, conceptSlug } = useParams<{ slug: string; conceptSlug: string }>()
   const router = useRouter()
+  const { isAdmin } = useAuth()
   const [aiExplanation, setAiExplanation] = useState<Record<string, string> | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiCached, setAiCached] = useState(false)
   const [aiElapsed, setAiElapsed] = useState(0)
   const [showAiPrompt, setShowAiPrompt] = useState(false)
   const [aiPromptText, setAiPromptText] = useState("")
+  const [editingPrompt, setEditingPrompt] = useState(false)
+  const [editPromptValue, setEditPromptValue] = useState("")
+  const [savingPrompt, setSavingPrompt] = useState(false)
+  const [currentResponseId, setCurrentResponseId] = useState<string | null>(null)
   const aiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const result = findConcept(slug, conceptSlug)
@@ -72,10 +79,31 @@ export default function ConceptDetailPage() {
       setAiExplanation(parsed)
       setAiCached(cached)
       setAiPromptText(prompt)
+      setEditingPrompt(false)
     } catch (err) {
       console.error(err)
     }
     setAiLoading(false)
+  }
+
+  const handleSavePrompt = async () => {
+    if (!db || !editPromptValue.trim()) return
+    setSavingPrompt(true)
+    try {
+      const cachePath = `framework/${slug}/${conceptSlug}/responses`
+      const q = query(ref(db, cachePath), orderByChild("created_at"), limitToLast(1))
+      const snap = await get(q)
+      if (snap.exists()) {
+        const entries = snap.val()
+        const id = Object.keys(entries)[0]
+        await set(ref(db, `${cachePath}/${id}/prompt`), editPromptValue.trim())
+        setAiPromptText(editPromptValue.trim())
+      }
+    } catch (err) {
+      console.error(err)
+    }
+    setEditingPrompt(false)
+    setSavingPrompt(false)
   }
 
   return (
@@ -192,6 +220,28 @@ export default function ConceptDetailPage() {
         {aiPromptText && <button onClick={() => setShowAiPrompt(!showAiPrompt)}
           className="mt-2 text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
         >{showAiPrompt ? "Hide prompt" : "Show prompt"}</button>}
+
+        {isAdmin && aiPromptText && !editingPrompt && (
+          <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
+            className="ml-2 text-xs text-primary-500 hover:text-primary-600 transition"
+          >Edit</button>
+        )}
+
+        {editingPrompt && (
+          <div className="mt-2 space-y-2">
+            <textarea value={editPromptValue} onChange={(e) => setEditPromptValue(e.target.value)}
+              className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-800 p-3 text-xs text-green-300 font-mono h-32 resize-y"
+            />
+            <div className="flex gap-2">
+              <button onClick={handleSavePrompt} disabled={savingPrompt}
+                className="rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50"
+              >{savingPrompt ? "Saving..." : "Save"}</button>
+              <button onClick={() => setEditingPrompt(false)}
+                className="rounded-lg border border-dark-200 dark:border-dark-700 px-4 py-1.5 text-xs text-dark-600 dark:text-dark-400 hover:bg-dark-50 dark:hover:bg-dark-800 transition"
+              >Cancel</button>
+            </div>
+          </div>
+        )}
         {showAiPrompt && aiPromptText && (
           <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">{aiPromptText}</pre>
         )}
