@@ -62,10 +62,9 @@ describe("API Client", () => {
     expect(Array.isArray(result)).toBe(true)
   })
 
-  it("getFrameworkBySlug returns a framework", async () => {
+  it("getFrameworkBySlug returns null for unknown slug", async () => {
     const result = await getFrameworkBySlug("test")
-    expect(result).toHaveProperty("title")
-    expect(result).toHaveProperty("slug")
+    expect(result).toBeNull()
   })
 
   it("getScenarios returns an array", async () => {

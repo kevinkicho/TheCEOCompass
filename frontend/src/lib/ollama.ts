@@ -22,6 +22,10 @@ async function callOllamaViaFirebase(
   prompt: string,
   temperature: number = 0.3,
 ): Promise<string> {
+  if (!db) {
+    throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
+  }
+
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
   const requestId = generateId()
