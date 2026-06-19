@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { getJournalEntries, createJournalEntry, createJournalOutcome } from "@/lib/api"
 import { StaticModeBanner } from "@/components/StaticModeBanner"
-import { BackendGuard } from "@/components/RequiresBackend"
 import type { JournalEntry } from "@/lib/types"
 
 export default function JournalPage() {
@@ -101,27 +100,23 @@ export default function JournalPage() {
           feature="Decision Journal"
           description="Log decisions, record outcomes, and track calibration over time"
         />
-        <BackendGuard feature="Decision Journal">
-          <button
+        <button
           onClick={() => setShowEntryModal(true)}
           className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700"
         >
           New Entry
         </button>
-        </BackendGuard>
       </div>
 
       {entries.length === 0 ? (
         <div className="rounded-xl border border-dark-200 p-12 text-center dark:border-dark-700">
           <p className="mb-4 text-dark-500 dark:text-dark-300">No decisions logged yet. Complete a scenario or log your first decision.</p>
-          <BackendGuard feature="Decision Journal">
-            <button
+          <button
             onClick={() => setShowEntryModal(true)}
             className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700"
           >
             Log Your First Decision
           </button>
-          </BackendGuard>
         </div>
       ) : (
         <div className="space-y-4">

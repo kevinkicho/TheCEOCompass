@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { getFrameworks, generateQuiz } from "@/lib/api"
 import { StaticModeBanner } from "@/components/StaticModeBanner"
-import { BackendGuard } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
 
 
@@ -111,15 +110,13 @@ export default function QuizPage() {
               <option key={fw.id} value={fw.id}>{fw.title}</option>
             ))}
           </select>
-          <BackendGuard feature="AI Quiz Generator">
-            <button
+          <button
             onClick={handleGenerate}
             disabled={!selectedFramework || isLoading}
             className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
           >
             {isLoading ? "Generating..." : "Generate Quiz"}
           </button>
-          </BackendGuard>
         </div>
       </div>
     )
