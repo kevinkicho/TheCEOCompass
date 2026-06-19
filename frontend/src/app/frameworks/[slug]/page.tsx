@@ -76,12 +76,12 @@ export default function FrameworkDetailPage() {
   const handleExplain = async () => {
     if (!modalConcept || !framework) return
     setAiLoading(true)
-    setAiCached(false)
     setAiExplanation(null)
     try {
-      const { parsed, cached } = await explainConcept(modalConcept.name, modalConcept.definition, slug)
+      const { parsed, cached, prompt } = await explainConcept(modalConcept.name, modalConcept.definition, slug, true)
       setAiExplanation(parsed)
       setAiCached(cached)
+      setAiPromptText(prompt)
     } catch (err) {
       console.error(err)
     }

@@ -90,7 +90,8 @@ async function callOllamaViaFirebase(
   frameworkSlug: string,
   conceptSlug: string | null,
   type: "explain" | "quiz",
-): Promise<{ result: string; cached: boolean }> {
+  skipCache: boolean = false,
+): Promise<{ result: string; cached: boolean; prompt: string }> {
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
@@ -98,12 +99,14 @@ async function callOllamaViaFirebase(
   const database = db!
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
+  const fullPrompt = `${buildSystemPrompt(type)}\n\n${prompt}`
 
-  const cached = await checkCache(frameworkSlug, conceptSlug)
-  if (cached) return { result: cached.result, cached: true }
+  if (!skipCache) {
+    const cached = await checkCache(frameworkSlug, conceptSlug)
+    if (cached) return { result: cached.result, cached: true, prompt: fullPrompt }
+  }
 
   const requestId = generateId()
-  const fullPrompt = `${buildSystemPrompt(type)}\n\n${prompt}`
 
   const payload = {
     model: actualModel,
@@ -154,7 +157,7 @@ async function callOllamaViaFirebase(
         unsubStatus()
         unsubResp()
         console.log(`[AI] Response ${requestId} received (${data.result.length} chars)`)
-        resolve({ result: data.result, cached: false })
+        resolve({ result: data.result, cached: false, prompt: fullPrompt })
       }
     })
   })
@@ -202,7 +205,8 @@ export async function explainConcept(
   conceptName: string,
   definition: string,
   frameworkSlug: string,
-): Promise<{ parsed: Record<string, string>; cached: boolean; prompt?: string }> {
+  skipCache: boolean = false,
+): Promise<{ parsed: Record<string, string>; cached: boolean; prompt: string }> {
   const meta = getFrameworkMeta(frameworkSlug)
   if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
 
@@ -228,8 +232,8 @@ Return a JSON object with these fields:
 
 Return ONLY valid JSON.`
 
-  const { result, cached } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain")
-  return { parsed: JSON.parse(result), cached }
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain", skipCache)
+  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
 export { slugify, checkCache }
