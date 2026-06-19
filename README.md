@@ -4,7 +4,7 @@
 
 > Navigate every leadership decision with 57 frameworks, interactive scenarios, and AI-powered coaching.
 
-**CEO Compass** is a full-stack web application that helps leaders master the frameworks of world-class CEOs. It combines an encyclopedia of decision-making tools with an interactive scenario simulator, quiz engine, and personal decision journal.
+CEO Compass helps leaders master the frameworks of world-class CEOs. It combines an encyclopedia of decision-making tools with AI-generated quizzes and concept explanations.
 
 Built by DeepSeek V4 Pro AI model via OpenCode Go AI provider.
 
@@ -12,34 +12,65 @@ Built by DeepSeek V4 Pro AI model via OpenCode Go AI provider.
 
 ## Architecture
 
+```
+GitHub Pages (browser)        Firebase RTDB           Local Agent (WSL)
+       │                          │                         │
+       ├── push /requests/ ──────►│                         │
+       │                          ├── onChildAdded ────────►│
+       │                          │                         ├── POST localhost:11434/api/generate
+       │                          │                         │
+       │                          │◄─── write /responses/ ──┤
+       │◄─── onChildAdded ───────┤                         │
+       └─ render result ─────────┘                         ┘
+```
+
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Frontend** | Next.js 14 (App Router) + TypeScript + Tailwind CSS | React SPA with server-side rendering |
-| **Backend** | FastAPI (Python 3.12) + SQLAlchemy (async) | REST API with Pydantic validation |
-| **Database** | SQLite (async via aiosqlite) / PostgreSQL (via asyncpg) | Persistent storage for all app data |
-| **Testing** | Vitest + Playwright (frontend), pytest (backend) | Unit, integration, and E2E tests |
-| **Infrastructure** | Docker + Docker Compose + GitHub Actions CI | Containerized deployment and CI/CD |
+| **Frontend** | Next.js 14 (App Router) + TypeScript + Tailwind CSS | Static SPA deployed to GitHub Pages |
+| **AI Bridge** | Firebase Realtime Database | Message bus: browser → Firebase → local agent → Firebase → browser |
+| **Local Agent** | Node.js + firebase-admin | Watches Firebase RTDB, calls Ollama at `localhost:11434`, writes response |
+| **AI Engine** | Ollama (gemma4:latest) | Local LLM running on `localhost:11434` |
+| **Framework Data** | `staticData.ts` (57 frameworks) | Built into the frontend — no backend needed for browsing |
+| **CI/CD** | GitHub Actions | Tests, builds, and deploys to GitHub Pages |
 
 ---
 
 ## Quick Start
 
-```bash
-# Backend (port 50128)
-cd ceo-platform
-python3 -m venv venv && source venv/bin/activate
-pip install -r backend/requirements.txt
-PYTHONPATH=backend DATABASE_URL=sqlite+aiosqlite:///./ceo_platform.db \
-  python backend/seed/seed_db.py
-PYTHONPATH=backend DATABASE_URL=sqlite+aiosqlite:///./ceo_platform.db \
-  uvicorn app.main:app --app-dir backend --host 0.0.0.0 --port 50128
+### Prerequisites
+- Node.js 20+
+- Ollama with `gemma4:latest` pulled (`ollama pull gemma4:latest`)
+- Firebase project with RTDB enabled
+- Firebase service account key (download from Firebase Console → Project Settings → Service Accounts)
 
-# Frontend (port 33221)
+### 1. Setup environment variables
+
+```bash
+cd frontend
+cp .env.example .env
+# Fill in your Firebase config values
+```
+
+### 2. Start the frontend
+
+```bash
 cd frontend
 npm install
 npm run dev
 # → http://localhost:33221
 ```
+
+### 3. Start the Ollama agent
+
+```bash
+cd agent
+npm install
+# Place your Firebase service account key in agent/
+# (e.g., theceocompass-785f72e97854.json — detected automatically)
+node index.js
+```
+
+The agent watches `/requests` in Firebase RTDB, calls Ollama at `localhost:11434`, and writes responses back.
 
 ---
 
@@ -47,41 +78,43 @@ npm run dev
 
 | Route | Page | Purpose |
 |-------|------|---------|
-| `/` | Landing | Hero, stats (frameworks/domains/scenarios), domain filter pills, framework grid |
+| `/` | Landing | Hero, stats, domain filter pills, framework grid |
 | `/frameworks` | Framework Browser | Browse all 57 frameworks with category filter |
-| `/frameworks/[slug]` | Framework Detail | Interactive concept cards with modal popups showing definitions + 3 real-world examples |
-| `/scenarios` | Scenario Browser | Browse 6 interactive practice scenarios |
-| `/scenarios/[slug]` | Scenario Engine | Multi-stage branching decision simulator with hints/model answers and AI feedback |
-| `/quiz` | Quiz Generator | Select a framework, answer 5 AI-generated multiple-choice questions with answer explanation |
-| `/journal` | Decision Journal | Log decisions, record outcomes, calibrate confidence over time |
-| `/pathway` | Learning Pathway | 7-step structured curriculum with progress tracking |
-| `/profile` | Progress Dashboard | Stats, calibration charts, framework mastery bars |
-| `/cheatsheet` | Quick Reference | All concepts with one-liner definitions and filterable by domain |
+| `/frameworks/[slug]` | Framework Detail | Concept cards with AI explanation button |
+| `/scenarios` | Scenario Browser | Browse practice scenarios |
+| `/scenarios/[slug]` | Scenario Engine | Multi-stage branching decision simulator |
+| `/quiz` | Quiz Generator | AI-generated quiz questions via Firebase + Ollama |
+| `/journal` | Decision Journal | Log decisions, record outcomes |
+| `/pathway` | Learning Pathway | 7-step structured curriculum |
+| `/profile` | Progress Dashboard | Stats, AI settings, agent instructions |
+| `/cheatsheet` | Quick Reference | All concepts filterable by domain |
 
 ---
 
-## Backend API Endpoints
+## AI Features (via Firebase RTDB + Ollama)
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/api/frameworks` | List all frameworks |
-| `GET` | `/api/frameworks/slug/{slug}` | Get framework detail by slug |
-| `GET` | `/api/frameworks/{id}` | Get framework detail by UUID |
-| `GET` | `/api/scenarios` | List all scenarios |
-| `GET` | `/api/scenarios/slug/{slug}` | Get scenario detail by slug |
-| `GET` | `/api/scenarios/{id}` | Get scenario detail by UUID |
-| `POST` | `/api/scenarios/{id}/start` | Start a scenario run |
-| `POST` | `/api/scenarios/{id}/evaluate` | Submit choice and get feedback |
-| `POST` | `/api/quiz/generate` | Generate quiz questions for a framework |
-| `POST` | `/api/quiz/evaluate` | Evaluate quiz answers |
-| `POST` | `/api/journal` | Create decision journal entry |
-| `GET` | `/api/journal` | List all journal entries |
-| `GET` | `/api/journal/{id}` | Get journal entry detail |
-| `PATCH` | `/api/journal/{id}` | Update journal entry |
-| `POST` | `/api/journal/{id}/outcome` | Record outcome for a decision |
-| `GET` | `/api/progress` | Get user progress (scenarios, streaks, mastery) |
-| `GET` | `/api/progress/calibration` | Get calibration summary |
-| `GET` | `/api/search?q=` | Full-text search across frameworks |
+| Feature | How it works |
+|---------|-------------|
+| **Concept Explanation** | Click "Explain Further with AI" on any concept → frontend pushes request to Firebase → agent calls Ollama → response appears |
+| **Quiz Generation** | Select framework + difficulty → frontend pushes request to Firebase → agent calls Ollama → quiz renders |
+
+These work from both `localhost` and `kevinkicho.github.io` — no CORS issues because the browser only talks to Firebase.
+
+---
+
+## GitHub Secrets
+
+For CI/CD to build with Firebase config, set these in repo → Settings → Secrets and variables → Actions:
+
+| Secret | Value |
+|--------|-------|
+| `FIREBASE_API_KEY` | Your Firebase API key |
+| `FIREBASE_AUTH_DOMAIN` | `your-project.firebaseapp.com` |
+| `FIREBASE_DATABASE_URL` | `https://your-project-rtdb.firebaseio.com` |
+| `FIREBASE_PROJECT_ID` | Your Firebase project ID |
+| `FIREBASE_STORAGE_BUCKET` | Your Firebase storage bucket |
+| `FIREBASE_MESSAGING_SENDER_ID` | Your sender ID |
+| `FIREBASE_APP_ID` | Your Firebase app ID |
 
 ---
 
@@ -99,6 +132,7 @@ npm run dev
 | Red Teaming & Wargaming | 5 | Red Team Structure, Competitor Simulation, Pre-Mortem vs War Game, After-Action Review |
 
 ### Analysis (9)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Cause Analysis Methods | 7 | 5 Whys, Fishbone/Ishikawa, Causal Loop Diagrams, Root Cause Analysis, Fault Tree Analysis, Just Culture, Causal Inference |
@@ -112,6 +146,7 @@ npm run dev
 | Force Field Analysis | 5 | Driving vs Restraining Forces, Force Scoring, Force Reduction Strategy, Equilibrium Analysis, Change Management Integration |
 
 ### Financial (6)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Financial Mastery | 8 | EBITDA, Free Cash Flow, ROIC, DuPont Analysis, DCF Valuation, LBO Modeling, Unit Economics, Cap Table |
@@ -122,6 +157,7 @@ npm run dev
 | Investor Relations & Earnings | 4 | Earnings Call Strategy, Guidance Philosophy, Shareholder Letter Writing, Activist Investor Defense |
 
 ### Engineering (7)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Engineering & Product Leadership | 8 | DORA Metrics, RICE Prioritization, Tech Debt Quadrant, Build vs Buy, Kano Model, SPACE Framework, Tech Debt Management |
@@ -133,6 +169,7 @@ npm run dev
 | Security & Compliance Engineering | 4 | Shift-Left Security/DevSecOps, Zero Trust Architecture, Threat Modeling (STRIDE), SOC2/ISO 27001 |
 
 ### Organisational (4)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Organizational & People | 8 | Span of Control, Nine-Box Grid, Psychological Safety, OKRs, ADKAR Change Management, Org Design, Talent Density, Kotter's 8-Step |
@@ -141,6 +178,7 @@ npm run dev
 | Compensation & Incentive Design | 4 | Total Rewards Philosophy, Equity Grant Design, Sales Compensation Models, Performance-Based Bonus Structures |
 
 ### Risk (8)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Risk, Governance & Crisis | 9 | FMEA, Crisis First Hour, Business Judgment Rule, COSO ERM, ISO 31000, Crisis Communication, Fiduciary Duties, Board Governance, Turnaround Playbook |
@@ -153,6 +191,7 @@ npm run dev
 | Financial Risk Management (Treasury) | 3 | FX Hedging Strategies, Counterparty Credit Risk, Treasury Policy Design |
 
 ### Strategy (5)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Competitive & Market Analysis | 8 | Porter's Five Forces, VRIO, Jobs-to-be-Done, SWOT, BCG Matrix, Ansoff Matrix, Blue Ocean, Network Effects |
@@ -162,6 +201,7 @@ npm run dev
 | Blue Ocean Strategy (ERRC Grid) | 3 | ERRC Grid, Strategy Canvas, Three Tiers of Non-Customers |
 
 ### Negotiation (3)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Negotiation & Deal-Making | 8 | BATNA, ZOPA, Anchoring, Integrative/Distributive, Principled Negotiation, Game Theory, M&A Deal Structure |
@@ -169,6 +209,7 @@ npm run dev
 | Multi-Party Coalition Negotiation | 3 | Coalition Formation, Minimum Winning Coalition, Multi-Party Agenda Setting |
 
 ### Innovation (4)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Innovation & R&D Management | 8 | Disruptive Innovation, Crossing the Chasm, Lean Startup, Design Thinking, Stage-Gate, Ambidextrous Org, Tech S-Curve, Innovator's Dilemma |
@@ -177,6 +218,7 @@ npm run dev
 | Open Innovation & Corporate Venturing | 3 | Open Innovation Models, Corporate Venture Capital, Innovation Scouting |
 
 ### Operations (4)
+
 | Framework | Concepts | Description |
 |-----------|----------|-------------|
 | Operations & Quality Management | 7 | Six Sigma/DMAIC, Theory of Constraints, Lean/TPS, Pareto Principle, Just-in-Time, Hoshin Kanri, Statistical Process Control, TQM |
@@ -190,94 +232,29 @@ npm run dev
 
 ```
 ceo-platform/
-├── backend/
-│   ├── app/
-│   │   ├── main.py                    # FastAPI entry point with CORS, routers, lifespan
-│   │   ├── config.py                  # Settings: DB URL, LLM keys, CORS origins
-│   │   ├── models/
-│   │   │   ├── database.py            # SQLAlchemy async engine + session factory
-│   │   │   ├── framework.py           # Framework + FrameworkConcept ORM models
-│   │   │   ├── scenario.py            # Scenario + ScenarioAttempt ORM models
-│   │   │   ├── journal.py             # JournalEntry + JournalOutcome ORM models
-│   │   │   ├── progress.py            # UserProgress + CalibrationRecord ORM models
-│   │   │   └── user.py               # User ORM model
-│   │   ├── routers/
-│   │   │   ├── frameworks.py          # GET /api/frameworks, /slug/{slug}, /{id}
-│   │   │   ├── scenarios.py           # GET/POST /api/scenarios with start/evaluate
-│   │   │   ├── quiz.py               # POST /api/quiz/generate + /evaluate
-│   │   │   ├── journal.py            # CRUD /api/journal + /outcome
-│   │   │   ├── progress.py           # GET /api/progress + /calibration
-│   │   │   └── search.py            # GET /api/search?q=
-│   │   ├── schemas/                   # Pydantic request/response models
-│   │   │   ├── framework.py          # FrameworkRead, FrameworkListItem, FrameworkConceptRead
-│   │   │   ├── scenario.py           # ScenarioRead, ScenarioAttemptRead, ScenarioStage
-│   │   │   ├── quiz.py              # QuizGenerateRequest, QuizQuestionRead, QuizEvaluateRequest/Response
-│   │   │   ├── journal.py           # JournalEntryCreate/Read/Update, JournalOutcomeCreate/Read
-│   │   │   └── progress.py          # ProgressRead, CalibrationRecordRead, CalibrationSummary
-│   │   └── services/
-│   │       ├── scenario_service.py   # ScenarioEngine: branching logic, scoring, outcome determination
-│   │       └── llm_service.py        # LLM integration (OpenAI/Anthropic) with mock fallbacks
-│   ├── seed/
-│   │   ├── frameworks.json           # 57 frameworks with ~200 concepts + definitions + examples
-│   │   ├── scenarios.json            # 6 multi-stage scenarios with branching outcomes
-│   │   ├── quiz_questions.json       # 55 curated quiz questions across all frameworks
-│   │   └── seed_db.py               # Database seeder
-│   ├── tests/
-│   │   ├── unit/
-│   │   │   ├── test_scenario_engine.py  # 8 tests: branching logic, scoring, outcomes
-│   │   │   └── test_llm_service.py     # 7 tests: parsing, mocking, schema validation
-│   │   ├── integration/
-│   │   │   └── test_frameworks_api.py  # 10 tests: API contracts, CRUD, search
-│   │   └── conftest.py               # Test fixtures + SQLite test DB setup
-│   ├── Dockerfile                    # Production container
-│   ├── requirements.txt              # Python dependencies
-│   └── pytest.ini                    # Pytest configuration
 ├── frontend/
 │   ├── src/
 │   │   ├── app/                      # Next.js App Router pages
-│   │   │   ├── layout.tsx           # Root layout: nav bar, metadata, favicon
-│   │   │   ├── page.tsx             # Landing page: hero, stats, domain filters, framework grid
-│   │   │   ├── frameworks/
-│   │   │   │   ├── page.tsx         # Framework browser with category filter
-│   │   │   │   └── [slug]/page.tsx # Framework detail: concept grid + modal with examples
-│   │   │   ├── scenarios/
-│   │   │   │   ├── page.tsx         # Scenario browser
-│   │   │   │   └── [slug]/page.tsx # Scenario engine page
-│   │   │   ├── quiz/page.tsx        # Quiz generator + answer evaluation
-│   │   │   ├── journal/page.tsx     # Decision journal with CRUD + outcome capture
-│   │   │   ├── pathway/page.tsx     # 7-step learning pathway
-│   │   │   ├── profile/page.tsx     # Progress dashboard + calibration chart
-│   │   │   └── cheatsheet/page.tsx  # Quick reference: all concepts in filterable table
-│   │   ├── components/
-│   │   │   └── ScenarioEngine.tsx   # Branching scenario engine with DecisionPrompt + FeedbackPanel
-│   │   ├── lib/
-│   │   │   ├── api.ts              # Axios API client
-│   │   │   └── types.ts            # TypeScript interfaces for all data models
-│   │   └── app/globals.css          # Tailwind globals + custom animations
-│   ├── public/
-│   │   └── favicon.svg             # CC monogram favicon
-│   ├── e2e/
-│   │   └── scenario-flow.spec.ts   # Playwright E2E test: scenario flow
-│   ├── Dockerfile                   # Production container
-│   ├── package.json                 # Dependencies + scripts
-│   ├── vitest.config.ts             # Vitest test configuration
-│   ├── playwright.config.ts         # Playwright E2E configuration
-│   └── tailwind.config.ts           # Tailwind CSS theme
-├── ceo-toolkit/                      # Reference documents (separate project)
-│   ├── frameworks/                   # Markdown playbooks for each domain
-│   ├── templates/                    # Decision journal, context pack, etc.
-│   ├── tools/
-│   │   ├── consolidated-glossary.md  # 1500+ line glossary of all concepts
-│   │   └── ceo-cheat-sheet.md       # Quick decision map
-│   ├── ai-patterns/                  # AI-native thinking patterns for humans
-│   ├── meta/
-│   │   ├── working-dossier-system.md # Personal knowledge management
-│   │   └── personal-operating-system.md # CEO daily/weekly rhythms
-│   └── docs/
-│       └── implementation-plan.md    # Full implementation plan with testing strategy
-├── .github/workflows/ci.yml         # GitHub Actions CI pipeline
-├── docker-compose.yml               # PostgreSQL + Redis + App services
-└── docker-compose.test.yml          # Test services
+│   │   ├── components/               # React components (Navbar, DemoFooter, etc.)
+│   │   └── lib/
+│   │       ├── api.ts              # Framework data from staticData.ts
+│   │       ├── ollama.ts           # Firebase RTDB push/subscribe for AI
+│   │       ├── firebase.ts         # Firebase RTDB initialization (env vars)
+│   │       ├── staticData.ts       # 57 frameworks with 282 concepts
+│   │       ├── settings.ts         # User settings (localStorage)
+│   │       └── types.ts            # TypeScript interfaces
+│   ├── .env.example                 # Required env vars
+│   ├── package.json
+│   └── next.config.js
+├── agent/
+│   ├── index.js                     # Firebase → Ollama bridge agent
+│   ├── package.json
+│   └── .gitignore                   # serviceAccountKey.json ignored
+├── AGENTS.md                        # AI agent instructions
+├── .github/workflows/
+│   ├── ci.yml                       # Tests + build verification
+│   └── deploy.yml                   # GitHub Pages deploy
+└── README.md
 ```
 
 ---
