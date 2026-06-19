@@ -19,4 +19,9 @@ coverage/
 coverage.json
 playwright-report/
 .gh_token
+theceocompass-*.json
 agent/serviceAccountKey.json
+agent/theceocompass-*.json
+agent/*.json
+!agent/package.json
+!agent/package-lock.json

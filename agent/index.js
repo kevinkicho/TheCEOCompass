@@ -1,15 +1,29 @@
 // CEO Compass Ollama Agent
 // Bridges Firebase RTDB → local Ollama → Firebase RTDB
 // Run: node index.js
-// Requires: agent/serviceAccountKey.json from Firebase Console
+// Requires: service account JSON from Firebase Console in this directory
 
 import admin from "firebase-admin"
-import { readFileSync } from "fs"
+import { readFileSync, readdirSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const serviceAccount = JSON.parse(readFileSync(join(__dirname, "serviceAccountKey.json"), "utf8"))
+
+// Find service account key: try GOOGLE_APPLICATION_CREDENTIALS, then scan for *.json
+function loadServiceAccount() {
+  const fromEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS
+  if (fromEnv) {
+    return JSON.parse(readFileSync(fromEnv, "utf8"))
+  }
+  const files = readdirSync(__dirname).filter((f) => f.endsWith(".json") && f !== "package.json" && f !== "package-lock.json")
+  if (files.length > 0) {
+    return JSON.parse(readFileSync(join(__dirname, files[0]), "utf8"))
+  }
+  throw new Error("No service account key found. Download it from Firebase Console and save it in the agent/ directory.")
+}
+
+const serviceAccount = loadServiceAccount()
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
