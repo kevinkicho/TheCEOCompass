@@ -43,20 +43,24 @@ async function checkCache(
   frameworkSlug: string,
   conceptSlug: string | null,
 ): Promise<string | null> {
-  const cachePath = conceptSlug
-    ? `framework/${frameworkSlug}/${conceptSlug}/responses`
-    : `framework/${frameworkSlug}/quiz/responses`
+  try {
+    const cachePath = conceptSlug
+      ? `framework/${frameworkSlug}/${conceptSlug}/responses`
+      : `framework/${frameworkSlug}/quiz/responses`
 
-  const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
-  const snap = await get(cacheQuery)
-  if (!snap.exists()) return null
+    const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
+    const snap = await get(cacheQuery)
+    if (!snap.exists()) return null
 
-  const entries = snap.val()
-  const latest = Object.values(entries)[0] as any
-  if (!latest || !latest.result) return null
-  if (Date.now() - (latest.created_at || 0) > 86400000) return null
+    const entries = snap.val()
+    const latest = Object.values(entries)[0] as any
+    if (!latest || !latest.result) return null
+    if (Date.now() - (latest.created_at || 0) > 86400000) return null
 
-  return latest.result
+    return latest.result
+  } catch {
+    return null
+  }
 }
 
 async function callOllamaViaFirebase(
