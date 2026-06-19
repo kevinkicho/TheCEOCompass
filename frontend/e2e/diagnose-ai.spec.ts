@@ -17,22 +17,18 @@ test("diagnose AI concept explanation", async ({ page }) => {
   await expect(conceptButton).toBeVisible({ timeout: 5000 })
   await conceptButton.click()
   console.log("✓ Concept button clicked")
-  await page.waitForTimeout(300)
+  await page.waitForTimeout(500)
 
-  const modal = page.locator(".fixed.inset-0")
-  await expect(modal).toBeVisible({ timeout: 5000 })
-  console.log("✓ Modal visible")
+  // The button text may be "Explain Further with AI" or "Re-generate with AI"
+  // Wait for any button that starts with "Explain" or "Re-generate"
+  const aiButton = page.locator("button").filter({ hasText: /Explain|Re-generate/ }).first()
+  await expect(aiButton).toBeVisible({ timeout: 10000 })
+  await aiButton.click()
+  console.log("✓ Clicked AI button")
 
-  const explainButton = modal.getByRole("button", { name: /Explain Further with AI/i })
-  await expect(explainButton).toBeVisible({ timeout: 5000 })
-  await explainButton.click()
-  console.log("✓ Clicked Explain Further with AI")
-
-  await expect(modal.getByText(/Generating/)).toBeVisible({ timeout: 10000 })
+  await expect(page.locator("button").filter({ hasText: /Generating/ })).toBeVisible({ timeout: 10000 })
   console.log("✓ Request sent to Firebase, waiting for Ollama...")
 
-  // Wait for the AI explanation card with heading "CEO Insight"
-  // This is only rendered by the AI result, not static content
   const ceoInsight = page.locator("text=CEO Insight").last()
   await expect(ceoInsight).toBeVisible({ timeout: 90000 })
   console.log("✓ CEO Insight received from AI")

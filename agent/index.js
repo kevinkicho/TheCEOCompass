@@ -93,6 +93,11 @@ requestsRef.on("child_added", async (snapshot) => {
       created_at: Date.now(),
     }
 
+    const indexedData = {
+      ...responseData,
+      prompt: data.payload.prompt || "",
+    }
+
     // Write to flat path
     await responseRef.set(responseData)
 
@@ -102,7 +107,7 @@ requestsRef.on("child_added", async (snapshot) => {
       const indexPath = concept_slug
         ? `framework/${framework_slug}/${concept_slug}/responses/${requestId}`
         : `framework/${framework_slug}/quiz/responses/${requestId}`
-      await db.ref(indexPath).set(responseData)
+      await db.ref(indexPath).set(indexedData)
     }
 
     await requestRef.update({ status: "done" })

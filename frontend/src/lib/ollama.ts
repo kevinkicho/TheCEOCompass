@@ -38,11 +38,19 @@ function buildSystemPrompt(type: "explain" | "quiz"): string {
   return "You are a business school professor creating an assessment for MBA students. Questions should test understanding, not recall. Respond only with valid JSON."
 }
 
+export type CacheRecord = {
+  result: string
+  prompt?: string
+  model?: string
+  created_at: number
+}
+
 async function checkCache(
-  database: ReturnType<typeof import("firebase/database").getDatabase>,
   frameworkSlug: string,
   conceptSlug: string | null,
-): Promise<string | null> {
+): Promise<CacheRecord | null> {
+  if (!db) return null
+  const database = db!
   try {
     const cachePath = conceptSlug
       ? `framework/${frameworkSlug}/${conceptSlug}/responses`
@@ -50,14 +58,26 @@ async function checkCache(
 
     const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
     const snap = await get(cacheQuery)
-    if (!snap.exists()) return null
+    if (!snap.exists()) {
+      console.log(`[AI] Cache miss: ${cachePath}`)
+      return null
+    }
 
     const entries = snap.val()
     const latest = Object.values(entries)[0] as any
     if (!latest || !latest.result) return null
-    if (Date.now() - (latest.created_at || 0) > 86400000) return null
+    if (Date.now() - (latest.created_at || 0) > 86400000) {
+      console.log(`[AI] Cache stale: ${cachePath} (${Math.round((Date.now() - latest.created_at) / 3600000)}h old)`)
+      return null
+    }
 
-    return latest.result
+    console.log(`[AI] Cache hit: ${cachePath} (${latest.result.length} chars)`)
+    return {
+      result: latest.result,
+      prompt: latest.prompt,
+      model: latest.model,
+      created_at: latest.created_at,
+    }
   } catch {
     return null
   }
@@ -70,7 +90,7 @@ async function callOllamaViaFirebase(
   frameworkSlug: string,
   conceptSlug: string | null,
   type: "explain" | "quiz",
-): Promise<string> {
+): Promise<{ result: string; cached: boolean }> {
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
@@ -79,8 +99,8 @@ async function callOllamaViaFirebase(
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
 
-  const cached = await checkCache(database, frameworkSlug, conceptSlug)
-  if (cached) return cached
+  const cached = await checkCache(frameworkSlug, conceptSlug)
+  if (cached) return { result: cached.result, cached: true }
 
   const requestId = generateId()
   const fullPrompt = `${buildSystemPrompt(type)}\n\n${prompt}`
@@ -92,6 +112,7 @@ async function callOllamaViaFirebase(
     options: { temperature },
   }
 
+  console.log(`[AI] Pushing request ${requestId} for ${frameworkSlug}/${conceptSlug || "quiz"}`)
   await set(ref(database, `requests/${requestId}`), {
     type,
     framework_slug: frameworkSlug,
@@ -108,12 +129,17 @@ async function callOllamaViaFirebase(
 
     const unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
-      if (snap.val() === "error") {
+      const s = snap.val()
+      if (s === "processing") {
+        console.log(`[AI] Request ${requestId} picked up by agent`)
+      }
+      if (s === "error") {
         done = true
         unsubStatus()
         unsubResp()
         get(responseRef).then((s) => {
           const d = s.val()
+          console.log(`[AI] Request ${requestId} failed: ${d?.error || "unknown"}`)
           reject(new Error(d?.error || "Ollama returned an error"))
         })
       }
@@ -127,7 +153,8 @@ async function callOllamaViaFirebase(
         done = true
         unsubStatus()
         unsubResp()
-        resolve(data.result)
+        console.log(`[AI] Response ${requestId} received (${data.result.length} chars)`)
+        resolve({ result: data.result, cached: false })
       }
     })
   })
@@ -167,15 +194,15 @@ Generate ${num} questions as a JSON array. Mix question types across the concept
 
 Return ONLY valid JSON array.`
 
-  const response = await callOllamaViaFirebase("", prompt, 0.5, frameworkSlug, null, "quiz")
-  return JSON.parse(response)
+  const { result } = await callOllamaViaFirebase("", prompt, 0.5, frameworkSlug, null, "quiz")
+  return JSON.parse(result)
 }
 
 export async function explainConcept(
   conceptName: string,
   definition: string,
   frameworkSlug: string,
-) {
+): Promise<{ parsed: Record<string, string>; cached: boolean; prompt?: string }> {
   const meta = getFrameworkMeta(frameworkSlug)
   if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
 
@@ -201,8 +228,8 @@ Return a JSON object with these fields:
 
 Return ONLY valid JSON.`
 
-  const response = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain")
-  return JSON.parse(response)
+  const { result, cached } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain")
+  return { parsed: JSON.parse(result), cached }
 }
 
-export { slugify }
+export { slugify, checkCache }

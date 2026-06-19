@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { getFrameworkBySlug, getScenarios } from "@/lib/api"
-import { explainConcept } from "@/lib/ollama"
+import { explainConcept, checkCache, slugify } from "@/lib/ollama"
 import type { Framework, FrameworkConcept, ScenarioListItem } from "@/lib/types"
 
 export default function FrameworkDetailPage() {
@@ -14,8 +14,25 @@ export default function FrameworkDetailPage() {
   const [modalConcept, setModalConcept] = useState<FrameworkConcept | null>(null)
   const [aiExplanation, setAiExplanation] = useState<Record<string, string> | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
+  const [aiCached, setAiCached] = useState(false)
   const [aiElapsed, setAiElapsed] = useState(0)
   const aiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [showAiPrompt, setShowAiPrompt] = useState(false)
+  const [aiPromptText, setAiPromptText] = useState("")
+
+  // Auto-check cache when modal opens
+  const checkConceptCache = useCallback(async (conceptName: string) => {
+    const conceptSlugged = slugify(conceptName)
+    const cached = await checkCache(slug, conceptSlugged)
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached.result)
+        setAiExplanation(parsed)
+        setAiCached(true)
+        setAiPromptText(cached.prompt || "")
+      } catch {}
+    }
+  }, [slug])
 
   useEffect(() => {
     if (aiLoading) {
@@ -36,6 +53,18 @@ export default function FrameworkDetailPage() {
     }).catch(console.error)
   }, [slug])
 
+  // Auto-check cache when modal opens
+  useEffect(() => {
+    if (!modalConcept) {
+      setAiExplanation(null)
+      setAiCached(false)
+      setShowAiPrompt(false)
+      setAiPromptText("")
+      return
+    }
+    checkConceptCache(modalConcept.name)
+  }, [modalConcept, checkConceptCache])
+
   if (!framework) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16">
@@ -47,10 +76,12 @@ export default function FrameworkDetailPage() {
   const handleExplain = async () => {
     if (!modalConcept || !framework) return
     setAiLoading(true)
+    setAiCached(false)
     setAiExplanation(null)
     try {
-      const data = await explainConcept(modalConcept.name, modalConcept.definition, slug)
-      setAiExplanation(data)
+      const { parsed, cached } = await explainConcept(modalConcept.name, modalConcept.definition, slug)
+      setAiExplanation(parsed)
+      setAiCached(cached)
     } catch (err) {
       console.error(err)
     }
@@ -313,6 +344,13 @@ export default function FrameworkDetailPage() {
           
           {/* AI Explain */}
           <div className="mb-4 mt-4">
+            {aiCached && (
+              <div className="mb-2 flex items-center gap-2">
+                <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">
+                  Cached
+                </span>
+              </div>
+            )}
             <button
               onClick={handleExplain}
               disabled={aiLoading}
@@ -326,8 +364,23 @@ export default function FrameworkDetailPage() {
                   </svg>
                   Generating AI explanation... {aiElapsed}s
                 </span>
-              ) : "Explain Further with AI"}
+              ) : aiExplanation ? "Re-generate with AI" : "Explain Further with AI"}
             </button>
+
+            {aiPromptText && (
+              <button
+                onClick={() => setShowAiPrompt(!showAiPrompt)}
+                className="mt-2 text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
+              >
+                {showAiPrompt ? "Hide prompt" : "Show prompt"}
+              </button>
+            )}
+
+            {showAiPrompt && aiPromptText && (
+              <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">
+                {aiPromptText}
+              </pre>
+            )}
 
             {aiExplanation && (
               <div className="mt-3 space-y-3 animate-slide-up">
