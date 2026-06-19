@@ -216,14 +216,12 @@ Be rigorous but encouraging. CEO-grade feedback.
     async def _call_ollama(self, prompt: str, temperature: float = 0.3) -> str:
         api_key = settings.ollama_api_key
         if api_key:
-            # Ollama Cloud API
             url = "https://api.ollama.com/api/generate"
             headers = {"Authorization": f"Bearer {api_key}"}
         else:
-            # Local Ollama
             url = f"{self.ollama_url.rstrip('/')}/api/generate"
             headers = {}
-        async with httpx.AsyncClient(timeout=120) as client:
+        async with httpx.AsyncClient(timeout=180) as client:
             resp = await client.post(url, json={
                 "model": self.ollama_model.replace(":cloud", ""),
                 "prompt": f"{self._get_system_prompt()}\n\n{prompt}",
@@ -237,7 +235,13 @@ Be rigorous but encouraging. CEO-grade feedback.
                 )
             resp.raise_for_status()
             data = resp.json()
-            return data.get("response", "")
+            text = data.get("response", "")
+            text = text.strip()
+            if text.startswith("```"):
+                text = text.split("\n", 1)[-1] if "\n" in text else text[3:]
+            if text.endswith("```"):
+                text = text[:-3].strip()
+            return text
 
     def _parse_feedback(self, response: str) -> LLMFeedback:
         try:
