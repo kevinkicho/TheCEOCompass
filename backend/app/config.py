@@ -41,7 +41,14 @@ _local_origins = [
     "http://127.0.0.1:33221",
     "http://localhost:50128",
     "http://127.0.0.1:50128",
+    "https://kevinkicho.github.io",
 ]
+
+# Add any extra origins from env var
+import os
+_extra_origins = os.getenv("CORS_EXTRA_ORIGINS", "")
+if _extra_origins:
+    _local_origins.extend([o.strip() for o in _extra_origins.split(",")])
 
 # Add WSL IPs
 try:
