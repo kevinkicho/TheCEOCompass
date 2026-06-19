@@ -18,6 +18,7 @@ nextdev.log
 coverage/
 coverage.json
 playwright-report/
+test-results/
 .gh_token
 theceocompass-*.json
 agent/serviceAccountKey.json
