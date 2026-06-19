@@ -1,4 +1,5 @@
 import json
+import time
 from typing import Optional
 from dataclasses import dataclass, field
 import httpx
@@ -136,6 +137,8 @@ Return ONLY valid JSON.
         difficulty: str,
     ) -> list[dict]:
         self._check_api()
+        t0 = time.time()
+        print(f"[LLM] Generating {num_questions} quiz questions for '{framework_name}' via {self.provider}/{self.ollama_model}")
         prompt = f"""
 Create {num_questions} quiz questions for the "{framework_name}" framework.
 
@@ -159,7 +162,10 @@ Mix question types. For calculation questions, include realistic numbers.
 Return ONLY valid JSON array.
 """
         response = await self._call_provider(prompt, temperature=0.5)
-        return json.loads(response)
+        elapsed = time.time() - t0
+        parsed = json.loads(response)
+        print(f"[LLM] Generated {len(parsed)} questions in {elapsed:.1f}s")
+        return parsed
 
     def _build_evaluation_prompt(
         self,
@@ -218,9 +224,13 @@ Be rigorous but encouraging. CEO-grade feedback.
         if api_key:
             url = "https://api.ollama.com/api/generate"
             headers = {"Authorization": f"Bearer {api_key}"}
+            target = "Ollama Cloud"
         else:
             url = f"{self.ollama_url.rstrip('/')}/api/generate"
             headers = {}
+            target = f"Ollama local ({self.ollama_url})"
+        t0 = time.time()
+        print(f"[LLM] → {target}, model={self.ollama_model}")
         async with httpx.AsyncClient(timeout=180) as client:
             resp = await client.post(url, json={
                 "model": self.ollama_model.replace(":cloud", ""),
@@ -228,7 +238,9 @@ Be rigorous but encouraging. CEO-grade feedback.
                 "stream": False,
                 "options": {"temperature": temperature},
             }, headers=headers)
+            elapsed = time.time() - t0
             if resp.status_code == 429:
+                print(f"[LLM] ✗ 429 rate limit after {elapsed:.1f}s")
                 raise RuntimeError(
                     "Ollama Cloud rate limit reached. Upgrade at https://ollama.com/upgrade "
                     "or pull a local model: ollama pull gemma3"
@@ -241,6 +253,7 @@ Be rigorous but encouraging. CEO-grade feedback.
                 text = text.split("\n", 1)[-1] if "\n" in text else text[3:]
             if text.endswith("```"):
                 text = text[:-3].strip()
+            print(f"[LLM] ✓ {len(text)} chars in {elapsed:.1f}s")
             return text
 
     def _parse_feedback(self, response: str) -> LLMFeedback:
