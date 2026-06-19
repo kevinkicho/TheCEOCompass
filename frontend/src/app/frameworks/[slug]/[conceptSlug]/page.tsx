@@ -247,11 +247,35 @@ export default function ConceptDetailPage() {
         )}
 
         {aiExplanation && (
-          <div className="mt-3 space-y-3 animate-slide-up">
-            {["real_world_example", "ceo_insight", "common_mistake", "related_tip"].map((key) => aiExplanation[key] && (
-              <div key={key} className="rounded-lg border p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1">{key.replace(/_/g, " ")}</p>
-                <p className="text-sm text-dark-700 dark:text-dark-300">{aiExplanation[key]}</p>
+          <div className="mt-4 space-y-4 animate-slide-up">
+            {[
+              { key: "real_world_example", label: "Real-World Example",
+                cls: "border-sky-400 dark:border-sky-500 bg-sky-50/60 dark:bg-sky-900/10 border-sky-100 dark:border-sky-900/20",
+                iconCls: "bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400",
+                labelCls: "text-sky-700 dark:text-sky-300",
+                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> },
+              { key: "ceo_insight", label: "CEO Insight",
+                cls: "border-violet-400 dark:border-violet-500 bg-violet-50/60 dark:bg-violet-900/10 border-violet-100 dark:border-violet-900/20",
+                iconCls: "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400",
+                labelCls: "text-violet-700 dark:text-violet-300",
+                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
+              { key: "common_mistake", label: "Common Mistake",
+                cls: "border-amber-400 dark:border-amber-500 bg-amber-50/60 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20",
+                iconCls: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
+                labelCls: "text-amber-700 dark:text-amber-300",
+                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
+              { key: "related_tip", label: "Quick Tip",
+                cls: "border-emerald-400 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20",
+                iconCls: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
+                labelCls: "text-emerald-700 dark:text-emerald-300",
+                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+              ].filter((c) => aiExplanation[c.key]).map((c) => (
+              <div key={c.key} className={`rounded-xl border-l-4 ${c.cls} p-4`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`flex h-6 w-6 items-center justify-center rounded-full ${c.iconCls}`}>{c.icon}</span>
+                  <span className={`text-xs font-semibold uppercase tracking-wide ${c.labelCls}`}>{c.label}</span>
+                </div>
+                <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiExplanation[c.key]}</p>
               </div>
             ))}
           </div>
