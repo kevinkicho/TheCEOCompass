@@ -1,64 +1,45 @@
 # Using Local AI (Ollama) with the GitHub Pages App
 
-## Architecture (New — No Backend Needed!)
+## Architecture
 
 ```
-Browser (GitHub Pages) ──HTTP──> Ollama (port 11434)
-        │                          │
-        │ https://kevinkicho       │ http://localhost:11434
-        │   .github.io             │ POST /api/generate
-        │   /TheCEOCompass/        │ model: gemma4:latest
+Browser (GitHub Pages) ──HTTP──> CORS Proxy (port 8080) ──HTTP──> Ollama (port 11434)
 ```
 
-The frontend now calls **Ollama directly** from the browser. No FastAPI backend needed.
+The frontend tries to call Ollama directly first. If CORS blocks it, it falls back to the proxy.
 
-## Prerequisites
+## Quick Start
 
-- [x] Ollama installed
-- [ ] Ollama restarted with CORS enabled (see Step 1)
-- [x] Model pulled → `ollama pull gemma4:latest`
-
-## Step 1 — Restart Ollama with CORS
-
-Ollama blocks cross-origin requests by default. To allow the GitHub Pages site to call it:
+### 1. Run the CORS proxy (required if Ollama blocks cross-origin)
 
 ```bash
-# Stop Ollama, then restart with:
-OLLAMA_ORIGINS=* ollama serve
+cd ceo-platform
+node proxy.js
 ```
 
-Or set it permanently (Linux/macOS):
-```bash
-export OLLAMA_ORIGINS=*
-ollama serve
-```
+The proxy listens on **port 8080** and adds CORS headers to every response. Run it alongside Ollama in a separate terminal.
 
-Or on Windows (PowerShell):
-```powershell
-$env:OLLAMA_ORIGINS="*"
-ollama serve
-```
-
-## Step 2 — Verify
+### 2. Verify
 
 ```bash
 # Test Ollama is responding
 curl http://localhost:11434/api/generate \
   -d '{"model":"gemma4:latest","prompt":"Say hello","stream":false}'
+
+# Test the proxy is running
+curl http://localhost:8080/api/tags
 ```
 
-## Step 3 — Refresh the GitHub Pages Site
+### 3. Refresh the GitHub Pages Site
 
-Go to https://kevinkicho.github.io/TheCEOCompass/quiz/ and click **Generate Quiz**. The browser calls Ollama directly from your local machine.
+Go to https://kevinkicho.github.io/TheCEOCompass/quiz/ and click **Generate Quiz**.
 
-## What AI Features Will Work (No Backend Needed)
+## Without a Proxy (if you can restart Ollama)
 
-| Feature | How it calls Ollama |
-|---------|-------------------|
-| **Quiz generation** | Frontend builds prompt → calls `localhost:11434/api/generate` → parses JSON |
-| **Concept explanation** | Frontend builds prompt → calls `localhost:11434/api/generate` → parses JSON |
-| **Scenario coaching** | Requires backend (not yet wired to direct Ollama) |
+If you have access to restart Ollama with CORS enabled:
 
-## Settings
+```bash
+OLLAMA_ORIGINS=* ollama serve
+```
 
-On the Profile page, you can override the Ollama model name in the Settings section. The URL always points to `http://localhost:11434`.
+Then no proxy is needed — the frontend calls port 11434 directly.

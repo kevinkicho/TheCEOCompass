@@ -1,7 +1,9 @@
 // Direct Ollama client — calls http://localhost:11434 from the browser
+// If that fails due to CORS, tries http://localhost:8080 (CORS proxy)
 // Requires Ollama to be started with: OLLAMA_ORIGINS=* ollama serve
 
 const OLLAMA_URL = "http://localhost:11434"
+const PROXY_URL = "http://localhost:8080"
 
 function systemPrompt(): string {
   return "You are an expert CEO coach and business strategy expert. Respond only with valid JSON."
@@ -14,38 +16,57 @@ async function callOllama(
 ): Promise<string> {
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
-
-  const res = await fetch(`${OLLAMA_URL}/api/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: actualModel.replace(":cloud", ""),
-      prompt: `${systemPrompt()}\n\n${prompt}`,
-      stream: false,
-      options: { temperature },
-    }),
+  const body = JSON.stringify({
+    model: actualModel.replace(":cloud", ""),
+    prompt: `${systemPrompt()}\n\n${prompt}`,
+    stream: false,
+    options: { temperature },
   })
 
-  if (res.status === 429) {
-    throw new Error("Ollama is busy. Wait a moment and try again.")
-  }
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Ollama error (${res.status}): ${text}`)
+  // Try direct Ollama first, then proxy fallback
+  const urls = [OLLAMA_URL, PROXY_URL]
+  let lastError: Error | null = null
+
+  for (const baseUrl of urls) {
+    try {
+      const res = await fetch(`${baseUrl}/api/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      })
+
+      if (res.status === 429) {
+        throw new Error("Ollama is busy. Wait a moment and try again.")
+      }
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(`Ollama error (${res.status}): ${text.substring(0, 200)}`)
+      }
+
+      const data = await res.json()
+      let text: string = (data.response || "").trim()
+
+      // Strip markdown code fences
+      if (text.startsWith("```")) {
+        text = text.split("\n").slice(1).join("\n")
+      }
+      if (text.endsWith("```")) {
+        text = text.slice(0, -3).trim()
+      }
+
+      return text
+    } catch (e: any) {
+      lastError = e
+      // If direct failed and proxy is next, try proxy
+      if (baseUrl === OLLAMA_URL && urls.indexOf(PROXY_URL) > urls.indexOf(OLLAMA_URL)) {
+        console.warn(`[Ollama] Direct call failed (${e.message}), trying proxy...`)
+        continue
+      }
+      break
+    }
   }
 
-  const data = await res.json()
-  let text: string = (data.response || "").trim()
-
-  // Strip markdown code fences
-  if (text.startsWith("```")) {
-    text = text.split("\n").slice(1).join("\n")
-  }
-  if (text.endsWith("```")) {
-    text = text.slice(0, -3).trim()
-  }
-
-  return text
+  throw lastError || new Error("Failed to reach Ollama")
 }
 
 function loadSettings() {
