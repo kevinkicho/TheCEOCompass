@@ -8,19 +8,6 @@ import { staticFrameworks } from "./staticData"
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
 const isStaticHosting = typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")
 
-function ollamaHeaders(): Record<string, string> {
-  if (typeof window === "undefined") return {}
-  try {
-    const raw = localStorage.getItem("ceocompass_settings")
-    if (!raw) return {}
-    const s = JSON.parse(raw)
-    const h: Record<string, string> = {}
-    if (s.ollamaUrl && s.ollamaUrl !== "http://localhost:11434") h["X-Ollama-Url"] = s.ollamaUrl
-    if (s.ollamaModel && s.ollamaModel !== "gemma4:31b-cloud") h["X-Ollama-Model"] = s.ollamaModel
-    return h
-  } catch { return {} }
-}
-
 const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "application/json" } })
 
 export async function getFrameworks(category?: string): Promise<FrameworkListItem[]> {
@@ -101,12 +88,8 @@ export async function getCalibration(): Promise<CalibrationSummary | null> {
   try { const { data } = await api.get("/progress/calibration"); return data } catch { return null }
 }
 
-export async function generateQuiz(frameworkId: string, numQuestions: number, difficulty: string) {
-  const { data } = await api.post("/quiz/generate", { framework_id: frameworkId, num_questions: numQuestions, difficulty }, { headers: ollamaHeaders() }); return data
-}
-
-export async function explainConcept(conceptName: string, definition: string, frameworkTitle: string) {
-  const { data } = await api.post("/quiz/explain", { concept_name: conceptName, definition, framework_title: frameworkTitle }, { headers: ollamaHeaders() }); return data
+export async function searchFrameworks(query: string) {
+  const { data } = await api.get(`/search?q=${encodeURIComponent(query)}`); return data
 }
 
 export { isStaticHosting }

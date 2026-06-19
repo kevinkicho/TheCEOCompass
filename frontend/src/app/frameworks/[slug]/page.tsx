@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { getFrameworkBySlug, getScenarios, explainConcept } from "@/lib/api"
+import { getFrameworkBySlug, getScenarios } from "@/lib/api"
+import { explainConcept } from "@/lib/ollama"
 import type { Framework, FrameworkConcept, ScenarioListItem } from "@/lib/types"
 
 export default function FrameworkDetailPage() {

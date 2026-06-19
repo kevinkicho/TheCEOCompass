@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { getFrameworks, generateQuiz } from "@/lib/api"
+import { getFrameworks } from "@/lib/api"
+import { generateQuiz } from "@/lib/ollama"
 import { StaticModeBanner } from "@/components/StaticModeBanner"
 import type { FrameworkListItem } from "@/lib/types"
 
@@ -56,7 +57,8 @@ export default function QuizPage() {
     setIsLoading(true)
     setElapsed(0)
     try {
-      const data = await generateQuiz(selectedFramework, 5, "medium")
+      const fw = frameworks.find((f) => f.id === selectedFramework)
+      const data = await generateQuiz(selectedFramework, 5, "medium", fw?.title)
       setQuestions(data)
       setCurrentQ(0)
       setScore(0)
