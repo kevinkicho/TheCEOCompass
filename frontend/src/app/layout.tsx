@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import { Navbar } from "@/components/Navbar"
+import { AppSidebar } from "@/components/AppSidebar"
 import { DemoFooter } from "@/components/DemoFooter"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -26,7 +27,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <Navbar />
-          <main className="pt-14">{children}</main>
+          <div className="flex pt-14">
+            <AppSidebar />
+            <main className="flex-1 min-w-0">
+              {children}
+            </main>
+          </div>
           <DemoFooter />
         </ThemeProvider>
       </body>
