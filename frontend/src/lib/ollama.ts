@@ -1,81 +1,76 @@
-// Direct Ollama client — tries multiple ports automatically
-//  1. 11434  (default Ollama, needs OLLAMA_ORIGINS=*)
-//  2. 11435  (CORS-enabled Ollama, user runs separately)
-//  3. 8080   (CORS proxy, user runs node proxy.js)
+import { db, ref, set, onValue, off, get, update } from "./firebase"
 
-const OLLAMA_PORTS = [11434, 11435, 8080]
+function generateId(): string {
+  return crypto.randomUUID()
+}
 
 function systemPrompt(): string {
   return "You are an expert CEO coach and business strategy expert. Respond only with valid JSON."
 }
 
-async function callOllama(
-  model: string,
-  prompt: string,
-  temperature: number = 0.3,
-): Promise<string> {
-  const settings = loadSettings()
-  const actualModel = model || settings.ollamaModel || "gemma4:latest"
-  const body = JSON.stringify({
-    model: actualModel.replace(":cloud", ""),
-    prompt: `${systemPrompt()}\n\n${prompt}`,
-    stream: false,
-    options: { temperature },
-  })
-
-  // Try each port until one works
-  let lastError: Error | null = null
-  for (const port of OLLAMA_PORTS) {
-    try {
-      const url = `http://localhost:${port}/api/generate`
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-      })
-
-      if (res.status === 429) {
-        throw new Error("Ollama is busy. Wait a moment and try again.")
-      }
-      if (!res.ok) {
-        const text = await res.text()
-        // CORS failures show as network errors, not HTTP errors
-        // So if we get here, Ollama responded but rejected our origin
-        if (res.status === 403) {
-          console.warn(`[Ollama] Port ${port} rejects origin, trying next...`)
-          continue
-        }
-        throw new Error(`Ollama error (${res.status}): ${text.substring(0, 200)}`)
-      }
-
-      const data = await res.json()
-      let text: string = (data.response || "").trim()
-
-      // Strip markdown code fences
-      if (text.startsWith("```")) {
-        text = text.split("\n").slice(1).join("\n")
-      }
-      if (text.endsWith("```")) {
-        text = text.slice(0, -3).trim()
-      }
-
-      return text
-    } catch (e: any) {
-      lastError = e
-      console.warn(`[Ollama] Port ${port} failed: ${e.message}`)
-    }
-  }
-
-  throw lastError || new Error("Failed to reach Ollama on any port (11434, 11435, 8080)")
-}
-
-function loadSettings() {
+function loadSettings(): Record<string, string> {
   try {
     const raw = localStorage.getItem("ceocompass_settings")
     return raw ? JSON.parse(raw) : {}
   } catch {
     return {}
   }
+}
+
+async function callOllamaViaFirebase(
+  model: string,
+  prompt: string,
+  temperature: number = 0.3,
+): Promise<string> {
+  const settings = loadSettings()
+  const actualModel = model || settings.ollamaModel || "gemma4:latest"
+  const requestId = generateId()
+
+  const payload = {
+    model: actualModel,
+    prompt: `${systemPrompt()}\n\n${prompt}`,
+    stream: false,
+    options: { temperature },
+  }
+
+  await set(ref(db, `requests/${requestId}`), {
+    type: "generate",
+    payload,
+    status: "pending",
+    created_at: Date.now(),
+  })
+
+  return new Promise((resolve, reject) => {
+    const responseRef = ref(db, `responses/${requestId}`)
+    const statusRef = ref(db, `requests/${requestId}/status`)
+    let done = false
+
+    const unsubStatus = onValue(statusRef, (snap) => {
+      if (done) return
+      const status = snap.val()
+      if (status === "error") {
+        done = true
+        unsubStatus()
+        unsubResp()
+        get(responseRef).then((s) => {
+          const d = s.val()
+          reject(new Error(d?.error || "Ollama returned an error"))
+        })
+      }
+    })
+
+    const unsubResp = onValue(responseRef, (snap) => {
+      if (done) return
+      const data = snap.val()
+      if (!data) return
+      if (data.result) {
+        done = true
+        unsubStatus()
+        unsubResp()
+        resolve(data.result)
+      }
+    })
+  })
 }
 
 export async function generateQuiz(
@@ -109,7 +104,7 @@ Generate JSON array of questions:
 Mix question types. For calculation questions, include realistic numbers.
 Return ONLY valid JSON array.`
 
-  const response = await callOllama("", prompt, 0.5)
+  const response = await callOllamaViaFirebase("", prompt, 0.5)
   return JSON.parse(response)
 }
 
@@ -134,6 +129,6 @@ Return a JSON object with these fields:
 
 Return ONLY valid JSON.`
 
-  const response = await callOllama("", prompt, 0.4)
+  const response = await callOllamaViaFirebase("", prompt, 0.4)
   return JSON.parse(response)
 }

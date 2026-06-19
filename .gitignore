@@ -19,3 +19,4 @@ coverage/
 coverage.json
 playwright-report/
 .gh_token
+agent/serviceAccountKey.json

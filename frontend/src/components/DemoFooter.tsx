@@ -62,11 +62,11 @@ export function DemoFooter() {
               <div className="rounded bg-dark-800 p-3 font-mono text-[11px] text-green-300 text-left overflow-x-auto">
                 <p>git clone https://github.com/kevinkicho/TheCEOCompass.git</p>
                 <p>cd TheCEOCompass/ceo-platform</p>
-                <p>python3 -m venv venv && source venv/bin/activate</p>
-                <p>pip install -r backend/requirements.txt</p>
-                <p>PYTHONPATH=backend python backend/seed/seed_db.py</p>
-                <p>PYTHONPATH=backend uvicorn app.main:app --app-dir backend --port 50128 &</p>
-                <p>cd frontend && npm install && npm run dev</p>
+                <p>cd frontend && npm install</p>
+                <p>npx next dev -p 33221 &amp;</p>
+                <p>cd ../agent &amp;&amp; npm install</p>
+                <p># Add agent/serviceAccountKey.json from Firebase Console</p>
+                <p>node index.js</p>
               </div>
             </div>
 

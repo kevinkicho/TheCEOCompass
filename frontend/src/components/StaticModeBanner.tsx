@@ -30,7 +30,7 @@ export function StaticModeBanner({ feature, description }: { feature: string; de
               <button onClick={() => setShowModal(false)} className="text-dark-400 hover:text-dark-600 text-lg dark:text-dark-300">&times;</button>
             </div>
 
-            <p className="text-dark-600 mb-5 dark:text-dark-300">This feature needs the Python backend and LLM API keys. Here&apos;s what you get running locally:</p>
+            <p className="text-dark-600 mb-5 dark:text-dark-300">This feature needs the local Ollama agent running. Here&apos;s what you get running locally:</p>
 
             <div className="space-y-3 text-left text-dark-600 mb-5 dark:text-dark-300">
               <div className="flex gap-3">
@@ -67,12 +67,10 @@ export function StaticModeBanner({ feature, description }: { feature: string; de
               <p className="text-xs font-semibold text-dark-700 mb-2 dark:text-dark-300">Quick setup</p>
               <div className="rounded bg-dark-800 p-3 font-mono text-[11px] text-green-300 text-left overflow-x-auto">
                 <p>git clone https://github.com/kevinkicho/TheCEOCompass.git</p>
-                <p>cd TheCEOCompass/ceo-platform</p>
-                <p>python3 -m venv venv && source venv/bin/activate</p>
-                <p>pip install -r backend/requirements.txt</p>
-                <p>PYTHONPATH=backend python backend/seed/seed_db.py</p>
-                <p>PYTHONPATH=backend uvicorn app.main:app --app-dir backend --port 50128 &</p>
-                <p>cd frontend && npm install && npm run dev</p>
+                <p>cd TheCEOCompass/ceo-platform/agent</p>
+                <p>npm install</p>
+                <p># Add serviceAccountKey.json from Firebase Console</p>
+                <p>node index.js</p>
               </div>
             </div>
 

@@ -11,28 +11,19 @@ const isStaticHosting = typeof window !== "undefined" && !window.location.hostna
 const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "application/json" } })
 
 export async function getFrameworks(category?: string): Promise<FrameworkListItem[]> {
-  if (isStaticHosting) {
-    let list = staticFrameworks as any
-    if (category) list = list.filter((f: any) => f.category === category)
-    return list
-  }
-  try { const { data } = await api.get("/frameworks", { params: category ? { category } : {} }); return data } catch { return [] }
+  let list = staticFrameworks as any
+  if (category) list = list.filter((f: any) => f.category === category)
+  return list
 }
 
 export async function getFramework(id: string): Promise<Framework | null> {
-  if (isStaticHosting) {
-    const fw = (staticFrameworks as any).find((f: any) => f.id === id || f.slug === id)
-    return fw || null
-  }
-  try { const { data } = await api.get(`/frameworks/${id}`); return data } catch { return null }
+  const fw = (staticFrameworks as any).find((f: any) => f.id === id || f.slug === id)
+  return fw || null
 }
 
 export async function getFrameworkBySlug(slug: string): Promise<Framework | null> {
-  if (isStaticHosting) {
-    const fw = (staticFrameworks as any).find((f: any) => f.slug === slug || f.id === slug)
-    return fw || null
-  }
-  try { const { data } = await api.get(`/frameworks/slug/${slug}`); return data } catch { return null }
+  const fw = (staticFrameworks as any).find((f: any) => f.slug === slug || f.id === slug)
+  return fw || null
 }
 
 export async function getScenarios(frameworkId?: string): Promise<ScenarioListItem[]> {

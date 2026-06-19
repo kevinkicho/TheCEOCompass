@@ -1,0 +1,77 @@
+// CEO Compass Ollama Agent
+// Bridges Firebase RTDB → local Ollama → Firebase RTDB
+// Run: node index.js
+// Requires: agent/serviceAccountKey.json from Firebase Console
+
+import admin from "firebase-admin"
+import { readFileSync } from "fs"
+import { join, dirname } from "path"
+import { fileURLToPath } from "url"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const serviceAccount = JSON.parse(readFileSync(join(__dirname, "serviceAccountKey.json"), "utf8"))
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://theceocompass-default-rtdb.firebaseio.com",
+})
+
+const db = admin.database()
+const requestsRef = db.ref("requests")
+const ollamaUrl = "http://localhost:11434/api/generate"
+
+console.log("✓ Agent connected to Firebase RTDB")
+console.log(`  Watching /requests → ${ollamaUrl}`)
+
+requestsRef.on("child_added", async (snapshot) => {
+  const requestId = snapshot.key
+  const data = snapshot.val()
+
+  if (!data || data.status !== "pending") return
+
+  const requestRef = db.ref(`requests/${requestId}`)
+  const responseRef = db.ref(`responses/${requestId}`)
+
+  console.log(`\n→ [${requestId}] Processing: ${data.type || "generate"}`)
+
+  try {
+    await requestRef.update({ status: "processing" })
+
+    const ollamaRes = await fetch(ollamaUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data.payload),
+    })
+
+    if (!ollamaRes.ok) {
+      const text = await ollamaRes.text()
+      throw new Error(`Ollama error (${ollamaRes.status}): ${text.substring(0, 200)}`)
+    }
+
+    const ollamaData = await ollamaRes.json()
+    let result = (ollamaData.response || "").trim()
+
+    if (result.startsWith("```")) {
+      result = result.split("\n").slice(1).join("\n")
+    }
+    if (result.endsWith("```")) {
+      result = result.slice(0, -3).trim()
+    }
+
+    await responseRef.set({
+      result,
+      model: data.payload.model || "gemma4:latest",
+      created_at: Date.now(),
+    })
+
+    await requestRef.update({ status: "done" })
+    console.log(`  ✓ [${requestId}] Done (${result.length} chars)`)
+  } catch (err) {
+    console.error(`  ✗ [${requestId}] ${err.message}`)
+    await responseRef.set({
+      error: err.message,
+      created_at: Date.now(),
+    })
+    await requestRef.update({ status: "error" })
+  }
+})

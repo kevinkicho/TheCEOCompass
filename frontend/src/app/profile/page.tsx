@@ -178,19 +178,8 @@ export default function ProfilePage() {
 
       {/* Settings */}
       <div className="mb-8">
-        <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Settings</h2>
+        <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">AI Settings</h2>
         <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-5 space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Ollama URL</label>
-            <input
-              type="text"
-              value={settings.ollamaUrl}
-              onChange={(e) => setSettings({ ...settings, ollamaUrl: e.target.value })}
-              className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
-              placeholder="http://localhost:11434"
-            />
-            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Default Ollama endpoint. Change the port if yours runs on a different port.</p>
-          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Ollama Model</label>
             <input
@@ -204,8 +193,7 @@ export default function ProfilePage() {
           </div>
           <div className="rounded-lg bg-primary-50 dark:bg-primary-900/10 p-3">
             <p className="text-xs text-primary-700 dark:text-primary-300">
-              The app auto-detects Ollama on ports 11434, 11435, and 8080.
-              To enable AI features from GitHub Pages, run: <code className="font-mono bg-primary-100 dark:bg-primary-900/30 px-1 rounded">OLLAMA_ORIGINS=* OLLAMA_HOST=127.0.0.1:11435 ollama serve</code>
+              AI requests go through Firebase RTDB. Run the local agent in WSL: <code className="font-mono bg-primary-100 dark:bg-primary-900/30 px-1 rounded">cd agent && node index.js</code>
             </p>
           </div>
         </div>
