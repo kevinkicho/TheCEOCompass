@@ -21,14 +21,17 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Proxy to Ollama
+  // Proxy to Ollama — strip origin header to avoid Ollama's CORS rejection
+  const headers = { ...req.headers, host: `127.0.0.1:${OLLAMA_PORT}` }
+  delete headers.origin
+  delete headers.referer
   const proxyReq = httpProxy(
     {
       hostname: "127.0.0.1",
       port: OLLAMA_PORT,
       path: req.url,
       method: req.method,
-      headers: { ...req.headers, host: `127.0.0.1:${OLLAMA_PORT}` },
+      headers,
     },
     (proxyRes) => {
       res.writeHead(proxyRes.statusCode, {
