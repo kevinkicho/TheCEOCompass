@@ -127,45 +127,46 @@ export function AppSidebar() {
             const isExpanded = !filter && (expanded.has(fw.slug) || pathname.startsWith(`/frameworks/${fw.slug}/`))
 
             return (
-              <div key={fw.slug} className="mb-0.5">
-                {/* Framework row */}
-                <div className="group flex items-center rounded-lg hover:bg-dark-100 dark:hover:bg-dark-800/60 transition">
-                  <button
-                    onClick={() => { if (!filter) toggleExpand(fw.slug); setOpen(false) }}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition"
-                  >
-                    <svg className={`w-3.5 h-3.5 transition-transform duration-150 ${isExpanded ? "rotate-90" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-                  </button>
-                  <Link
-                    href={`/frameworks/${fw.slug}`}
-                    onClick={() => setOpen(false)}
-                    className={`flex-1 min-w-0 py-1.5 pr-2 text-sm transition ${isFwActive ? "font-medium text-primary-700 dark:text-primary-300" : "text-dark-700 dark:text-dark-300 hover:text-dark-900 dark:hover:text-dark-100"}`}
-                  >
-                    <span className="truncate block">{fw.title}</span>
-                  </Link>
-                  <span className="pr-2 text-[10px] text-dark-400 dark:text-dark-500 tabular-nums">{fw.concepts.length}</span>
-                </div>
-
-                {/* Concepts (collapsible) */}
-                {(isExpanded || filter) && concepts.length > 0 && (
-                  <div className="ml-3 border-l border-dark-200 dark:border-dark-700 pl-2 ml-4 space-y-0.5 mb-0.5">
-                    {concepts.map((c) => {
-                      const active = conceptSlug === c.slug
-                      return (
-                        <Link
-                          key={c.slug}
-                          href={`/frameworks/${fw.slug}/${c.slug}`}
-                          onClick={() => setOpen(false)}
-                          className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition ${active ? "bg-primary-100 font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" : "text-dark-500 hover:text-dark-700 dark:text-dark-400 dark:hover:text-dark-200 hover:bg-dark-50 dark:hover:bg-dark-800/40"}`}
-                        >
-                          <span className="w-1 h-1 rounded-full shrink-0 bg-dark-300 dark:bg-dark-600" />
-                          <span className="truncate">{c.name}</span>
-                        </Link>
-                      )
-                    })}
+                <div key={fw.slug} className="mb-0.5">
+                  {/* Framework row */}
+                  <div className="group flex items-center rounded-lg hover:bg-dark-100 dark:hover:bg-dark-800/60 transition">
+                    <button
+                      onClick={() => toggleExpand(fw.slug)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition"
+                      aria-label={isExpanded ? "Collapse" : "Expand"}
+                    >
+                      <svg className={`w-3.5 h-3.5 transition-transform duration-150 ${isExpanded ? "rotate-90" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <Link
+                      href={`/frameworks/${fw.slug}`}
+                      onClick={() => setOpen(false)}
+                      className={`flex-1 min-w-0 py-1.5 pr-2 text-sm transition ${isFwActive ? "font-medium text-primary-700 dark:text-primary-300" : "text-dark-700 dark:text-dark-300 hover:text-dark-900 dark:hover:text-dark-100"}`}
+                    >
+                      <span className="truncate block">{fw.title}</span>
+                    </Link>
+                    <span className="pr-2 text-[10px] text-dark-400 dark:text-dark-500 tabular-nums">{fw.concepts.length}</span>
                   </div>
-                )}
-              </div>
+
+                  {/* Concepts (collapsible) */}
+                  {(isExpanded || filter) && concepts.length > 0 && (
+                    <div className="ml-4 border-l border-dark-200 dark:border-dark-700 pl-2 space-y-0.5 mb-0.5">
+                      {concepts.map((c) => {
+                        const active = conceptSlug === c.slug
+                        return (
+                          <Link
+                            key={c.slug}
+                            href={`/frameworks/${fw.slug}/${c.slug}`}
+                            onClick={() => setOpen(false)}
+                            className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition ${active ? "bg-primary-100 font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" : "text-dark-500 hover:text-dark-700 dark:text-dark-400 dark:hover:text-dark-200 hover:bg-dark-50 dark:hover:bg-dark-800/40"}`}
+                          >
+                            <span className="w-1 h-1 rounded-full shrink-0 bg-dark-300 dark:bg-dark-600" />
+                            <span className="truncate">{c.name}</span>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
             )
           })}
         </nav>
