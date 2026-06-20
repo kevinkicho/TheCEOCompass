@@ -32,13 +32,14 @@ export default function QuizPage() {
   const [selectedAnswer, setSelectedAnswer] = useState<string>("")
   const [freeResponseText, setFreeResponseText] = useState("")
   const [evalResult, setEvalResult] = useState<EvalResult | null>(null)
-  const [score, setScore] = useState(0)
+  const [correctAnswers, setCorrectAnswers] = useState<boolean[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [elapsed, setElapsed] = useState(0)
+  const [quizError, setQuizError] = useState("")
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    getFrameworks().then(setFrameworks).catch(console.error)
+    getFrameworks().then(setFrameworks).catch((err) => setQuizError("Failed to load frameworks"))
   }, [])
 
   useEffect(() => {
@@ -54,19 +55,21 @@ export default function QuizPage() {
 
   const handleGenerate = async () => {
     if (!selectedFramework) return
+    setQuizError("")
     setIsLoading(true)
     setElapsed(0)
     try {
       const fw = frameworks.find((f) => f.id === selectedFramework)
-      const data = await generateQuiz(fw?.slug || "", 5, "medium")
+      if (!fw) throw new Error("Selected framework not found")
+      const data = await generateQuiz(fw.slug, 5, "medium")
       setQuestions(data)
       setCurrentQ(0)
-      setScore(0)
+      setCorrectAnswers([])
       setEvalResult(null)
       setSelectedAnswer("")
       setFreeResponseText("")
     } catch (err) {
-      console.error(err)
+      setQuizError(err instanceof Error ? err.message : "Failed to generate quiz")
     }
     setIsLoading(false)
   }
@@ -86,7 +89,7 @@ export default function QuizPage() {
         explanation: q.explanation,
         correct_answer: q.correct_answer,
       })
-      if (isCorrect) setScore((s) => s + 1)
+      setCorrectAnswers((prev) => [...prev, isCorrect])
       return
     }
     if (!selectedAnswer) return
@@ -97,7 +100,7 @@ export default function QuizPage() {
       explanation: q.explanation,
       correct_answer: q.correct_answer,
     })
-    if (isCorrect) setScore((s) => s + 1)
+    setCorrectAnswers((prev) => [...prev, isCorrect])
   }
 
   const goToQuestion = (idx: number) => {
@@ -114,7 +117,7 @@ export default function QuizPage() {
   const handleRestart = () => {
     setQuestions([])
     setCurrentQ(0)
-    setScore(0)
+    setCorrectAnswers([])
     setEvalResult(null)
     setSelectedAnswer("")
     setFreeResponseText("")
@@ -135,6 +138,8 @@ export default function QuizPage() {
           feature="AI-Generated Quizzes"
           description="Real-time LLM-generated questions with answer evaluation"
         />
+
+        {quizError && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{quizError}</p>}
 
         <div className="rounded-xl border border-dark-200 p-6 dark:border-dark-700">
           <label className="mb-2 block text-sm font-medium text-dark-700 dark:text-dark-300">Select a framework</label>
@@ -161,15 +166,14 @@ export default function QuizPage() {
   }
 
   if (isComplete) {
+    const score = correctAnswers.filter(Boolean).length
     const pct = Math.round((score / questions.length) * 100)
-    const emoji = pct >= 80 ? "🏆" : pct >= 50 ? "✅" : "📚"
-    const msg = pct >= 80 ? "Excellent!" : pct >= 50 ? "Good effort!" : "Keep learning!"
 
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
         <div className="rounded-xl border border-dark-200 p-8 text-center dark:border-dark-700">
-          <div className="mb-4 text-5xl">{emoji}</div>
-          <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{msg}</h2>
+          <div className="mb-4 text-5xl">{pct >= 80 ? "🏆" : pct >= 50 ? "✅" : "📚"}</div>
+          <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{pct >= 80 ? "Excellent!" : pct >= 50 ? "Good effort!" : "Keep learning!"}</h2>
           <div className="mb-6 rounded-lg bg-primary-50 p-4 dark:bg-primary-900/20">
             <p className="text-3xl font-bold text-primary-600">{score}/{questions.length}</p>
             <p className="text-sm text-primary-700 dark:text-primary-300">{pct}% correct</p>
@@ -177,7 +181,7 @@ export default function QuizPage() {
 
           <div className="mb-6 space-y-3 text-left">
             {questions.map((q, i) => {
-              const isCorrect = score > i
+              const isCorrect = correctAnswers[i]
               return (
                 <div key={q.id} className={`rounded-lg border p-3 text-sm ${isCorrect ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20" : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"}`}>
                   <p className="font-medium text-dark-800 dark:text-dark-200">{i + 1}. {q.question}</p>
@@ -209,7 +213,7 @@ export default function QuizPage() {
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-dark-500 dark:text-dark-300">Question {currentQ + 1} of {questions.length}</span>
-          <span className="text-dark-500 dark:text-dark-300">Score: {score}/{currentQ + (evalResult ? 1 : 0)}</span>
+          <span className="text-dark-500 dark:text-dark-300">Score: {correctAnswers.filter(Boolean).length}/{currentQ + (evalResult ? 1 : 0)}</span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-dark-100 dark:bg-dark-800">
           <div

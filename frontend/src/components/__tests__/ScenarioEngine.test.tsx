@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { ScenarioEngine } from "../ScenarioEngine"
 import type { Scenario } from "@/lib/types"
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}))
+
 const mockScenario: Scenario = {
   id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
   slug: "test-scenario",

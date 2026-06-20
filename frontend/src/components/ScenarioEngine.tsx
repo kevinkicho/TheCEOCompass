@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { startScenario, evaluateChoice } from "@/lib/api"
 import { BackendGuard } from "@/components/RequiresBackend"
 import type { Scenario, ScenarioStage, StageResult, FeedbackResponse, ScenarioAttempt } from "@/lib/types"
@@ -10,26 +11,31 @@ interface Props {
 }
 
 export function ScenarioEngine({ scenario }: Props) {
+  const router = useRouter()
   const [attempt, setAttempt] = useState<ScenarioAttempt | null>(null)
   const [currentStage, setCurrentStage] = useState<ScenarioStage>(scenario.stages[0])
   const [feedback, setFeedback] = useState<FeedbackResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
   const [finalOutcome, setFinalOutcome] = useState<StageResult | null>(null)
+  const [error, setError] = useState("")
 
   const handleStart = async () => {
+    setError("")
     setIsLoading(true)
     try {
       const att = await startScenario(scenario.id)
+      if (!att) throw new Error("Scenario engine requires the backend server. Start the backend API to use scenarios.")
       setAttempt(att)
       setCurrentStage(scenario.stages[0])
     } catch (err) {
-      console.error(err)
+      setError(err instanceof Error ? err.message : "Failed to start scenario")
     }
     setIsLoading(false)
   }
 
   const handleSubmitChoice = async (choiceId?: string, freeResponse?: string) => {
+    setError("")
     setIsLoading(true)
     try {
       const result = await evaluateChoice(
@@ -38,6 +44,7 @@ export function ScenarioEngine({ scenario }: Props) {
         choiceId,
         freeResponse,
       )
+      if (!result) throw new Error("Scenario engine requires the backend server. Start the backend API to run scenarios.")
       setFeedback(result.feedback || null)
 
       if (result.is_complete) {
@@ -50,7 +57,7 @@ export function ScenarioEngine({ scenario }: Props) {
         }
       }
     } catch (err) {
-      console.error(err)
+      setError(err instanceof Error ? err.message : "Failed to evaluate choice")
     }
     setIsLoading(false)
   }
@@ -78,6 +85,7 @@ export function ScenarioEngine({ scenario }: Props) {
             ))}
           </ul>
         </div>
+        {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</p>}
         <BackendGuard feature="AI Scenario Engine">
           <button
           onClick={handleStart}
@@ -126,7 +134,7 @@ export function ScenarioEngine({ scenario }: Props) {
             Try Again
           </button>
           <button
-            onClick={() => {/* navigate to journal */}}
+            onClick={() => router.push("/journal")}
             className="flex-1 rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
           >
             Save to Journal &rarr;
@@ -156,6 +164,8 @@ export function ScenarioEngine({ scenario }: Props) {
           />
         </div>
       </div>
+
+      {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</p>}
 
       {/* Prompt */}
       <div className="mb-6">

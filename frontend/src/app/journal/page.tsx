@@ -1,66 +1,73 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getJournalEntries, createJournalEntry, createJournalOutcome } from "@/lib/api"
-import { StaticModeBanner } from "@/components/StaticModeBanner"
+import { loadJournalEntries, createJournalEntry, recordOutcome } from "@/lib/firebase-crud"
 import type { JournalEntry } from "@/lib/types"
+
+const DEFAULT_ENTRY_FORM = {
+  title: "",
+  context: "",
+  decision: "",
+  rationale: "",
+  confidence: 8,
+  review_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+  alternatives_considered: [{ name: "", description: "" }],
+  key_assumptions: [{ assumption: "", test: "" }],
+  success_metrics: [{ metric: "", target: "" }],
+}
+
+const DEFAULT_OUTCOME_FORM = {
+  what_happened: "",
+  was_right: "partially",
+  updated_confidence: 7,
+  lesson: "",
+}
 
 export default function JournalPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [showEntryModal, setShowEntryModal] = useState(false)
   const [outcomeEntryId, setOutcomeEntryId] = useState<string | null>(null)
-  const [entryForm, setEntryForm] = useState({
-    title: "",
-    context: "",
-    decision: "",
-    rationale: "",
-    confidence: 8,
-    review_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-  })
-  const [outcomeForm, setOutcomeForm] = useState({
-    what_happened: "",
-    was_right: "partially",
-    updated_confidence: 7,
-    lesson: "",
-  })
+  const [entryForm, setEntryForm] = useState(DEFAULT_ENTRY_FORM)
+  const [outcomeForm, setOutcomeForm] = useState(DEFAULT_OUTCOME_FORM)
   const [isLoading, setIsLoading] = useState(false)
   const [isOutcomeLoading, setIsOutcomeLoading] = useState(false)
+  const [journalError, setJournalError] = useState("")
 
   useEffect(() => {
     loadEntries()
   }, [])
 
   const loadEntries = async () => {
+    setJournalError("")
     try {
-      const data = await getJournalEntries()
+      const data = await loadJournalEntries()
       setEntries(data)
     } catch (err) {
-      console.error(err)
+      setJournalError(err instanceof Error ? err.message : "Failed to load journal entries")
     }
   }
 
   const handleCreateEntry = async (e: React.FormEvent) => {
     e.preventDefault()
+    setJournalError("")
     setIsLoading(true)
     try {
       const entry = await createJournalEntry({
-        ...entryForm,
-        alternatives_considered: [],
-        key_assumptions: [],
-        success_metrics: [],
+        title: entryForm.title,
+        context: entryForm.context,
+        decision: entryForm.decision,
+        rationale: entryForm.rationale,
+        confidence: entryForm.confidence,
+        review_date: entryForm.review_date,
+        alternatives_considered: entryForm.alternatives_considered.filter((a) => a.name.trim()),
+        key_assumptions: entryForm.key_assumptions.filter((a) => a.assumption.trim()),
+        success_metrics: entryForm.success_metrics.filter((m) => m.metric.trim()),
       })
       setEntries([entry, ...entries])
       setShowEntryModal(false)
-      setEntryForm({
-        title: "",
-        context: "",
-        decision: "",
-        rationale: "",
-        confidence: 8,
-        review_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      })
+      setEntryForm(DEFAULT_ENTRY_FORM)
     } catch (err) {
-      console.error(err)
+      setJournalError(err instanceof Error ? err.message : "Failed to save entry")
     }
     setIsLoading(false)
   }
@@ -68,25 +75,29 @@ export default function JournalPage() {
   const handleOutcomeSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!outcomeEntryId) return
+    setJournalError("")
     setIsOutcomeLoading(true)
     try {
-      await createJournalOutcome(outcomeEntryId, outcomeForm)
+      await recordOutcome(outcomeEntryId, outcomeForm)
       setOutcomeEntryId(null)
-      setOutcomeForm({
-        what_happened: "",
-        was_right: "partially",
-        updated_confidence: 7,
-        lesson: "",
-      })
+      setOutcomeForm(DEFAULT_OUTCOME_FORM)
       await loadEntries()
     } catch (err) {
-      console.error(err)
+      setJournalError(err instanceof Error ? err.message : "Failed to save outcome")
     }
     setIsOutcomeLoading(false)
   }
 
-  const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString()
-  const isPastReview = (dateStr: string) => new Date(dateStr) < new Date()
+  const formatDate = (dateStr: string) => {
+    try { return new Date(dateStr).toLocaleDateString() } catch { return dateStr }
+  }
+  const isPastReview = (dateStr: string) => {
+    try { return new Date(dateStr) < new Date() } catch { return false }
+  }
+
+  const addAlt = () => setEntryForm((f) => ({ ...f, alternatives_considered: [...f.alternatives_considered, { name: "", description: "" }] }))
+  const addAssumption = () => setEntryForm((f) => ({ ...f, key_assumptions: [...f.key_assumptions, { assumption: "", test: "" }] }))
+  const addMetric = () => setEntryForm((f) => ({ ...f, success_metrics: [...f.success_metrics, { metric: "", target: "" }] }))
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16">
@@ -95,11 +106,6 @@ export default function JournalPage() {
           <h1 className="text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Decision Journal</h1>
           <p className="mt-1 text-dark-500 dark:text-dark-300">Track decisions, review outcomes, calibrate judgment.</p>
         </div>
-
-        <StaticModeBanner
-          feature="Decision Journal"
-          description="Log decisions, record outcomes, and track calibration over time"
-        />
         <button
           onClick={() => setShowEntryModal(true)}
           className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700"
@@ -108,9 +114,11 @@ export default function JournalPage() {
         </button>
       </div>
 
+      {journalError && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{journalError}</p>}
+
       {entries.length === 0 ? (
         <div className="rounded-xl border border-dark-200 p-12 text-center dark:border-dark-700">
-          <p className="mb-4 text-dark-500 dark:text-dark-300">No decisions logged yet. Complete a scenario or log your first decision.</p>
+          <p className="mb-4 text-dark-500 dark:text-dark-300">No decisions logged yet.</p>
           <button
             onClick={() => setShowEntryModal(true)}
             className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700"
@@ -125,7 +133,7 @@ export default function JournalPage() {
               key={entry.id}
               className="rounded-xl border border-dark-200 p-5 hover:shadow-md transition dark:border-dark-700"
             >
-              <div className="mb-3 flex items-center gap-3">
+              <div className="mb-3 flex items-center gap-3 flex-wrap">
                 <h2 className="font-semibold text-dark-900 dark:text-dark-100">{entry.title}</h2>
                 <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                   Confidence: {entry.confidence}/10
@@ -142,7 +150,6 @@ export default function JournalPage() {
               <p className="mb-2 text-sm text-dark-600 dark:text-dark-300"><strong>Decision:</strong> {entry.decision}</p>
               <p className="text-sm text-dark-500 dark:text-dark-300"><strong>Rationale:</strong> {entry.rationale}</p>
 
-              {/* Recorded Outcome */}
               {entry.outcome_captured && entry.outcomes?.[0] && (
                 <div className="mt-4 pt-4 border-t border-dark-100 dark:border-dark-800">
                   <p className="text-sm font-medium text-dark-700 dark:text-dark-300">Outcome Review</p>
@@ -155,18 +162,12 @@ export default function JournalPage() {
                 </div>
               )}
 
-              {/* Review button */}
               {!entry.outcome_captured && (
                 <div className="mt-4 pt-4 border-t border-dark-100 dark:border-dark-800">
                   <button
                     onClick={() => {
                       setOutcomeEntryId(entry.id)
-                      setOutcomeForm({
-                        what_happened: "",
-                        was_right: "partially",
-                        updated_confidence: entry.confidence,
-                        lesson: "",
-                      })
+                      setOutcomeForm({ ...DEFAULT_OUTCOME_FORM, updated_confidence: entry.confidence })
                     }}
                     className="rounded-lg border border-primary-300 px-4 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:border-primary-800/50 dark:text-primary-300"
                   >
@@ -201,6 +202,43 @@ export default function JournalPage() {
                 <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Rationale</label>
                 <textarea value={entryForm.rationale} onChange={(e) => setEntryForm({ ...entryForm, rationale: e.target.value })} rows={2} className="w-full resize-none rounded-lg border border-dark-200 px-4 py-2 text-sm focus:border-primary-400 focus:outline-none dark:border-dark-700" required />
               </div>
+
+              {/* Alternatives */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Alternatives Considered</label>
+                {entryForm.alternatives_considered.map((alt, i) => (
+                  <div key={i} className="flex gap-2 mb-2">
+                    <input type="text" value={alt.name} onChange={(e) => { const a = [...entryForm.alternatives_considered]; a[i] = { ...a[i], name: e.target.value }; setEntryForm({ ...entryForm, alternatives_considered: a }) }} placeholder="Alternative name" className="flex-1 rounded-lg border border-dark-200 px-3 py-1.5 text-sm dark:border-dark-700" />
+                    <input type="text" value={alt.description} onChange={(e) => { const a = [...entryForm.alternatives_considered]; a[i] = { ...a[i], description: e.target.value }; setEntryForm({ ...entryForm, alternatives_considered: a }) }} placeholder="Brief description" className="flex-1 rounded-lg border border-dark-200 px-3 py-1.5 text-sm dark:border-dark-700" />
+                  </div>
+                ))}
+                <button type="button" onClick={addAlt} className="text-xs text-primary-600 hover:text-primary-700">+ Add alternative</button>
+              </div>
+
+              {/* Assumptions */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Key Assumptions</label>
+                {entryForm.key_assumptions.map((a, i) => (
+                  <div key={i} className="flex gap-2 mb-2">
+                    <input type="text" value={a.assumption} onChange={(e) => { const as = [...entryForm.key_assumptions]; as[i] = { ...as[i], assumption: e.target.value }; setEntryForm({ ...entryForm, key_assumptions: as }) }} placeholder="Assumption" className="flex-1 rounded-lg border border-dark-200 px-3 py-1.5 text-sm dark:border-dark-700" />
+                    <input type="text" value={a.test} onChange={(e) => { const as = [...entryForm.key_assumptions]; as[i] = { ...as[i], test: e.target.value }; setEntryForm({ ...entryForm, key_assumptions: as }) }} placeholder="How to test" className="flex-1 rounded-lg border border-dark-200 px-3 py-1.5 text-sm dark:border-dark-700" />
+                  </div>
+                ))}
+                <button type="button" onClick={addAssumption} className="text-xs text-primary-600 hover:text-primary-700">+ Add assumption</button>
+              </div>
+
+              {/* Success Metrics */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Success Metrics</label>
+                {entryForm.success_metrics.map((m, i) => (
+                  <div key={i} className="flex gap-2 mb-2">
+                    <input type="text" value={m.metric} onChange={(e) => { const ms = [...entryForm.success_metrics]; ms[i] = { ...ms[i], metric: e.target.value }; setEntryForm({ ...entryForm, success_metrics: ms }) }} placeholder="Metric" className="flex-1 rounded-lg border border-dark-200 px-3 py-1.5 text-sm dark:border-dark-700" />
+                    <input type="text" value={m.target} onChange={(e) => { const ms = [...entryForm.success_metrics]; ms[i] = { ...ms[i], target: e.target.value }; setEntryForm({ ...entryForm, success_metrics: ms }) }} placeholder="Target value" className="flex-1 rounded-lg border border-dark-200 px-3 py-1.5 text-sm dark:border-dark-700" />
+                  </div>
+                ))}
+                <button type="button" onClick={addMetric} className="text-xs text-primary-600 hover:text-primary-700">+ Add metric</button>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Confidence (1-10)</label>
@@ -235,9 +273,9 @@ export default function JournalPage() {
               <div>
                 <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Was I Right?</label>
                 <select value={outcomeForm.was_right} onChange={(e) => setOutcomeForm({ ...outcomeForm, was_right: e.target.value })} className="w-full rounded-lg border border-dark-200 px-4 py-2 text-sm focus:border-primary-400 focus:outline-none dark:border-dark-700">
-                  <option value="yes">Yes — called it correctly</option>
-                  <option value="partially">Partially — right direction, wrong details</option>
-                  <option value="no">No — completely wrong</option>
+                  <option value="yes">Yes</option>
+                  <option value="partially">Partially</option>
+                  <option value="no">No</option>
                 </select>
               </div>
               <div>
@@ -248,7 +286,7 @@ export default function JournalPage() {
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Lesson Learned</label>
-                <textarea value={outcomeForm.lesson} onChange={(e) => setOutcomeForm({ ...outcomeForm, lesson: e.target.value })} rows={2} placeholder="What will you do differently next time?" className="w-full resize-none rounded-lg border border-dark-200 px-4 py-2 text-sm focus:border-primary-400 focus:outline-none dark:border-dark-700" />
+                <textarea value={outcomeForm.lesson} onChange={(e) => setOutcomeForm({ ...outcomeForm, lesson: e.target.value })} rows={2} className="w-full resize-none rounded-lg border border-dark-200 px-4 py-2 text-sm focus:border-primary-400 focus:outline-none dark:border-dark-700" />
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setOutcomeEntryId(null)} className="rounded-lg border border-dark-300 px-5 py-2.5 text-sm font-medium text-dark-700 hover:bg-dark-50 dark:hover:bg-dark-800 dark:text-dark-300 dark:border-dark-600">Cancel</button>
