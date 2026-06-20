@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
 import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, generateExplainFurther, buildExplainPrompt, checkCache, slugify } from "@/lib/ollama"
@@ -14,6 +14,73 @@ function findConcept(slug: string, conceptSlug: string): { framework: Framework;
   const concept = fw.concepts?.find((c) => slugify(c.name) === conceptSlug)
   if (!concept) return null
   return { framework: fw, concept }
+}
+
+function PromptTooltip({ children, prompt }: { children: React.ReactNode; prompt: string }) {
+  const [visible, setVisible] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [keepOpen, setKeepOpen] = useState(false)
+  const triggerRef = useRef<HTMLSpanElement>(null)
+  const tooltipRef = useRef<HTMLPreElement>(null)
+
+  const show = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setVisible(true), 2000)
+  }
+  const hide = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    if (!keepOpen) setVisible(false)
+  }
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [])
+
+  return (
+    <span className="relative inline-flex">
+      <span ref={triggerRef} onMouseEnter={show} onMouseLeave={hide}
+        className="text-[10px] text-dark-400/50 dark:text-dark-500/50 hover:text-dark-400 dark:hover:text-dark-400 cursor-default transition"
+      >{children}</span>
+      {(visible || keepOpen) && (
+        <pre ref={tooltipRef} onMouseEnter={() => setKeepOpen(true)} onMouseLeave={() => { setKeepOpen(false); setVisible(false) }}
+          className="absolute z-50 mt-5 left-0 rounded-lg bg-dark-800 p-3 text-[10px] text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto shadow-xl border border-dark-700 min-w-[280px]"
+        >{prompt}</pre>
+      )}
+    </span>
+  )
+}
+
+function SparkleBtn({ loading, confirm, onSparkle, onConfirm, onCancel }: {
+  loading: boolean; confirm: boolean;
+  onSparkle: () => void; onConfirm: () => void; onCancel: () => void;
+}) {
+  if (loading) return (
+    <svg className="animate-spin h-3.5 w-3.5 text-dark-400" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  )
+  if (confirm) return (
+    <span className="inline-flex items-center gap-1">
+      <button onClick={onConfirm}
+        className="rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition animate-pulse"
+      >Regenerate?</button>
+      <button onClick={onCancel}
+        className="text-[10px] text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition"
+      >&times;</button>
+    </span>
+  )
+  return (
+    <button onClick={onSparkle}
+      className="inline-flex items-center justify-center rounded-full p-0.5 text-dark-400/60 hover:text-dark-600 dark:hover:text-dark-300 hover:bg-dark-100 dark:hover:bg-dark-800 transition"
+      title="Generate with AI"
+    >
+      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/>
+        <path d="M18 14l1 2.5L21.5 18l-2.5 1-1 2.5-1-2.5L14.5 18l2.5-1z"/>
+      </svg>
+    </button>
+  )
 }
 
 export default function ConceptDetailPage() {
@@ -33,31 +100,27 @@ export default function ConceptDetailPage() {
   const aiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [aiEnrichment, setAiEnrichment] = useState<any>(null)
-  const [aiEnrichmentLoading, setAiEnrichmentLoading] = useState(false)
   const [aiEnrichmentCached, setAiEnrichmentCached] = useState(false)
-  const [aiEnrichmentError, setAiEnrichmentError] = useState("")
-  const [showEnrichPrompt, setShowEnrichPrompt] = useState(false)
   const [showExplainPrompt, setShowExplainPrompt] = useState(false)
 
   const [aiCaseStudy, setAiCaseStudy] = useState<any>(null)
   const [aiCaseStudyLoading, setAiCaseStudyLoading] = useState(false)
   const [aiCaseStudyCached, setAiCaseStudyCached] = useState(false)
-  const [showCaseStudyPrompt, setShowCaseStudyPrompt] = useState(false)
   const [confirmCaseStudy, setConfirmCaseStudy] = useState(false)
 
   const [aiExercise, setAiExercise] = useState<any>(null)
   const [aiExerciseLoading, setAiExerciseLoading] = useState(false)
   const [aiExerciseCached, setAiExerciseCached] = useState(false)
-  const [showExercisePrompt, setShowExercisePrompt] = useState(false)
   const [confirmExercise, setConfirmExercise] = useState(false)
 
   const [aiExample, setAiExample] = useState<any>(null)
   const [aiExampleLoading, setAiExampleLoading] = useState(false)
   const [aiExampleCached, setAiExampleCached] = useState(false)
-  const [showExamplePrompt, setShowExamplePrompt] = useState(false)
   const [confirmExample, setConfirmExample] = useState(false)
   const [aiError, setAiError] = useState("")
-  const [confirmEnrich, setConfirmEnrich] = useState(false)
+
+  // Per-category confirm state for enrich sub-sections
+  const [catConfirm, setCatConfirm] = useState<Record<string, boolean>>({})
   const [confirmExplain, setConfirmExplain] = useState(false)
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -69,7 +132,7 @@ export default function ConceptDetailPage() {
   }, [])
 
   const startCooldown = () => {
-    setConfirmEnrich(false)
+    setCatConfirm({})
     setConfirmExplain(false)
     setConfirmCaseStudy(false)
     setConfirmExercise(false)
@@ -154,12 +217,15 @@ export default function ConceptDetailPage() {
     checkConceptCache()
   }, [checkConceptCache])
 
-  // Eager prompts
-  const eagerExplainPrompt = result ? buildExplainPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
-  const eagerEnrichPrompt = result ? buildWhyItMattersPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags) : ""
-  const eagerCaseStudyPrompt = result ? buildCaseStudyPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
-  const eagerExercisePrompt = result ? buildTestYourselfPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
-  const eagerExamplePrompt = result ? buildRealWorldExamplesPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  // Eager prompts per category
+  const promptWhy = result ? buildWhyItMattersPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags) : ""
+  const promptHow = result ? buildHowToApplyPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const promptPitfalls = result ? buildCommonPitfallsPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const promptConnected = result ? buildConnectedConceptsPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const promptCaseStudy = result ? buildCaseStudyPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const promptExercise = result ? buildTestYourselfPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const promptExample = result ? buildRealWorldExamplesPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const promptExplain = result ? buildExplainPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
 
   if (!result) {
     return (
@@ -198,10 +264,10 @@ export default function ConceptDetailPage() {
 
   const handleExplain = mkHandler(explainConcept, (p: any) => { setAiExplanation(p); setAiCached(true); setEditingPrompt(false) }, () => {}, (v: boolean) => setAiLoading(v), (e: string) => setAiError(e), concept.name, concept.definition, slug, true)
 
-  const handleWhyItMatters = mkHandler(generateWhyItMatters, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title, concept.tags)
-  const handleHowToApply = mkHandler(generateHowToApply, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title)
-  const handleCommonPitfalls = mkHandler(generateCommonPitfalls, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title)
-  const handleConnectedConcepts = mkHandler(generateConnectedConcepts, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title)
+  const handleWhyItMatters = mkHandler(generateWhyItMatters, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, concept.tags)
+  const handleHowToApply = mkHandler(generateHowToApply, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title)
+  const handleCommonPitfalls = mkHandler(generateCommonPitfalls, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title)
+  const handleConnectedConcepts = mkHandler(generateConnectedConcepts, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title)
   const handleCaseStudy = mkHandler(generateCaseStudy, setAiCaseStudy, () => setAiCaseStudyCached(true), (v: boolean) => setAiCaseStudyLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
   const handleExercise = mkHandler(generateTestYourself, setAiExercise, () => setAiExerciseCached(true), (v: boolean) => setAiExerciseLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
   const handleExample = mkHandler(generateRealWorldExamples, setAiExample, () => setAiExampleCached(true), (v: boolean) => setAiExampleLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
@@ -261,21 +327,32 @@ export default function ConceptDetailPage() {
 
       {concept.formula && <div className="mb-4 rounded-lg bg-dark-800 px-4 py-3 font-mono text-sm text-green-300">{concept.formula}</div>}
 
-      <div className="flex items-center gap-3 mb-3">
-        {aiEnrichmentCached && <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
-        {aiEnrichment && <span className="rounded-full bg-violet-100 dark:bg-violet-900/30 px-2.5 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Regenerated</span>}
-      </div>
+      {/* ── Enriched sections with per-category sparkle buttons ── */}
 
       {(aiEnrichment?.why_it_matters || concept.why_it_matters) && (
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
-          <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-2">Why It Matters for CEOs</p>
+          <div className="flex items-center gap-1.5 mb-2">
+            <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Why It Matters for CEOs</p>
+            <SparkleBtn loading={false} confirm={!!catConfirm["why"]}
+              onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, why: v })))}
+              onConfirm={() => { setCatConfirm((d) => ({ ...d, why: false })); handleWhyItMatters() }}
+              onCancel={() => setCatConfirm((d) => ({ ...d, why: false }))} />
+            <PromptTooltip prompt={promptWhy}>{promptWhy ? "prompt" : ""}</PromptTooltip>
+          </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiEnrichment?.why_it_matters || concept.why_it_matters}</p>
         </div>
       )}
 
       {((aiEnrichment?.steps?.length) || (concept.steps && concept.steps.length > 0)) && (
         <div className="mb-4">
-          <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">How to Apply</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">How to Apply</p>
+            <SparkleBtn loading={false} confirm={!!catConfirm["how"]}
+              onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, how: v })))}
+              onConfirm={() => { setCatConfirm((d) => ({ ...d, how: false })); handleHowToApply() }}
+              onCancel={() => setCatConfirm((d) => ({ ...d, how: false }))} />
+            <PromptTooltip prompt={promptHow}>{promptHow ? "prompt" : ""}</PromptTooltip>
+          </div>
           <ol className="space-y-2.5">{(aiEnrichment?.steps || concept.steps).map((step: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 text-xs font-bold text-primary-700 dark:text-primary-300 mt-0.5">{i + 1}</span>
@@ -287,7 +364,14 @@ export default function ConceptDetailPage() {
 
       {((aiEnrichment?.pitfalls?.length) || (concept.pitfalls && concept.pitfalls.length > 0)) && (
         <div className="mb-4">
-          <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Common Pitfalls</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Common Pitfalls</p>
+            <SparkleBtn loading={false} confirm={!!catConfirm["pitfalls"]}
+              onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, pitfalls: v })))}
+              onConfirm={() => { setCatConfirm((d) => ({ ...d, pitfalls: false })); handleCommonPitfalls() }}
+              onCancel={() => setCatConfirm((d) => ({ ...d, pitfalls: false }))} />
+            <PromptTooltip prompt={promptPitfalls}>{promptPitfalls ? "prompt" : ""}</PromptTooltip>
+          </div>
           <div className="space-y-2">{(aiEnrichment?.pitfalls || concept.pitfalls).map((pf: any, i: number) => (
             <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">{pf.title}</p>
@@ -299,7 +383,14 @@ export default function ConceptDetailPage() {
 
       {((aiEnrichment?.related_concepts?.length) || (concept.related_concepts && concept.related_concepts.length > 0)) && (
         <div className="mb-4">
-          <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Connected Concepts</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Connected Concepts</p>
+            <SparkleBtn loading={false} confirm={!!catConfirm["connected"]}
+              onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, connected: v })))}
+              onConfirm={() => { setCatConfirm((d) => ({ ...d, connected: false })); handleConnectedConcepts() }}
+              onCancel={() => setCatConfirm((d) => ({ ...d, connected: false }))} />
+            <PromptTooltip prompt={promptConnected}>{promptConnected ? "prompt" : ""}</PromptTooltip>
+          </div>
           <div className="space-y-1.5">{(aiEnrichment?.related_concepts || concept.related_concepts).map((rc: any, i: number) => (
             <div key={i} className="flex items-start gap-2 text-sm">
               <span className="text-primary-500 mt-0.5">&#8594;</span>
@@ -309,71 +400,36 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {aiEnrichmentError && (
-        <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiEnrichmentError}</div>
-      )}
-
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        {aiEnrichmentLoading ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs text-violet-600 dark:text-violet-400">
-            <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            Generating...
-          </span>
-        ) : confirmEnrich ? (
-          <>
-            <button onClick={() => { setConfirmEnrich(false); handleWhyItMatters(); handleHowToApply(); handleCommonPitfalls(); handleConnectedConcepts() }}
-              className="rounded-full bg-violet-100 dark:bg-violet-900/30 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition animate-pulse"
->Regenerate?</button>
-              <button onClick={() => setConfirmEnrich(false)}
-              className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition"
-            >&times;</button>
-          </>
-        ) : (
-          <button onClick={() => startConfirm(setConfirmEnrich)}
-            className="rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-100/50 dark:hover:bg-violet-900/20 transition"
-          >More Information</button>
-        )}
-        <button onClick={() => setShowEnrichPrompt(!showEnrichPrompt)}
-          className="text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
-        >{showEnrichPrompt ? "Hide prompt" : "Show prompt"}</button>
-        {showEnrichPrompt && (
-          <pre className="mt-2 w-full rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">{eagerEnrichPrompt}</pre>
-        )}
-      </div>
-
       {(aiCaseStudy || concept.case_study) && (
         <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
           {aiCaseStudyCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
-          <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
+            <SparkleBtn loading={aiCaseStudyLoading} confirm={!!confirmCaseStudy}
+              onSparkle={() => startConfirm(setConfirmCaseStudy)}
+              onConfirm={() => { setConfirmCaseStudy(false); handleCaseStudy() }}
+              onCancel={() => setConfirmCaseStudy(false)} />
+            <PromptTooltip prompt={promptCaseStudy}>{promptCaseStudy ? "prompt" : ""}</PromptTooltip>
+          </div>
           <div className="space-y-2 text-sm">
             <div><p className="font-medium text-dark-700 dark:text-dark-300">Situation</p><p className="text-dark-600 dark:text-dark-400">{(aiCaseStudy || concept.case_study).situation}</p></div>
             <div><p className="font-medium text-dark-700 dark:text-dark-300">Application</p><p className="text-dark-600 dark:text-dark-400">{(aiCaseStudy || concept.case_study).application}</p></div>
             <div><p className="font-medium text-dark-700 dark:text-dark-300">Result</p><p className="text-dark-600 dark:text-dark-400">{(aiCaseStudy || concept.case_study).result}</p></div>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {aiCaseStudyLoading ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-dark-200 dark:border-dark-700 px-3 py-1 text-xs text-dark-500"><svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating...</span>
-            ) : confirmCaseStudy ? (
-              <>
-                <button onClick={() => { setConfirmCaseStudy(false); handleCaseStudy() }} className="rounded-full bg-dark-100 dark:bg-dark-800 px-3 py-1 text-xs font-medium text-dark-700 dark:text-dark-300 hover:bg-dark-200 dark:hover:bg-dark-700 transition animate-pulse">Regenerate?</button>
-                <button onClick={() => setConfirmCaseStudy(false)} className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition">&times;</button>
-              </>
-            ) : (
-              <button onClick={() => startConfirm(setConfirmCaseStudy)} className="rounded-full border border-dark-200 dark:border-dark-700 px-3 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition">{aiCaseStudyCached ? "Regenerate" : "Generate with AI"}</button>
-            )}
-            <button onClick={() => setShowCaseStudyPrompt(!showCaseStudyPrompt)} className="text-xs text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition">{showCaseStudyPrompt ? "Hide" : "Prompt"}</button>
-          </div>
-          {showCaseStudyPrompt && <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">{eagerCaseStudyPrompt}</pre>}
         </div>
       )}
 
       {(aiExercise || concept.exercise) && (
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4">
           {aiExerciseCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
-          <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-3">Test Yourself</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Test Yourself</p>
+            <SparkleBtn loading={aiExerciseLoading} confirm={!!confirmExercise}
+              onSparkle={() => startConfirm(setConfirmExercise)}
+              onConfirm={() => { setConfirmExercise(false); handleExercise() }}
+              onCancel={() => setConfirmExercise(false)} />
+            <PromptTooltip prompt={promptExercise}>{promptExercise ? "prompt" : ""}</PromptTooltip>
+          </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 mb-3 leading-relaxed">{(aiExercise || concept.exercise).scenario}</p>
           <div className="space-y-1.5 mb-3">{(aiExercise || concept.exercise).options.map((opt: string, i: number) => (
             <button key={i} onClick={() => { const el = document.getElementById(`exercise-feedback-${concept.name.replace(/\s+/g, '-')}`); if (el) { const c = i === (aiExercise || concept.exercise).correct; el.innerHTML = c ? '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; Correct!</span>' : '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; Not quite.</span>'; el.className = `mt-2 text-xs ${c ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}` } }}
@@ -381,47 +437,26 @@ export default function ConceptDetailPage() {
             >{String.fromCharCode(65 + i)}. {opt}</button>
           ))}</div>
           <div id={`exercise-feedback-${concept.name.replace(/\s+/g, '-')}`} className="text-xs"></div>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {aiExerciseLoading ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-dark-200 dark:border-dark-700 px-3 py-1 text-xs text-dark-500"><svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating...</span>
-            ) : confirmExercise ? (
-              <>
-                <button onClick={() => { setConfirmExercise(false); handleExercise() }} className="rounded-full bg-primary-100 dark:bg-primary-900/30 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900/50 transition animate-pulse">Regenerate?</button>
-                <button onClick={() => setConfirmExercise(false)} className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition">&times;</button>
-              </>
-            ) : (
-              <button onClick={() => startConfirm(setConfirmExercise)} className="rounded-full border border-primary-200 dark:border-primary-800/40 px-3 py-1 text-xs text-primary-600 dark:text-primary-400 hover:bg-primary-50/50 dark:hover:bg-primary-900/10 transition">{aiExerciseCached ? "Regenerate" : "Generate with AI"}</button>
-            )}
-            <button onClick={() => setShowExercisePrompt(!showExercisePrompt)} className="text-xs text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition">{showExercisePrompt ? "Hide" : "Prompt"}</button>
-          </div>
-          {showExercisePrompt && <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">{eagerExercisePrompt}</pre>}
         </div>
       )}
 
       {(aiExample || concept.example) && (
         <div className="mb-4">
           {aiExampleCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
-          <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide mb-3 dark:text-dark-300">Real-World Examples</p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide dark:text-dark-300">Real-World Examples</p>
+            <SparkleBtn loading={aiExampleLoading} confirm={!!confirmExample}
+              onSparkle={() => startConfirm(setConfirmExample)}
+              onConfirm={() => { setConfirmExample(false); handleExample() }}
+              onCancel={() => setConfirmExample(false)} />
+            <PromptTooltip prompt={promptExample}>{promptExample ? "prompt" : ""}</PromptTooltip>
+          </div>
           <ul className="space-y-3">{(aiExample?.examples?.length ? aiExample.examples : (concept.example || "").split(" | ")).map((ex: string, i: number) => (
             <li key={i} className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{i + 1}</span>
               <span className="leading-relaxed">{ex}</span>
             </li>
           ))}</ul>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {aiExampleLoading ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-dark-200 dark:border-dark-700 px-3 py-1 text-xs text-dark-500"><svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Generating...</span>
-            ) : confirmExample ? (
-              <>
-                <button onClick={() => { setConfirmExample(false); handleExample() }} className="rounded-full bg-dark-100 dark:bg-dark-800 px-3 py-1 text-xs font-medium text-dark-700 dark:text-dark-300 hover:bg-dark-200 dark:hover:bg-dark-700 transition animate-pulse">Regenerate?</button>
-                <button onClick={() => setConfirmExample(false)} className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition">&times;</button>
-              </>
-            ) : (
-              <button onClick={() => startConfirm(setConfirmExample)} className="rounded-full border border-dark-200 dark:border-dark-700 px-3 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition">{aiExampleCached ? "Regenerate" : "Generate with AI"}</button>
-            )}
-            <button onClick={() => setShowExamplePrompt(!showExamplePrompt)} className="text-xs text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition">{showExamplePrompt ? "Hide" : "Prompt"}</button>
-          </div>
-          {showExamplePrompt && <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-32 overflow-y-auto">{eagerExamplePrompt}</pre>}
         </div>
       )}
 
@@ -436,40 +471,19 @@ export default function ConceptDetailPage() {
         {aiError && (
           <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
         )}
-        <div className="flex flex-wrap items-center gap-2">
-          {aiLoading ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-3 py-1 text-xs text-primary-600 dark:text-primary-400">
-              <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Generating... {aiElapsed}s
-            </span>
-          ) : confirmExplain ? (
-            <>
-              <button onClick={() => { setConfirmExplain(false); handleExplain() }}
-                className="rounded-full bg-primary-100 dark:bg-primary-900/30 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900/50 transition animate-pulse"
-              >Regenerate?</button>
-              <button onClick={() => setConfirmExplain(false)}
-                className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition"
-              >&times;</button>
-            </>
-          ) : (
-            <button onClick={() => startConfirm(setConfirmExplain)}
-              className="rounded-full border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-3 py-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100/50 dark:hover:bg-primary-900/20 transition"
-            >Explain Further</button>
+        <div className="flex items-center gap-1.5 mb-1">
+          <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Explain Further</p>
+          <SparkleBtn loading={aiLoading} confirm={!!confirmExplain}
+            onSparkle={() => startConfirm(setConfirmExplain)}
+            onConfirm={() => { setConfirmExplain(false); handleExplain() }}
+            onCancel={() => setConfirmExplain(false)} />
+          <PromptTooltip prompt={aiPromptText || promptExplain}>{aiPromptText || promptExplain ? "prompt" : ""}</PromptTooltip>
+          {isAdmin && aiPromptText && !editingPrompt && (
+            <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
+              className="text-[10px] text-primary-500 hover:text-primary-600 transition"
+            >Edit</button>
           )}
         </div>
-
-        <button onClick={() => setShowExplainPrompt(!showExplainPrompt)}
-          className="mt-2 text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
-        >{showExplainPrompt ? "Hide prompt" : "Show prompt"}</button>
-
-        {isAdmin && aiPromptText && !editingPrompt && (
-          <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
-            className="ml-2 text-xs text-primary-500 hover:text-primary-600 transition"
-          >Edit</button>
-        )}
 
         {editingPrompt && (
           <div className="mt-2 space-y-2">
@@ -485,9 +499,6 @@ export default function ConceptDetailPage() {
               >Cancel</button>
             </div>
           </div>
-        )}
-        {showExplainPrompt && (
-          <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">{(aiPromptText || eagerExplainPrompt)}</pre>
         )}
 
         {aiExplanation && (
