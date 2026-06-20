@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, checkCache, slugify } from "@/lib/ollama"
+import { explainConcept, regenerateEnrichment, checkCache, slugify } from "@/lib/ollama"
 import { db, ref, set, query, orderByChild, limitToLast, get } from "@/lib/firebase"
 import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
@@ -31,6 +31,10 @@ export default function ConceptDetailPage() {
   const [savingPrompt, setSavingPrompt] = useState(false)
   const [currentResponseId, setCurrentResponseId] = useState<string | null>(null)
   const aiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const [aiEnrichment, setAiEnrichment] = useState<any>(null)
+  const [aiEnrichmentLoading, setAiEnrichmentLoading] = useState(false)
+  const [aiEnrichmentCached, setAiEnrichmentCached] = useState(false)
 
   const result = findConcept(slug, conceptSlug)
 
@@ -86,6 +90,21 @@ export default function ConceptDetailPage() {
     setAiLoading(false)
   }
 
+  const handleRegenerateEnrichment = async () => {
+    setAiEnrichmentLoading(true)
+    setAiEnrichment(null)
+    try {
+      const { parsed, cached } = await regenerateEnrichment(
+        concept.name, concept.definition, slug, framework.title, concept.tags, true,
+      )
+      setAiEnrichment(parsed)
+      setAiEnrichmentCached(cached)
+    } catch (err) {
+      console.error(err)
+    }
+    setAiEnrichmentLoading(false)
+  }
+
   const handleSavePrompt = async () => {
     if (!db || !editPromptValue.trim()) return
     setSavingPrompt(true)
@@ -118,17 +137,22 @@ export default function ConceptDetailPage() {
 
       {concept.formula && <div className="mb-4 rounded-lg bg-dark-800 px-4 py-3 font-mono text-sm text-green-300">{concept.formula}</div>}
 
-      {concept.why_it_matters && (
+      <div className="flex items-center gap-3 mb-3">
+        {aiEnrichmentCached && <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
+        {aiEnrichment && <span className="rounded-full bg-violet-100 dark:bg-violet-900/30 px-2.5 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Regenerated</span>}
+      </div>
+
+      {(aiEnrichment?.why_it_matters || concept.why_it_matters) && (
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
           <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-2">Why It Matters for CEOs</p>
-          <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{concept.why_it_matters}</p>
+          <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiEnrichment?.why_it_matters || concept.why_it_matters}</p>
         </div>
       )}
 
-      {concept.steps && concept.steps.length > 0 && (
+      {((aiEnrichment?.steps?.length) || (concept.steps && concept.steps.length > 0)) && (
         <div className="mb-4">
           <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">How to Apply</p>
-          <ol className="space-y-2.5">{concept.steps.map((step, i) => (
+          <ol className="space-y-2.5">{(aiEnrichment?.steps || concept.steps).map((step: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 text-xs font-bold text-primary-700 dark:text-primary-300 mt-0.5">{i + 1}</span>
               <div><p className="font-semibold text-dark-800 dark:text-dark-200">{step.title}</p><p className="text-dark-600 dark:text-dark-400">{step.description}</p></div>
@@ -137,10 +161,10 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {concept.pitfalls && concept.pitfalls.length > 0 && (
+      {((aiEnrichment?.pitfalls?.length) || (concept.pitfalls && concept.pitfalls.length > 0)) && (
         <div className="mb-4">
           <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Common Pitfalls</p>
-          <div className="space-y-2">{concept.pitfalls.map((pf, i) => (
+          <div className="space-y-2">{(aiEnrichment?.pitfalls || concept.pitfalls).map((pf: any, i: number) => (
             <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">{pf.title}</p>
               <p className="text-xs text-amber-700 dark:text-amber-400/80 leading-relaxed">{pf.description}</p>
@@ -149,10 +173,10 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {concept.related_concepts && concept.related_concepts.length > 0 && (
+      {((aiEnrichment?.related_concepts?.length) || (concept.related_concepts && concept.related_concepts.length > 0)) && (
         <div className="mb-4">
           <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">Connected Concepts</p>
-          <div className="space-y-1.5">{concept.related_concepts.map((rc, i) => (
+          <div className="space-y-1.5">{(aiEnrichment?.related_concepts || concept.related_concepts).map((rc: any, i: number) => (
             <div key={i} className="flex items-start gap-2 text-sm">
               <span className="text-primary-500 mt-0.5">&#8594;</span>
               <div><span className="font-medium text-dark-800 dark:text-dark-200">{rc.name}</span><span className="text-dark-500 dark:text-dark-400"> &mdash; {rc.relationship}</span></div>
@@ -160,6 +184,18 @@ export default function ConceptDetailPage() {
           ))}</div>
         </div>
       )}
+
+      <button onClick={handleRegenerateEnrichment} disabled={aiEnrichmentLoading}
+        className="mb-4 w-full rounded-lg border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-4 py-2.5 text-sm font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-100/50 dark:hover:bg-violet-900/20 transition disabled:opacity-50"
+      >{aiEnrichmentLoading ? (
+        <span className="flex items-center justify-center gap-2">
+          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          Generating enriched fields...
+        </span>
+      ) : aiEnrichment ? "Re-generate with AI" : "Generate Enriched Fields with AI"}</button>
 
       {concept.case_study && (
         <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">

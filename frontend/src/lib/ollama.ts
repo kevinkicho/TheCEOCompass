@@ -236,6 +236,48 @@ Return ONLY valid JSON.`
   return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
+export async function regenerateEnrichment(
+  conceptName: string,
+  definition: string,
+  frameworkSlug: string,
+  frameworkTitle: string,
+  conceptTags: string[],
+  skipCache: boolean = false,
+): Promise<{ parsed: any; cached: boolean; prompt: string }> {
+  const conceptSlug = slugify(conceptName)
+  const tags = conceptTags.join(", ")
+
+  const prompt = `Framework: ${frameworkTitle}
+
+Concept: ${conceptName}
+Definition: ${definition}
+Tags: ${tags}
+
+Return a JSON object with enriched fields for this concept — designed for a CEO audience. Each field must be concise, specific, and immediately actionable.
+
+{
+  "why_it_matters": "Why this concept matters specifically to a CEO (2-3 sentences, high strategic relevance)",
+  "steps": [
+    { "title": "Step 1 short name", "description": "1-sentence description of the action" },
+    { "title": "Step 2 short name", "description": "..." },
+    { "title": "Step 3 short name", "description": "..." }
+  ],
+  "pitfalls": [
+    { "title": "Pitfall name", "description": "What to watch out for (1-2 sentences)" },
+    { "title": "Pitfall name", "description": "..." }
+  ],
+  "related_concepts": [
+    { "name": "Related concept", "relationship": "How it relates to ${conceptName} (1 sentence)" },
+    { "name": "Another concept", "relationship": "..." }
+  ]
+}
+
+Generate exactly 3 steps, 2 pitfalls, and 2 related concepts. Return ONLY valid JSON.`
+
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.3, frameworkSlug, conceptSlug, "explain", skipCache)
+  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
+}
+
 const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   "risk-management": "Risk management, uncertainty, probability, and decision-making under unknown conditions",
   "decision-making": "Decision-making, cognitive biases, thinking models, and mental frameworks",
