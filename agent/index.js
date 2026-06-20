@@ -116,8 +116,9 @@ requestsRef.on("child_added", async (snapshot) => {
         stage_id: data.stage_id || "",
       })
     } else if (framework_slug) {
+      const cacheType = type || "explain"
       const indexPath = concept_slug
-        ? `framework/${framework_slug}/${concept_slug}/responses/${requestId}`
+        ? `framework/${framework_slug}/${concept_slug}/${cacheType}/responses/${requestId}`
         : `framework/${framework_slug}/quiz/responses/${requestId}`
       await db.ref(indexPath).set(indexedData)
     }

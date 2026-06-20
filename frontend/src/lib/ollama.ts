@@ -31,9 +31,12 @@ function getFrameworkMeta(slug: string) {
   }
 }
 
-function buildSystemPrompt(type: "explain" | "quiz"): string {
+function buildSystemPrompt(type: "explain" | "quiz" | "enrich"): string {
   if (type === "explain") {
     return "You are a CEO coach explaining a specific framework concept to a busy executive. Be concise and actionable. Respond only with valid JSON."
+  }
+  if (type === "enrich") {
+    return "You are a CEO coach writing enriched learning material for a busy executive. Each field must be concise, specific, and immediately actionable. Respond only with valid JSON."
   }
   return "You are a business school professor creating an assessment for MBA students. Questions should test understanding, not recall. Respond only with valid JSON."
 }
@@ -45,15 +48,16 @@ export type CacheRecord = {
   created_at: number
 }
 
-async function checkCache(
+export async function checkCache(
   frameworkSlug: string,
   conceptSlug: string | null,
+  type: string = "explain",
 ): Promise<CacheRecord | null> {
   if (!db) return null
   const database = db!
   try {
     const cachePath = conceptSlug
-      ? `framework/${frameworkSlug}/${conceptSlug}/responses`
+      ? `framework/${frameworkSlug}/${conceptSlug}/${type}/responses`
       : `framework/${frameworkSlug}/quiz/responses`
 
     const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
@@ -89,7 +93,7 @@ async function callOllamaViaFirebase(
   temperature: number,
   frameworkSlug: string,
   conceptSlug: string | null,
-  type: "explain" | "quiz",
+  type: "explain" | "quiz" | "enrich",
   skipCache: boolean = false,
 ): Promise<{ result: string; cached: boolean; prompt: string }> {
   if (!db) {
@@ -102,7 +106,7 @@ async function callOllamaViaFirebase(
   const fullPrompt = `${buildSystemPrompt(type)}\n\n${prompt}`
 
   if (!skipCache) {
-    const cached = await checkCache(frameworkSlug, conceptSlug)
+    const cached = await checkCache(frameworkSlug, conceptSlug, type)
     if (cached) return { result: cached.result, cached: true, prompt: fullPrompt }
   }
 
@@ -236,18 +240,11 @@ Return ONLY valid JSON.`
   return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
-export async function regenerateEnrichment(
-  conceptName: string,
-  definition: string,
-  frameworkSlug: string,
-  frameworkTitle: string,
-  conceptTags: string[],
-  skipCache: boolean = false,
-): Promise<{ parsed: any; cached: boolean; prompt: string }> {
-  const conceptSlug = slugify(conceptName)
+export function buildEnrichPrompt(
+  conceptName: string, definition: string, frameworkTitle: string, conceptTags: string[],
+): string {
   const tags = conceptTags.join(", ")
-
-  const prompt = `Framework: ${frameworkTitle}
+  return `Framework: ${frameworkTitle}
 
 Concept: ${conceptName}
 Definition: ${definition}
@@ -273,8 +270,19 @@ Return a JSON object with enriched fields for this concept — designed for a CE
 }
 
 Generate exactly 3 steps, 2 pitfalls, and 2 related concepts. Return ONLY valid JSON.`
+}
 
-  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.3, frameworkSlug, conceptSlug, "explain", skipCache)
+export async function regenerateEnrichment(
+  conceptName: string,
+  definition: string,
+  frameworkSlug: string,
+  frameworkTitle: string,
+  conceptTags: string[],
+  skipCache: boolean = false,
+): Promise<{ parsed: any; cached: boolean; prompt: string }> {
+  const conceptSlug = slugify(conceptName)
+  const prompt = buildEnrichPrompt(conceptName, definition, frameworkTitle, conceptTags)
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.3, frameworkSlug, conceptSlug, "enrich", skipCache)
   return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
@@ -460,4 +468,4 @@ Return ONLY valid JSON:
   })
 }
 
-export { slugify, checkCache }
+export { slugify }

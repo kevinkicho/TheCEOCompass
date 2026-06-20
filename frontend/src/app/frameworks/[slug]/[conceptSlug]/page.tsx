@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, regenerateEnrichment, checkCache, slugify } from "@/lib/ollama"
+import { explainConcept, regenerateEnrichment, buildEnrichPrompt, checkCache, slugify } from "@/lib/ollama"
 import { db, ref, set, query, orderByChild, limitToLast, get } from "@/lib/firebase"
 import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
@@ -36,6 +36,8 @@ export default function ConceptDetailPage() {
   const [aiEnrichmentLoading, setAiEnrichmentLoading] = useState(false)
   const [aiEnrichmentCached, setAiEnrichmentCached] = useState(false)
   const [aiEnrichmentError, setAiEnrichmentError] = useState("")
+  const [showEnrichPrompt, setShowEnrichPrompt] = useState(false)
+  const [showExplainPrompt, setShowExplainPrompt] = useState(false)
   const [aiError, setAiError] = useState("")
   const [confirmEnrich, setConfirmEnrich] = useState(false)
   const [confirmExplain, setConfirmExplain] = useState(false)
@@ -61,13 +63,22 @@ export default function ConceptDetailPage() {
   }, [aiLoading])
 
   const checkConceptCache = useCallback(async () => {
-    const cached = await checkCache(slug, conceptSlug)
-    if (cached) {
+    const [explainCached, enrichCached] = await Promise.all([
+      checkCache(slug, conceptSlug, "explain"),
+      checkCache(slug, conceptSlug, "enrich"),
+    ])
+    if (explainCached) {
       try {
-        const parsed = JSON.parse(cached.result)
+        const parsed = JSON.parse(explainCached.result)
         setAiExplanation(parsed)
         setAiCached(true)
-        setAiPromptText(cached.prompt || "")
+        setAiPromptText(explainCached.prompt || "")
+      } catch {}
+    }
+    if (enrichCached) {
+      try {
+        setAiEnrichment(JSON.parse(enrichCached.result))
+        setAiEnrichmentCached(true)
       } catch {}
     }
   }, [slug, conceptSlug])
@@ -75,6 +86,21 @@ export default function ConceptDetailPage() {
   useEffect(() => {
     checkConceptCache()
   }, [checkConceptCache])
+
+  // Eagerly generate prompt text so "Show prompt" works without an API call
+  const eagerExplainPrompt = result
+    ? `Framework: ${result.framework.title}
+Use cases: ${(result.framework as any).use_cases?.join(", ") || ""}
+Related concepts: ${(result.framework.key_concepts || []).filter((k) => k !== result.concept.name).join(", ")}
+
+Concept: ${result.concept.name}
+Definition: ${result.concept.definition}
+
+Return a JSON object with: real_world_example, ceo_insight, common_mistake, related_tip`
+    : ""
+  const eagerEnrichPrompt = result
+    ? buildEnrichPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags)
+    : ""
 
   if (!result) {
     return (
@@ -250,6 +276,9 @@ export default function ConceptDetailPage() {
             className="rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-100/50 dark:hover:bg-violet-900/20 transition"
           >More Information</button>
         )}
+        <button onClick={() => setShowEnrichPrompt(!showEnrichPrompt)}
+          className="text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
+        >{showEnrichPrompt ? "Hide prompt" : "Show prompt"}</button>
       </div>
 
       {concept.case_study && (
@@ -324,9 +353,9 @@ export default function ConceptDetailPage() {
           )}
         </div>
 
-        {aiPromptText && <button onClick={() => setShowAiPrompt(!showAiPrompt)}
+        <button onClick={() => setShowExplainPrompt(!showExplainPrompt)}
           className="mt-2 text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
-        >{showAiPrompt ? "Hide prompt" : "Show prompt"}</button>}
+        >{showExplainPrompt ? "Hide prompt" : "Show prompt"}</button>
 
         {isAdmin && aiPromptText && !editingPrompt && (
           <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
@@ -349,8 +378,12 @@ export default function ConceptDetailPage() {
             </div>
           </div>
         )}
-        {showAiPrompt && aiPromptText && (
-          <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">{aiPromptText}</pre>
+        {showExplainPrompt && (
+          <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">{(aiPromptText || eagerExplainPrompt)}</pre>
+        )}
+
+        {showEnrichPrompt && (
+          <pre className="mt-2 rounded-lg bg-dark-800 p-3 text-xs text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto">{eagerEnrichPrompt}</pre>
         )}
 
         {aiExplanation && (
