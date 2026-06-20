@@ -61,7 +61,35 @@ export default function ConceptDetailPage() {
   const [confirmExplain, setConfirmExplain] = useState(false)
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const [cooldown, setCooldown] = useState(0)
+  const cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => { if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current) }
+  }, [])
+
+  const startCooldown = () => {
+    setConfirmEnrich(false)
+    setConfirmExplain(false)
+    setConfirmCaseStudy(false)
+    setConfirmExercise(false)
+    setConfirmExample(false)
+    setCooldown(30)
+    if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current)
+    cooldownTimerRef.current = setInterval(() => {
+      setCooldown((c) => {
+        if (c <= 1) {
+          if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current)
+          cooldownTimerRef.current = null
+          return 0
+        }
+        return c - 1
+      })
+    }, 1000)
+  }
+
   const startConfirm = (setter: (v: boolean) => void) => {
+    if (cooldown > 0) return
     setter(true)
     if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
     confirmTimerRef.current = setTimeout(() => setter(false), 5000)
@@ -170,8 +198,10 @@ Return a JSON object with: real_world_example, ceo_insight, common_mistake, rela
       setAiCached(cached)
       setAiPromptText(prompt)
       setEditingPrompt(false)
+      startCooldown()
     } catch (err) {
       setAiError(err instanceof Error ? err.message : "AI explanation failed")
+      startCooldown()
     }
     setAiLoading(false)
   }
@@ -186,8 +216,10 @@ Return a JSON object with: real_world_example, ceo_insight, common_mistake, rela
       )
       setAiEnrichment(parsed)
       setAiEnrichmentCached(cached)
+      startCooldown()
     } catch (err) {
       setAiEnrichmentError(err instanceof Error ? err.message : "AI enrichment failed")
+      startCooldown()
     }
     setAiEnrichmentLoading(false)
   }
@@ -199,8 +231,10 @@ Return a JSON object with: real_world_example, ceo_insight, common_mistake, rela
       const { parsed, cached } = await generator(...args, true)
       setter(parsed)
       setCached(cached)
+      startCooldown()
     } catch (err) {
       console.error(err)
+      startCooldown()
     }
     setLoading(false)
   }
@@ -235,21 +269,28 @@ Return a JSON object with: real_world_example, ceo_insight, common_mistake, rela
         className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
       ><span className="text-lg leading-none">&larr;</span> Back to {framework.title}</button>
 
-      {allConcepts.length > 1 && (
-        <div className="mb-6 flex items-center justify-between text-xs">
-          {prevConcept ? (
+      <div className="mb-6 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2">
+          {allConcepts.length > 1 && prevConcept && (
             <button onClick={() => router.push(`/frameworks/${slug}/${prevConcept.slug}`)}
               className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
             ><span>&larr;</span> {prevConcept.name}</button>
-          ) : <span />}
-          <span className="text-dark-400 dark:text-dark-500">{currentIdx + 1} / {allConcepts.length}</span>
-          {nextConcept ? (
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {cooldown > 0 && (
+            <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">AI cooldown {cooldown}s</span>
+          )}
+          {allConcepts.length > 1 && (
+            <span className="text-dark-400 dark:text-dark-500">{currentIdx + 1} / {allConcepts.length}</span>
+          )}
+          {allConcepts.length > 1 && nextConcept && (
             <button onClick={() => router.push(`/frameworks/${slug}/${nextConcept.slug}`)}
               className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
             >{nextConcept.name} <span>&rarr;</span></button>
-          ) : <span />}
+          )}
         </div>
-      )}
+      </div>
 
       <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-dark-900 dark:text-dark-100">{concept.name}</h1>
 
