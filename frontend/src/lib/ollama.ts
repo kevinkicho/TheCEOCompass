@@ -31,23 +31,18 @@ function getFrameworkMeta(slug: string) {
   }
 }
 
-function buildSystemPrompt(type: "explain" | "quiz" | "enrich" | "case-study" | "exercise" | "example"): string {
-  if (type === "explain") {
-    return "You are a CEO coach explaining a specific framework concept to a busy executive. Be concise and actionable. Respond only with valid JSON."
+function buildSystemPrompt(type: string): string {
+  const prompts: Record<string, string> = {
+    explain_further: "You are a CEO coach explaining a specific framework concept to a busy executive. Be concise and actionable. Respond only with valid JSON.",
+    why_it_matters: "You are a CEO coach writing a concise explanation of why a concept matters to a CEO. Respond only with valid JSON.",
+    how_to_apply: "You are a CEO coach writing actionable steps for applying a concept. Respond only with valid JSON.",
+    common_pitfalls: "You are a CEO coach identifying common mistakes CEOs make with a concept. Respond only with valid JSON.",
+    connected_concepts: "You are a CEO coach connecting related concepts for strategic context. Respond only with valid JSON.",
+    case_study: "You are a business educator writing a case study about a company that applied a specific framework concept. Be factual and specific. Respond only with valid JSON.",
+    test_yourself: "You are a business school professor creating a self-test exercise for students learning about a specific concept. Respond only with valid JSON.",
+    real_world_examples: "You are a CEO coach providing real-world examples of a concept in action. Each example must mention actual companies or situations. Respond only with valid JSON.",
   }
-  if (type === "enrich") {
-    return "You are a CEO coach writing enriched learning material for a busy executive. Each field must be concise, specific, and immediately actionable. Respond only with valid JSON."
-  }
-  if (type === "case-study") {
-    return "You are a business educator writing a case study about a company that applied a specific framework concept. Be factual and specific. Respond only with valid JSON."
-  }
-  if (type === "exercise") {
-    return "You are a business school professor creating a self-test exercise for students learning about a specific concept. The exercise should test practical application. Respond only with valid JSON."
-  }
-  if (type === "example") {
-    return "You are a CEO coach providing real-world examples of a concept in action. Each example must be specific and mention actual companies or situations. Respond only with valid JSON."
-  }
-  return "You are a business school professor creating an assessment for MBA students. Questions should test understanding, not recall. Respond only with valid JSON."
+  return prompts[type] || "You are a business school professor creating an assessment for MBA students. Questions should test understanding, not recall. Respond only with valid JSON."
 }
 
 export type CacheRecord = {
@@ -91,19 +86,12 @@ async function checkCacheAt(
 export async function checkCache(
   frameworkSlug: string,
   conceptSlug: string | null,
-  type: string = "explain",
+  category: string = "explain_further",
 ): Promise<CacheRecord | null> {
   if (conceptSlug) {
-    // Check type-specific path first
-    const result = await checkCacheAt(frameworkSlug, conceptSlug, `framework/${frameworkSlug}/${conceptSlug}/${type}/responses`)
-    if (result) return result
-    // Fallback to legacy path (pre-type-separation) for explain type
-    if (type === "explain") {
-      return checkCacheAt(frameworkSlug, conceptSlug, `framework/${frameworkSlug}/${conceptSlug}/responses`)
-    }
-    return null
+    return checkCacheAt(frameworkSlug, conceptSlug, `framework/${frameworkSlug}/${conceptSlug}/${category}`)
   }
-  return checkCacheAt(frameworkSlug, null, `framework/${frameworkSlug}/quiz/responses`)
+  return checkCacheAt(frameworkSlug, null, `framework/${frameworkSlug}/quiz`)
 }
 
 async function callOllamaViaFirebase(
@@ -112,7 +100,8 @@ async function callOllamaViaFirebase(
   temperature: number,
   frameworkSlug: string,
   conceptSlug: string | null,
-  type: "explain" | "quiz" | "enrich" | "case-study" | "exercise" | "example",
+  category: string,
+  systemType: string = "explain_further",
   skipCache: boolean = false,
 ): Promise<{ result: string; cached: boolean; prompt: string }> {
   if (!db) {
@@ -122,10 +111,10 @@ async function callOllamaViaFirebase(
   const database = db!
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:latest"
-  const fullPrompt = `${buildSystemPrompt(type)}\n\n${prompt}`
+  const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${prompt}`
 
   if (!skipCache) {
-    const cached = await checkCache(frameworkSlug, conceptSlug, type)
+    const cached = await checkCache(frameworkSlug, conceptSlug, category)
     if (cached) return { result: cached.result, cached: true, prompt: fullPrompt }
   }
 
@@ -138,9 +127,10 @@ async function callOllamaViaFirebase(
     options: { temperature },
   }
 
-  console.log(`[AI] Pushing request ${requestId} for ${frameworkSlug}/${conceptSlug || "quiz"}`)
+  console.log(`[AI] Pushing request ${requestId} for ${frameworkSlug}/${conceptSlug}/${category}`)
   await set(ref(database, `requests/${requestId}`), {
-    type,
+    type: systemType,
+    category,
     framework_slug: frameworkSlug,
     concept_slug: conceptSlug,
     payload,
@@ -148,8 +138,10 @@ async function callOllamaViaFirebase(
     created_at: Date.now(),
   })
 
+  const responsePath = `framework/${frameworkSlug}/${conceptSlug}/${category}/${requestId}`
+
   return new Promise((resolve, reject) => {
-    const responseRef = ref(database, `responses/${requestId}`)
+    const responseRef = ref(database, responsePath)
     const statusRef = ref(database, `requests/${requestId}/status`)
     let done = false
 
@@ -179,7 +171,7 @@ async function callOllamaViaFirebase(
         done = true
         unsubStatus()
         unsubResp()
-        console.log(`[AI] Response ${requestId} received (${data.result.length} chars)`)
+        console.log(`[AI] Response ${requestId} received (${data.result.length} chars) for ${category}`)
         resolve({ result: data.result, cached: false, prompt: fullPrompt })
       }
     })
@@ -220,7 +212,7 @@ Generate ${num} questions as a JSON array. Mix question types across the concept
 
 Return ONLY valid JSON array.`
 
-  const { result } = await callOllamaViaFirebase("", prompt, 0.5, frameworkSlug, null, "quiz")
+  const { result } = await callOllamaViaFirebase("", prompt, 0.5, frameworkSlug, null, "quiz", "quiz")
   return JSON.parse(result)
 }
 
@@ -232,15 +224,115 @@ export async function explainConcept(
 ): Promise<{ parsed: Record<string, string>; cached: boolean; prompt: string }> {
   const meta = getFrameworkMeta(frameworkSlug)
   if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
+  return generateExplainFurther(conceptName, definition, frameworkSlug, meta.title, skipCache) as any
+}
 
-  const conceptSlug = slugify(conceptName)
-  const related = meta.key_concepts.filter((k: string) => k !== conceptName).join(", ")
+// ── Individual category generators ──
 
-  const prompt = `Framework: ${meta.title}
-Domain: ${meta.category}
-Difficulty: ${meta.difficulty}/5
-Use cases: ${meta.use_cases.join(", ")}
-Related concepts in this framework: ${related}
+function mkGen(
+  category: string, systemType: string, temp: number,
+  buildPrompt: (cn: string, def: string, ft: string, tags?: string[]) => string,
+) {
+  return async (
+    conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
+    conceptTags?: string[], skipCache: boolean = false,
+  ): Promise<{ parsed: any; cached: boolean; prompt: string }> => {
+    const conceptSlug = slugify(conceptName)
+    const prompt = buildPrompt(conceptName, definition, frameworkTitle, conceptTags)
+    const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, temp, frameworkSlug, conceptSlug, category, systemType, skipCache)
+    return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
+  }
+}
+
+export const buildWhyItMattersPrompt = (_cn: string, _def: string, ft: string, tags?: string[]) =>
+  `Framework: ${ft}
+Tags: ${(tags || []).join(", ")}
+
+Explain why this concept matters specifically to a CEO. Return ONLY valid JSON:
+{ "why_it_matters": "2-3 sentences explaining strategic relevance to a CEO" }`
+
+export const buildHowToApplyPrompt = (_cn: string, _def: string, ft: string) =>
+  `Framework: ${ft}
+
+Generate 3 actionable steps for applying this concept. Return ONLY valid JSON:
+{
+  "steps": [
+    { "title": "Step 1 short name", "description": "1-sentence description" },
+    { "title": "Step 2 short name", "description": "1-sentence description" },
+    { "title": "Step 3 short name", "description": "1-sentence description" }
+  ]
+}`
+
+export const buildCommonPitfallsPrompt = (_cn: string, _def: string, ft: string) =>
+  `Framework: ${ft}
+
+Generate 2 common mistakes or pitfalls with this concept. Return ONLY valid JSON:
+{
+  "pitfalls": [
+    { "title": "Pitfall name", "description": "1-2 sentences about what to watch out for" },
+    { "title": "Pitfall name", "description": "1-2 sentences about what to watch out for" }
+  ]
+}`
+
+export const buildConnectedConceptsPrompt = (cn: string, _def: string, ft: string) =>
+  `Framework: ${ft}
+Concept: ${cn}
+
+Generate 2 related concepts that connect to ${cn}. Return ONLY valid JSON:
+{
+  "related_concepts": [
+    { "name": "Related concept", "relationship": "How it relates to ${cn} (1 sentence)" },
+    { "name": "Related concept", "relationship": "How it relates to ${cn} (1 sentence)" }
+  ]
+}`
+
+export const buildCaseStudyPrompt = (_cn: string, _def: string, ft: string) =>
+  `Framework: ${ft}
+
+Generate a realistic case study of a company that applied this concept. Return ONLY valid JSON:
+{
+  "company": "Real company name",
+  "situation": "What challenge they faced (2-3 sentences)",
+  "application": "How they applied the concept (2-3 sentences)",
+  "result": "What outcome they achieved (1-2 sentences)"
+}`
+
+export const buildTestYourselfPrompt = (_cn: string, _def: string, ft: string) =>
+  `Framework: ${ft}
+
+Generate a self-test exercise for this concept. The exercise should test practical application. Return ONLY valid JSON:
+{
+  "scenario": "A brief business scenario (2-3 sentences)",
+  "options": ["First plausible option", "Second option (correct)", "Third option", "Fourth option"],
+  "correct": <0-indexed index of the correct option>,
+  "explanation": "Why the correct answer is right and the others are wrong (1-2 sentences)"
+}`
+
+export const buildRealWorldExamplesPrompt = (_cn: string, _def: string, ft: string) =>
+  `Framework: ${ft}
+
+Generate 3 real-world examples of this concept in action. Each must mention a specific company or industry. Return ONLY valid JSON:
+{
+  "examples": [
+    "Example 1: Company/industry and situation (1-2 sentences)",
+    "Example 2: Company/industry and situation (1-2 sentences)",
+    "Example 3: Company/industry and situation (1-2 sentences)"
+  ]
+}`
+
+export const generateWhyItMatters = mkGen("why_it_matters_for_ceos", "why_it_matters", 0.3, buildWhyItMattersPrompt)
+export const generateHowToApply = mkGen("how_to_apply", "how_to_apply", 0.3, buildHowToApplyPrompt)
+export const generateCommonPitfalls = mkGen("common_pitfalls", "common_pitfalls", 0.3, buildCommonPitfallsPrompt)
+export const generateConnectedConcepts = mkGen("connected_concepts", "connected_concepts", 0.3, buildConnectedConceptsPrompt)
+export const generateCaseStudy = mkGen("case_study", "case_study", 0.4, buildCaseStudyPrompt)
+export const generateTestYourself = mkGen("test_yourself", "test_yourself", 0.4, buildTestYourselfPrompt)
+export const generateRealWorldExamples = mkGen("real_world_examples", "real_world_examples", 0.4, buildRealWorldExamplesPrompt)
+
+// explain_further keeps the existing 4-field explain structure
+export function buildExplainPrompt(
+  conceptName: string, definition: string, frameworkTitle: string,
+): string {
+  return `Framework: ${frameworkTitle}
 
 Concept: ${conceptName}
 Definition: ${definition}
@@ -254,127 +346,18 @@ Return a JSON object with these fields:
 }
 
 Return ONLY valid JSON.`
-
-  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain", skipCache)
-  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
-export function buildEnrichPrompt(
-  conceptName: string, definition: string, frameworkTitle: string, conceptTags: string[],
-): string {
-  const tags = conceptTags.join(", ")
-  return `Framework: ${frameworkTitle}
-
-Concept: ${conceptName}
-Definition: ${definition}
-Tags: ${tags}
-
-Return a JSON object with enriched fields for this concept — designed for a CEO audience. Each field must be concise, specific, and immediately actionable.
-
-{
-  "why_it_matters": "Why this concept matters specifically to a CEO (2-3 sentences, high strategic relevance)",
-  "steps": [
-    { "title": "Step 1 short name", "description": "1-sentence description of the action" },
-    { "title": "Step 2 short name", "description": "..." },
-    { "title": "Step 3 short name", "description": "..." }
-  ],
-  "pitfalls": [
-    { "title": "Pitfall name", "description": "What to watch out for (1-2 sentences)" },
-    { "title": "Pitfall name", "description": "..." }
-  ],
-  "related_concepts": [
-    { "name": "Related concept", "relationship": "How it relates to ${conceptName} (1 sentence)" },
-    { "name": "Another concept", "relationship": "..." }
-  ]
-}
-
-Generate exactly 3 steps, 2 pitfalls, and 2 related concepts. Return ONLY valid JSON.`
-}
-
-export async function regenerateEnrichment(
+export async function generateExplainFurther(
   conceptName: string,
   definition: string,
   frameworkSlug: string,
   frameworkTitle: string,
-  conceptTags: string[],
   skipCache: boolean = false,
 ): Promise<{ parsed: any; cached: boolean; prompt: string }> {
   const conceptSlug = slugify(conceptName)
-  const prompt = buildEnrichPrompt(conceptName, definition, frameworkTitle, conceptTags)
-  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.3, frameworkSlug, conceptSlug, "enrich", skipCache)
-  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
-}
-
-export function buildCaseStudyPrompt(conceptName: string, definition: string, frameworkTitle: string): string {
-  return `Framework: ${frameworkTitle}
-Concept: ${conceptName}
-Definition: ${definition}
-
-Generate a realistic case study of a company that applied this concept. Return ONLY valid JSON:
-{
-  "company": "Real company name",
-  "situation": "What challenge they faced (2-3 sentences)",
-  "application": "How they applied the concept (2-3 sentences)",
-  "result": "What outcome they achieved (1-2 sentences)"
-}`
-}
-
-export async function generateCaseStudy(
-  conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
-  skipCache: boolean = false,
-): Promise<{ parsed: any; cached: boolean; prompt: string }> {
-  const conceptSlug = slugify(conceptName)
-  const prompt = buildCaseStudyPrompt(conceptName, definition, frameworkTitle)
-  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "case-study", skipCache)
-  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
-}
-
-export function buildExercisePrompt(conceptName: string, definition: string, frameworkTitle: string): string {
-  return `Framework: ${frameworkTitle}
-Concept: ${conceptName}
-Definition: ${definition}
-
-Generate a self-test exercise for this concept. The exercise should test whether the learner can apply the concept in a realistic business scenario. Return ONLY valid JSON:
-{
-  "scenario": "A brief business scenario (2-3 sentences)",
-  "options": ["First plausible option", "Second option (correct)", "Third option", "Fourth option"],
-  "correct": <0-indexed index of the correct option>,
-  "explanation": "Why the correct answer is right and the others are wrong (1-2 sentences)"
-}`
-}
-
-export async function generateExercise(
-  conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
-  skipCache: boolean = false,
-): Promise<{ parsed: any; cached: boolean; prompt: string }> {
-  const conceptSlug = slugify(conceptName)
-  const prompt = buildExercisePrompt(conceptName, definition, frameworkTitle)
-  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "exercise", skipCache)
-  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
-}
-
-export function buildExamplePrompt(conceptName: string, definition: string, frameworkTitle: string): string {
-  return `Framework: ${frameworkTitle}
-Concept: ${conceptName}
-Definition: ${definition}
-
-Generate 3 real-world examples of this concept in action. Each example must mention a specific company or industry. Return ONLY valid JSON:
-{
-  "examples": [
-    "Example 1: Company/industry and situation (1-2 sentences)",
-    "Example 2: Company/industry and situation (1-2 sentences)",
-    "Example 3: Company/industry and situation (1-2 sentences)"
-  ]
-}`
-}
-
-export async function generateExample(
-  conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
-  skipCache: boolean = false,
-): Promise<{ parsed: any; cached: boolean; prompt: string }> {
-  const conceptSlug = slugify(conceptName)
-  const prompt = buildExamplePrompt(conceptName, definition, frameworkTitle)
-  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "example", skipCache)
+  const prompt = buildExplainPrompt(conceptName, definition, frameworkTitle)
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "explain_further", "explain_further", skipCache)
   return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 

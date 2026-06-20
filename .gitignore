@@ -28,3 +28,4 @@ agent/*.json
 !agent/package-lock.json
 scripts/enriched-concepts.json
 scripts/enrich-checkpoint.json
+theceocompass-default-rtdb-export.json

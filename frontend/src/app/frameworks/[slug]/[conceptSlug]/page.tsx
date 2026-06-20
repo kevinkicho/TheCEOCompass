@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, regenerateEnrichment, buildEnrichPrompt, generateCaseStudy, buildCaseStudyPrompt, generateExercise, buildExercisePrompt, generateExample, buildExamplePrompt, checkCache, slugify } from "@/lib/ollama"
+import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, generateExplainFurther, buildExplainPrompt, checkCache, slugify } from "@/lib/ollama"
 import { db, ref, set, query, orderByChild, limitToLast, get } from "@/lib/firebase"
 import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
@@ -109,12 +109,15 @@ export default function ConceptDetailPage() {
   }, [aiLoading])
 
   const checkConceptCache = useCallback(async () => {
-    const [explainCached, enrichCached, caseStudyCached, exerciseCached, exampleCached] = await Promise.all([
-      checkCache(slug, conceptSlug, "explain"),
-      checkCache(slug, conceptSlug, "enrich"),
-      checkCache(slug, conceptSlug, "case-study"),
-      checkCache(slug, conceptSlug, "exercise"),
-      checkCache(slug, conceptSlug, "example"),
+    const [explainCached, whyCached, howCached, pitfallsCached, connectedCached, caseStudyCached, exerciseCached, exampleCached] = await Promise.all([
+      checkCache(slug, conceptSlug, "explain_further"),
+      checkCache(slug, conceptSlug, "why_it_matters_for_ceos"),
+      checkCache(slug, conceptSlug, "how_to_apply"),
+      checkCache(slug, conceptSlug, "common_pitfalls"),
+      checkCache(slug, conceptSlug, "connected_concepts"),
+      checkCache(slug, conceptSlug, "case_study"),
+      checkCache(slug, conceptSlug, "test_yourself"),
+      checkCache(slug, conceptSlug, "real_world_examples"),
     ])
     if (explainCached) {
       try {
@@ -124,11 +127,17 @@ export default function ConceptDetailPage() {
         setAiPromptText(explainCached.prompt || "")
       } catch {}
     }
-    if (enrichCached) {
-      try {
-        setAiEnrichment(JSON.parse(enrichCached.result))
-        setAiEnrichmentCached(true)
-      } catch {}
+    if (whyCached) {
+      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(whyCached.result) })); setAiEnrichmentCached(true) } catch {}
+    }
+    if (howCached) {
+      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(howCached.result) })); setAiEnrichmentCached(true) } catch {}
+    }
+    if (pitfallsCached) {
+      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(pitfallsCached.result) })); setAiEnrichmentCached(true) } catch {}
+    }
+    if (connectedCached) {
+      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(connectedCached.result) })); setAiEnrichmentCached(true) } catch {}
     }
     if (caseStudyCached) {
       try { setAiCaseStudy(JSON.parse(caseStudyCached.result)); setAiCaseStudyCached(true) } catch {}
@@ -145,29 +154,12 @@ export default function ConceptDetailPage() {
     checkConceptCache()
   }, [checkConceptCache])
 
-  // Eagerly generate prompt text so "Show prompt" works without an API call
-  const eagerExplainPrompt = result
-    ? `Framework: ${result.framework.title}
-Use cases: ${(result.framework as any).use_cases?.join(", ") || ""}
-Related concepts: ${(result.framework.key_concepts || []).filter((k) => k !== result.concept.name).join(", ")}
-
-Concept: ${result.concept.name}
-Definition: ${result.concept.definition}
-
-Return a JSON object with: real_world_example, ceo_insight, common_mistake, related_tip`
-    : ""
-  const eagerEnrichPrompt = result
-    ? buildEnrichPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags)
-    : ""
-  const eagerCaseStudyPrompt = result
-    ? buildCaseStudyPrompt(result.concept.name, result.concept.definition, result.framework.title)
-    : ""
-  const eagerExercisePrompt = result
-    ? buildExercisePrompt(result.concept.name, result.concept.definition, result.framework.title)
-    : ""
-  const eagerExamplePrompt = result
-    ? buildExamplePrompt(result.concept.name, result.concept.definition, result.framework.title)
-    : ""
+  // Eager prompts
+  const eagerExplainPrompt = result ? buildExplainPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const eagerEnrichPrompt = result ? buildWhyItMattersPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags) : ""
+  const eagerCaseStudyPrompt = result ? buildCaseStudyPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const eagerExercisePrompt = result ? buildTestYourselfPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
+  const eagerExamplePrompt = result ? buildRealWorldExamplesPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
 
   if (!result) {
     return (
@@ -188,60 +180,31 @@ Return a JSON object with: real_world_example, ceo_insight, common_mistake, rela
   const prevConcept = currentIdx > 0 ? allConcepts[currentIdx - 1] : null
   const nextConcept = currentIdx < allConcepts.length - 1 ? allConcepts[currentIdx + 1] : null
 
-  const handleExplain = async () => {
-    setAiLoading(true)
-    setAiExplanation(null)
-    setAiError("")
-    try {
-      const { parsed, cached, prompt } = await explainConcept(concept.name, concept.definition, slug, true)
-      setAiExplanation(parsed)
-      setAiCached(cached)
-      setAiPromptText(prompt)
-      setEditingPrompt(false)
-      startCooldown()
-    } catch (err) {
-      setAiError(err instanceof Error ? err.message : "AI explanation failed")
-      startCooldown()
-    }
-    setAiLoading(false)
-  }
-
-  const handleRegenerateEnrichment = async () => {
-    setAiEnrichmentLoading(true)
-    setAiEnrichment(null)
-    setAiEnrichmentError("")
-    try {
-      const { parsed, cached } = await regenerateEnrichment(
-        concept.name, concept.definition, slug, framework.title, concept.tags, true,
-      )
-      setAiEnrichment(parsed)
-      setAiEnrichmentCached(cached)
-      startCooldown()
-    } catch (err) {
-      setAiEnrichmentError(err instanceof Error ? err.message : "AI enrichment failed")
-      startCooldown()
-    }
-    setAiEnrichmentLoading(false)
-  }
-
-  const genHandler = (generator: Function, setter: Function, setCached: Function, setLoading: Function, ...args: any[]) => async () => {
+  const mkHandler = (generator: Function, setter: Function, setCached: Function, setLoading: Function, setError?: Function, ...args: any[]) => async () => {
     setLoading(true)
     setter(null)
+    if (setError) setError("")
     try {
       const { parsed, cached } = await generator(...args, true)
       setter(parsed)
       setCached(cached)
       startCooldown()
-    } catch (err) {
-      console.error(err)
+    } catch (err: any) {
+      if (setError) setError(err.message || "Generation failed")
       startCooldown()
     }
     setLoading(false)
   }
 
-  const handleCaseStudy = genHandler(generateCaseStudy, setAiCaseStudy, setAiCaseStudyCached, setAiCaseStudyLoading, concept.name, concept.definition, slug, framework.title)
-  const handleExercise = genHandler(generateExercise, setAiExercise, setAiExerciseCached, setAiExerciseLoading, concept.name, concept.definition, slug, framework.title)
-  const handleExample = genHandler(generateExample, setAiExample, setAiExampleCached, setAiExampleLoading, concept.name, concept.definition, slug, framework.title)
+  const handleExplain = mkHandler(explainConcept, (p: any) => { setAiExplanation(p); setAiCached(true); setEditingPrompt(false) }, () => {}, (v: boolean) => setAiLoading(v), (e: string) => setAiError(e), concept.name, concept.definition, slug, true)
+
+  const handleWhyItMatters = mkHandler(generateWhyItMatters, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title, concept.tags)
+  const handleHowToApply = mkHandler(generateHowToApply, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title)
+  const handleCommonPitfalls = mkHandler(generateCommonPitfalls, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title)
+  const handleConnectedConcepts = mkHandler(generateConnectedConcepts, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: boolean) => setAiEnrichmentLoading(v), (e: string) => setAiEnrichmentError(e), concept.name, concept.definition, slug, framework.title)
+  const handleCaseStudy = mkHandler(generateCaseStudy, setAiCaseStudy, () => setAiCaseStudyCached(true), (v: boolean) => setAiCaseStudyLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
+  const handleExercise = mkHandler(generateTestYourself, setAiExercise, () => setAiExerciseCached(true), (v: boolean) => setAiExerciseLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
+  const handleExample = mkHandler(generateRealWorldExamples, setAiExample, () => setAiExampleCached(true), (v: boolean) => setAiExampleLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
 
   const handleSavePrompt = async () => {
     if (!db || !editPromptValue.trim()) return
@@ -361,7 +324,7 @@ Return a JSON object with: real_world_example, ceo_insight, common_mistake, rela
           </span>
         ) : confirmEnrich ? (
           <>
-            <button onClick={() => { setConfirmEnrich(false); handleRegenerateEnrichment() }}
+            <button onClick={() => { setConfirmEnrich(false); handleWhyItMatters(); handleHowToApply(); handleCommonPitfalls(); handleConnectedConcepts() }}
               className="rounded-full bg-violet-100 dark:bg-violet-900/30 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition animate-pulse"
 >Regenerate?</button>
               <button onClick={() => setConfirmEnrich(false)}

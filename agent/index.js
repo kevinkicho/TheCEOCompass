@@ -59,9 +59,14 @@ requestsRef.on("child_added", async (snapshot) => {
   if (!data || data.status !== "pending") return
 
   const requestRef = db.ref(`requests/${requestId}`)
-  const responseRef = db.ref(`responses/${requestId}`)
 
   console.log(`\n→ [${requestId}] Processing: ${data.type || "generate"}`)
+
+  const { framework_slug, concept_slug, category } = data
+  const responsePath = category && framework_slug && concept_slug
+    ? `framework/${framework_slug}/${concept_slug}/${category}/${requestId}`
+    : null
+  const responseRef = responsePath ? db.ref(responsePath) : null
 
   try {
     await requestRef.update({ status: "processing", started_at: Date.now() })
@@ -90,47 +95,31 @@ requestsRef.on("child_added", async (snapshot) => {
     const responseData = {
       result,
       model: data.payload.model || "gemma4:latest",
+      prompt: data.payload.prompt || "",
       created_at: Date.now(),
     }
 
-    const indexedData = {
-      ...responseData,
-      prompt: data.payload.prompt || "",
-    }
-
-    // Write to flat path
-    await responseRef.set(responseData)
-
-    // Write to indexed path for caching
-    const { framework_slug, concept_slug, type } = data
-    if (type === "quote") {
-      const quotePath = `quotes/generated/${requestId}`
-      await db.ref(quotePath).set({
-        ...indexedData,
+    if (responseRef) {
+      await responseRef.set(responseData)
+    } else if (category === "quote") {
+      await db.ref(`quotes/generated/${requestId}`).set({
+        ...responseData,
         category: data.category || "",
       })
-    } else if (type === "scenario") {
-      const scenarioPath = `scenario-evaluations/${requestId}`
-      await db.ref(scenarioPath).set({
-        ...indexedData,
+    } else if (category === "scenario") {
+      await db.ref(`scenario-evaluations/${requestId}`).set({
+        ...responseData,
         stage_id: data.stage_id || "",
       })
-    } else if (framework_slug) {
-      const cacheType = type || "explain"
-      const indexPath = concept_slug
-        ? `framework/${framework_slug}/${concept_slug}/${cacheType}/responses/${requestId}`
-        : `framework/${framework_slug}/quiz/responses/${requestId}`
-      await db.ref(indexPath).set(indexedData)
     }
 
     await requestRef.update({ status: "done" })
-    console.log(`  ✓ [${requestId}] Done (${result.length} chars)`)
+    console.log(`  ✓ [${requestId}] Done (${(result || "").length} chars)`)
   } catch (err) {
     console.error(`  ✗ [${requestId}] ${err.message}`)
-    await responseRef.set({
-      error: err.message,
-      created_at: Date.now(),
-    })
+    if (responseRef) {
+      await responseRef.set({ error: err.message, created_at: Date.now() })
+    }
     await requestRef.update({ status: "error" })
   }
 })
