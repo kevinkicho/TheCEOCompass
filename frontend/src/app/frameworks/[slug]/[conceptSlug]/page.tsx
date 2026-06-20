@@ -218,6 +218,20 @@ export default function ConceptDetailPage() {
     checkConceptCache()
   }, [checkConceptCache])
 
+  // Content sections visibility (computed before early return so useEffect is in correct order)
+  const visibleSections = [
+    !!(result && (aiEnrichment?.why_it_matters || result.concept.why_it_matters)),
+    !!(result && ((aiEnrichment?.steps?.length) || (result.concept.steps && result.concept.steps.length > 0))),
+    !!(result && ((aiEnrichment?.pitfalls?.length) || (result.concept.pitfalls && result.concept.pitfalls.length > 0))),
+    !!(result && ((aiEnrichment?.related_concepts?.length) || (result.concept.related_concepts && result.concept.related_concepts.length > 0))),
+    !!(result && (aiCaseStudy || result.concept.case_study)),
+    !!(result && (aiExercise || result.concept.exercise)),
+    !!(result && (aiExample || result.concept.example)),
+    !!result, // explain_further always visible
+  ]
+  const visibleCount = visibleSections.filter(Boolean).length
+  useEffect(() => { setContentPage((p) => Math.min(p, visibleCount - 1)) }, [visibleCount])
+
   // Eager prompts per category
   const promptWhy = result ? buildWhyItMattersPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags) : ""
   const promptHow = result ? buildHowToApplyPrompt(result.concept.name, result.concept.definition, result.framework.title) : ""
@@ -328,10 +342,10 @@ export default function ConceptDetailPage() {
 
       {concept.formula && <div className="mb-4 rounded-lg bg-dark-800 px-4 py-3 font-mono text-sm text-green-300">{concept.formula}</div>}
 
-      {/* ── Enriched sections with per-category sparkle buttons ── */}
+      {/* ── Content pagination ── */}
 
-      {(aiEnrichment?.why_it_matters || concept.why_it_matters) && (
-        <div className={`mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4 ${contentPage !== 0 ? "hidden" : ""}`}>
+      {visibleSections[0] && contentPage === 0 && (
+        <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Why It Matters for CEOs</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["why"]}
@@ -344,8 +358,8 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {((aiEnrichment?.steps?.length) || (concept.steps && concept.steps.length > 0)) && (
-        <div className={`mb-4 ${contentPage !== 1 ? "hidden" : ""}`}>
+      {visibleSections[1] && contentPage === 1 && (
+        <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">How to Apply</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["how"]}
@@ -363,8 +377,8 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {((aiEnrichment?.pitfalls?.length) || (concept.pitfalls && concept.pitfalls.length > 0)) && (
-        <div className={`mb-4 ${contentPage !== 2 ? "hidden" : ""}`}>
+      {visibleSections[2] && contentPage === 2 && (
+        <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Common Pitfalls</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["pitfalls"]}
@@ -382,8 +396,8 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {((aiEnrichment?.related_concepts?.length) || (concept.related_concepts && concept.related_concepts.length > 0)) && (
-        <div className={`mb-4 ${contentPage !== 3 ? "hidden" : ""}`}>
+      {visibleSections[3] && contentPage === 3 && (
+        <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Connected Concepts</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["connected"]}
@@ -401,8 +415,8 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {(aiCaseStudy || concept.case_study) && (
-        <div className={`mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4 ${contentPage !== 4 ? "hidden" : ""}`}>
+      {visibleSections[4] && contentPage === 4 && (
+        <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
           {aiCaseStudyCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
@@ -420,8 +434,8 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {(aiExercise || concept.exercise) && (
-        <div className={`mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4 ${contentPage !== 5 ? "hidden" : ""}`}>
+      {visibleSections[5] && contentPage === 5 && (
+        <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4">
           {aiExerciseCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Test Yourself</p>
@@ -441,8 +455,8 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      {(aiExample || concept.example) && (
-        <div className={`mb-4 ${contentPage !== 6 ? "hidden" : ""}`}>
+      {visibleSections[6] && contentPage === 6 && (
+        <div className="mb-4">
           {aiExampleCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide dark:text-dark-300">Real-World Examples</p>
@@ -467,7 +481,8 @@ export default function ConceptDetailPage() {
         ))}</div>
       )}
 
-      <div className={`mb-4 mt-6 ${contentPage !== 7 ? "hidden" : ""}`}>
+      {visibleSections[7] && contentPage === 7 && (
+        <div className="mb-4 mt-6">
         {aiCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
         {aiError && (
           <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
@@ -501,25 +516,27 @@ export default function ConceptDetailPage() {
             </div>
           </div>
         )}
-
-        {/* Content pagination nav */}
-        <div className="mb-6 flex items-center justify-between text-xs">
-          <button onClick={() => setContentPage((p) => Math.max(0, p - 1))}
-            disabled={contentPage === 0}
-            className="inline-flex items-center justify-center w-6 h-6 rounded-full text-sm text-dark-400 hover:text-primary-600 hover:bg-dark-100 dark:hover:bg-dark-800 transition disabled:opacity-30"
-          >&lt;</button>
-          <div className="flex items-center gap-1.5">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <button key={i} onClick={() => setContentPage(i)}
-                className={`h-1.5 w-1.5 rounded-full transition ${contentPage === i ? "bg-primary-500" : "bg-dark-300 dark:bg-dark-600"}`}
-              />
-            ))}
-          </div>
-          <button onClick={() => setContentPage((p) => Math.min(7, p + 1))}
-            disabled={contentPage === 7}
-            className="inline-flex items-center justify-center w-6 h-6 rounded-full text-sm text-dark-400 hover:text-primary-600 hover:bg-dark-100 dark:hover:bg-dark-800 transition disabled:opacity-30"
-          >&gt;</button>
         </div>
+      )}
+
+      {/* Content pagination nav */}
+      <div className="mb-6 flex items-center justify-between text-xs">
+        <button onClick={() => setContentPage((p) => Math.max(0, p - 1))}
+          disabled={contentPage === 0}
+          className="inline-flex items-center justify-center w-6 h-6 rounded-full text-sm text-dark-400 hover:text-primary-600 hover:bg-dark-100 dark:hover:bg-dark-800 transition disabled:opacity-20"
+        >&lt;</button>
+        <div className="flex items-center gap-1.5">
+          {Array.from({ length: visibleCount }).map((_, i) => (
+            <button key={i} onClick={() => setContentPage(i)}
+              className={`h-1.5 w-1.5 rounded-full transition ${contentPage === i ? "bg-primary-500" : "bg-dark-300 dark:bg-dark-600"}`}
+            />
+          ))}
+        </div>
+        <button onClick={() => setContentPage((p) => Math.min(visibleCount - 1, p + 1))}
+          disabled={contentPage >= visibleCount - 1}
+          className="inline-flex items-center justify-center w-6 h-6 rounded-full text-sm text-dark-400 hover:text-primary-600 hover:bg-dark-100 dark:hover:bg-dark-800 transition disabled:opacity-20"
+        >&gt;</button>
+      </div>
 
         {aiExplanation && (
           <div className="mt-4 space-y-4 animate-slide-up">
@@ -555,7 +572,6 @@ export default function ConceptDetailPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   )
 }
