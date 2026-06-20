@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
-import { useParams, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
 import { slugify } from "@/lib/ollama"
 import { useAuth } from "@/lib/useAuth"
@@ -26,17 +26,14 @@ const treeData: FrameworkItem[] = (staticFrameworks as any[]).map((fw) => ({
 
 export function AppSidebar() {
   const pathname = usePathname()
-  const params = useParams()
-  const { slug } = params as { slug?: string }
   const { user, isAdmin } = useAuth()
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState("")
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
-  const currentSlug = slug || ""
-  const conceptSlug = pathname.startsWith(`/frameworks/${currentSlug}/`) && currentSlug
-    ? pathname.split("/").pop() || ""
-    : ""
+  const pathParts = pathname.split("/").filter(Boolean)
+  const currentSlug = pathParts[0] === "frameworks" ? pathParts[1] || "" : ""
+  const conceptSlug = pathParts[0] === "frameworks" && pathParts.length >= 3 ? pathParts[2] : ""
 
   const toggleExpand = useCallback((fwSlug: string) => {
     setExpanded((prev) => {
@@ -149,10 +146,9 @@ export function AppSidebar() {
                             key={c.slug}
                             href={`/frameworks/${fw.slug}/${c.slug}`}
                             onClick={() => setOpen(false)}
-                            className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition ${active ? "bg-primary-100 font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" : "text-dark-500 hover:text-dark-700 dark:text-dark-400 dark:hover:text-dark-200 hover:bg-dark-50 dark:hover:bg-dark-800/40"}`}
+                            className={`flex items-center rounded-md px-2.5 py-1.5 text-sm transition ${active ? "bg-primary-100 font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300" : "text-dark-500 hover:text-dark-700 dark:text-dark-400 dark:hover:text-dark-200 hover:bg-dark-50 dark:hover:bg-dark-800/40"}`}
                           >
-                            <span className="w-1 h-1 rounded-full shrink-0 bg-dark-300 dark:bg-dark-600" />
-                            <span className="truncate">{c.name}</span>
+                            {c.name}
                           </Link>
                         )
                       })}

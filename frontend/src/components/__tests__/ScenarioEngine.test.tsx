@@ -5,6 +5,7 @@ import type { Scenario } from "@/lib/types"
 
 const mockScenario: Scenario = {
   id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  slug: "test-scenario",
   title: "Test Scenario",
   description: "A test",
   framework_id: "11111111-1111-1111-1111-111111111111",

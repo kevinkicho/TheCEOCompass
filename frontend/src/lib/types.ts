@@ -179,6 +179,20 @@ export interface Progress {
   modules_completed: string[]
 }
 
+export interface QuoteEntry {
+  id: string
+  person: string
+  role: string
+  text: string
+  context?: string
+  source?: string
+  year?: string
+  category: string
+  tags?: string[]
+  generated?: boolean
+  rtdbId?: string
+}
+
 export interface CalibrationSummary {
   total_predictions: number
   average_confidence: number

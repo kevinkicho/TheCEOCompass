@@ -1,45 +1,40 @@
-# Using Local AI (Ollama) with the GitHub Pages App
+# AI Local Setup
 
-## Architecture
+## How AI Features Work
 
-```
-Browser (GitHub Pages) ──HTTP──> CORS Proxy (port 8080) ──HTTP──> Ollama (port 11434)
-```
+1. Browser writes request to Firebase RTDB at `/requests/$uuid`
+2. Local agent detects new request via `child_added` listener
+3. Agent calls Ollama at `localhost:11434/api/generate`
+4. Agent writes response to `/responses/$uuid` (flat) and `/framework/{slug}/{concept}/responses/$uuid` (indexed)
+5. Browser receives response via real-time subscription
 
-The frontend tries to call Ollama directly first. If CORS blocks it, it falls back to the proxy.
+## Requirements
 
-## Quick Start
+- Ollama running on `localhost:11434` with `gemma4:latest`
+- Firebase project with RTDB enabled
+- Service account key in `agent/` directory
+- `frontend/.env` with Firebase config values
 
-### 1. Run the CORS proxy (required if Ollama blocks cross-origin)
-
-```bash
-cd ceo-platform
-node proxy.js
-```
-
-The proxy listens on **port 8080** and adds CORS headers to every response. Run it alongside Ollama in a separate terminal.
-
-### 2. Verify
+## Starting the Agent
 
 ```bash
-# Test Ollama is responding
-curl http://localhost:11434/api/generate \
-  -d '{"model":"gemma4:latest","prompt":"Say hello","stream":false}'
-
-# Test the proxy is running
-curl http://localhost:8080/api/tags
+cd agent
+npm install
+# Place the service account JSON in this directory
+node index.js
 ```
 
-### 3. Refresh the GitHub Pages Site
+The agent logs each request:
+```
+✓ Agent connected to Firebase RTDB
+  Watching /requests → http://localhost:11434/api/generate
 
-Go to https://kevinkicho.github.io/TheCEOCompass/quiz/ and click **Generate Quiz**.
-
-## Without a Proxy (if you can restart Ollama)
-
-If you have access to restart Ollama with CORS enabled:
-
-```bash
-OLLAMA_ORIGINS=* ollama serve
+→ [uuid] Processing: explain
+  ✓ [uuid] Done (1234 chars)
 ```
 
-Then no proxy is needed — the frontend calls port 11434 directly.
+## Caching
+
+AI responses are cached for 24 hours at `/framework/{slug}/{concept}/responses/`.
+When a concept page loads, it checks cache first. If found, the cached explanation
+appears immediately with a "Cached" badge. Clicking "Re-generate" bypasses cache.

@@ -102,8 +102,14 @@ requestsRef.on("child_added", async (snapshot) => {
     await responseRef.set(responseData)
 
     // Write to indexed path for caching
-    const { framework_slug, concept_slug } = data
-    if (framework_slug) {
+    const { framework_slug, concept_slug, type } = data
+    if (type === "quote") {
+      const quotePath = `quotes/generated/${requestId}`
+      await db.ref(quotePath).set({
+        ...indexedData,
+        category: data.category || "",
+      })
+    } else if (framework_slug) {
       const indexPath = concept_slug
         ? `framework/${framework_slug}/${concept_slug}/responses/${requestId}`
         : `framework/${framework_slug}/quiz/responses/${requestId}`

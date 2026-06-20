@@ -236,4 +236,97 @@ Return ONLY valid JSON.`
   return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
+const CATEGORY_DESCRIPTIONS: Record<string, string> = {
+  "risk-management": "Risk management, uncertainty, probability, and decision-making under unknown conditions",
+  "decision-making": "Decision-making, cognitive biases, thinking models, and mental frameworks",
+  "strategy-planning": "Strategy, planning, competitive positioning, and trade-offs",
+  "modeling-analytics": "Analytical methods, modeling, statistics, and systems thinking",
+  "organizational-management": "Organizational leadership, management, and corporate culture",
+  "supply-chain-operations": "Supply chain, lean operations, quality control, and process improvement",
+}
+
+export async function generateQuote(
+  category: string,
+): Promise<{ parsed: QuoteGenResult; prompt: string }> {
+  const catDesc = CATEGORY_DESCRIPTIONS[category] || "Leadership and management"
+  const prompt = `You are a curator of wisdom. Generate an insightful, real quote from a notable figure (CEO, philosopher, scientist, economist, or strategist) on the topic of ${catDesc}.
+
+The quote must be authentic to the person's known views and era. Include a plausible year or time period.
+
+Return ONLY valid JSON:
+{
+  "person": "Full name of the speaker",
+  "role": "Brief description (e.g. 'Investor & Manager', 'Nobel economist & psychologist')",
+  "text": "The quote itself, 1-3 sentences",
+  "context": "Brief explanation or background (1-2 sentences)",
+  "source": "Book, speech, or context the quote is from (optional)",
+  "year": "Year or approximate period (e.g. ~2005, ~500 BC, ~1980s)"
+}`
+
+  const settings = loadSettings()
+  const actualModel = settings.ollamaModel || "gemma4:latest"
+  const fullPrompt = `${buildSystemPrompt("explain")}\n\n${prompt}`
+
+  if (!db) throw new Error("Firebase not configured")
+
+  const database = db!
+  const requestId = generateId()
+
+  const payload = {
+    model: actualModel,
+    prompt: fullPrompt,
+    stream: false,
+    options: { temperature: 0.7 },
+  }
+
+  await set(ref(database, `requests/${requestId}`), {
+    type: "quote",
+    category,
+    payload,
+    status: "pending",
+    created_at: Date.now(),
+  })
+
+  return new Promise((resolve, reject) => {
+    const responseRef = ref(database, `responses/${requestId}`)
+    const statusRef = ref(database, `requests/${requestId}/status`)
+    let done = false
+
+    const unsubStatus = onValue(statusRef, (snap) => {
+      if (done) return
+      const s = snap.val()
+      if (s === "error") {
+        done = true
+        unsubStatus()
+        unsubResp()
+        get(responseRef).then((s) => {
+          const d = s.val()
+          reject(new Error(d?.error || "Quote generation failed"))
+        })
+      }
+    })
+
+    const unsubResp = onValue(responseRef, (snap) => {
+      if (done) return
+      const data = snap.val()
+      if (!data) return
+      if (data.result) {
+        done = true
+        unsubStatus()
+        unsubResp()
+        resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
+      }
+    })
+  })
+}
+
+type QuoteGenResult = {
+  person: string
+  role: string
+  text: string
+  context?: string
+  source?: string
+  year?: string
+}
+
 export { slugify, checkCache }

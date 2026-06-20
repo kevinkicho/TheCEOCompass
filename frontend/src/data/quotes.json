@@ -1,0 +1,249 @@
+{
+  "version": "1.0",
+  "categories": [
+    {
+      "id": "risk-management",
+      "name": "Risk Management & Uncertainty",
+      "icon": "shield",
+      "color": "rose"
+    },
+    {
+      "id": "decision-making",
+      "name": "Decision-Making & Thinking",
+      "icon": "brain",
+      "color": "violet"
+    },
+    {
+      "id": "strategy-planning",
+      "name": "Strategy & Planning",
+      "icon": "compass",
+      "color": "blue"
+    },
+    {
+      "id": "modeling-analytics",
+      "name": "Modeling & Analytical Methods",
+      "icon": "chart",
+      "color": "teal"
+    },
+    {
+      "id": "organizational-management",
+      "name": "Organizational Frameworks & Management",
+      "icon": "building",
+      "color": "amber"
+    },
+    {
+      "id": "supply-chain-operations",
+      "name": "Supply Chain, Lean & Operations",
+      "icon": "gear",
+      "color": "emerald"
+    }
+  ],
+  "quotes": [
+    {
+      "id": "buffett-risk",
+      "person": "Warren Buffett",
+      "role": "Investor & Manager",
+      "text": "Risk comes from not knowing what you're doing.",
+      "context": "Diversification is protection against ignorance. It makes little sense if you know what you're doing. Concentration can actually reduce risk when paired with deep understanding.",
+      "category": "risk-management",
+      "year": "~1996",
+      "tags": ["risk", "diversification", "ignorance"]
+    },
+    {
+      "id": "taleb-consequences",
+      "person": "Nassim Nicholas Taleb",
+      "role": "Risk philosopher & probabilist",
+      "source": "The Black Swan, Antifragile",
+      "text": "All you have to do is mitigate the consequences.",
+      "context": "Focus on what you can control — consequences — rather than trying to predict unknowable probabilities. Build systems that gain from disorder rather than merely resisting it.",
+      "category": "risk-management",
+      "year": "~2007",
+      "tags": ["antifragile", "consequences", "uncertainty"]
+    },
+    {
+      "id": "munger-models",
+      "person": "Charlie Munger",
+      "role": "Investor & Mental Models advocate",
+      "text": "You've got to have models in your head. And you've got to array your experience — both vicarious and direct — on this latticework of models.",
+      "context": "He emphasized inversion ('Invert, always invert') and drawing big ideas from multiple disciplines to avoid 'man with a hammer' syndrome.",
+      "category": "decision-making",
+      "year": "~2005",
+      "tags": ["mental models", "inversion", "multidisciplinary"]
+    },
+    {
+      "id": "kahnemann-overconfidence",
+      "person": "Daniel Kahneman",
+      "role": "Nobel economist & psychologist",
+      "source": "Thinking, Fast and Slow",
+      "text": "The illusion that we understand the past fosters overconfidence in our ability to predict the future.",
+      "context": "We are prone to the planning fallacy, over-weighting our own plans while neglecting base rates and luck.",
+      "category": "decision-making",
+      "year": "~2011",
+      "tags": ["overconfidence", "bias", "planning fallacy"]
+    },
+    {
+      "id": "drucker-risk",
+      "person": "Peter Drucker",
+      "role": "Management professor & consultant",
+      "text": "Every decision is risky: it is a commitment of present resources to an uncertain and unknown future.",
+      "context": "Every decision commits resources to an unknowable future; the measure of good management is not avoiding risk but making the right risk calculations.",
+      "category": "decision-making",
+      "year": "~1967",
+      "tags": ["risk", "decision-making", "uncertainty"]
+    },
+    {
+      "id": "porter-strategy",
+      "person": "Michael Porter",
+      "role": "Strategy professor, Harvard",
+      "text": "The essence of strategy is choosing what not to do.",
+      "context": "Strategy is about making trade-offs and deliberately choosing a different set of activities to deliver unique value. Operational effectiveness is not strategy.",
+      "category": "strategy-planning",
+      "year": "~1996",
+      "tags": ["trade-offs", "positioning", "focus"]
+    },
+    {
+      "id": "sun-tzu-knowledge",
+      "person": "Sun Tzu",
+      "role": "Ancient strategist & philosopher",
+      "source": "The Art of War",
+      "text": "If you know the enemy and know yourself, you need not fear the result of a hundred battles.",
+      "context": "If you know yourself but not the enemy, for every victory gained you will also suffer a defeat. If you know neither the enemy nor yourself, you will succumb in every battle.",
+      "category": "strategy-planning",
+      "year": "~500 BC",
+      "tags": ["self-knowledge", "competitive intelligence", "awareness"]
+    },
+    {
+      "id": "sun-tzu-tactics",
+      "person": "Sun Tzu",
+      "role": "Ancient strategist & philosopher",
+      "source": "The Art of War",
+      "text": "Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat.",
+      "context": "Vision and execution are inseparable. A plan without practical steps goes nowhere; action without direction is chaos.",
+      "category": "strategy-planning",
+      "year": "~500 BC",
+      "tags": ["strategy", "tactics", "execution"]
+    },
+    {
+      "id": "box-models",
+      "person": "George E.P. Box",
+      "role": "Statistician & scientist",
+      "text": "All models are wrong, but some are useful.",
+      "context": "This is the foundational humility for any modeling work — economic, supply chain, or otherwise. Use models as tools for insight, not as perfect representations of reality.",
+      "category": "modeling-analytics",
+      "year": "~1976",
+      "tags": ["models", "humility", "statistics"]
+    },
+    {
+      "id": "ackoff-systems",
+      "person": "Russell Ackoff",
+      "role": "Systems thinker & operations research professor",
+      "text": "A system is never the sum of its parts; it's the product of their interaction.",
+      "context": "Improving parts in isolation can destroy overall system performance. The best place to solve a problem is often not where it appears.",
+      "category": "modeling-analytics",
+      "year": "~1974",
+      "tags": ["systems thinking", "interaction", "emergence"]
+    },
+    {
+      "id": "drucker-leadership",
+      "person": "Peter Drucker",
+      "role": "Management professor & consultant",
+      "text": "Management is doing things right; leadership is doing the right things.",
+      "context": "Organizations must be built for constant change and to create the future rather than merely predict it.",
+      "category": "organizational-management",
+      "year": "~1954",
+      "tags": ["leadership", "management", "vision"]
+    },
+    {
+      "id": "ackoff-management",
+      "person": "Russell Ackoff",
+      "role": "Systems thinker & operations research professor",
+      "text": "The best place to solve a problem is often not where it appears.",
+      "context": "Effective management focuses on interactions and the whole, not just optimizing individual components or fighting symptoms.",
+      "category": "organizational-management",
+      "year": "~1974",
+      "tags": ["whole systems", "interaction", "root cause"]
+    },
+    {
+      "id": "deming-data",
+      "person": "W. Edwards Deming",
+      "role": "Engineer, statistician & quality pioneer",
+      "text": "In God we trust; all others bring data.",
+      "context": "Decisions must be grounded in evidence, not authority or intuition. If you can't describe what you are doing as a process, you don't know what you're doing.",
+      "category": "supply-chain-operations",
+      "year": "~1980s",
+      "tags": ["data", "evidence", "process"]
+    },
+    {
+      "id": "ohno-standards",
+      "person": "Taiichi Ohno",
+      "role": "Engineer & father of the Toyota Production System",
+      "text": "Where there is no standard, there can be no kaizen [continuous improvement].",
+      "context": "Standards are the baseline for improvement; without them, you're just reacting. Kaizen starts with a clear, repeatable process you can measure and refine.",
+      "category": "supply-chain-operations",
+      "year": "~1978",
+      "tags": ["lean", "standards", "kaizen"]
+    },
+    {
+      "id": "goldratt-productivity",
+      "person": "Eliyahu Goldratt",
+      "role": "Physicist & creator of Theory of Constraints",
+      "text": "Productivity is the act of bringing a company closer to its goal. Every action that brings a company closer to its goal is productive.",
+      "context": "Local optima do not add up to the global optimum — a critical insight for supply chain and complex systems.",
+      "category": "supply-chain-operations",
+      "year": "~1984",
+      "tags": ["theory of constraints", "global optimum", "goal"]
+    },
+    {
+      "id": "munger-invert",
+      "person": "Charlie Munger",
+      "role": "Investor & Mental Models advocate",
+      "text": "Invert, always invert.",
+      "context": "Solve problems by thinking backward. Instead of asking 'How do I achieve X?', ask 'What would guarantee failure?' Then avoid those things.",
+      "category": "decision-making",
+      "year": "~2005",
+      "tags": ["inversion", "problem solving", "mental models"]
+    },
+    {
+      "id": "drucker-effectiveness",
+      "person": "Peter Drucker",
+      "role": "Management professor & consultant",
+      "text": "Efficiency is doing things right; effectiveness is doing the right things.",
+      "context": "Efficiency optimizes the how; effectiveness questions the what. Both are necessary, but effectiveness comes first.",
+      "category": "organizational-management",
+      "year": "~1967",
+      "tags": ["efficiency", "effectiveness", "priorities"]
+    },
+    {
+      "id": "taleb-antifragile",
+      "person": "Nassim Nicholas Taleb",
+      "role": "Risk philosopher & probabilist",
+      "source": "Antifragile",
+      "text": "Some things benefit from shocks; they thrive and grow when exposed to volatility, randomness, disorder, and stressors.",
+      "context": "Antifragility is beyond resilience or robustness. The resilient resists shocks and stays the same; the antifragile gets better. Build systems that gain from disorder.",
+      "category": "risk-management",
+      "year": "~2012",
+      "tags": ["antifragile", "volatility", "disorder"]
+    },
+    {
+      "id": "kahnemann-planning",
+      "person": "Daniel Kahneman",
+      "role": "Nobel economist & psychologist",
+      "source": "Thinking, Fast and Slow",
+      "text": "We are prone to the planning fallacy: we make plans based on optimistic scenarios rather than on past experience.",
+      "context": "Use an outside view — reference class forecasting — to counter the planning fallacy. Base rates are more reliable than your own story.",
+      "category": "decision-making",
+      "year": "~2011",
+      "tags": ["planning fallacy", "base rates", "outside view"]
+    },
+    {
+      "id": "porter-operations",
+      "person": "Michael Porter",
+      "role": "Strategy professor, Harvard",
+      "text": "Operational effectiveness is not strategy.",
+      "context": "Improving operations (benchmarking, TQM, reengineering) is necessary but not sufficient. Strategy requires choosing a unique position that trades off against others.",
+      "category": "strategy-planning",
+      "year": "~1996",
+      "tags": ["operational effectiveness", "positioning", "trade-offs"]
+    }
+  ]
+}

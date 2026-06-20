@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "firebase/app"
-import { getDatabase, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update } from "firebase/database"
+import { getDatabase, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove } from "firebase/database"
 import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "firebase/auth"
 
 const firebaseConfig = {
@@ -26,6 +26,6 @@ const googleProvider = new GoogleAuthProvider()
 
 export {
   db, auth, googleProvider,
-  ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update,
+  ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove,
   signInWithPopup, signInAnonymously, onAuthStateChanged, signOut,
 }

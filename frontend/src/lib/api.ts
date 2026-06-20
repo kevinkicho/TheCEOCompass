@@ -4,11 +4,16 @@ import type {
   StageResult, JournalEntry, Progress, CalibrationSummary,
 } from "./types"
 import { staticFrameworks } from "./staticData"
+import staticScenarioData from "@/data/scenarios.json"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
-const isStaticHosting = typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")
+const isServer = typeof window === "undefined"
+const isStaticHosting = isServer || (!window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1"))
 
 const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "application/json" } })
+
+// Cast static scenarios to match expected types
+const staticScenarios = staticScenarioData as any[]
 
 export async function getFrameworks(category?: string): Promise<FrameworkListItem[]> {
   let list = staticFrameworks as any
@@ -27,12 +32,22 @@ export async function getFrameworkBySlug(slug: string): Promise<Framework | null
 }
 
 export async function getScenarios(frameworkId?: string): Promise<ScenarioListItem[]> {
-  if (isStaticHosting) return []
+  if (isStaticHosting) {
+    let list = staticScenarios
+    if (frameworkId) list = list.filter((s: any) => s.framework_id === frameworkId)
+    return list.map((s: any) => ({
+      id: s.id, slug: s.slug, title: s.title,
+      description: s.description, framework_id: s.framework_id, difficulty: s.difficulty,
+    }))
+  }
   try { const { data } = await api.get("/scenarios", { params: frameworkId ? { framework_id: frameworkId } : {} }); return data } catch { return [] }
 }
 
 export async function getScenario(id: string): Promise<Scenario | null> {
-  if (isStaticHosting) return null
+  if (isStaticHosting) {
+    const found = staticScenarios.find((s: any) => s.slug === id || s.id === id)
+    return found || null
+  }
   try { const { data } = await api.get(`/scenarios/slug/${id}`); return data } catch { return null }
 }
 
