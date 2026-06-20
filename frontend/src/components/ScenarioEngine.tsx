@@ -2,9 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { startScenario, evaluateChoice } from "@/lib/api"
-import { BackendGuard } from "@/components/RequiresBackend"
-import type { Scenario, ScenarioStage, StageResult, FeedbackResponse, ScenarioAttempt } from "@/lib/types"
+import { evaluateScenarioStage } from "@/lib/ollama"
+import type { Scenario, ScenarioStage, StageResult, FeedbackResponse } from "@/lib/types"
 
 interface Props {
   scenario: Scenario
@@ -12,49 +11,41 @@ interface Props {
 
 export function ScenarioEngine({ scenario }: Props) {
   const router = useRouter()
-  const [attempt, setAttempt] = useState<ScenarioAttempt | null>(null)
-  const [currentStage, setCurrentStage] = useState<ScenarioStage>(scenario.stages[0])
+  const [attempt, setAttempt] = useState(true)
+  const [currentStageIdx, setCurrentStageIdx] = useState(0)
   const [feedback, setFeedback] = useState<FeedbackResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
-  const [finalOutcome, setFinalOutcome] = useState<StageResult | null>(null)
+  const [finalOutcomeBranch, setFinalOutcomeBranch] = useState<string | null>(null)
   const [error, setError] = useState("")
 
-  const handleStart = async () => {
-    setError("")
-    setIsLoading(true)
-    try {
-      const att = await startScenario(scenario.id)
-      if (!att) throw new Error("Scenario engine requires the backend server. Start the backend API to use scenarios.")
-      setAttempt(att)
-      setCurrentStage(scenario.stages[0])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to start scenario")
-    }
-    setIsLoading(false)
-  }
+  const currentStage = scenario.stages[currentStageIdx]
 
   const handleSubmitChoice = async (choiceId?: string, freeResponse?: string) => {
     setError("")
     setIsLoading(true)
     try {
-      const result = await evaluateChoice(
-        scenario.id,
-        currentStage.id,
+      const { parsed } = await evaluateScenarioStage(
+        currentStage,
+        scenario.title,
         choiceId,
         freeResponse,
       )
-      if (!result) throw new Error("Scenario engine requires the backend server. Start the backend API to run scenarios.")
-      setFeedback(result.feedback || null)
 
-      if (result.is_complete) {
+      const fb: FeedbackResponse = {
+        feedback: parsed.feedback,
+        score: parsed.score / 10,
+        key_insights: parsed.key_insights || [],
+        next_framework_suggestion: parsed.next_framework_suggestion || undefined,
+      }
+      setFeedback(fb)
+
+      if (currentStageIdx >= scenario.stages.length - 1) {
         setIsComplete(true)
-        setFinalOutcome(result)
-      } else if (result.next_stage_id) {
-        const nextStage = scenario.stages.find((s) => s.id === result.next_stage_id)
-        if (nextStage) {
-          setCurrentStage(nextStage)
-        }
+        const option = scenario.stages[currentStageIdx].options.find((o) => o.id === choiceId)
+        if (option && option.score >= 8) setFinalOutcomeBranch("optimal")
+        else if (option && option.score >= 5) setFinalOutcomeBranch("acceptable")
+        else setFinalOutcomeBranch("poor")
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to evaluate choice")
@@ -63,7 +54,10 @@ export function ScenarioEngine({ scenario }: Props) {
   }
 
   const handleNextStage = () => {
-    setFeedback(null)
+    if (currentStageIdx < scenario.stages.length - 1) {
+      setCurrentStageIdx((i) => i + 1)
+      setFeedback(null)
+    }
   }
 
   if (!attempt) {
@@ -80,119 +74,73 @@ export function ScenarioEngine({ scenario }: Props) {
         <div className="mb-6">
           <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-300">Available Data</h3>
           <ul className="list-inside list-disc space-y-1 text-sm text-dark-600 dark:text-dark-300">
-            {scenario.context.data_provided.map((data, i) => (
-              <li key={i}>{data}</li>
-            ))}
+            {scenario.context.data_provided.map((data, i) => (<li key={i}>{data}</li>))}
           </ul>
         </div>
         {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</p>}
-        <BackendGuard feature="AI Scenario Engine">
-          <button
-          onClick={handleStart}
-          disabled={isLoading}
+        <button onClick={() => setAttempt(true)} disabled={isLoading}
           className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
-        >
-          {isLoading ? "Starting..." : "Start Scenario"}
-        </button>
-        </BackendGuard>
+        >{isLoading ? "Starting..." : "Start Scenario"}</button>
       </div>
     )
   }
 
-  if (isComplete && finalOutcome) {
-    const outcomeBranch = scenario.outcome_branches[finalOutcome.outcome_branch || "acceptable"]
+  if (isComplete) {
+    const outcomeBranch = scenario.outcome_branches[finalOutcomeBranch || "acceptable"]
     return (
       <div className="animate-fade-in rounded-xl border border-dark-200 p-8 dark:border-dark-700">
         <div className="mb-6 text-center">
           <div className="mb-4 text-5xl">
-            {finalOutcome.outcome_branch === "optimal" ? "🏆" : finalOutcome.outcome_branch === "acceptable" ? "✅" : "⚠️"}
+            {finalOutcomeBranch === "optimal" ? "🏆" : finalOutcomeBranch === "acceptable" ? "✅" : "⚠️"}
           </div>
           <h2 className="mb-2 text-2xl font-bold text-dark-900 dark:text-dark-100">{outcomeBranch?.title || "Complete"}</h2>
           <p className="text-dark-500 dark:text-dark-300">{outcomeBranch?.description}</p>
         </div>
 
-        {finalOutcome.final_score !== undefined && (
-          <div className="mb-6 rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
-            <p className="text-sm text-dark-500 dark:text-dark-300">Final Score</p>
-            <p className="text-3xl font-bold text-primary-600">
-              {Math.round(finalOutcome.final_score * 100)}%
-            </p>
-          </div>
-        )}
-
         <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setAttempt(null)
-              setCurrentStage(scenario.stages[0])
-              setFeedback(null)
-              setIsComplete(false)
-              setFinalOutcome(null)
-            }}
+          <button onClick={() => { setCurrentStageIdx(0); setFeedback(null); setIsComplete(false); setFinalOutcomeBranch(null) }}
             className="flex-1 rounded-lg border border-dark-300 px-6 py-3 font-medium text-dark-700 hover:bg-dark-50 dark:hover:bg-dark-800 dark:text-dark-300 dark:border-dark-600"
-          >
-            Try Again
-          </button>
-          <button
-            onClick={() => router.push("/journal")}
+          >Try Again</button>
+          <button onClick={() => router.push("/journal")}
             className="flex-1 rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
-          >
-            Save to Journal &rarr;
-          </button>
+          >Save to Journal &rarr;</button>
         </div>
       </div>
     )
   }
 
-  const stage = currentStage
-  const stageNumber = scenario.stages.findIndex((s) => s.id === stage.id) + 1
+  const stageNumber = currentStageIdx + 1
 
   return (
     <div className="animate-fade-in rounded-xl border border-dark-200 p-8 dark:border-dark-700">
-      {/* Progress */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="text-dark-500 dark:text-dark-300">Stage {stageNumber} of {scenario.stages.length}</span>
           <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
-            {stage.type}
+            {currentStage.type}
           </span>
         </div>
         <div className="h-1.5 w-full rounded-full bg-dark-100 dark:bg-dark-800">
-          <div
-            className="h-full rounded-full bg-primary-500 transition-all"
-            style={{ width: `${(stageNumber / scenario.stages.length) * 100}%` }}
-          />
+          <div className="h-full rounded-full bg-primary-500 transition-all"
+            style={{ width: `${(stageNumber / scenario.stages.length) * 100}%` }} />
         </div>
       </div>
 
       {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</p>}
 
-      {/* Prompt */}
       <div className="mb-6">
-        <h3 className="mb-4 text-lg font-semibold text-dark-800 dark:text-dark-200">{stage.prompt}</h3>
-
+        <h3 className="mb-4 text-lg font-semibold text-dark-800 dark:text-dark-200">{currentStage.prompt}</h3>
         {!feedback ? (
-          <DecisionPrompt
-            stage={stage}
-            onSubmit={handleSubmitChoice}
-            isLoading={isLoading}
-          />
+          <DecisionPrompt stage={currentStage} onSubmit={handleSubmitChoice} isLoading={isLoading} />
         ) : (
-          <FeedbackPanel
-            feedback={feedback}
-            onNext={handleNextStage}
-          />
+          <FeedbackPanel feedback={feedback} onNext={handleNextStage} isLastStage={currentStageIdx >= scenario.stages.length - 1} />
         )}
       </div>
     </div>
   )
 }
 
-function DecisionPrompt({
-  stage,
-  onSubmit,
-  isLoading,
-}: {
+function DecisionPrompt({ stage, onSubmit, isLoading }: {
   stage: ScenarioStage
   onSubmit: (choiceId?: string, freeResponse?: string) => void
   isLoading: boolean
@@ -204,23 +152,14 @@ function DecisionPrompt({
   if (stage.free_response) {
     return (
       <div>
-        <textarea
-          value={freeResponse}
-          onChange={(e) => setFreeResponse(e.target.value)}
-          rows={6}
+        <textarea value={freeResponse} onChange={(e) => setFreeResponse(e.target.value)} rows={6}
           className="mb-4 w-full resize-none rounded-lg border border-dark-200 p-4 text-sm text-dark-800 placeholder:text-dark-400 focus:border-primary-400 focus:outline-none dark:text-dark-200 dark:border-dark-700"
-          placeholder="Type your analysis, calculation, or response..."
-        />
-        
+          placeholder="Type your analysis, calculation, or response..." />
         {stage.sample_answer && (
           <div className="mb-4">
-            <button
-              type="button"
-              onClick={() => setShowAnswer(!showAnswer)}
+            <button type="button" onClick={() => setShowAnswer(!showAnswer)}
               className="text-xs text-primary-600 hover:text-primary-700 underline underline-offset-2"
-            >
-              {showAnswer ? "Hide Model Answer" : "Show Model Answer"}
-            </button>
+            >{showAnswer ? "Hide Model Answer" : "Show Model Answer"}</button>
             {showAnswer && (
               <div className="mt-2 animate-slide-up rounded-lg border border-amber-200 bg-amber-50 p-4">
                 <p className="text-xs font-medium text-amber-800 mb-1">Model Answer</p>
@@ -229,14 +168,9 @@ function DecisionPrompt({
             )}
           </div>
         )}
-
-        <button
-          onClick={() => onSubmit(undefined, freeResponse)}
-          disabled={isLoading || !freeResponse.trim()}
+        <button onClick={() => onSubmit(undefined, freeResponse)} disabled={isLoading || !freeResponse.trim()}
           className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
-        >
-          {isLoading ? "Evaluating..." : "Submit for Feedback"}
-        </button>
+        >{isLoading ? "Evaluating..." : "Submit for Feedback"}</button>
       </div>
     )
   }
@@ -245,33 +179,28 @@ function DecisionPrompt({
     <div>
       <div className="mb-4 space-y-3">
         {stage.options.map((option) => (
-          <button
-            key={option.id}
-            onClick={() => setSelectedChoice(option.id)}
-            className={`w-full rounded-lg border p-4 text-left transition ${ selectedChoice === option.id ? "border-primary-400 bg-primary-50 shadow-sm dark:bg-primary-900/20" : "border-dark-200 hover:border-dark-300 dark:border-dark-700" }`}
-          >
+          <button key={option.id} onClick={() => setSelectedChoice(option.id)}
+            className={`w-full rounded-lg border p-4 text-left transition ${selectedChoice === option.id ? "border-primary-400 bg-primary-50 shadow-sm dark:bg-primary-900/20" : "border-dark-200 hover:border-dark-300 dark:border-dark-700"}`}>
             <div className="flex items-start gap-3">
-              <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${ selectedChoice === option.id ? "border-primary-500 bg-primary-500 text-white" : "border-dark-300 text-dark-400 dark:text-dark-300 dark:border-dark-600" }`}>
+              <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold ${selectedChoice === option.id ? "border-primary-500 bg-primary-500 text-white" : "border-dark-300 text-dark-400 dark:text-dark-300 dark:border-dark-600"}`}>
                 {option.id.toUpperCase()}
               </span>
-              <span className="text-sm text-dark-700 dark:text-dark-300">{option.label}</span>
+              <div>
+                <span className="text-sm text-dark-700 dark:text-dark-300">{option.label}</span>
+                <span className="ml-2 text-[10px] text-dark-400 dark:text-dark-500">Score: {option.score}/10</span>
+              </div>
             </div>
           </button>
         ))}
       </div>
-      
       <div className="mb-4">
-        <button
-          type="button"
-          onClick={() => setShowAnswer(!showAnswer)}
+        <button type="button" onClick={() => setShowAnswer(!showAnswer)}
           className="text-xs text-primary-600 hover:text-primary-700 underline underline-offset-2"
-        >
-          {showAnswer ? "Hide Hint" : "Show Hint"}
-        </button>
-        {showAnswer && stage.options.find(o => o.rationale) && (
+        >{showAnswer ? "Hide Hint" : "Show Hint"}</button>
+        {showAnswer && stage.options.find((o) => o.rationale) && (
           <div className="mt-2 animate-slide-up rounded-lg border border-amber-200 bg-amber-50 p-4">
             <p className="text-xs font-medium text-amber-800 mb-2">Best Approach</p>
-            {stage.options.map(o => (
+            {stage.options.map((o) => (
               <div key={o.id} className="mb-2 last:mb-0">
                 <span className="text-sm font-medium text-dark-800 dark:text-dark-200">{o.label}</span>
                 <p className="text-xs text-dark-600 dark:text-dark-300">{o.rationale}</p>
@@ -280,67 +209,47 @@ function DecisionPrompt({
           </div>
         )}
       </div>
-      
-      <button
-        onClick={() => selectedChoice && onSubmit(selectedChoice)}
-        disabled={isLoading || !selectedChoice}
+      <button onClick={() => selectedChoice && onSubmit(selectedChoice)} disabled={isLoading || !selectedChoice}
         className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
-      >
-        {isLoading ? "Evaluating..." : "Submit"}
-      </button>
+      >{isLoading ? "Evaluating..." : "Submit"}</button>
     </div>
   )
 }
 
-function FeedbackPanel({
-  feedback,
-  onNext,
-}: {
+function FeedbackPanel({ feedback, onNext, isLastStage }: {
   feedback: FeedbackResponse
   onNext: () => void
+  isLastStage: boolean
 }) {
   return (
     <div className="animate-slide-up space-y-4">
-      {/* Score */}
       <div className="rounded-lg bg-primary-50 p-4 text-center dark:bg-primary-900/20">
         <p className="text-sm text-primary-700 dark:text-primary-300">Score</p>
         <p className="text-2xl font-bold text-primary-600">{Math.round(feedback.score * 100)}%</p>
       </div>
-
-      {/* Feedback */}
       <div className="rounded-lg border border-dark-200 p-4 dark:border-dark-700">
-        <p className="text-sm font-semibold text-dark-700 mb-1 dark:text-dark-300">AI Coach Feedback</p>
-        <p className="text-sm text-dark-600 dark:text-dark-300">{feedback.feedback}</p>
+        <p className="text-sm text-dark-600 dark:text-dark-300 leading-relaxed">{feedback.feedback}</p>
       </div>
-
-      {/* Insights */}
       {feedback.key_insights.length > 0 && (
         <div>
           <p className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-300">Key Insights</p>
           <ul className="space-y-1">
             {feedback.key_insights.map((insight, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-dark-600 dark:text-dark-300">
-                <span className="mt-0.5 text-primary-500">&bull;</span>
-                {insight}
+                <span className="mt-0.5 text-primary-500">&bull;</span>{insight}
               </li>
             ))}
           </ul>
         </div>
       )}
-
-      {/* Next Framework */}
       {feedback.next_framework_suggestion && (
         <div className="rounded-lg bg-dark-50 p-3 text-sm text-dark-500 dark:bg-dark-900 dark:text-dark-300">
           <strong>Suggested next framework:</strong> {feedback.next_framework_suggestion}
         </div>
       )}
-
-      <button
-        onClick={onNext}
+      <button onClick={onNext}
         className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
-      >
-        Continue &rarr;
-      </button>
+      >{isLastStage ? "See Results" : "Continue &rarr;"}</button>
     </div>
   )
 }

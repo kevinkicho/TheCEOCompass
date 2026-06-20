@@ -329,4 +329,93 @@ type QuoteGenResult = {
   year?: string
 }
 
+const STAGE_TYPE_DESCRIPTIONS: Record<string, string> = {
+  diagnosis: "identifying the core problem and gathering relevant information",
+  analysis: "analyzing data, evaluating options, and applying analytical frameworks",
+  decision: "making a strategic decision with trade-offs and risk assessment",
+  communication: "crafting a clear, data-driven message for stakeholders",
+  outcome: "evaluating results and reflecting on lessons learned",
+}
+
+export async function evaluateScenarioStage(
+  stage: { id: string; type: string; prompt: string; feedback_prompt_template: string; options?: { id: string; label: string }[] },
+  scenarioTitle: string,
+  choiceId?: string,
+  freeResponse?: string,
+): Promise<{ parsed: { feedback: string; score: number; key_insights: string[]; next_framework_suggestion?: string }; prompt: string }> {
+  const stageType = STAGE_TYPE_DESCRIPTIONS[stage.type] || stage.type
+  const optionLabel = choiceId && stage.options?.length
+    ? stage.options.find((o) => o.id === choiceId)?.label || choiceId
+    : ""
+
+  const expandedTemplate = stage.feedback_prompt_template
+    .replace("{option}", optionLabel || freeResponse || "")
+    .replace("{response}", freeResponse || optionLabel || "")
+
+  const prompt = `You are a CEO coach evaluating a leader's decision-making in a business scenario.
+
+Scenario: ${scenarioTitle}
+Stage type: ${stage.type} (${stageType})
+Question: ${stage.prompt}
+
+${expandedTemplate}
+
+Return ONLY valid JSON:
+{
+  "feedback": "Detailed coaching feedback (2-4 sentences) evaluating the choice and offering guidance",
+  "score": <number between 0 and 10>,
+  "key_insights": ["Specific actionable insight 1", "Specific actionable insight 2", "Specific actionable insight 3"],
+  "next_framework_suggestion": "Name of a related framework to study next, or empty string if none"
+}`
+
+  const settings = loadSettings()
+  const actualModel = settings.ollamaModel || "gemma4:latest"
+  const fullPrompt = `${buildSystemPrompt("explain")}\n\n${prompt}`
+
+  if (!db) throw new Error("Firebase not configured")
+  const database = db!
+  const requestId = generateId()
+
+  const payload = {
+    model: actualModel,
+    prompt: fullPrompt,
+    stream: false,
+    options: { temperature: 0.5 },
+  }
+
+  await set(ref(database, `requests/${requestId}`), {
+    type: "scenario",
+    stage_id: stage.id,
+    payload,
+    status: "pending",
+    created_at: Date.now(),
+  })
+
+  return new Promise((resolve, reject) => {
+    const responseRef = ref(database, `responses/${requestId}`)
+    const statusRef = ref(database, `requests/${requestId}/status`)
+    let done = false
+
+    const unsubStatus = onValue(statusRef, (snap) => {
+      if (done) return
+      if (snap.val() === "error") {
+        done = true
+        unsubStatus()
+        unsubResp()
+        get(responseRef).then((s) => reject(new Error(s.val()?.error || "Scenario evaluation failed")))
+      }
+    })
+
+    const unsubResp = onValue(responseRef, (snap) => {
+      if (done) return
+      const data = snap.val()
+      if (!data?.result) return
+      done = true
+      unsubStatus()
+      unsubResp()
+      resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
+    })
+  })
+}
+
 export { slugify, checkCache }

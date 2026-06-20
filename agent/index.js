@@ -109,6 +109,12 @@ requestsRef.on("child_added", async (snapshot) => {
         ...indexedData,
         category: data.category || "",
       })
+    } else if (type === "scenario") {
+      const scenarioPath = `scenario-evaluations/${requestId}`
+      await db.ref(scenarioPath).set({
+        ...indexedData,
+        stage_id: data.stage_id || "",
+      })
     } else if (framework_slug) {
       const indexPath = concept_slug
         ? `framework/${framework_slug}/${concept_slug}/responses/${requestId}`

@@ -1,10 +1,22 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { ScenarioEngine } from "../ScenarioEngine"
 import type { Scenario } from "@/lib/types"
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+}))
+
+vi.mock("@/lib/ollama", () => ({
+  evaluateScenarioStage: vi.fn().mockResolvedValue({
+    parsed: {
+      feedback: "Good strategic thinking! Your choice of Porter's Five Forces demonstrates systematic competitive analysis.",
+      score: 9,
+      key_insights: ["Systematic approach", "Data-driven decision making"],
+      next_framework_suggestion: "Financial Mastery",
+    },
+    prompt: "You are a CEO coach...",
+  }),
 }))
 
 const mockScenario: Scenario = {
@@ -26,8 +38,8 @@ const mockScenario: Scenario = {
       type: "diagnosis",
       prompt: "Choose a framework:",
       options: [
-        { id: "a", label: "Porter's Five Forces", score: 0.9, rationale: "Best" },
-        { id: "b", label: "SWOT", score: 0.3, rationale: "Too general" },
+        { id: "a", label: "Porter's Five Forces", score: 0.9, rationale: "Best for competitive analysis" },
+        { id: "b", label: "SWOT", score: 0.3, rationale: "Too general for this case" },
       ],
       free_response: false,
       feedback_prompt_template: "User chose {option}",
@@ -48,79 +60,35 @@ const mockScenario: Scenario = {
   },
 }
 
-vi.mock("@/lib/api", () => ({
-  startScenario: vi.fn().mockResolvedValue({
-    id: "attempt-1",
-    user_id: "user-1",
-    scenario_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-    current_stage_id: "stage-1",
-    choices_made: {},
-    score: null,
-    outcome_branch: null,
-    completed_at: null,
-  }),
-  evaluateChoice: vi.fn().mockResolvedValue({
-    next_stage_id: "stage-2",
-    feedback: {
-      feedback: "Good choice!",
-      score: 0.9,
-      next_framework_suggestion: "Financial Mastery",
-      key_insights: ["Systematic approach", "Data-driven"],
-    },
-    is_complete: false,
-  }),
-}))
-
 describe("ScenarioEngine", () => {
-  it("renders context before starting", () => {
+  it("shows progress bar and stage info", () => {
     render(<ScenarioEngine scenario={mockScenario} />)
-    
-    expect(screen.getByText("Context")).toBeInTheDocument()
-    expect(screen.getByText(/TestCo, \$5M ARR/)).toBeInTheDocument()
-    expect(screen.getByText("Start Scenario")).toBeInTheDocument()
+    expect(screen.getByText("Stage 1 of 2")).toBeInTheDocument()
+    expect(screen.getByText("diagnosis")).toBeInTheDocument()
   })
 
-  it("shows data provided section", () => {
+  it("displays the stage prompt", () => {
     render(<ScenarioEngine scenario={mockScenario} />)
-    
-    expect(screen.getByText("P&L")).toBeInTheDocument()
-    expect(screen.getByText("Customer segments")).toBeInTheDocument()
+    expect(screen.getByText("Choose a framework:")).toBeInTheDocument()
   })
 
-  it("shows progress bar and stage info after starting", async () => {
+  it("displays multiple choice options", () => {
     render(<ScenarioEngine scenario={mockScenario} />)
-    
-    fireEvent.click(screen.getByText("Start Scenario"))
-    
-    await waitFor(() => {
-      expect(screen.getByText("Stage 1 of 2")).toBeInTheDocument()
-    })
-  })
-
-  it("displays multiple choice options", async () => {
-    render(<ScenarioEngine scenario={mockScenario} />)
-    
-    fireEvent.click(screen.getByText("Start Scenario"))
-    
-    await waitFor(() => {
-      expect(screen.getByText("Porter's Five Forces")).toBeInTheDocument()
-      expect(screen.getByText("SWOT")).toBeInTheDocument()
-    })
+    expect(screen.getByText("Porter's Five Forces")).toBeInTheDocument()
+    expect(screen.getByText("SWOT")).toBeInTheDocument()
   })
 
   it("shows feedback after submitting choice", async () => {
     render(<ScenarioEngine scenario={mockScenario} />)
-    
-    fireEvent.click(screen.getByText("Start Scenario"))
-    
-    await waitFor(() => {
-      fireEvent.click(screen.getByText("Porter's Five Forces"))
-    })
-    
+
+    fireEvent.click(screen.getByText("Porter's Five Forces"))
     fireEvent.click(screen.getByText("Submit"))
-    
+
     await waitFor(() => {
-      expect(screen.getByText("AI Coach Feedback")).toBeInTheDocument()
+      expect(screen.getByText(/Good strategic thinking/)).toBeInTheDocument()
     })
+    expect(screen.getByText("90%")).toBeInTheDocument()
+    expect(screen.getByText("Systematic approach")).toBeInTheDocument()
+    expect(screen.getByText("Financial Mastery")).toBeInTheDocument()
   })
 })
