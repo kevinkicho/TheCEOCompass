@@ -122,6 +122,7 @@ export default function ConceptDetailPage() {
   // Per-category confirm state for enrich sub-sections
   const [catConfirm, setCatConfirm] = useState<Record<string, boolean>>({})
   const [confirmExplain, setConfirmExplain] = useState(false)
+  const [contentPage, setContentPage] = useState(0)
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [cooldown, setCooldown] = useState(0)
@@ -330,28 +331,28 @@ export default function ConceptDetailPage() {
       {/* ── Enriched sections with per-category sparkle buttons ── */}
 
       {(aiEnrichment?.why_it_matters || concept.why_it_matters) && (
-        <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
+        <div className={`mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4 ${contentPage !== 0 ? "hidden" : ""}`}>
           <div className="flex items-center gap-1.5 mb-2">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Why It Matters for CEOs</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["why"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, why: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, why: false })); handleWhyItMatters() }}
               onCancel={() => setCatConfirm((d) => ({ ...d, why: false }))} />
-            <PromptTooltip prompt={promptWhy}>{promptWhy ? "prompt" : ""}</PromptTooltip>
+            {promptWhy && <PromptTooltip prompt={promptWhy}>prompt</PromptTooltip>}
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiEnrichment?.why_it_matters || concept.why_it_matters}</p>
         </div>
       )}
 
       {((aiEnrichment?.steps?.length) || (concept.steps && concept.steps.length > 0)) && (
-        <div className="mb-4">
+        <div className={`mb-4 ${contentPage !== 1 ? "hidden" : ""}`}>
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">How to Apply</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["how"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, how: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, how: false })); handleHowToApply() }}
               onCancel={() => setCatConfirm((d) => ({ ...d, how: false }))} />
-            <PromptTooltip prompt={promptHow}>{promptHow ? "prompt" : ""}</PromptTooltip>
+            {promptHow && <PromptTooltip prompt={promptHow}>prompt</PromptTooltip>}
           </div>
           <ol className="space-y-2.5">{(aiEnrichment?.steps || concept.steps).map((step: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm">
@@ -363,14 +364,14 @@ export default function ConceptDetailPage() {
       )}
 
       {((aiEnrichment?.pitfalls?.length) || (concept.pitfalls && concept.pitfalls.length > 0)) && (
-        <div className="mb-4">
+        <div className={`mb-4 ${contentPage !== 2 ? "hidden" : ""}`}>
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Common Pitfalls</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["pitfalls"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, pitfalls: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, pitfalls: false })); handleCommonPitfalls() }}
               onCancel={() => setCatConfirm((d) => ({ ...d, pitfalls: false }))} />
-            <PromptTooltip prompt={promptPitfalls}>{promptPitfalls ? "prompt" : ""}</PromptTooltip>
+            {promptPitfalls && <PromptTooltip prompt={promptPitfalls}>prompt</PromptTooltip>}
           </div>
           <div className="space-y-2">{(aiEnrichment?.pitfalls || concept.pitfalls).map((pf: any, i: number) => (
             <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
@@ -382,14 +383,14 @@ export default function ConceptDetailPage() {
       )}
 
       {((aiEnrichment?.related_concepts?.length) || (concept.related_concepts && concept.related_concepts.length > 0)) && (
-        <div className="mb-4">
+        <div className={`mb-4 ${contentPage !== 3 ? "hidden" : ""}`}>
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Connected Concepts</p>
             <SparkleBtn loading={false} confirm={!!catConfirm["connected"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, connected: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, connected: false })); handleConnectedConcepts() }}
               onCancel={() => setCatConfirm((d) => ({ ...d, connected: false }))} />
-            <PromptTooltip prompt={promptConnected}>{promptConnected ? "prompt" : ""}</PromptTooltip>
+            {promptConnected && <PromptTooltip prompt={promptConnected}>prompt</PromptTooltip>}
           </div>
           <div className="space-y-1.5">{(aiEnrichment?.related_concepts || concept.related_concepts).map((rc: any, i: number) => (
             <div key={i} className="flex items-start gap-2 text-sm">
@@ -401,7 +402,7 @@ export default function ConceptDetailPage() {
       )}
 
       {(aiCaseStudy || concept.case_study) && (
-        <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
+        <div className={`mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4 ${contentPage !== 4 ? "hidden" : ""}`}>
           {aiCaseStudyCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
@@ -420,7 +421,7 @@ export default function ConceptDetailPage() {
       )}
 
       {(aiExercise || concept.exercise) && (
-        <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4">
+        <div className={`mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4 ${contentPage !== 5 ? "hidden" : ""}`}>
           {aiExerciseCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Test Yourself</p>
@@ -441,7 +442,7 @@ export default function ConceptDetailPage() {
       )}
 
       {(aiExample || concept.example) && (
-        <div className="mb-4">
+        <div className={`mb-4 ${contentPage !== 6 ? "hidden" : ""}`}>
           {aiExampleCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide dark:text-dark-300">Real-World Examples</p>
@@ -466,7 +467,7 @@ export default function ConceptDetailPage() {
         ))}</div>
       )}
 
-      <div className="mb-4 mt-6">
+      <div className={`mb-4 mt-6 ${contentPage !== 7 ? "hidden" : ""}`}>
         {aiCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
         {aiError && (
           <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
@@ -477,7 +478,7 @@ export default function ConceptDetailPage() {
             onSparkle={() => startConfirm(setConfirmExplain)}
             onConfirm={() => { setConfirmExplain(false); handleExplain() }}
             onCancel={() => setConfirmExplain(false)} />
-          <PromptTooltip prompt={aiPromptText || promptExplain}>{aiPromptText || promptExplain ? "prompt" : ""}</PromptTooltip>
+          {(aiPromptText || promptExplain) && <PromptTooltip prompt={aiPromptText || promptExplain}>prompt</PromptTooltip>}
           {isAdmin && aiPromptText && !editingPrompt && (
             <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
               className="text-[10px] text-primary-500 hover:text-primary-600 transition"
@@ -500,6 +501,25 @@ export default function ConceptDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Content pagination nav */}
+        <div className="mb-6 flex items-center justify-between text-xs">
+          <button onClick={() => setContentPage((p) => Math.max(0, p - 1))}
+            disabled={contentPage === 0}
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full text-sm text-dark-400 hover:text-primary-600 hover:bg-dark-100 dark:hover:bg-dark-800 transition disabled:opacity-30"
+          >&lt;</button>
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <button key={i} onClick={() => setContentPage(i)}
+                className={`h-1.5 w-1.5 rounded-full transition ${contentPage === i ? "bg-primary-500" : "bg-dark-300 dark:bg-dark-600"}`}
+              />
+            ))}
+          </div>
+          <button onClick={() => setContentPage((p) => Math.min(7, p + 1))}
+            disabled={contentPage === 7}
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full text-sm text-dark-400 hover:text-primary-600 hover:bg-dark-100 dark:hover:bg-dark-800 transition disabled:opacity-30"
+          >&gt;</button>
+        </div>
 
         {aiExplanation && (
           <div className="mt-4 space-y-4 animate-slide-up">
