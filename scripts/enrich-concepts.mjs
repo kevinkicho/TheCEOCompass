@@ -19,10 +19,26 @@ const MODEL = "gemma4:latest"
 // Parse the staticData.ts to extract frameworks and concepts
 function extractConcepts(filePath) {
   const content = readFileSync(filePath, "utf8")
-  const start = content.indexOf("[")
-  const end = content.lastIndexOf("]")
-  if (start === -1 || end === -1) throw new Error("Could not find JSON array in staticData.ts")
-  const jsonStr = content.slice(start, end + 1)
+  const startMarker = "export const staticFrameworks = ["
+  const startIdx = content.indexOf(startMarker)
+  if (startIdx === -1) throw new Error("Could not find export const staticFrameworks = [")
+
+  // Position of the `[` that opens the frameworks array
+  const arrayOpen = startIdx + startMarker.length - 1
+
+  // Find matching closing bracket using depth tracking
+  let depth = 1
+  let end = -1
+  for (let i = arrayOpen + 1; i < content.length; i++) {
+    if (content[i] === "[") depth++
+    else if (content[i] === "]") {
+      depth--
+      if (depth === 0) { end = i; break }
+    }
+  }
+  if (end === -1) throw new Error("Could not find closing bracket of frameworks array")
+
+  const jsonStr = content.slice(arrayOpen, end + 1)
   return JSON.parse(jsonStr)
 }
 

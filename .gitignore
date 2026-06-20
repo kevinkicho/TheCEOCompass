@@ -26,3 +26,5 @@ agent/theceocompass-*.json
 agent/*.json
 !agent/package.json
 !agent/package-lock.json
+scripts/enriched-concepts.json
+scripts/enrich-checkpoint.json
