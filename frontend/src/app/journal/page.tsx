@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { loadJournalEntries, createJournalEntry, recordOutcome } from "@/lib/firebase-crud"
+import { loadJournalEntries, createJournalEntry, updateJournalEntry, deleteJournalEntry, recordOutcome } from "@/lib/firebase-crud"
 import type { JournalEntry } from "@/lib/types"
 
 const DEFAULT_ENTRY_FORM = {
@@ -27,6 +27,8 @@ export default function JournalPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [showEntryModal, setShowEntryModal] = useState(false)
   const [outcomeEntryId, setOutcomeEntryId] = useState<string | null>(null)
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [entryForm, setEntryForm] = useState(DEFAULT_ENTRY_FORM)
   const [outcomeForm, setOutcomeForm] = useState(DEFAULT_OUTCOME_FORM)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,7 +54,7 @@ export default function JournalPage() {
     setJournalError("")
     setIsLoading(true)
     try {
-      const entry = await createJournalEntry({
+      const formData = {
         title: entryForm.title,
         context: entryForm.context,
         decision: entryForm.decision,
@@ -62,14 +64,33 @@ export default function JournalPage() {
         alternatives_considered: entryForm.alternatives_considered.filter((a) => a.name.trim()),
         key_assumptions: entryForm.key_assumptions.filter((a) => a.assumption.trim()),
         success_metrics: entryForm.success_metrics.filter((m) => m.metric.trim()),
-      })
-      setEntries([entry, ...entries])
+      }
+      if (editingEntryId) {
+        await updateJournalEntry(editingEntryId, formData)
+        setEntries(entries.map((e) => e.id === editingEntryId ? { ...e, ...formData } : e))
+      } else {
+        const entry = await createJournalEntry(formData)
+        setEntries([entry, ...entries])
+      }
       setShowEntryModal(false)
+      setEditingEntryId(null)
       setEntryForm(DEFAULT_ENTRY_FORM)
     } catch (err) {
       setJournalError(err instanceof Error ? err.message : "Failed to save entry")
     }
     setIsLoading(false)
+  }
+
+  const handleDeleteEntry = async () => {
+    if (!confirmDeleteId) return
+    setJournalError("")
+    try {
+      await deleteJournalEntry(confirmDeleteId)
+      setEntries(entries.filter((e) => e.id !== confirmDeleteId))
+      setConfirmDeleteId(null)
+    } catch (err) {
+      setJournalError(err instanceof Error ? err.message : "Failed to delete entry")
+    }
   }
 
   const handleOutcomeSubmit = async (e: React.FormEvent) => {
@@ -145,6 +166,37 @@ export default function JournalPage() {
                     ? "Ready for Review"
                     : `Review by ${formatDate(entry.review_date)}`}
                 </span>
+                <div className="ml-auto flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingEntryId(entry.id)
+                      setEntryForm({
+                        title: entry.title,
+                        context: entry.context,
+                        decision: entry.decision,
+                        rationale: entry.rationale,
+                        confidence: entry.confidence,
+                        review_date: entry.review_date?.split("T")[0] || entry.review_date,
+                        alternatives_considered: entry.alternatives_considered?.length
+                          ? entry.alternatives_considered : [{ name: "", description: "" }],
+                        key_assumptions: entry.key_assumptions?.length
+                          ? entry.key_assumptions : [{ assumption: "", test: "" }],
+                        success_metrics: entry.success_metrics?.length
+                          ? entry.success_metrics : [{ metric: "", target: "" }],
+                      })
+                      setShowEntryModal(true)
+                    }}
+                    className="rounded border border-dark-200 px-2.5 py-1 text-xs font-medium text-dark-600 hover:bg-dark-50 dark:border-dark-600 dark:text-dark-300 dark:hover:bg-dark-800"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteId(entry.id)}
+                    className="rounded border border-red-200 px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
               <p className="mb-2 text-sm text-dark-600 dark:text-dark-300">{entry.context}</p>
               <p className="mb-2 text-sm text-dark-600 dark:text-dark-300"><strong>Decision:</strong> {entry.decision}</p>
@@ -184,7 +236,7 @@ export default function JournalPage() {
       {showEntryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto dark:bg-dark-900">
-            <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">New Decision Entry</h2>
+            <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">{editingEntryId ? "Edit Decision Entry" : "New Decision Entry"}</h2>
             <form onSubmit={handleCreateEntry} className="space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Title</label>
@@ -252,10 +304,24 @@ export default function JournalPage() {
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowEntryModal(false)} className="rounded-lg border border-dark-300 px-5 py-2.5 text-sm font-medium text-dark-700 hover:bg-dark-50 dark:hover:bg-dark-800 dark:text-dark-300 dark:border-dark-600">Cancel</button>
-                <button type="submit" disabled={isLoading} className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">{isLoading ? "Saving..." : "Save Entry"}</button>
+                <button type="button" onClick={() => { setShowEntryModal(false); setEditingEntryId(null); setEntryForm(DEFAULT_ENTRY_FORM) }} className="rounded-lg border border-dark-300 px-5 py-2.5 text-sm font-medium text-dark-700 hover:bg-dark-50 dark:hover:bg-dark-800 dark:text-dark-300 dark:border-dark-600">Cancel</button>
+                <button type="submit" disabled={isLoading} className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50">{isLoading ? "Saving..." : editingEntryId ? "Update Entry" : "Save Entry"}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl dark:bg-dark-900">
+            <h2 className="mb-2 text-lg font-semibold text-dark-900 dark:text-dark-100">Delete Entry?</h2>
+            <p className="mb-6 text-sm text-dark-500 dark:text-dark-300">This cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button type="button" onClick={() => setConfirmDeleteId(null)} className="rounded-lg border border-dark-300 px-4 py-2 text-sm font-medium text-dark-700 hover:bg-dark-50 dark:hover:bg-dark-800 dark:text-dark-300 dark:border-dark-600">Cancel</button>
+              <button type="button" onClick={handleDeleteEntry} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">Delete</button>
+            </div>
           </div>
         </div>
       )}

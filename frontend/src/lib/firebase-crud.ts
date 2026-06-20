@@ -1,4 +1,4 @@
-import { db, ref, set, get, push, query, orderByChild, remove, onValue, off } from "./firebase"
+import { db, ref, set, update, get, push, query, orderByChild, remove, onValue, off } from "./firebase"
 import type { JournalEntry, JournalOutcome, FrameworkListItem } from "./types"
 
 const DEVICE_ID_KEY = "ceocompass_device_id"
@@ -98,6 +98,43 @@ export async function createJournalEntry(data: {
     created_at: entry.created_at,
   })
   return entry
+}
+
+export async function updateJournalEntry(
+  entryId: string,
+  data: {
+    title: string
+    context: string
+    decision: string
+    rationale: string
+    confidence: number
+    review_date: string
+    alternatives_considered: { name: string; description: string }[]
+    key_assumptions: { assumption: string; test: string }[]
+    success_metrics: { metric: string; target: string }[]
+  },
+): Promise<void> {
+  if (!db) throw new Error("Firebase not configured")
+  const database = db!
+  const deviceId = getDeviceId()
+  await update(ref(database, journalPath(deviceId, entryId)), {
+    title: data.title,
+    context: data.context,
+    decision: data.decision,
+    rationale: data.rationale,
+    confidence: data.confidence,
+    review_date: data.review_date,
+    alternatives_considered: data.alternatives_considered,
+    key_assumptions: data.key_assumptions,
+    success_metrics: data.success_metrics,
+  })
+}
+
+export async function deleteJournalEntry(entryId: string): Promise<void> {
+  if (!db) throw new Error("Firebase not configured")
+  const database = db!
+  const deviceId = getDeviceId()
+  await remove(ref(database, journalPath(deviceId, entryId)))
 }
 
 export async function recordOutcome(

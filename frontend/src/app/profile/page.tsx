@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import { getProgress, getCalibration, getJournalEntries, getFrameworks } from "@/lib/api"
 import type { Progress, CalibrationSummary, JournalEntry, FrameworkListItem } from "@/lib/types"
 import { useSettings } from "@/lib/settings"
@@ -210,7 +211,7 @@ export default function ProfilePage() {
           ) : user ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {user.photoURL && <img src={user.photoURL} alt="" className="h-10 w-10 rounded-full" />}
+                {user.photoURL && <Image src={user.photoURL} alt="" width={40} height={40} className="h-10 w-10 rounded-full" unoptimized />}
                 <div>
                   <p className="text-sm font-medium text-dark-900 dark:text-dark-100">{user.displayName || user.email}</p>
                   <p className="text-xs text-dark-500 dark:text-dark-400">

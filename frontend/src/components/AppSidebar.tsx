@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useState, useMemo, useCallback } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -165,7 +166,7 @@ export function AppSidebar() {
         <div className="sticky bottom-0 border-t border-dark-100 dark:border-dark-800 bg-white/90 dark:bg-dark-950/90 backdrop-blur-sm p-3">
           {user ? (
             <div className="flex items-center gap-2.5">
-              {user.photoURL && <img src={user.photoURL} alt="" className="h-7 w-7 rounded-full" />}
+              {user.photoURL && <Image src={user.photoURL} alt="" width={28} height={28} className="h-7 w-7 rounded-full" unoptimized />}
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-dark-700 dark:text-dark-300 truncate">{user.displayName || user.email}</p>
                 <p className="text-[10px] text-dark-400">{isAdmin ? "Admin" : "Signed in"}</p>
