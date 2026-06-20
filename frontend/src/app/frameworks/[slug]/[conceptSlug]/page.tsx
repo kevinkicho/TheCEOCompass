@@ -35,6 +35,8 @@ export default function ConceptDetailPage() {
   const [aiEnrichment, setAiEnrichment] = useState<any>(null)
   const [aiEnrichmentLoading, setAiEnrichmentLoading] = useState(false)
   const [aiEnrichmentCached, setAiEnrichmentCached] = useState(false)
+  const [aiEnrichmentError, setAiEnrichmentError] = useState("")
+  const [aiError, setAiError] = useState("")
   const [confirmEnrich, setConfirmEnrich] = useState(false)
   const [confirmExplain, setConfirmExplain] = useState(false)
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -84,9 +86,19 @@ export default function ConceptDetailPage() {
 
   const { framework, concept } = result
 
+  // Build ordered concept list for prev/next navigation
+  const allConcepts = (framework.concepts || []).map((c: any) => ({
+    name: c.name,
+    slug: slugify(c.name),
+  }))
+  const currentIdx = allConcepts.findIndex((c) => c.slug === conceptSlug)
+  const prevConcept = currentIdx > 0 ? allConcepts[currentIdx - 1] : null
+  const nextConcept = currentIdx < allConcepts.length - 1 ? allConcepts[currentIdx + 1] : null
+
   const handleExplain = async () => {
     setAiLoading(true)
     setAiExplanation(null)
+    setAiError("")
     try {
       const { parsed, cached, prompt } = await explainConcept(concept.name, concept.definition, slug, true)
       setAiExplanation(parsed)
@@ -94,7 +106,7 @@ export default function ConceptDetailPage() {
       setAiPromptText(prompt)
       setEditingPrompt(false)
     } catch (err) {
-      console.error(err)
+      setAiError(err instanceof Error ? err.message : "AI explanation failed")
     }
     setAiLoading(false)
   }
@@ -102,6 +114,7 @@ export default function ConceptDetailPage() {
   const handleRegenerateEnrichment = async () => {
     setAiEnrichmentLoading(true)
     setAiEnrichment(null)
+    setAiEnrichmentError("")
     try {
       const { parsed, cached } = await regenerateEnrichment(
         concept.name, concept.definition, slug, framework.title, concept.tags, true,
@@ -109,7 +122,7 @@ export default function ConceptDetailPage() {
       setAiEnrichment(parsed)
       setAiEnrichmentCached(cached)
     } catch (err) {
-      console.error(err)
+      setAiEnrichmentError(err instanceof Error ? err.message : "AI enrichment failed")
     }
     setAiEnrichmentLoading(false)
   }
@@ -139,6 +152,22 @@ export default function ConceptDetailPage() {
       <button onClick={() => router.push(`/frameworks/${slug}`)}
         className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
       ><span className="text-lg leading-none">&larr;</span> Back to {framework.title}</button>
+
+      {allConcepts.length > 1 && (
+        <div className="mb-6 flex items-center justify-between text-xs">
+          {prevConcept ? (
+            <button onClick={() => router.push(`/frameworks/${slug}/${prevConcept.slug}`)}
+              className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
+            ><span>&larr;</span> {prevConcept.name}</button>
+          ) : <span />}
+          <span className="text-dark-400 dark:text-dark-500">{currentIdx + 1} / {allConcepts.length}</span>
+          {nextConcept ? (
+            <button onClick={() => router.push(`/frameworks/${slug}/${nextConcept.slug}`)}
+              className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
+            >{nextConcept.name} <span>&rarr;</span></button>
+          ) : <span />}
+        </div>
+      )}
 
       <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-dark-900 dark:text-dark-100">{concept.name}</h1>
 
@@ -194,6 +223,10 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
+      {aiEnrichmentError && (
+        <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiEnrichmentError}</div>
+      )}
+
       <div className="mb-4 flex flex-wrap items-center gap-2">
         {aiEnrichmentLoading ? (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs text-violet-600 dark:text-violet-400">
@@ -215,7 +248,7 @@ export default function ConceptDetailPage() {
         ) : (
           <button onClick={() => startConfirm(setConfirmEnrich)}
             className="rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-100/50 dark:hover:bg-violet-900/20 transition"
-          >{aiEnrichment ? "Re-gen" : "Regenerate Enrich"}</button>
+          >More Information</button>
         )}
       </div>
 
@@ -263,6 +296,9 @@ export default function ConceptDetailPage() {
 
       <div className="mb-4 mt-6">
         {aiCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
+        {aiError && (
+          <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
+        )}
         <div className="flex flex-wrap items-center gap-2">
           {aiLoading ? (
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-3 py-1 text-xs text-primary-600 dark:text-primary-400">
@@ -284,7 +320,7 @@ export default function ConceptDetailPage() {
           ) : (
             <button onClick={() => startConfirm(setConfirmExplain)}
               className="rounded-full border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-3 py-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100/50 dark:hover:bg-primary-900/20 transition"
-            >{aiExplanation ? "Re-explain" : "Explain Further"}</button>
+            >Explain Further</button>
           )}
         </div>
 
