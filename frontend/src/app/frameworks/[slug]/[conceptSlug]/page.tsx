@@ -35,6 +35,15 @@ export default function ConceptDetailPage() {
   const [aiEnrichment, setAiEnrichment] = useState<any>(null)
   const [aiEnrichmentLoading, setAiEnrichmentLoading] = useState(false)
   const [aiEnrichmentCached, setAiEnrichmentCached] = useState(false)
+  const [confirmEnrich, setConfirmEnrich] = useState(false)
+  const [confirmExplain, setConfirmExplain] = useState(false)
+  const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const startConfirm = (setter: (v: boolean) => void) => {
+    setter(true)
+    if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
+    confirmTimerRef.current = setTimeout(() => setter(false), 5000)
+  }
 
   const result = findConcept(slug, conceptSlug)
 
@@ -185,17 +194,30 @@ export default function ConceptDetailPage() {
         </div>
       )}
 
-      <button onClick={handleRegenerateEnrichment} disabled={aiEnrichmentLoading}
-        className="mb-4 w-full rounded-lg border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-4 py-2.5 text-sm font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-100/50 dark:hover:bg-violet-900/20 transition disabled:opacity-50"
-      >{aiEnrichmentLoading ? (
-        <span className="flex items-center justify-center gap-2">
-          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-          Generating enriched fields...
-        </span>
-      ) : aiEnrichment ? "Re-generate with AI" : "Generate Enriched Fields with AI"}</button>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        {aiEnrichmentLoading ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs text-violet-600 dark:text-violet-400">
+            <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            Generating...
+          </span>
+        ) : confirmEnrich ? (
+          <>
+            <button onClick={() => { setConfirmEnrich(false); handleRegenerateEnrichment() }}
+              className="rounded-full bg-violet-100 dark:bg-violet-900/30 px-3 py-1 text-xs font-medium text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition animate-pulse"
+            >Confirm?</button>
+            <button onClick={() => setConfirmEnrich(false)}
+              className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition"
+            >&times;</button>
+          </>
+        ) : (
+          <button onClick={() => startConfirm(setConfirmEnrich)}
+            className="rounded-full border border-violet-200 dark:border-violet-800/40 bg-violet-50/30 dark:bg-violet-900/10 px-3 py-1 text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-100/50 dark:hover:bg-violet-900/20 transition"
+          >{aiEnrichment ? "Re-gen" : "Regenerate Enrich"}</button>
+        )}
+      </div>
 
       {concept.case_study && (
         <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
@@ -240,18 +262,31 @@ export default function ConceptDetailPage() {
       )}
 
       <div className="mb-4 mt-6">
-        {aiCached && <div className="mb-2 flex items-center gap-2"><span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span></div>}
-        <button onClick={handleExplain} disabled={aiLoading}
-          className="w-full rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-4 py-3 text-sm font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-100/50 dark:hover:bg-primary-900/20 transition disabled:opacity-50"
-        >{aiLoading ? (
-          <span className="flex items-center justify-center gap-2">
-            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            Generating AI explanation... {aiElapsed}s
-          </span>
-        ) : aiExplanation ? "Re-generate with AI" : "Explain Further with AI"}</button>
+        {aiCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
+        <div className="flex flex-wrap items-center gap-2">
+          {aiLoading ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-3 py-1 text-xs text-primary-600 dark:text-primary-400">
+              <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Generating... {aiElapsed}s
+            </span>
+          ) : confirmExplain ? (
+            <>
+              <button onClick={() => { setConfirmExplain(false); handleExplain() }}
+                className="rounded-full bg-primary-100 dark:bg-primary-900/30 px-3 py-1 text-xs font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900/50 transition animate-pulse"
+              >Confirm?</button>
+              <button onClick={() => setConfirmExplain(false)}
+                className="rounded-full border border-dark-200 dark:border-dark-700 px-2 py-1 text-xs text-dark-500 hover:text-dark-700 dark:hover:text-dark-300 transition"
+              >&times;</button>
+            </>
+          ) : (
+            <button onClick={() => startConfirm(setConfirmExplain)}
+              className="rounded-full border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 px-3 py-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-100/50 dark:hover:bg-primary-900/20 transition"
+            >{aiExplanation ? "Re-explain" : "Explain Further"}</button>
+          )}
+        </div>
 
         {aiPromptText && <button onClick={() => setShowAiPrompt(!showAiPrompt)}
           className="mt-2 text-xs text-dark-400 dark:text-dark-500 hover:text-dark-600 dark:hover:text-dark-300 transition"
