@@ -31,12 +31,21 @@ function getFrameworkMeta(slug: string) {
   }
 }
 
-function buildSystemPrompt(type: "explain" | "quiz" | "enrich"): string {
+function buildSystemPrompt(type: "explain" | "quiz" | "enrich" | "case-study" | "exercise" | "example"): string {
   if (type === "explain") {
     return "You are a CEO coach explaining a specific framework concept to a busy executive. Be concise and actionable. Respond only with valid JSON."
   }
   if (type === "enrich") {
     return "You are a CEO coach writing enriched learning material for a busy executive. Each field must be concise, specific, and immediately actionable. Respond only with valid JSON."
+  }
+  if (type === "case-study") {
+    return "You are a business educator writing a case study about a company that applied a specific framework concept. Be factual and specific. Respond only with valid JSON."
+  }
+  if (type === "exercise") {
+    return "You are a business school professor creating a self-test exercise for students learning about a specific concept. The exercise should test practical application. Respond only with valid JSON."
+  }
+  if (type === "example") {
+    return "You are a CEO coach providing real-world examples of a concept in action. Each example must be specific and mention actual companies or situations. Respond only with valid JSON."
   }
   return "You are a business school professor creating an assessment for MBA students. Questions should test understanding, not recall. Respond only with valid JSON."
 }
@@ -48,25 +57,18 @@ export type CacheRecord = {
   created_at: number
 }
 
-export async function checkCache(
-  frameworkSlug: string,
-  conceptSlug: string | null,
-  type: string = "explain",
+async function checkCacheAt(
+  frameworkSlug: string, conceptSlug: string | null, cachePath: string,
 ): Promise<CacheRecord | null> {
   if (!db) return null
   const database = db!
   try {
-    const cachePath = conceptSlug
-      ? `framework/${frameworkSlug}/${conceptSlug}/${type}/responses`
-      : `framework/${frameworkSlug}/quiz/responses`
-
     const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
     const snap = await get(cacheQuery)
     if (!snap.exists()) {
       console.log(`[AI] Cache miss: ${cachePath}`)
       return null
     }
-
     const entries = snap.val()
     const latest = Object.values(entries)[0] as any
     if (!latest || !latest.result) return null
@@ -74,7 +76,6 @@ export async function checkCache(
       console.log(`[AI] Cache stale: ${cachePath} (${Math.round((Date.now() - latest.created_at) / 3600000)}h old)`)
       return null
     }
-
     console.log(`[AI] Cache hit: ${cachePath} (${latest.result.length} chars)`)
     return {
       result: latest.result,
@@ -87,13 +88,31 @@ export async function checkCache(
   }
 }
 
+export async function checkCache(
+  frameworkSlug: string,
+  conceptSlug: string | null,
+  type: string = "explain",
+): Promise<CacheRecord | null> {
+  if (conceptSlug) {
+    // Check type-specific path first
+    const result = await checkCacheAt(frameworkSlug, conceptSlug, `framework/${frameworkSlug}/${conceptSlug}/${type}/responses`)
+    if (result) return result
+    // Fallback to legacy path (pre-type-separation) for explain type
+    if (type === "explain") {
+      return checkCacheAt(frameworkSlug, conceptSlug, `framework/${frameworkSlug}/${conceptSlug}/responses`)
+    }
+    return null
+  }
+  return checkCacheAt(frameworkSlug, null, `framework/${frameworkSlug}/quiz/responses`)
+}
+
 async function callOllamaViaFirebase(
   model: string,
   prompt: string,
   temperature: number,
   frameworkSlug: string,
   conceptSlug: string | null,
-  type: "explain" | "quiz" | "enrich",
+  type: "explain" | "quiz" | "enrich" | "case-study" | "exercise" | "example",
   skipCache: boolean = false,
 ): Promise<{ result: string; cached: boolean; prompt: string }> {
   if (!db) {
@@ -283,6 +302,79 @@ export async function regenerateEnrichment(
   const conceptSlug = slugify(conceptName)
   const prompt = buildEnrichPrompt(conceptName, definition, frameworkTitle, conceptTags)
   const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.3, frameworkSlug, conceptSlug, "enrich", skipCache)
+  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
+}
+
+export function buildCaseStudyPrompt(conceptName: string, definition: string, frameworkTitle: string): string {
+  return `Framework: ${frameworkTitle}
+Concept: ${conceptName}
+Definition: ${definition}
+
+Generate a realistic case study of a company that applied this concept. Return ONLY valid JSON:
+{
+  "company": "Real company name",
+  "situation": "What challenge they faced (2-3 sentences)",
+  "application": "How they applied the concept (2-3 sentences)",
+  "result": "What outcome they achieved (1-2 sentences)"
+}`
+}
+
+export async function generateCaseStudy(
+  conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
+  skipCache: boolean = false,
+): Promise<{ parsed: any; cached: boolean; prompt: string }> {
+  const conceptSlug = slugify(conceptName)
+  const prompt = buildCaseStudyPrompt(conceptName, definition, frameworkTitle)
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "case-study", skipCache)
+  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
+}
+
+export function buildExercisePrompt(conceptName: string, definition: string, frameworkTitle: string): string {
+  return `Framework: ${frameworkTitle}
+Concept: ${conceptName}
+Definition: ${definition}
+
+Generate a self-test exercise for this concept. The exercise should test whether the learner can apply the concept in a realistic business scenario. Return ONLY valid JSON:
+{
+  "scenario": "A brief business scenario (2-3 sentences)",
+  "options": ["First plausible option", "Second option (correct)", "Third option", "Fourth option"],
+  "correct": <0-indexed index of the correct option>,
+  "explanation": "Why the correct answer is right and the others are wrong (1-2 sentences)"
+}`
+}
+
+export async function generateExercise(
+  conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
+  skipCache: boolean = false,
+): Promise<{ parsed: any; cached: boolean; prompt: string }> {
+  const conceptSlug = slugify(conceptName)
+  const prompt = buildExercisePrompt(conceptName, definition, frameworkTitle)
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "exercise", skipCache)
+  return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
+}
+
+export function buildExamplePrompt(conceptName: string, definition: string, frameworkTitle: string): string {
+  return `Framework: ${frameworkTitle}
+Concept: ${conceptName}
+Definition: ${definition}
+
+Generate 3 real-world examples of this concept in action. Each example must mention a specific company or industry. Return ONLY valid JSON:
+{
+  "examples": [
+    "Example 1: Company/industry and situation (1-2 sentences)",
+    "Example 2: Company/industry and situation (1-2 sentences)",
+    "Example 3: Company/industry and situation (1-2 sentences)"
+  ]
+}`
+}
+
+export async function generateExample(
+  conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
+  skipCache: boolean = false,
+): Promise<{ parsed: any; cached: boolean; prompt: string }> {
+  const conceptSlug = slugify(conceptName)
+  const prompt = buildExamplePrompt(conceptName, definition, frameworkTitle)
+  const { result, cached, prompt: fullPrompt } = await callOllamaViaFirebase("", prompt, 0.4, frameworkSlug, conceptSlug, "example", skipCache)
   return { parsed: JSON.parse(result), cached, prompt: fullPrompt }
 }
 
