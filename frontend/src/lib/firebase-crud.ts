@@ -192,6 +192,35 @@ export async function markPathwayComplete(slug: string): Promise<void> {
   })
 }
 
+// ── Saved Quotes ──
+
+export async function toggleFavoriteQuote(quoteId: string, data: { text: string; person: string }): Promise<boolean> {
+  if (!db) return false
+  const database = db!
+  const deviceId = getDeviceId()
+  const path = `favoriteQuotes/${deviceId}/${quoteId}`
+  const snap = await get(ref(database, path))
+  if (snap.exists()) {
+    await remove(ref(database, path))
+    return false
+  } else {
+    await set(ref(database, path), { text: data.text, person: data.person, saved_at: new Date().toISOString() })
+    return true
+  }
+}
+
+export async function loadFavoriteQuotes(): Promise<{ id: string; text: string; person: string }[]> {
+  if (!db) return []
+  const database = db!
+  const deviceId = getDeviceId()
+  const snap = await get(ref(database, `favoriteQuotes/${deviceId}`))
+  if (!snap.exists()) return []
+  const val = snap.val()
+  return Object.entries(val).map(([id, d]: [string, any]) => ({
+    id, text: d.text || "", person: d.person || "",
+  }))
+}
+
 // ── Concept View Tracking ──
 
 function viewedPath(deviceId: string, frameworkSlug: string, conceptId?: string): string {

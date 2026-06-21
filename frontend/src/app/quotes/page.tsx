@@ -5,6 +5,8 @@ import quotesData from "@/data/quotes.json"
 import { db, ref, onValue, off, remove, set } from "@/lib/firebase"
 import { generateQuote } from "@/lib/ollama"
 import { useAuth } from "@/lib/useAuth"
+import { toggleFavoriteQuote, loadFavoriteQuotes } from "@/lib/firebase-crud"
+import { isStaticHosting } from "@/components/RequiresBackend"
 import type { QuoteEntry } from "@/lib/types"
 
 type CategoryInfo = {
@@ -60,9 +62,11 @@ function QuoteCard({
   editingId,
   editForm,
   saving,
+  favoriteIds,
   setEditingId,
   setEditForm,
   setSaving,
+  onToggleFavorite,
 }: {
   q: QuoteEntry
   isAdmin: boolean
@@ -70,9 +74,11 @@ function QuoteCard({
   editingId: string | null
   editForm: Partial<QuoteEntry>
   saving: boolean
+  favoriteIds: Set<string>
   setEditingId: (id: string | null) => void
   setEditForm: React.Dispatch<React.SetStateAction<Partial<QuoteEntry>>>
   setSaving: (v: boolean) => void
+  onToggleFavorite: (id: string) => void
 }) {
   const [flipped, setFlipped] = useState(false)
   const cat = getCat(q.category)
@@ -131,11 +137,14 @@ function QuoteCard({
             flipped ? "opacity-0 pointer-events-none rotateY-180" : "opacity-100 rotateY-0"
           } ${q.generated ? "ring-1 ring-primary-300/30 dark:ring-primary-700/30" : ""}`}
         >
-          {q.generated && (
-            <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+            <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(q.id) }}
+              className="text-sm transition hover:scale-110"
+            >{favoriteIds.has(q.id) ? "♥" : "♡"}</button>
+            {q.generated && (
               <span className="rounded-full bg-primary-100 dark:bg-primary-900/30 px-2 py-0.5 text-[10px] font-medium text-primary-600 dark:text-primary-300">Generated</span>
-            </div>
-          )}
+            )}
+          </div>
           <div className="flex-1 flex items-center justify-center">
             <p className="text-base leading-relaxed text-dark-800 dark:text-dark-200 italic text-center
               before:content-['\201C'] before:opacity-40 before:mr-1
@@ -214,12 +223,30 @@ export default function QuotesPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [generatedQuotes, setGeneratedQuotes] = useState<QuoteEntry[]>([])
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [aiLoading, setAiLoading] = useState(false)
   const [aiCategory, setAiCategory] = useState("decision-making")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<Partial<QuoteEntry>>({})
   const [saving, setSaving] = useState(false)
   const [showPrompt, setShowPrompt] = useState(false)
+
+  useEffect(() => {
+    if (!isStaticHosting) {
+      loadFavoriteQuotes().then((favs) => setFavoriteIds(new Set(favs.map((f) => f.id))))
+    }
+  }, [])
+
+  const handleToggleFavorite = async (quoteId: string) => {
+    const q = allQuotes.find((x: QuoteEntry) => x.id === quoteId)
+    if (!q || isStaticHosting) return
+    const isFav = await toggleFavoriteQuote(quoteId, { text: q.text, person: q.person })
+    setFavoriteIds((prev) => {
+      const next = new Set(prev)
+      if (isFav) next.add(quoteId); else next.delete(quoteId)
+      return next
+    })
+  }
 
   useEffect(() => {
     if (!db) return
@@ -256,9 +283,11 @@ export default function QuotesPage() {
         )
       )
     : allQuotes
-  const filteredQuotes = selectedCategory === "all"
-    ? searched
-    : searched.filter((q) => q.category === selectedCategory)
+  const filteredQuotes = selectedCategory === "saved"
+    ? searched.filter((q) => favoriteIds.has(q.id))
+    : selectedCategory === "all"
+      ? searched
+      : searched.filter((q) => q.category === selectedCategory)
 
   const currentPrompt = `You are a curator of wisdom. Generate an insightful, real quote from a notable figure (CEO, philosopher, scientist, economist, or strategist) on the topic of ${
     ({ "risk-management": "Risk management, uncertainty, probability, and decision-making under unknown conditions",
@@ -320,6 +349,12 @@ Return ONLY valid JSON:
               ? "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
               : "text-dark-500 dark:text-dark-400 hover:text-dark-700 dark:hover:text-dark-200"
           }`}>All</button>
+        <button onClick={() => setSelectedCategory("saved")}
+          className={`px-3 py-1.5 text-xs font-medium rounded-full transition ${
+            selectedCategory === "saved"
+              ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
+              : "text-dark-500 dark:text-dark-400 hover:text-dark-700 dark:hover:text-dark-200"
+          }`}>♥ Saved ({favoriteIds.size})</button>
         {categories.map((cat) => (
           <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
             className={`px-3 py-1.5 text-xs font-medium rounded-full transition ${getTabClasses(cat.id, selectedCategory === cat.id)}`}
@@ -338,9 +373,11 @@ Return ONLY valid JSON:
             editingId={editingId}
             editForm={editForm}
             saving={saving}
+            favoriteIds={favoriteIds}
             setEditingId={setEditingId}
             setEditForm={setEditForm}
             setSaving={setSaving}
+            onToggleFavorite={handleToggleFavorite}
           />
         ))}
         {filteredQuotes.length === 0 && (
