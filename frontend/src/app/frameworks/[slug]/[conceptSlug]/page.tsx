@@ -455,7 +455,6 @@ export default function ConceptDetailPage() {
 
       {(aiCaseStudy || concept.case_study) && (
         <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
-          {aiCaseStudyCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
             <CatPageNav cat="case_study" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
@@ -475,7 +474,6 @@ export default function ConceptDetailPage() {
 
       {(aiExercise || concept.exercise) && (
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4">
-          {aiExerciseCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Test Yourself</p>
             <CatPageNav cat="test_yourself" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
@@ -515,7 +513,6 @@ export default function ConceptDetailPage() {
 
       {(aiExample || concept.example) && (
         <div className="mb-4">
-          {aiExampleCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide dark:text-dark-300">Real-World Examples</p>
             <CatPageNav cat="real_world_examples" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
@@ -541,8 +538,7 @@ export default function ConceptDetailPage() {
       )}
 
       <div className="mb-4 mt-6">
-        {aiCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
-        {aiError && (
+          {aiError && (
           <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
         )}
         <div className="flex items-center gap-1.5 mb-1">
