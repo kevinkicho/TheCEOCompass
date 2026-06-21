@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { getFrameworks } from "@/lib/api"
 import { generateQuiz } from "@/lib/ollama"
+import { saveQuizResult } from "@/lib/firebase-crud"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
 
@@ -127,6 +128,13 @@ export default function QuizPage() {
   const isLastQ = currentQ === questions.length - 1
   const isFirstQ = currentQ === 0
   const isComplete = isLastQ && evalResult !== null
+
+  useEffect(() => {
+    if (isComplete && !isStaticHosting && selectedFramework) {
+      const fw = frameworks.find((f) => f.id === selectedFramework)
+      saveQuizResult(correctAnswers.filter(Boolean).length, questions.length, fw?.slug || selectedFramework)
+    }
+  }, [isComplete])
 
   if (!questions.length) {
     return (

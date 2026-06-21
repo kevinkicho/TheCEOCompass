@@ -6,6 +6,7 @@ import { useTheme } from "@/components/ThemeProvider"
 
 const NAV_ITEMS = [
   { href: "/frameworks", label: "Frameworks" },
+  { href: "/review", label: "Review" },
   { href: "/calibration", label: "Calibration" },
   { href: "/quotes", label: "Quotes" },
   { href: "/scenarios", label: "Scenarios" },

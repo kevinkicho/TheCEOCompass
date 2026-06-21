@@ -192,6 +192,22 @@ export async function markPathwayComplete(slug: string): Promise<void> {
   })
 }
 
+// ── Quiz Results ──
+
+export async function saveQuizResult(score: number, total: number, frameworkSlug: string): Promise<void> {
+  if (!db) return
+  const database = db!
+  const deviceId = getDeviceId()
+  const resultId = crypto.randomUUID()
+  await set(ref(database, `quizResults/${deviceId}/${resultId}`), {
+    score,
+    total,
+    framework_slug: frameworkSlug,
+    pct: total > 0 ? Math.round((score / total) * 100) : 0,
+    completed_at: new Date().toISOString(),
+  })
+}
+
 // ── Scenario History ──
 
 export async function saveScenarioAttempt(scenarioSlug: string, stages: { stageId: string; choice: string; score: number }[]): Promise<void> {
