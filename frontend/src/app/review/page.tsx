@@ -89,10 +89,10 @@ export default function WeeklyReviewPage() {
       const total = quizRes.length > 0
         ? Math.round((quizRes as any[]).reduce((s: number, r: any) => s + r.pct, 0) / (quizRes as any[]).length)
         : 0
-      const summaryParts = [`This week you explored **${viewed}** concept pages.`]
-      if (quizRes.length > 0) summaryParts.push(`Completed **${quizRes.length}** quiz** with average score **${total}%**.`)
-      if (overdue > 0) summaryParts.push(`**${overdue}** decision** ${overdue === 1 ? "is" : "are"} overdue for review in your journal.`)
-      summaryParts.push(`Learning pathway: **${pathway}%** complete.`)
+      const summaryParts = [`This week you explored ${viewed} concept pages.`]
+      if (quizRes.length > 0) summaryParts.push(`Completed ${quizRes.length} quiz with average score ${total}%.`)
+      if (overdue > 0) summaryParts.push(`${overdue} decision${overdue === 1 ? " is" : "s are"} overdue for review in your journal.`)
+      summaryParts.push(`Learning pathway: ${pathway}% complete.`)
       if (viewed === 0 && quizRes.length === 0 && overdue === 0) {
         summaryParts.push("No activity this week. Start by exploring a framework or taking a quiz.")
       }
@@ -101,10 +101,6 @@ export default function WeeklyReviewPage() {
       setError(err.message || "Failed to load review data")
     }).finally(() => setLoading(false))
   }, [])
-
-  const avgQuizScore = quizScores.length > 0
-    ? Math.round(quizScores.reduce((s, r) => s + r.pct, 0) / quizScores.length)
-    : 0
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">

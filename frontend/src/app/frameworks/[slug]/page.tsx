@@ -90,8 +90,8 @@ export default function FrameworkDetailPage() {
           {framework.key_concepts?.map((name) => {
             const cs = slugify(name)
             const hasConcept = conceptMap.has(name.toLowerCase().replace(/[ /-]+/g, ""))
-            const viewed = framework.concepts?.find((c) => slugify(c.name) === cs)
-            const isViewed = viewed ? viewedIds.includes(viewed.id) : false
+            const matchedConcept = framework.concepts?.find((c) => slugify(c.name) === cs)
+            const isViewed = matchedConcept ? viewedIds.includes(matchedConcept.id) : false
             return (
               <button
                 key={name}

@@ -112,6 +112,7 @@ export function ScenarioEngine({ scenario }: Props) {
   if (isComplete) {
     const outcomeBranch = scenario.outcome_branches[finalOutcomeBranch || "acceptable"]
     return (
+      <div>
       <div className="animate-fade-in rounded-xl border border-dark-200 p-8 dark:border-dark-700">
         <div className="mb-6 text-center">
           <div className="mb-4 text-5xl">
@@ -130,12 +131,15 @@ export function ScenarioEngine({ scenario }: Props) {
           >Save to Journal &rarr;</button>
         </div>
       </div>
+      <PastAttempts pastAttempts={pastAttempts} />
+      </div>
     )
   }
 
   const stageNumber = currentStageIdx + 1
 
   return (
+    <div>
     <div className="animate-fade-in rounded-xl border border-dark-200 p-8 dark:border-dark-700">
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between text-sm">
@@ -160,6 +164,8 @@ export function ScenarioEngine({ scenario }: Props) {
           <FeedbackPanel feedback={feedback} onNext={handleNextStage} isLastStage={currentStageIdx >= scenario.stages.length - 1} />
         )}
       </div>
+    </div>
+    <PastAttempts pastAttempts={pastAttempts} />
     </div>
   )
 }

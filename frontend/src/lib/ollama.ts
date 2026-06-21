@@ -577,6 +577,7 @@ export async function generateComparison(
   conceptA: { name: string; definition: string; framework: string },
   conceptB: { name: string; definition: string; framework: string },
 ): Promise<{ comparison: string; similarities: string; differences: string; when_to_use_each: string }> {
+  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:latest"
   const prompt = `Compare two leadership concepts for a CEO audience.
