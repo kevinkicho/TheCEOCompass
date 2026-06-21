@@ -1,4 +1,4 @@
-import { db, ref, set, onValue, off, get, update, query, orderByChild, limitToLast } from "./firebase"
+import { db, ref, set, onValue, off, get, update } from "./firebase"
 import { staticFrameworks } from "./staticData"
 
 function generateId(): string {
@@ -58,20 +58,16 @@ async function checkCacheAt(
   if (!db) return null
   const database = db!
   try {
-    const cacheQuery = query(ref(database, cachePath), orderByChild("created_at"), limitToLast(1))
-    const snap = await get(cacheQuery)
+    const snap = await get(ref(database, cachePath))
     if (!snap.exists()) {
       console.log(`[AI] Cache miss: ${cachePath}`)
       return null
     }
-    const entries = snap.val()
-    const latest = Object.values(entries)[0] as any
-    if (!latest || !latest.result) return null
-    if (Date.now() - (latest.created_at || 0) > 86400000) {
-      console.log(`[AI] Cache stale: ${cachePath} (${Math.round((Date.now() - latest.created_at) / 3600000)}h old)`)
-      return null
-    }
-    console.log(`[AI] Cache hit: ${cachePath} (${latest.result.length} chars)`)
+    const now = Date.now()
+    const valid: any[] = Object.values((snap.val() || {}) as any).filter((e: any) => e?.result && now - (e.created_at || 0) <= 86400000)
+    if (valid.length === 0) return null
+    const latest = valid.reduce((a: any, b: any) => (a.created_at || 0) > (b.created_at || 0) ? a : b)
+    console.log(`[AI] Cache hit: ${cachePath} (${valid.length} entries, ${latest.result.length} chars)`)
     return {
       result: latest.result,
       prompt: latest.prompt,
@@ -92,6 +88,34 @@ export async function checkCache(
     return checkCacheAt(frameworkSlug, conceptSlug, `framework/${frameworkSlug}/${conceptSlug}/${category}`)
   }
   return checkCacheAt(frameworkSlug, null, `framework/${frameworkSlug}/quiz`)
+}
+
+export async function loadCategoryEntries(
+  frameworkSlug: string, conceptSlug: string, category: string,
+): Promise<CacheRecord[]> {
+  if (!db) return []
+  const database = db!
+  try {
+    const snap = await get(ref(database, `framework/${frameworkSlug}/${conceptSlug}/${category}`))
+    if (!snap.exists()) return []
+    const entries = snap.val()
+    const now = Date.now()
+    const results: CacheRecord[] = []
+    for (const entry of Object.values(entries) as any[]) {
+      if (entry?.result && now - (entry.created_at || 0) <= 86400000) {
+        results.push({
+          result: entry.result,
+          prompt: entry.prompt,
+          model: entry.model,
+          created_at: entry.created_at,
+        })
+      }
+    }
+    results.sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+    return results
+  } catch {
+    return []
+  }
 }
 
 async function callOllamaViaFirebase(

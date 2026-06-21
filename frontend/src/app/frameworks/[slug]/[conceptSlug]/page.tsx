@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, generateExplainFurther, buildExplainPrompt, checkCache, slugify } from "@/lib/ollama"
-import { db, ref, set, query, orderByChild, limitToLast, get } from "@/lib/firebase"
+import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, generateExplainFurther, buildExplainPrompt, checkCache, loadCategoryEntries, slugify } from "@/lib/ollama"
+import { db, ref, set, get, onChildAdded, off } from "@/lib/firebase"
 import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
@@ -46,6 +46,23 @@ function PromptTooltip({ children, prompt }: { children: React.ReactNode; prompt
           className="absolute z-50 mt-5 left-0 rounded-lg bg-dark-800 p-3 text-[10px] text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto shadow-xl border border-dark-700 min-w-[280px]"
         >{prompt}</pre>
       )}
+    </span>
+  )
+}
+
+function CatPageNav({ cat, catEntries, catPage, goToCatPage }: {
+  cat: string; catEntries: Record<string, any[]>; catPage: Record<string, number>; goToCatPage: (c: string, i: number) => void
+}) {
+  const entries = catEntries[cat]
+  if (!entries || entries.length <= 1) return null
+  const cur = catPage[cat] || 0
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[10px] text-dark-400 dark:text-dark-500">
+      <button onClick={() => goToCatPage(cat, cur - 1)} disabled={cur === 0}
+        className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&lt;</button>
+      <span className="tabular-nums">{cur + 1}/{entries.length}</span>
+      <button onClick={() => goToCatPage(cat, cur + 1)} disabled={cur >= entries.length - 1}
+        className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&gt;</button>
     </span>
   )
 }
@@ -119,6 +136,10 @@ export default function ConceptDetailPage() {
   const [confirmExample, setConfirmExample] = useState(false)
   const [aiError, setAiError] = useState("")
 
+  // Per-category pagination through multiple AI responses
+  const [catEntries, setCatEntries] = useState<Record<string, any[]>>({})
+  const [catPage, setCatPage] = useState<Record<string, number>>({})
+
   // Per-category confirm state for enrich sub-sections
   const [catConfirm, setCatConfirm] = useState<Record<string, boolean>>({})
   const [confirmExplain, setConfirmExplain] = useState(false)
@@ -158,6 +179,41 @@ export default function ConceptDetailPage() {
     confirmTimerRef.current = setTimeout(() => setter(false), 5000)
   }
 
+  const goToCatPage = (cat: string, idx: number) => {
+    const entries = catEntries[cat]
+    if (!entries || idx < 0 || idx >= entries.length) return
+    setCatPage((d) => ({ ...d, [cat]: idx }))
+    const entry = entries[idx]
+    try {
+      const parsed = JSON.parse(entry.result)
+      if (cat === "explain_further") {
+        setAiExplanation(parsed)
+      } else if (["why_it_matters_for_ceos", "how_to_apply", "common_pitfalls", "connected_concepts"].includes(cat)) {
+        setAiEnrichment((prev: any) => ({ ...prev, ...parsed }))
+      } else if (cat === "case_study") {
+        setAiCaseStudy(parsed)
+      } else if (cat === "test_yourself") {
+        setAiExercise(parsed)
+      } else if (cat === "real_world_examples") {
+        setAiExample(parsed)
+      }
+    } catch {}
+  }
+
+  const handleNewEntry = useCallback((cat: string, id: string, data: any) => {
+    if (!data?.result) return
+    const now = Date.now()
+    if (now - (data.created_at || 0) > 86400000) return
+    const entry = { result: data.result, prompt: data.prompt, created_at: data.created_at }
+    setCatEntries((d) => {
+      const prev = d[cat] || []
+      const exists = prev.some((e: any) => e.created_at === entry.created_at)
+      if (exists) return d
+      const updated = [entry, ...prev].sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+      return { ...d, [cat]: updated }
+    })
+  }, [])
+
   const result = findConcept(slug, conceptSlug)
 
   useEffect(() => {
@@ -172,50 +228,46 @@ export default function ConceptDetailPage() {
   }, [aiLoading])
 
   const checkConceptCache = useCallback(async () => {
-    const [explainCached, whyCached, howCached, pitfallsCached, connectedCached, caseStudyCached, exerciseCached, exampleCached] = await Promise.all([
-      checkCache(slug, conceptSlug, "explain_further"),
-      checkCache(slug, conceptSlug, "why_it_matters_for_ceos"),
-      checkCache(slug, conceptSlug, "how_to_apply"),
-      checkCache(slug, conceptSlug, "common_pitfalls"),
-      checkCache(slug, conceptSlug, "connected_concepts"),
-      checkCache(slug, conceptSlug, "case_study"),
-      checkCache(slug, conceptSlug, "test_yourself"),
-      checkCache(slug, conceptSlug, "real_world_examples"),
-    ])
-    if (explainCached) {
-      try {
-        const parsed = JSON.parse(explainCached.result)
-        setAiExplanation(parsed)
-        setAiCached(true)
-        setAiPromptText(explainCached.prompt || "")
-      } catch {}
-    }
-    if (whyCached) {
-      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(whyCached.result) })); setAiEnrichmentCached(true) } catch {}
-    }
-    if (howCached) {
-      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(howCached.result) })); setAiEnrichmentCached(true) } catch {}
-    }
-    if (pitfallsCached) {
-      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(pitfallsCached.result) })); setAiEnrichmentCached(true) } catch {}
-    }
-    if (connectedCached) {
-      try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(connectedCached.result) })); setAiEnrichmentCached(true) } catch {}
-    }
-    if (caseStudyCached) {
-      try { setAiCaseStudy(JSON.parse(caseStudyCached.result)); setAiCaseStudyCached(true) } catch {}
-    }
-    if (exerciseCached) {
-      try { setAiExercise(JSON.parse(exerciseCached.result)); setAiExerciseCached(true) } catch {}
-    }
-    if (exampleCached) {
-      try { setAiExample(JSON.parse(exampleCached.result)); setAiExampleCached(true) } catch {}
+    const cats = ["explain_further", "why_it_matters_for_ceos", "how_to_apply", "common_pitfalls", "connected_concepts", "case_study", "test_yourself", "real_world_examples"]
+    const all = await Promise.all(cats.map((c) => loadCategoryEntries(slug, conceptSlug, c)))
+    for (let i = 0; i < cats.length; i++) {
+      const entries = all[i]
+      if (entries.length === 0) continue
+      const cat = cats[i]
+      const latest = entries[0]
+      setCatEntries((d) => ({ ...d, [cat]: entries }))
+      setCatPage((d) => ({ ...d, [cat]: 0 }))
+      if (cat === "explain_further") {
+        try { setAiExplanation(JSON.parse(latest.result)); setAiCached(true); setAiPromptText(latest.prompt || "") } catch {}
+      } else if (["why_it_matters_for_ceos", "how_to_apply", "common_pitfalls", "connected_concepts"].includes(cat)) {
+        try { setAiEnrichment((prev: any) => ({ ...prev, ...JSON.parse(latest.result) })); setAiEnrichmentCached(true) } catch {}
+      } else if (cat === "case_study") {
+        try { setAiCaseStudy(JSON.parse(latest.result)); setAiCaseStudyCached(true) } catch {}
+      } else if (cat === "test_yourself") {
+        try { setAiExercise(JSON.parse(latest.result)); setAiExerciseCached(true) } catch {}
+      } else if (cat === "real_world_examples") {
+        try { setAiExample(JSON.parse(latest.result)); setAiExampleCached(true) } catch {}
+      }
     }
   }, [slug, conceptSlug])
 
   useEffect(() => {
     checkConceptCache()
   }, [checkConceptCache])
+
+  // Real-time listeners for new AI responses
+  useEffect(() => {
+    if (!db || !slug || !conceptSlug) return
+    const database = db!
+    const cats = ["explain_further", "why_it_matters_for_ceos", "how_to_apply", "common_pitfalls", "connected_concepts", "case_study", "test_yourself", "real_world_examples"]
+    const unsubs = cats.map((cat) => {
+      const path = `framework/${slug}/${conceptSlug}/${cat}`
+      return onChildAdded(ref(database, path), (snap) => {
+        handleNewEntry(cat, snap.key || "", snap.val())
+      }, (err) => {})
+    })
+    return () => { unsubs.forEach((u) => u()) }
+  }, [slug, conceptSlug, handleNewEntry])
 
   // Eager prompts per category
   const promptWhy = result ? buildWhyItMattersPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags) : ""
@@ -276,14 +328,15 @@ export default function ConceptDetailPage() {
     if (!db || !editPromptValue.trim()) return
     setSavingPrompt(true)
     try {
-      const cachePath = `framework/${slug}/${conceptSlug}/responses`
-      const q = query(ref(db, cachePath), orderByChild("created_at"), limitToLast(1))
-      const snap = await get(q)
+      const cachePath = `framework/${slug}/${conceptSlug}/explain_further`
+      const snap = await get(ref(db, cachePath))
       if (snap.exists()) {
         const entries = snap.val()
-        const id = Object.keys(entries)[0]
-        await set(ref(db, `${cachePath}/${id}/prompt`), editPromptValue.trim())
-        setAiPromptText(editPromptValue.trim())
+        const ids = Object.keys(entries)
+        if (ids.length > 0) {
+          await set(ref(db, `${cachePath}/${ids[ids.length - 1]}/prompt`), editPromptValue.trim())
+          setAiPromptText(editPromptValue.trim())
+        }
       }
     } catch (err) {
       console.error(err)
@@ -333,6 +386,7 @@ export default function ConceptDetailPage() {
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Why It Matters for CEOs</p>
+            <CatPageNav cat="why_it_matters_for_ceos" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={false} confirm={!!catConfirm["why"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, why: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, why: false })); handleWhyItMatters() }}
@@ -347,6 +401,7 @@ export default function ConceptDetailPage() {
         <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">How to Apply</p>
+            <CatPageNav cat="how_to_apply" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={false} confirm={!!catConfirm["how"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, how: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, how: false })); handleHowToApply() }}
@@ -366,6 +421,7 @@ export default function ConceptDetailPage() {
         <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Common Pitfalls</p>
+            <CatPageNav cat="common_pitfalls" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={false} confirm={!!catConfirm["pitfalls"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, pitfalls: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, pitfalls: false })); handleCommonPitfalls() }}
@@ -385,6 +441,7 @@ export default function ConceptDetailPage() {
         <div className="mb-4">
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Connected Concepts</p>
+            <CatPageNav cat="connected_concepts" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={false} confirm={!!catConfirm["connected"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, connected: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, connected: false })); handleConnectedConcepts() }}
@@ -405,11 +462,12 @@ export default function ConceptDetailPage() {
           {aiCaseStudyCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
+            <CatPageNav cat="case_study" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={aiCaseStudyLoading} confirm={!!confirmCaseStudy}
               onSparkle={() => startConfirm(setConfirmCaseStudy)}
               onConfirm={() => { setConfirmCaseStudy(false); handleCaseStudy() }}
               onCancel={() => setConfirmCaseStudy(false)} />
-            <PromptTooltip prompt={promptCaseStudy}>{promptCaseStudy ? "prompt" : ""}</PromptTooltip>
+            {promptCaseStudy && <PromptTooltip prompt={promptCaseStudy}>prompt</PromptTooltip>}
           </div>
           <div className="space-y-2 text-sm">
             <div><p className="font-medium text-dark-700 dark:text-dark-300">Situation</p><p className="text-dark-600 dark:text-dark-400">{(aiCaseStudy || concept.case_study).situation}</p></div>
@@ -424,11 +482,12 @@ export default function ConceptDetailPage() {
           {aiExerciseCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Test Yourself</p>
+            <CatPageNav cat="test_yourself" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={aiExerciseLoading} confirm={!!confirmExercise}
               onSparkle={() => startConfirm(setConfirmExercise)}
               onConfirm={() => { setConfirmExercise(false); handleExercise() }}
               onCancel={() => setConfirmExercise(false)} />
-            <PromptTooltip prompt={promptExercise}>{promptExercise ? "prompt" : ""}</PromptTooltip>
+            {promptExercise && <PromptTooltip prompt={promptExercise}>prompt</PromptTooltip>}
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 mb-3 leading-relaxed">{(aiExercise || concept.exercise).scenario}</p>
           <div className="space-y-1.5 mb-3">{(aiExercise || concept.exercise).options.map((opt: string, i: number) => (
@@ -445,11 +504,12 @@ export default function ConceptDetailPage() {
           {aiExampleCached && <span className="mb-2 inline-block rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">Cached</span>}
           <div className="flex items-center gap-1.5 mb-3">
             <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide dark:text-dark-300">Real-World Examples</p>
+            <CatPageNav cat="real_world_examples" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
             <SparkleBtn loading={aiExampleLoading} confirm={!!confirmExample}
               onSparkle={() => startConfirm(setConfirmExample)}
               onConfirm={() => { setConfirmExample(false); handleExample() }}
               onCancel={() => setConfirmExample(false)} />
-            <PromptTooltip prompt={promptExample}>{promptExample ? "prompt" : ""}</PromptTooltip>
+            {promptExample && <PromptTooltip prompt={promptExample}>prompt</PromptTooltip>}
           </div>
           <ul className="space-y-3">{(aiExample?.examples?.length ? aiExample.examples : (concept.example || "").split(" | ")).map((ex: string, i: number) => (
             <li key={i} className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300">
@@ -473,6 +533,7 @@ export default function ConceptDetailPage() {
         )}
         <div className="flex items-center gap-1.5 mb-1">
           <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Explain Further</p>
+          <CatPageNav cat="explain_further" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
           <SparkleBtn loading={aiLoading} confirm={!!confirmExplain}
             onSparkle={() => startConfirm(setConfirmExplain)}
             onConfirm={() => { setConfirmExplain(false); handleExplain() }}
