@@ -486,12 +486,30 @@ export default function ConceptDetailPage() {
              <PromptTooltip prompt={promptExercise}>prompt</PromptTooltip>
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 mb-3 leading-relaxed">{(aiExercise || concept.exercise).scenario}</p>
-          <div className="space-y-1.5 mb-3">{(aiExercise || concept.exercise).options.map((opt: string, i: number) => (
-            <button key={i} onClick={() => { const el = document.getElementById(`exercise-feedback-${concept.name.replace(/\s+/g, '-')}`); if (el) { const c = i === (aiExercise || concept.exercise).correct; el.innerHTML = c ? '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; Correct!</span>' : '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; Not quite.</span>'; el.className = `mt-2 text-xs ${c ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}` } }}
+          <div className="space-y-1.5 mb-3">{(aiExercise || concept.exercise).options.map((opt: string, i: number) => {
+            const feedbackId = `exercise-feedback-${concept.name.replace(/\s+/g, '-')}`
+            const explainId = `exercise-explain-${concept.name.replace(/\s+/g, '-')}`
+            return (
+            <button key={i} onClick={() => {
+              const el = document.getElementById(feedbackId)
+              const expl = document.getElementById(explainId)
+              if (el) {
+                const c = i === (aiExercise || concept.exercise).correct
+                el.innerHTML = c ? '<span class="text-green-600 dark:text-green-400 font-medium">&#10003; Correct!</span>' : '<span class="text-red-600 dark:text-red-400 font-medium">&#10007; Not quite.</span>'
+                el.className = `mt-2 text-xs ${c ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`
+              }
+              if (expl) {
+                const ex = (aiExercise || concept.exercise).explanation
+                expl.innerHTML = ex ? `${ex}` : ''
+                expl.className = 'mt-2 text-xs text-dark-600 dark:text-dark-400 leading-relaxed bg-primary-50 dark:bg-primary-900/10 rounded-lg p-3 border-l-2 border-primary-400'
+              }
+            }}
               className="w-full text-left rounded-lg border border-dark-200 dark:border-dark-700 px-3 py-2 text-xs text-dark-600 dark:text-dark-400 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition"
             >{String.fromCharCode(65 + i)}. {opt}</button>
-          ))}</div>
+            )
+          })}</div>
           <div id={`exercise-feedback-${concept.name.replace(/\s+/g, '-')}`} className="text-xs"></div>
+          <div id={`exercise-explain-${concept.name.replace(/\s+/g, '-')}`} className="text-xs"></div>
         </div>
       )}
 
