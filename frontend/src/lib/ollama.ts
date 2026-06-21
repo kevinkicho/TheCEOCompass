@@ -268,7 +268,7 @@ function mkGen(
 ) {
   return async (
     conceptName: string, definition: string, frameworkSlug: string, frameworkTitle: string,
-    conceptTags?: string[], skipCache: boolean = false,
+    skipCache: boolean = false, conceptTags?: string[],
   ): Promise<{ parsed: any; cached: boolean; prompt: string }> => {
     const conceptSlug = slugify(conceptName)
     const prompt = buildPrompt(conceptName, definition, frameworkTitle, conceptTags)

@@ -28,7 +28,7 @@ export const staticFrameworks = [
     "content": "# Strategic Decision-Making\n\nCore mental models and frameworks for making high-quality decisions.\n\n## Mental Models\n\n### First Principles Thinking\nBreak problems down to fundamental truths. Avoid reasoning by analogy.\n\n### Inversion\nInstead of asking \"How do I succeed?\", ask \"How do I guarantee failure?\" Then avoid those things.\n\n### Second-Order Thinking\nAlways ask \"And then what?\" Consider cascading effects and unintended consequences.\n\n### OODA Loop\nObserve → Orient → Decide → Act. Faster cycles win in competitive environments.\n\n### Probabilistic Thinking\nThink in probabilities and expected value, not absolutes. Update beliefs with Bayes' theorem.\n\n### Pre-Mortem Analysis\nBefore committing: \"It's 12 months later. We failed. Why?\"",
     "concepts": [
       {
-        "id": "",
+        "id": "7b936a8c-08a3-4304-9952-a70ed03223ca",
         "name": "First Principles Thinking",
         "definition": "Decompose problems to fundamental truths, rebuild from ground up",
         "formula": null,
@@ -104,7 +104,7 @@ export const staticFrameworks = [
         "order_index": 1
       },
       {
-        "id": "",
+        "id": "c303fc57-3d86-4864-87b6-934f482496a5",
         "name": "Inversion",
         "definition": "Solve problems by thinking backward from failure",
         "formula": null,
@@ -180,7 +180,7 @@ export const staticFrameworks = [
         "order_index": 2
       },
       {
-        "id": "",
+        "id": "3c536308-0ce2-478f-b34d-d5c3ff3d51c6",
         "name": "OODA Loop",
         "definition": "Observe → Orient → Decide → Act cycle for rapid decision-making",
         "formula": null,
@@ -256,7 +256,7 @@ export const staticFrameworks = [
         "order_index": 3
       },
       {
-        "id": "",
+        "id": "fa9696df-b1db-4b66-88f7-12adc0e295a1",
         "name": "Second-Order Thinking",
         "definition": "Consider cascading effects and unintended consequences. Always ask 'And then what?'",
         "formula": null,
@@ -332,7 +332,7 @@ export const staticFrameworks = [
         "order_index": 4
       },
       {
-        "id": "",
+        "id": "5cebd9a6-43df-4f74-9f82-45b7d54b730b",
         "name": "Probabilistic Thinking",
         "definition": "Think in probabilities and expected value, not absolutes. Update beliefs with new evidence.",
         "formula": null,
@@ -408,7 +408,7 @@ export const staticFrameworks = [
         "order_index": 5
       },
       {
-        "id": "",
+        "id": "cf88d68f-2bbc-4fe0-9132-19c9555923fa",
         "name": "Pre-Mortem Analysis",
         "definition": "Imagine the project failed, then work backward to prevent those failures.",
         "formula": null,
@@ -513,7 +513,7 @@ export const staticFrameworks = [
     "content": "# Financial Mastery\n\nEssential financial frameworks for CEO-level decision making.\n\n## Key Metrics\n\n### EBITDA\nEarnings Before Interest, Taxes, Depreciation, Amortization. Proxy for operating cash flow.\n\n### Free Cash Flow (FCF)\nOperating Cash Flow - Capital Expenditures. What's actually available to investors.\n\n### ROIC (Return on Invested Capital)\nNOPAT / Invested Capital. Must exceed WACC to create value.\n\n### DuPont Analysis\nROE = Net Margin × Asset Turnover × Financial Leverage. Decomposes drivers.\n\n## Valuation\n\n### DCF (Discounted Cash Flow)\nIntrinsic value = Sum of discounted future FCF + Terminal Value.\n\n### LBO Model\nLeveraged Buyout: Sources & Uses, Debt Schedule, IRR/MOIC at exit.\n\n### Cap Table & Waterfall\nOwnership through rounds, liquidation preferences, participation rights.",
     "concepts": [
       {
-        "id": "",
+        "id": "e2fe2676-c2ed-40a3-9646-49d7d9b7349b",
         "name": "EBITDA",
         "definition": "Earnings Before Interest, Taxes, Depreciation, Amortization",
         "formula": "Revenue - COGS - Operating Expenses + D&A",
@@ -589,7 +589,7 @@ export const staticFrameworks = [
         "order_index": 1
       },
       {
-        "id": "",
+        "id": "eedfdaa8-5297-428d-9181-b7e9827c476e",
         "name": "Free Cash Flow",
         "definition": "Cash generated after maintaining/growing asset base",
         "formula": "Operating Cash Flow - Capital Expenditures",
@@ -666,7 +666,7 @@ export const staticFrameworks = [
         "order_index": 2
       },
       {
-        "id": "",
+        "id": "26d2ad02-cd13-434f-bcc7-3815cc730276",
         "name": "ROIC",
         "definition": "Return on Invested Capital - measures capital efficiency",
         "formula": "NOPAT / (Total Assets - Excess Cash - Non-Interest Current Liabilities)",
@@ -743,7 +743,7 @@ export const staticFrameworks = [
         "order_index": 3
       },
       {
-        "id": "",
+        "id": "62958796-0778-44a9-a3e0-4486e7e61f96",
         "name": "DuPont Analysis",
         "definition": "ROE = Net Margin × Asset Turnover × Financial Leverage. Decomposes what drives returns.",
         "formula": null,
@@ -819,7 +819,7 @@ export const staticFrameworks = [
         "order_index": 4
       },
       {
-        "id": "",
+        "id": "45da4a60-4ce0-49b7-aa38-7c282565a3fe",
         "name": "DCF Valuation",
         "definition": "Intrinsic value = sum of discounted future free cash flows + terminal value.",
         "formula": null,
@@ -895,7 +895,7 @@ export const staticFrameworks = [
         "order_index": 5
       },
       {
-        "id": "",
+        "id": "f55811e7-9227-4ef7-a2b7-a6c323240c78",
         "name": "LBO Modeling",
         "definition": "Leveraged Buyout: Sources & Uses, debt schedule, IRR/MOIC at exit.",
         "formula": null,
@@ -971,7 +971,7 @@ export const staticFrameworks = [
         "order_index": 6
       },
       {
-        "id": "",
+        "id": "ab05bfea-8b33-4bca-9670-16d9c083fb1a",
         "name": "Unit Economics",
         "definition": "Per-unit revenue minus per-unit cost. LTV/CAC > 3x, payback < 12 months for healthy SaaS.",
         "formula": null,
@@ -1047,7 +1047,7 @@ export const staticFrameworks = [
         "order_index": 7
       },
       {
-        "id": "",
+        "id": "8e3b8221-68f8-40bc-977b-2c0d6e2df89c",
         "name": "Cap Table",
         "definition": "Ownership through funding rounds. Liquidation preferences, participation rights, dilution.",
         "formula": null,
@@ -1152,7 +1152,7 @@ export const staticFrameworks = [
     "content": "# Competitive & Market Analysis\n\nFrameworks for understanding your competitive position and market dynamics.\n\n## External Analysis\n\n### Porter's Five Forces\n1. Competitive Rivalry\n2. Supplier Power\n3. Buyer Power\n4. Threat of Substitutes\n5. Barriers to Entry\n\n### PESTLE\nPolitical, Economic, Social, Technological, Legal, Environmental factors.\n\n## Internal Analysis\n\n### VRIO Framework\nValuable, Rare, Inimitable, Organized. Tests for sustainable competitive advantage.\n\n### Value Chain\nPrimary + Support activities. Where do you create unique value?\n\n## Growth Strategy\n\n### Ansoff Matrix\nMarket Penetration, Market Development, Product Development, Diversification.\n\n### Blue Ocean\nCreate uncontested market space: Eliminate, Reduce, Raise, Create.",
     "concepts": [
       {
-        "id": "",
+        "id": "a7de51d6-73dd-4eea-bd40-7ba7a02e5fc4",
         "name": "Porter's Five Forces",
         "definition": "Analyzes industry competitiveness through five forces",
         "formula": null,
@@ -1228,7 +1228,7 @@ export const staticFrameworks = [
         "order_index": 1
       },
       {
-        "id": "",
+        "id": "3c6a965e-75cb-4600-bb3d-0cdc54fde395",
         "name": "VRIO",
         "definition": "Tests resources for sustainable competitive advantage",
         "formula": null,
@@ -1304,7 +1304,7 @@ export const staticFrameworks = [
         "order_index": 2
       },
       {
-        "id": "",
+        "id": "1e82d38f-ea44-40b5-b860-4804383c9dd7",
         "name": "Jobs-to-be-Done",
         "definition": "Customers hire products to do jobs. Understand the job, not the product.",
         "formula": null,
@@ -1381,7 +1381,7 @@ export const staticFrameworks = [
         "order_index": 3
       },
       {
-        "id": "",
+        "id": "d187da7f-12a9-4f13-980c-7c4eacc29070",
         "name": "SWOT",
         "definition": "Strengths, Weaknesses, Opportunities, Threats. Quick situational assessment matrix.",
         "formula": null,
@@ -1457,7 +1457,7 @@ export const staticFrameworks = [
         "order_index": 4
       },
       {
-        "id": "",
+        "id": "a2404159-f7c1-46e2-8486-6a9b7b232ce4",
         "name": "BCG Matrix",
         "definition": "Stars, Cash Cows, Question Marks, Dogs. Market Growth × Market Share portfolio allocation.",
         "formula": null,
@@ -1533,7 +1533,7 @@ export const staticFrameworks = [
         "order_index": 5
       },
       {
-        "id": "",
+        "id": "f0ef6fb3-7850-44a3-9979-85f07f5f5e96",
         "name": "Ansoff Matrix",
         "definition": "Market Penetration, Development, Product Development, Diversification growth vectors.",
         "formula": null,
@@ -1609,7 +1609,7 @@ export const staticFrameworks = [
         "order_index": 6
       },
       {
-        "id": "",
+        "id": "d95e3a0d-d7c3-4f70-a142-82a2fbe893a2",
         "name": "Blue Ocean",
         "definition": "Create uncontested market space: Eliminate, Reduce, Raise, Create.",
         "formula": null,
@@ -1685,7 +1685,7 @@ export const staticFrameworks = [
         "order_index": 7
       },
       {
-        "id": "",
+        "id": "48b485fc-4b27-432c-8e5b-c1be685c3798",
         "name": "Network Effects",
         "definition": "Product becomes more valuable as more users join. Direct, indirect, data, and platform effects.",
         "formula": null,
@@ -1788,7 +1788,7 @@ export const staticFrameworks = [
     "content": "# Organizational & People Leadership\n\n## Org Design\n- Span of Control: 7+/3 for complex, 15+ for simple\n- Team Topologies: Stream-aligned, Platform, Enabling, Complicated-subsystem\n- Conway's Law: Org structure mirrors system architecture\n\n## Talent Management\n- Nine-Box Grid: Performance x Potential\n- Talent Density: Hire/retain A-players, remove B/C players\n- Succession Planning: Ready now, 1-2 years, 3+ years\n\n## Change Management\n- ADKAR: Awareness > Desire > Knowledge > Ability > Reinforcement\n- Kotter 8-Step: Urgency > Coalition > Vision > Communicate > Empower > Wins > Consolidate > Anchor\n\n## Culture\n- Psychological Safety: Google's #1 team predictor\n- OKRs: Alignment without micromanagement\n- Decision Logs: Record decisions, rationale, outcomes\n\n## Compensation Philosophy\n- Market percentile positioning\n- Mix: base/bonus/equity by level\n- Pay for Performance: STIP + LTIP design",
     "concepts": [
       {
-        "id": "",
+        "id": "50d5b3d0-6f60-4ed6-83e7-60b3285db6cd",
         "name": "Span of Control",
         "definition": "Optimal number of direct reports: 7+/3 for complex work, 15+ for simple. Minimize layers.",
         "formula": null,
@@ -1835,7 +1835,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "98151a95-0dfe-4566-a3e8-797ba151964b",
         "name": "Nine-Box Grid",
         "definition": "Talent review: Performance (Low/Med/High) x Potential (Low/Med/High). Develop, promote, or exit.",
         "formula": null,
@@ -1882,7 +1882,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "cbe12941-d851-47e3-af41-b23991df891e",
         "name": "Psychological Safety",
         "definition": "Team members feel safe to take risks and be vulnerable. Google Project Aristotle's top predictor of team success.",
         "formula": null,
@@ -1929,7 +1929,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "28ce7812-eda3-4357-b87a-d32f3887a139",
         "name": "OKRs",
         "definition": "Objectives (inspiring goals) + Key Results (measurable outcomes). 3-5 per quarter.",
         "formula": null,
@@ -1976,7 +1976,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "42f223f7-b0d8-4560-bf7e-b5852bc50e82",
         "name": "ADKAR Change Management",
         "definition": "The Prosci ADKAR model for individual change: Awareness (why change is needed), Desire (personal motivation to change), Knowledge (how to change), Ability (skills to implement change), Reinforcement (sustain the change). Change fails when any element is missing. Diagnose which element is weakest, fix it, then move to the next.",
         "formula": null,
@@ -2023,7 +2023,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "88e2b98c-70b0-4aad-95c8-4f634dddbab9",
         "name": "Org Design (span/layer)",
         "definition": "Optimal spans: 7±3 for complex work, 15+ for simple. Minimize layers.",
         "formula": null,
@@ -2070,7 +2070,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "afb5ae90-a1d9-40c0-a8d0-3e9cd21b979b",
         "name": "Talent Density",
         "definition": "Hire and retain only A-players. Adequate performance gets a generous severance.",
         "formula": null,
@@ -2117,7 +2117,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "41d0bb76-7eb8-4ab4-adc1-e1ed8fc19ef7",
         "name": "Kotter's 8-Step Change Model",
         "definition": "Kotter's 8-Step framework for leading organizational transformation: 1) Create Urgency 2) Build Guiding Coalition 3) Form Strategic Vision 4) Enlist Volunteer Army 5) Enable Action by Removing Barriers 6) Generate Short-Term Wins 7) Sustain Acceleration 8) Institute Change. The first 4 steps unfreeze the status quo; steps 5-7 introduce new practices; step 8 anchors them in culture.",
         "formula": null,
@@ -2190,7 +2190,7 @@ export const staticFrameworks = [
     "content": "# Engineering & Product Leadership\n\n## Delivery Metrics (DORA)\n- Deployment Frequency: target on-demand\n- Lead Time: target <1 day\n- Change Failure Rate: target <15%\n- MTTR: target <1 hour\n\n## Product Prioritization\n- RICE: Reach x Impact x Confidence / Effort\n- Kano Model: Basic, Performance, Delight features\n- JTBD: Customers hire products for jobs\n\n## Technical Strategy\n- Build vs Buy vs Partner: Core vs Context\n- Tech Debt Management: Deliberate/Inadvertent x Prudent/Reckless\n- Architecture Fitness Functions: Guard evolution\n\n## Systems & Software Analysis\n- Requirements: Use cases, traceability\n- Architecture: ATAM, dependency analysis\n- Testing: Unit, Integration, System, Mutation\n- Performance: Load testing, bottleneck analysis\n- Security: SAST, DAST, penetration testing\n\n## AI/ML Product Leadership\n- Build vs Buy vs Partner for AI\n- MLOps: Experiment tracking, feature stores, monitoring\n- AI Ethics: Bias testing, explainability, regulation",
     "concepts": [
       {
-        "id": "",
+        "id": "2e9b6a58-9cf3-4150-a22f-836ea0b44ec8",
         "name": "DORA Metrics",
         "definition": "Four key metrics: Deployment Frequency, Lead Time, Change Failure Rate, MTTR. Elite performers deploy on-demand with <1hr lead time.",
         "formula": null,
@@ -2266,7 +2266,7 @@ export const staticFrameworks = [
         "order_index": 1
       },
       {
-        "id": "",
+        "id": "baba84fe-cded-4d3f-940f-b5ba142f3c93",
         "name": "RICE Prioritization",
         "definition": "Reach x Impact x Confidence / Effort. Quantify product decisions instead of gut feel.",
         "formula": null,
@@ -2342,7 +2342,7 @@ export const staticFrameworks = [
         "order_index": 2
       },
       {
-        "id": "",
+        "id": "72433604-a58d-4904-add2-19641b6bad2c",
         "name": "Tech Debt Quadrant",
         "definition": "Categorize debt: Deliberate/Inadvertent x Prudent/Reckless. Pay down reckless debt first, manage prudent debt.",
         "formula": null,
@@ -2418,7 +2418,7 @@ export const staticFrameworks = [
         "order_index": 3
       },
       {
-        "id": "",
+        "id": "f8c5be76-9ad7-4b80-8e1f-638391b64f2f",
         "name": "Build vs Buy",
         "definition": "Core (strategic differentiator) = build. Context (commodity) = buy or partner.",
         "formula": null,
@@ -2494,7 +2494,7 @@ export const staticFrameworks = [
         "order_index": 4
       },
       {
-        "id": "",
+        "id": "a1de59d2-6054-4375-a506-f4a9b69b45ad",
         "name": "Kano Model",
         "definition": "Classify features: Basic (must-have), Performance (linear value), Delight (unexpected wow).",
         "formula": null,
@@ -2570,7 +2570,7 @@ export const staticFrameworks = [
         "order_index": 5
       },
       {
-        "id": "",
+        "id": "67210c52-3856-49a1-bafc-50fdafc921bd",
         "name": "RICE/ICE/WSJF Prioritization",
         "definition": "RICE = Reach × Impact × Confidence / Effort. Quantify roadmap decisions.",
         "formula": null,
@@ -2646,7 +2646,7 @@ export const staticFrameworks = [
         "order_index": 6
       },
       {
-        "id": "",
+        "id": "50f3276b-184b-47dc-8665-ed84e07a3475",
         "name": "SPACE Framework",
         "definition": "Satisfaction, Performance, Activity, Communication, Efficiency. Multi-dimensional dev productivity.",
         "formula": null,
@@ -2722,7 +2722,7 @@ export const staticFrameworks = [
         "order_index": 7
       },
       {
-        "id": "",
+        "id": "74ba9dd0-5257-447f-a6b0-d3d29cd9c1b0",
         "name": "Tech Debt Management",
         "definition": "Categorize debt: Deliberate/Inadvertent × Prudent/Reckless. Fix reckless first.",
         "formula": null,
@@ -2826,7 +2826,7 @@ export const staticFrameworks = [
     "content": "# Risk, Governance & Crisis\n\n## Enterprise Risk Management\n- COSO ERM: Governance, Strategy, Performance, Review, Information\n- ISO 31000: Principles, Framework, Process\n- Risk Bow-Tie: Threats > Top Event > Consequences with barriers\n\n## Board Governance\n- Committee Charters: Audit, Compensation, Nom/Gov\n- Board Pack: KPIs, Strategic decisions, Deep-dive\n- Fiduciary Duties: Care, Loyalty, Good Faith, Business Judgment Rule\n\n## Crisis Management\n### Response Framework (First 72 Hours)\n1. FACTS: What happened? Knowns? Unknowns?\n2. IMPACT: Who affected? Severity? Obligations?\n3. CONTAIN: Stop further harm\n4. COMMUNICATE: Internal first, then external\n5. INVESTIGATE: Root cause, legal privilege\n6. RECOVER: Restore, remediate, monitor\n7. LEARN: After-action, systemic fixes\n\n### Communication Principles\n- Speed: First statement within 1 hour\n- Accuracy: Never speculate\n- Empathy: People first\n- Consistency: Single source of truth\n\n## Turnaround & Restructuring\n- 13-Week Cash Flow Forecast\n- Restructuring Waterfall: Secured > Priority > Unsecured > Equity\n- DIP Financing, Section 363 Sale, Scheme of Arrangement",
     "concepts": [
       {
-        "id": "",
+        "id": "ce472f8c-1889-4917-9bc6-cae1278827bd",
         "name": "FMEA",
         "definition": "Failure Mode Effects Analysis. Score: Severity x Occurrence x Detection = RPN. Prioritize highest RPN.",
         "formula": null,
@@ -2902,7 +2902,7 @@ export const staticFrameworks = [
         "order_index": 1
       },
       {
-        "id": "",
+        "id": "0fd0f1aa-e429-44bd-bb69-fec22d0c573a",
         "name": "Crisis First Hour",
         "definition": "Activate team, confirm containment, preserve evidence, draft holding statement, notify board. Speed + accuracy + empathy.",
         "formula": null,
@@ -2978,7 +2978,7 @@ export const staticFrameworks = [
         "order_index": 2
       },
       {
-        "id": "",
+        "id": "95cc36da-6912-4b0f-9f28-aa346418f223",
         "name": "Business Judgment Rule",
         "definition": "Presumption that directors acted in good faith if decision was informed, disinterested, and rational.",
         "formula": null,
@@ -3054,7 +3054,7 @@ export const staticFrameworks = [
         "order_index": 3
       },
       {
-        "id": "",
+        "id": "df78289a-1d36-4db6-9eb6-e519413e74a8",
         "name": "COSO ERM",
         "definition": "Governance → Strategy → Performance → Review → Information. Enterprise risk framework.",
         "formula": null,
@@ -3130,7 +3130,7 @@ export const staticFrameworks = [
         "order_index": 4
       },
       {
-        "id": "",
+        "id": "2a4b67cd-e4b4-4832-a145-221ec71c22fc",
         "name": "ISO 31000",
         "definition": "Principles, Framework, Process for risk management. International standard.",
         "formula": null,
@@ -3206,7 +3206,7 @@ export const staticFrameworks = [
         "order_index": 5
       },
       {
-        "id": "",
+        "id": "1f21c683-7b4d-49c5-8636-50eaa23a0bf1",
         "name": "Crisis Communication",
         "definition": "Speed (1hr), Accuracy (no speculation), Empathy (people first), Consistency (single source).",
         "formula": null,
@@ -3282,7 +3282,7 @@ export const staticFrameworks = [
         "order_index": 6
       },
       {
-        "id": "",
+        "id": "59384162-a6be-4ad7-a8e7-ef778456a393",
         "name": "Fiduciary Duties",
         "definition": "Duty of Care (informed), Loyalty (no self-dealing), Good Faith. Business Judgment Rule.",
         "formula": null,
@@ -3358,7 +3358,7 @@ export const staticFrameworks = [
         "order_index": 7
       },
       {
-        "id": "",
+        "id": "b7baa23a-07ad-4db9-8e3d-b3c050cc1756",
         "name": "Board Governance",
         "definition": "Committee charters, board packs, executive sessions, annual evaluation. Skills matrix.",
         "formula": null,
@@ -3434,7 +3434,7 @@ export const staticFrameworks = [
         "order_index": 8
       },
       {
-        "id": "",
+        "id": "7250f4f5-2a92-40db-95cb-3a16021350f5",
         "name": "Turnaround Playbook",
         "definition": "Stabilize (cash) → Fix (operations) → Grow (strategy). 13-week cash flow, restructuring waterfall.",
         "formula": null,
@@ -3538,7 +3538,7 @@ export const staticFrameworks = [
     "content": "# Cause Analysis Methods for CEOs\n\n## Triage by Severity\n- P0: Safety/Legal > Apollo / Formal RCA / FTA\n- P1: Revenue/Customer > RCA + Fishbone\n- P2: Process/Quality > Fishbone / 5 Whys\n- P3: Annoyance > 5 Whys / Quick fix\n\n## Methods\n\n### 5 Whys\nSimple, linear causes. Repeat \"Why?\" 3-5x until root cause.\n\n### Fishbone / Ishikawa\nMulti-category: People, Process, Technology, Measurement, Environment, Materials.\n\n### Root Cause Analysis (RCA)\nDefine > Timeline > Data > Analyze > Root Cause > Solutions > Verify at 30/90 days.\n\n### Fault Tree Analysis (FTA)\nTop event > AND/OR gates > Basic events with probabilities.\n\n### Causal Loop Diagrams\nSystems thinking: Reinforcing (R) and Balancing (B) loops with delays.\n\n### Just Culture Algorithm\nHuman error (console) vs at-risk behavior (coach) vs reckless (discipline).\n\n### Learning Review (Dekker)\nHow did this make sense to the person at the time? Systemic contributors?\n\n### Causal Inference\nDiff-in-diff, IV, regression discontinuity, synthetic control. Prove causation.",
     "concepts": [
       {
-        "id": "",
+        "id": "0be2186e-a6cd-4325-a37d-4e421833f4d8",
         "name": "5 Whys",
         "definition": "Ask 'Why?' repeatedly until root cause is found (typically 3-5 iterations). Simple, linear causal chains only.",
         "formula": null,
@@ -3585,7 +3585,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "3f298f1d-ccc3-4e7d-8e17-ba0ba4bf7b9c",
         "name": "Fishbone / Ishikawa",
         "definition": "Categorize causes: People, Process, Technology, Measurement, Environment, Materials. Teams vote on most likely category.",
         "formula": null,
@@ -3632,7 +3632,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8466183e-f487-4aa7-b887-cd8b1dc17601",
         "name": "Causal Loop Diagrams",
         "definition": "Systems thinking tool: map reinforcing (R) and balancing (B) feedback loops with delays. Reveals unintended consequences.",
         "formula": null,
@@ -3679,7 +3679,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ba346e58-5eb7-4d15-9f99-f2dad396b29c",
         "name": "Root Cause Analysis",
         "definition": "Define → Timeline → Data → Analyze → Root Cause → Solutions → Verify at 30/90 days.",
         "formula": null,
@@ -3726,7 +3726,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e92c1c9d-43a5-4f10-bb98-23c15384c3a2",
         "name": "Fault Tree Analysis",
         "definition": "Top event → AND/OR gates → basic events with probabilities. Quantitative risk assessment.",
         "formula": null,
@@ -3773,7 +3773,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a15192f7-5f02-469e-b6b0-0f900a054889",
         "name": "Just Culture",
         "definition": "Human error (console) vs at-risk behavior (coach) vs reckless (discipline). Fair judgment.",
         "formula": null,
@@ -3820,7 +3820,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b5ebd980-3841-411a-9337-155249f423eb",
         "name": "Causal Inference",
         "definition": "Diff-in-diff, IV, regression discontinuity, synthetic control. Prove causation from data.",
         "formula": null,
@@ -3897,7 +3897,7 @@ export const staticFrameworks = [
     "content": "# Negotiation & Deal-Making\n\n## Core Principles\n- BATNA: Best Alternative to Negotiated Agreement — your walkaway power\n- ZOPA: Zone of Possible Agreement — the overlap between parties\n- Anchoring: First offer sets the reference point\n- Integrative: Expand the pie, find mutual gains\n- Distributive: Divide a fixed pie, claim value\n- Principled: Separate people from problem, focus on interests not positions\n\n## Deal Structure\n- Term sheets: Price, structure, governance, liquidation\n- Earnouts: Pay for performance, align incentives\n- Representations & Warranties: Allocate risk\n- Indemnification: Who bears what liability\n\n## Game Theory for CEOs\n- Prisoner's Dilemma: Why cooperation fails without trust\n- Nash Equilibrium: Stable outcomes where no one can unilaterally improve\n- Signaling: How actions communicate private information\n- Commitment devices: Tying your own hands can be strategic",
     "concepts": [
       {
-        "id": "",
+        "id": "ccabe485-a459-4e34-91db-17ff2b153d00",
         "name": "BATNA",
         "definition": "Best Alternative to a Negotiated Agreement — your best option if the deal fails. A strong BATNA gives you leverage and confidence.",
         "formula": null,
@@ -3973,7 +3973,7 @@ export const staticFrameworks = [
         "order_index": 1
       },
       {
-        "id": "",
+        "id": "95119eb5-3966-4659-8bd7-69a9c95d99e2",
         "name": "ZOPA",
         "definition": "Zone of Possible Agreement — the range between the seller's minimum and buyer's maximum. If no overlap exists, no deal is possible.",
         "formula": null,
@@ -4049,7 +4049,7 @@ export const staticFrameworks = [
         "order_index": 2
       },
       {
-        "id": "",
+        "id": "14ac5da7-c465-44c7-8448-01f91666bc5d",
         "name": "Anchoring",
         "definition": "The first number put on the table becomes the reference point — even if arbitrary. Skilled negotiators use this to shift the range in their favor.",
         "formula": null,
@@ -4125,7 +4125,7 @@ export const staticFrameworks = [
         "order_index": 3
       },
       {
-        "id": "",
+        "id": "3d002993-9641-4ce0-995f-d7011967ad9b",
         "name": "Integrative Negotiation",
         "definition": "Expand the total value available, not just divide a fixed pie. Focus on interests (why they want something), not positions (what they say they want). Creates win-win outcomes.",
         "formula": null,
@@ -4201,7 +4201,7 @@ export const staticFrameworks = [
         "order_index": 4
       },
       {
-        "id": "",
+        "id": "2ca9591c-f853-490d-b108-4c1ffb2faa92",
         "name": "Distributive Negotiation",
         "definition": "Dividing fixed value — one side's gain is the other's loss. Used when interests are directly opposed or relationship is transactional.",
         "formula": null,
@@ -4277,7 +4277,7 @@ export const staticFrameworks = [
         "order_index": 5
       },
       {
-        "id": "",
+        "id": "0e29fa8f-6a91-4386-8d63-65fe0c357b6b",
         "name": "Principled Negotiation (Getting to Yes)",
         "definition": "Fisher & Ury's 4-point framework: 1) Separate people from problem 2) Focus on interests, not positions 3) Generate options for mutual gain 4) Insist on objective criteria.",
         "formula": null,
@@ -4353,7 +4353,7 @@ export const staticFrameworks = [
         "order_index": 6
       },
       {
-        "id": "",
+        "id": "02dabdfc-1079-40a5-b3d5-141020a95ae5",
         "name": "Game Theory / Prisoner's Dilemma",
         "definition": "Mathematical framework for strategic decision-making where outcomes depend on others' choices. Prisoner's Dilemma shows why cooperation can fail even when it benefits both parties.",
         "formula": null,
@@ -4429,7 +4429,7 @@ export const staticFrameworks = [
         "order_index": 7
       },
       {
-        "id": "",
+        "id": "77198500-2c19-4a1b-b737-37c1ebf1612b",
         "name": "M&A Deal Structure",
         "definition": "The architecture of an acquisition: cash vs stock, earnouts, holdbacks, representations & warranties, indemnification, closing conditions. Structure often matters more than price.",
         "formula": null,
@@ -4534,7 +4534,7 @@ export const staticFrameworks = [
     "content": "# Innovation & R&D Management\n\n## Types of Innovation\n- Sustaining: Better products for existing customers\n- Disruptive: Simpler, cheaper products that create new markets\n- Incremental: Small improvements to existing offerings\n- Radical: Entirely new technology or business model\n\n## Lean Startup\n- Build-Measure-Learn feedback loop\n- Minimum Viable Product (MVP)\n- Validated learning over vanity metrics\n- Pivot or persevere decisions\n\n## Innovation Portfolio\n- Three Horizons: Core (70%), Adjacent (20%), Transformational (10%)\n- Ambidextrous Organization: Exploit current business while exploring new ones\n- Stage-Gate: Idea → Scoping → Business Case → Development → Testing → Launch",
     "concepts": [
       {
-        "id": "",
+        "id": "e0d84146-73bf-4fbf-800c-704e8160caed",
         "name": "Disruptive Innovation",
         "definition": "Clayton Christensen's theory: incumbents focus on best customers and ignore simpler, cheaper alternatives. Disruptors start at the low end and move upmarket until they overtake incumbents.",
         "formula": null,
@@ -4581,7 +4581,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "c1ac0a7e-7ad9-429d-83d2-97ddef44bbc0",
         "name": "Crossing the Chasm",
         "definition": "Geoffrey Moore's model: innovations succeed with early adopters but fail to reach the mainstream 'early majority' — the gap between them is 'the chasm.' Crossing requires a focused 'beachhead' strategy.",
         "formula": null,
@@ -4628,7 +4628,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0b00ca94-cfc2-4a88-a9d1-ad101c5beaf1",
         "name": "Lean Startup / Build-Measure-Learn",
         "definition": "Eric Ries' methodology: Ship a minimum viable product (MVP), measure real customer behavior (not surveys), learn from data, and iterate rapidly. Speed of learning > perfection.",
         "formula": null,
@@ -4675,7 +4675,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "1766ece7-e863-417a-90b4-9586da287d4c",
         "name": "Design Thinking",
         "definition": "Human-centered innovation process: Empathize (understand users) → Define (frame the problem) → Ideate (brainstorm solutions) → Prototype (build rough versions) → Test (get feedback). Iterate.",
         "formula": null,
@@ -4722,7 +4722,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "aa978bbc-cd96-4a85-ac4a-cf9391c31078",
         "name": "Stage-Gate Process",
         "definition": "Structured innovation funnel: Ideas enter, pass through gates (go/kill decisions) at each stage. Reduces risk by killing bad ideas early before heavy investment.",
         "formula": null,
@@ -4769,7 +4769,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "634370e7-5582-4d76-9c3b-70313436f4b9",
         "name": "Ambidextrous Organization",
         "definition": "Simultaneously exploit (optimize current business for efficiency) AND explore (experiment with new opportunities). Requires separate structures, processes, and cultures for each.",
         "formula": null,
@@ -4816,7 +4816,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "2c530675-18e6-47b0-81c0-371aa698fd3d",
         "name": "Technology S-Curve",
         "definition": "Technologies follow an S-curve: slow initial progress, rapid improvement, then diminishing returns as limits are reached. Timing the jump to the next S-curve is the CEO's job.",
         "formula": null,
@@ -4863,7 +4863,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "569c06f5-3534-43a1-ab48-4feef3728d0d",
         "name": "Innovator's Dilemma",
         "definition": "Successful companies fail NOT because of bad management, but BECAUSE of good management. Listening to current customers, investing in highest-margin products, and optimizing for current market all prevent investing in disruptive technologies.",
         "formula": null,
@@ -4940,7 +4940,7 @@ export const staticFrameworks = [
     "content": "# Business Model & Strategy Design\n\n## Business Model Canvas (Osterwalder)\nNine building blocks: Customer Segments, Value Propositions, Channels, Customer Relationships, Revenue Streams, Key Resources, Key Activities, Key Partnerships, Cost Structure. One-page visual for any business model.\n\n## Porter's Generic Strategies\n- Cost Leadership: Lowest cost producer in the industry\n- Differentiation: Unique product that customers will pay premium for\n- Focus: Target a narrow market segment with either cost or differentiation\n- Stuck in the middle: Worst position — not low cost, not differentiated\n\n## Balanced Scorecard (Kaplan & Norton)\nFour perspectives: Financial, Customer, Internal Process, Learning & Growth. Translates strategy into measurable objectives across all dimensions, not just financial.\n\n## Core Competency (Prahalad & Hamel)\nUnique capabilities that: 1) Provide access to wide markets 2) Significantly contribute to customer benefits 3) Are difficult for competitors to imitate. Strategy should be built around these.",
     "concepts": [
       {
-        "id": "",
+        "id": "b8cc4d74-e303-422a-9695-1585f5205743",
         "name": "Business Model Canvas",
         "definition": "Alexander Osterwalder's one-page framework mapping 9 building blocks of any business model. Used to design, analyze, and pivot business models rapidly.",
         "formula": null,
@@ -4987,7 +4987,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0f33f23b-76ee-4c10-957b-36acf20eb3d7",
         "name": "Porter's Generic Strategies",
         "definition": "Three fundamental competitive positions: Cost Leadership (lowest cost in industry), Differentiation (unique value customers pay premium for), and Focus (serve a narrow segment extremely well). Being 'stuck in the middle' is the worst position.",
         "formula": null,
@@ -5034,7 +5034,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b964a8b1-7618-4c71-bc0f-53e6567e33b9",
         "name": "Core Competency",
         "definition": "Prahalad & Hamel: A unique capability that provides access to wide markets, contributes significantly to customer perceived value, and is difficult for competitors to imitate. Strategy should be built around competencies, not products.",
         "formula": null,
@@ -5081,7 +5081,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b71fbb5d-64b9-4225-913d-3b6feb97d4e4",
         "name": "Balanced Scorecard",
         "definition": "Kaplan & Norton: Translates strategy into measurable objectives across 4 perspectives — Financial, Customer, Internal Process, Learning & Growth. Prevents over-focusing on financial metrics alone.",
         "formula": null,
@@ -5128,7 +5128,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "13116b2d-69ad-4655-918e-5340664499ec",
         "name": "Strategy Map",
         "definition": "Visual representation of an organization's strategy showing cause-and-effect relationships between objectives across the Balanced Scorecard perspectives. One-page strategy communication tool.",
         "formula": null,
@@ -5175,7 +5175,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "23233ec9-d93e-4471-b680-89fa16ff94bd",
         "name": "Gap Analysis",
         "definition": "Identify the gap between current state and desired future state, then develop strategies to close it. Systematic performance improvement planning.",
         "formula": null,
@@ -5222,7 +5222,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "fc627485-8447-45a9-aee5-ff0e4678a678",
         "name": "OGSM Framework",
         "definition": "Objective, Goals, Strategies, Measures. A one-page strategic planning framework used by P&G, Coca-Cola, and Mars. Bridges vision (Objective) to execution (Measures) with clear accountability.",
         "formula": null,
@@ -5269,7 +5269,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "fb49df5f-e4c7-4685-b5a6-a3fc1707e8a5",
         "name": "MECE Principle",
         "definition": "Mutually Exclusive, Collectively Exhaustive. A problem-structuring principle from McKinsey: categories must not overlap (no double counting) and must cover everything (no gaps).",
         "formula": null,
@@ -5346,7 +5346,7 @@ export const staticFrameworks = [
     "content": "# Operations & Quality Management\n\n## Lean & TPS\n- Eliminate waste (muda): overproduction, waiting, transport, over-processing, inventory, motion, defects\n- Continuous flow: one piece at a time, not batches\n- Pull system: produce only what customer orders (kanban)\n- Respect for people: front-line workers solve problems\n\n## Six Sigma\n- DMAIC: Define, Measure, Analyze, Improve, Control\n- Goal: 3.4 defects per million opportunities\n- Statistical approach to variation reduction\n- Belts: Yellow, Green, Black (training levels)\n\n## Theory of Constraints\n- Every system has ONE bottleneck\n- 5 focusing steps: Identify constraint → Exploit → Subordinate → Elevate → Repeat\n- Throughput Accounting: prioritizes throughput over cost reduction",
     "concepts": [
       {
-        "id": "",
+        "id": "a6883e75-f9a2-41fe-878d-5e2afb0204c4",
         "name": "Six Sigma / DMAIC",
         "definition": "Data-driven methodology to eliminate defects and reduce variation. DMAIC: Define (problem), Measure (current performance), Analyze (root causes), Improve (implement solutions), Control (sustain gains). Goal: 3.4 defects per million.",
         "formula": null,
@@ -5393,7 +5393,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b77ccb4e-c3f7-4b07-ba58-87840dc767bf",
         "name": "Theory of Constraints",
         "definition": "Eliyahu Goldratt: Every system has ONE bottleneck that limits throughput. Improve the bottleneck, improve the whole system. Improve anything else = wasted effort.",
         "formula": null,
@@ -5440,7 +5440,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "5406a2f6-b09d-4488-b623-43df2c46c983",
         "name": "Lean Manufacturing / TPS",
         "definition": "Toyota Production System: Eliminate all waste (muda) — overproduction, waiting, transport, over-processing, inventory, motion, defects. Produce exactly what's needed, when needed, in the amount needed.",
         "formula": null,
@@ -5487,7 +5487,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "f9ac8ecd-d81e-4b88-bee3-59d8b8d0e87e",
         "name": "Pareto Principle (80/20)",
         "definition": "80% of effects come from 20% of causes. Applied to operations: 80% of quality issues from 20% of defect types, 80% of revenue from 20% of customers, 80% of delays from 20% of process steps. Focus on the vital 20%.",
         "formula": null,
@@ -5534,7 +5534,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d37f7d20-0d2e-4780-9947-40a9b3f1bd4a",
         "name": "Just-in-Time (JIT)",
         "definition": "Inventory strategy: materials arrive exactly when needed in production, not before. Reduces carrying costs, reveals process problems (no buffer inventory hides issues), and forces quality improvements.",
         "formula": null,
@@ -5581,7 +5581,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "56cc27e0-46eb-4e2a-a5a8-ea11f8386518",
         "name": "Hoshin Kanri / Policy Deployment",
         "definition": "Japanese strategic planning process that aligns company-wide objectives (what) with daily management (how). Cascading goals from CEO to front line with catchball (two-way negotiation) at each level.",
         "formula": null,
@@ -5628,7 +5628,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "01806c79-5d6b-47df-b087-3b4840ea0016",
         "name": "Statistical Process Control",
         "definition": "Monitor process performance with control charts. Upper and lower control limits (typically ±3 sigma). Points outside limits = special cause (investigate). Points within limits = common cause (process is stable).",
         "formula": null,
@@ -5675,7 +5675,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "74f38b34-ff49-4f80-9514-085438ca9efa",
         "name": "Total Quality Management (TQM)",
         "definition": "Organization-wide commitment to quality: customer focus, continuous improvement, employee involvement, process-centered, data-driven. Everyone owns quality, not just QA department.",
         "formula": null,
@@ -5749,7 +5749,7 @@ export const staticFrameworks = [
     "content": "# Decision Tree Analysis\n\n## CEO Use Case\nShould you build a new product, buy a competitor, or partner? Decision trees map each path with probability-weighted outcomes.\n\n## Core Concepts\n- **Decision Nodes** (squares): points where YOU choose\n- **Chance Nodes** (circles): points where the market/competition reacts\n- **Terminal Nodes** (triangles): final outcomes with values\n- **Expected Value**: sum(probability × outcome) at each chance node\n- **Fold back**: calculate from right to left, choosing highest EV at each decision node\n\n## Key CEO Benefits\n- Makes assumptions explicit and auditable\n- Quantifies the value of gathering more information before deciding\n- Reveals which variables most affect the outcome (sensitivity)\n- Combines quantitative (EV) with qualitative (risk tolerance) judgment",
     "concepts": [
       {
-        "id": "",
+        "id": "d81fbc5e-c733-4aba-94ac-a536c8248e4e",
         "name": "Expected Value Calculation",
         "definition": "Multiply each possible outcome by its probability and sum them. The weighted average result — use this to compare choices objectively.",
         "formula": null,
@@ -5796,7 +5796,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "4b2996fc-30e8-4f2a-9129-8e73dc977fca",
         "name": "Decision Nodes vs Chance Nodes",
         "definition": "Decision nodes (squares) = you choose the path. Chance nodes (circles) = the universe chooses, with probabilities you estimate. Separate what you control from what you don't.",
         "formula": null,
@@ -5843,7 +5843,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "1c32979d-90e1-4f21-bdc0-712217698a12",
         "name": "Value of Information",
         "definition": "How much should you pay to reduce uncertainty before deciding? Calculate: EV with perfect information minus EV without it. If cost < value, buy the information.",
         "formula": null,
@@ -5890,7 +5890,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a016a776-2275-4e24-8ff1-5765e26ab158",
         "name": "Real Options in Decision Trees",
         "definition": "Some decisions create future flexibility (options). An option to expand, abandon, or defer has value — include it in the tree.",
         "formula": null,
@@ -5937,7 +5937,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "1341573b-f9ad-4116-bcd2-05c1e8108717",
         "name": "Bayesian Updating in Trees",
         "definition": "As new information arrives, update the probabilities at chance nodes. Bayes' Theorem: posterior probability = prior × likelihood / evidence. Trees are living models, not static artifacts.",
         "formula": null,
@@ -5984,7 +5984,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e2357cf5-bac0-4df4-b00b-ae76a6cbf33a",
         "name": "Sensitivity at Decision Nodes",
         "definition": "At each decision node, test: if the probability at the next chance node changes by 10%, does the optimal decision change? Nodes where a small change flips the decision are your key uncertainties.",
         "formula": null,
@@ -6058,7 +6058,7 @@ export const staticFrameworks = [
     "content": "# Sensitivity Analysis\n\n## CEO Use Case\nYour CFO presents a DCF showing the acquisition is worth $50M. Sensitivity analysis reveals: if churn is 1% worse than assumed, value drops to $20M. The deal lives or dies on ONE assumption.\n\n## Core Concepts\n- **Tornado Chart**: rank variables by impact — the widest bar is your most critical assumption\n- **Break-Even Analysis**: at what value does NPV flip to zero?\n- **One-Way Sensitivity**: vary one input, hold others constant\n- **Two-Way Sensitivity**: vary two inputs simultaneously, see the interaction\n- **Best/Worst/Base Cases**: three scenarios, not just one point estimate\n\n## Key CEO Benefits\n- Exposes hidden fragility in models\n- Tells you where to focus due diligence\n- Prepares you for board questions: 'What if your assumptions are wrong?'",
     "concepts": [
       {
-        "id": "",
+        "id": "e981a9f0-f79b-4bc5-a23a-3d26248bf95d",
         "name": "Tornado Charts",
         "definition": "Rank every input variable by how much it swings the final output when varied across its plausible range. The variable with the widest bar is your deal-killer — verify it first.",
         "formula": null,
@@ -6105,7 +6105,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ce5180bc-2ee7-40f6-ab00-fba5eea0e58d",
         "name": "Break-Even Analysis",
         "definition": "For each critical assumption, calculate what value would make NPV = 0. How far are we from disaster? Small margin = high risk.",
         "formula": null,
@@ -6152,7 +6152,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "2278208b-3b5f-4fdc-858a-2a0a71948b57",
         "name": "Scenario Testing",
         "definition": "Don't just show one number. Show Best Case, Worst Case, and Most Likely Case. The spread between best and worst IS the risk. Narrow spreads = confident predictions; wide spreads = speculative.",
         "formula": null,
@@ -6199,7 +6199,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "534be0c7-4d86-4740-acdc-edd908deec3c",
         "name": "Assumption Auditing",
         "definition": "List every assumption in your model. Rate each on: 1) How much does it impact the output? 2) How certain are we about it? Focus verification on high-impact, high-uncertainty assumptions.",
         "formula": null,
@@ -6246,7 +6246,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a10ebe3c-8747-4112-8246-c2a04f2b0b6e",
         "name": "Spider Charts",
         "definition": "A radar-style chart showing how multiple input variables affect the output when each is varied across its range. The variable with the steepest line has the most impact — visually obvious in seconds.",
         "formula": null,
@@ -6293,7 +6293,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8c2ede7a-c3df-4e12-951c-f7e2b411cd67",
         "name": "One-Way vs Two-Way Sensitivity",
         "definition": "One-way: vary one input, hold all others constant. Two-way: vary two inputs simultaneously and observe the interaction. Two-way reveals synergies and offsetting effects one-way misses.",
         "formula": null,
@@ -6368,7 +6368,7 @@ export const staticFrameworks = [
     "content": "# Stakeholder Analysis & Mapping\n\n## CEO Use Case\nBefore announcing a reorg: map every stakeholder by power and interest. High power + high interest = manage closely. High power + low interest = keep satisfied (don't surprise them). Low power + high interest = keep informed. Low power + low interest = monitor.\n\n## Core Concepts\n- **Power/Interest Grid**: the classic 2×2 stakeholder map\n- **Stakeholder Salience**: Power, Legitimacy, and Urgency — who gets attention\n- **RACI**: assign Responsible, Accountable, Consulted, Informed per stakeholder\n- **Influence Networks**: who influences whom? Draw the informal org chart\n\n## Key CEO Benefits\n- Prevents blindsiding key stakeholders\n- Turns potential blockers into supporters through early engagement\n- Reveals who you've overlooked (the silent stakeholders who can still derail you)",
     "concepts": [
       {
-        "id": "",
+        "id": "a9bdfa53-fd39-4aba-a362-bac87293b5cf",
         "name": "Power/Interest Grid",
         "definition": "Plot every stakeholder on a 2x2: Power (ability to affect outcome) vs Interest (how much they care). Each quadrant gets a different engagement strategy.",
         "formula": null,
@@ -6415,7 +6415,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "832531c2-c223-42a2-a911-152b0676f4cb",
         "name": "Stakeholder Salience",
         "definition": "Mitchell, Agle & Wood: stakeholders get priority based on three attributes — Power, Legitimacy, and Urgency. Those with all three are 'definitive stakeholders' and demand immediate attention.",
         "formula": null,
@@ -6462,7 +6462,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "18de7e71-1407-4a13-ba54-c7e0adbb4459",
         "name": "RACI Mapping",
         "definition": "For every decision or deliverable, assign: Responsible (does the work), Accountable (approves — only ONE), Consulted (input before decision), Informed (told after decision). Clarifies who owns what.",
         "formula": null,
@@ -6509,7 +6509,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "06ddb659-892a-44f9-99c6-47f052af733b",
         "name": "Influence Networks",
         "definition": "Map the informal organization — who influences whom beyond the org chart. Identify central nodes, bridges, and isolated stakeholders. Engage influencers even if they lack formal power.",
         "formula": null,
@@ -6556,7 +6556,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "09c4af3f-33a9-4377-a984-03e4e82dc59b",
         "name": "Communication Planning",
         "definition": "For each stakeholder group, define: what message, through what channel, at what frequency, from whom. The Power/Interest grid determines the communication intensity.",
         "formula": null,
@@ -6603,7 +6603,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "6d9eef42-d3d9-4d5d-9e42-ca52b0f02bfc",
         "name": "Coalition Building",
         "definition": "Map stakeholder positions (supporters, neutrals, opponents). Build a winning coalition by: 1) Lock in supporters early 2) Convert neutrals through targeted engagement 3) Neutralize opponents or isolate them.",
         "formula": null,
@@ -6677,7 +6677,7 @@ export const staticFrameworks = [
     "content": "# Cohort Analysis\n\n## CEO Use Case\nOverall churn looks fine at 3%. But cohort analysis reveals: customers who joined in March are churning at 12%. Something changed in March — a buggy release, a new competitor, a process change. Without cohorts, you'd miss this for months.\n\n## Core Concepts\n- **Time Cohorts**: group by acquisition month/quarter\n- **Behavior Cohorts**: group by first action (e.g., first purchase, feature used)\n- **Retention Matrix**: rows = cohorts, columns = time periods, cells = % retained\n- **Cohort Lifecycle**: does retention improve or degrade with each new cohort?\n- **Leading Indicators**: identify when a cohort starts diverging from baseline\n\n## Key CEO Benefits\n- Separates signal from noise in customer metrics\n- Catches problems months before they show in aggregate numbers\n- Reveals whether 'growth' is masking 'deteriorating quality' of new customers",
     "concepts": [
       {
-        "id": "",
+        "id": "f0da7ee4-e0cf-4210-82cd-eba1b302d3d2",
         "name": "Retention Cohorts",
         "definition": "Track what percentage of each acquisition month is still active after X months. A flat or improving retention curve = healthy. A declining curve = newer customers are worse than older ones.",
         "formula": null,
@@ -6724,7 +6724,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "57d91e84-deeb-4437-8357-a8ee412e7b81",
         "name": "Revenue Cohorts",
         "definition": "Track not just retention, but revenue per retained customer over time. Are you keeping customers but losing revenue? Or growing revenue per retained customer?",
         "formula": null,
@@ -6772,7 +6772,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "5931a732-75b6-4e6d-90e0-601f7ac5e23e",
         "name": "Cohort vs Aggregate Metrics",
         "definition": "Aggregate '3% monthly churn' can hide: 1% churn in oldest cohorts and 8% in newest. Without cohort breakdown, you'd think everything is fine while the business erodes from the front.",
         "formula": null,
@@ -6819,7 +6819,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e12a7504-fe13-469e-b981-36bac8565651",
         "name": "Leading Churn Indicators",
         "definition": "Don't wait for churn. Identify behavioral patterns that PREDICT churn: declining usage, fewer support tickets (given up), downgrade activity. Act before they leave.",
         "formula": null,
@@ -6867,7 +6867,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "96957cf8-f6aa-48bb-8206-0ee09ef76619",
         "name": "Cohort Definition (Time vs Behavior)",
         "definition": "Time cohorts: group by when they started (acquisition month). Behavior cohorts: group by what they did (first purchased feature X). Use time for retention analysis, behavior for product analysis.",
         "formula": null,
@@ -6914,7 +6914,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "05b7aaee-5c44-4f71-9a01-82a47062102e",
         "name": "Cohort Lifecycle Patterns",
         "definition": "Healthy: each new cohort retains better than the previous (product improving). Warning: cohorts show same retention (product stagnant). Danger: newer cohorts retain WORSE (product deteriorating or growth quality declining).",
         "formula": null,
@@ -6988,7 +6988,7 @@ export const staticFrameworks = [
     "content": "# Monte Carlo Simulation\n\n## CEO Use Case\nYour team says 'the project will take 6 months.' Monte Carlo shows: 10% chance it takes 4 months (great), 50% chance 6-8 months, and 15% chance it takes >12 months. That 15% tail risk is what you need to manage. A single point estimate is a lie.\n\n## Core Concepts\n- **Distribution instead of point estimate**: replace 'revenue will be $10M' with 'revenue is normally distributed with mean $10M and std dev $2M'\n- **Random sampling**: run 10,000 scenarios, each with different random inputs\n- **Output distribution**: the result is a probability curve, not a number\n- **P10, P50, P90**: the 10th, 50th, and 90th percentile outcomes\n\n## Key CEO Benefits\n- Quantifies uncertainty instead of ignoring it\n- Reveals tail risks that point estimates hide\n- Informs how much buffer/contingency you really need",
     "concepts": [
       {
-        "id": "",
+        "id": "71af3878-4eaf-46d8-bfde-c1fa14d6279e",
         "name": "Distribution Thinking",
         "definition": "Replace every point estimate in your model with a probability distribution (range + likelihood). 'Revenue = $10M' becomes 'Revenue is triangular: min $7M, most likely $10M, max $15M.'",
         "formula": null,
@@ -7035,7 +7035,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "23f11a98-9356-4559-80cc-faf1cf59a1aa",
         "name": "Confidence Intervals (P10/P50/P90)",
         "definition": "Run 10,000 simulations and report: P10 (10% of outcomes are below this — optimistic but possible), P50 (median — equally likely above or below), P90 (90% are below — conservative). The P10-P90 range IS your uncertainty.",
         "formula": null,
@@ -7082,7 +7082,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "38e2f469-67f0-4943-85c3-5963b5b7ed46",
         "name": "Value at Risk (VaR)",
         "definition": "The maximum loss you'd expect at a given confidence level over a specific time period. VaR(95%) = $10M means 'we're 95% confident we won't lose more than $10M.' The remaining 5% could be worse.",
         "formula": null,
@@ -7129,7 +7129,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0c4466db-b9cb-43eb-a552-79f0415eeafb",
         "name": "Correlated Assumptions",
         "definition": "In reality, variables move together: when the economy tanks, both your sales drop AND your cost of capital rises. Model correlations or your simulation will underestimate risk.",
         "formula": null,
@@ -7177,7 +7177,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "135dab94-6570-4ce0-b411-ae9d327ba24b",
         "name": "Convergence Testing",
         "definition": "Run enough iterations that the output distribution stabilizes. If adding 1000 more iterations doesn't change P50 by more than 1%, you've converged. Typical: 5,000-10,000 iterations for most business models.",
         "formula": null,
@@ -7250,7 +7250,7 @@ export const staticFrameworks = [
     "content": "# Value Driver Tree Analysis\n\n## CEO Use Case\nBoard asks: 'How will we double enterprise value in 3 years?' Value Driver Tree shows: it's not one thing. It's 5% price increase + 10% volume growth + 2% margin improvement + multiple expansion. Each maps to a specific executive owner with their own sub-drivers and KPIs.\n\n## Core Concepts\n- **Start at the top**: enterprise value, revenue, profit — whatever your North Star is\n- **Decompose mathematically**: EV = FCF / (WACC - g). Break each component into sub-drivers\n- **Map to operational levers**: each driver must connect to something a specific person can control\n- **Leading vs lagging**: driver trees connect today's actions (leading) to tomorrow's results (lagging)\n\n## Key CEO Benefits\n- Connects board-level objectives to individual KPIs\n- Shows interdependencies — changing one lever affects others\n- Identifies which levers are most powerful (sensitivity at every node)",
     "concepts": [
       {
-        "id": "",
+        "id": "4da38a18-c934-4831-9875-24b60dd6f06b",
         "name": "DuPont-Style Driver Trees",
         "definition": "Start with ROE or ROIC at the top, decompose into margin × turnover × leverage, and keep decomposing until you reach operational metrics that front-line managers control.",
         "formula": null,
@@ -7297,7 +7297,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "149c8307-e5c2-4e19-9c7e-151511c54185",
         "name": "Leading vs Lagging Indicators",
         "definition": "Lagging indicators (revenue, profit) tell you what happened. Leading indicators (pipeline, engagement, quality) predict what WILL happen. A good driver tree connects both.",
         "formula": null,
@@ -7344,7 +7344,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "21787ea4-be26-43ac-b703-34d56612e524",
         "name": "Operational Levers",
         "definition": "Every node in the tree must map to a specific person or team with authority to change it. If a driver can't be assigned to an owner, it's not a lever — it's an observation.",
         "formula": null,
@@ -7391,7 +7391,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "68bc325d-0123-4587-bd90-569e76c8a37a",
         "name": "KPI Design from Driver Trees",
         "definition": "Your KPIs should be a direct translation of your driver tree. Each node with an owner becomes a KPI. The tree IS your measurement framework.",
         "formula": null,
@@ -7438,7 +7438,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e0b1691f-21fb-40b1-8122-c1a8a190a921",
         "name": "Top-Down Decomposition",
         "definition": "Start with the ultimate metric (enterprise value, ROIC, NPS) at the top. Ask 'what mathematically determines this?' at each level. Break down until you reach operational levers someone controls.",
         "formula": null,
@@ -7485,7 +7485,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "315a6f3b-386c-436d-8f31-cb7b840b0904",
         "name": "Cost Driver Trees",
         "definition": "Just as you decompose revenue, decompose costs: Total Cost → COGS + OpEx + CapEx → decompose each into unit costs × volumes → decompose unit costs into material, labor, overhead → map to process owners.",
         "formula": null,
@@ -7560,7 +7560,7 @@ export const staticFrameworks = [
     "content": "# A/B Testing & Experiment Design\n\n## CEO Use Case\nMarketing says 'our new landing page increased conversion 15%.' Without A/B testing: maybe it was the email campaign that went out the same week. With proper A/B test: randomized assignment proves the landing page caused the increase.\n\n## Core Concepts\n- **Control vs Treatment**: split users randomly, show old version to control group, new version to treatment group\n- **Statistical significance**: is the difference real or random noise? (typically p < 0.05)\n- **Sample size**: how many users needed to detect the expected effect?\n- **Practical significance**: is the effect big enough to matter? 0.01% improvement with p < 0.001 is 'significant' but irrelevant\n\n## Key CEO Benefits\n- Proves causation, not just correlation\n- Prevents 'HIPPO' decisions (Highest Paid Person's Opinion)\n- Creates a culture of evidence over hierarchy",
     "concepts": [
       {
-        "id": "",
+        "id": "d58ef984-0d63-4a53-9408-b2d5d20aee42",
         "name": "Randomized Controlled Trials",
         "definition": "Randomly split users into control (no change) and treatment (change applied). Randomization ensures the ONLY systematic difference is your change — so any outcome difference is causal.",
         "formula": null,
@@ -7607,7 +7607,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "9daaf783-3b2e-44b8-8894-b4260770b343",
         "name": "Sample Size & Power",
         "definition": "Calculate how many users you need BEFORE running the test. Too few = test is underpowered (can't detect real effects). Too many = waste time and users on a decision you already have enough data for.",
         "formula": null,
@@ -7654,7 +7654,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "213e42ae-85ca-46e1-832f-4a7a0df29676",
         "name": "The Peeking Problem",
         "definition": "Don't check results daily and stop when you see significance. This inflates false positive rates 3-5x. Pre-commit to a sample size and wait until it's reached.",
         "formula": null,
@@ -7701,7 +7701,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8fc86b27-8256-459e-a0d9-6d67c6556a22",
         "name": "Practical vs Statistical Significance",
         "definition": "A result can be statistically significant (p < 0.05) but practically meaningless (+0.05% revenue). Always ask: 'Is the effect big enough to matter?' before asking 'Is the effect real?'",
         "formula": null,
@@ -7748,7 +7748,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "99062ebc-af80-4e3c-887a-4576d3601b35",
         "name": "A/A Testing",
         "definition": "Run the SAME version on both groups before your real test. If the A/A test shows a statistically significant difference, your randomization is broken or your metric is noisy. Fix before running real tests.",
         "formula": null,
@@ -7795,7 +7795,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8336db3e-d211-451e-be83-601e27467d39",
         "name": "Confidence Intervals in Experiments",
         "definition": "Report results as 'the effect is +3% with a 95% CI of [1.5%, 4.5%].' A confidence interval tells you both the best estimate AND the precision. Wide CI = small sample, collect more data. Narrow CI = precise estimate.",
         "formula": null,
@@ -7869,7 +7869,7 @@ export const staticFrameworks = [
     "content": "# Force Field Analysis (Kurt Lewin)\n\n## CEO Use Case\nYour transformation program is stalling. Force Field Analysis reveals: 12 driving forces pushing change, but 3 powerful restraining forces (legacy systems, fear of job loss, lack of middle management buy-in). Strategy: don't push harder on the drivers — weaken the restraining forces.\n\n## Core Concepts\n- **Driving Forces**: everything pushing toward your goal (market pressure, leadership mandate, incentives)\n- **Restraining Forces**: everything holding you back (habits, fears, systems, politics)\n- **Equilibrium**: current state = balance between driving and restraining forces\n- **Force Scoring**: rate each force 1-5 for strength\n\n## Key CEO Benefits\n- Simple, visual, fast (can do on a whiteboard in 30 minutes)\n- Shifts focus from 'push harder' to 'remove obstacles'\n- Identifies the REAL blockers, not the symptoms",
     "concepts": [
       {
-        "id": "",
+        "id": "51696618-14ec-4624-8260-406065f50c7d",
         "name": "Driving vs Restraining Forces",
         "definition": "For any desired change, list forces pushing TOWARD the goal (driving) and forces pushing AGAINST it (restraining). The current state is the equilibrium between them.",
         "formula": null,
@@ -7916,7 +7916,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7a3b723a-f64c-4568-a903-5edb541e319d",
         "name": "Force Scoring",
         "definition": "Rate each force 1-5 for strength. Sum the driving forces, sum the restraining forces. If drivers > resistors, change will happen. If not, you need intervention — strengthen drivers OR weaken resistors.",
         "formula": null,
@@ -7963,7 +7963,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "308f9588-e9e6-4c5e-9ee3-e891282c9516",
         "name": "Force Reduction Strategy",
         "definition": "For each top restraining force, ask: 'How can we reduce this?' Three approaches: 1) Remove the force entirely 2) Reduce its strength 3) Add a counterbalancing new driving force.",
         "formula": null,
@@ -8010,7 +8010,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0534873f-a167-44a6-97d0-c36d6b564667",
         "name": "Change Management Integration",
         "definition": "Force Field Analysis identifies WHAT to change. Pair it with ADKAR or Kotter for HOW to change. FFA = diagnosis, ADKAR = treatment.",
         "formula": null,
@@ -8057,7 +8057,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "57049acd-6850-461e-a6e7-561ae1273fe0",
         "name": "Restraining Forces",
         "definition": "Everything pushing against your desired change: habits, fears, legacy systems, politics, incentives, resource constraints. Unlike driving forces (push toward), restraining forces maintain the status quo. Weakening them is often easier than strengthening drivers.",
         "formula": null,
@@ -8104,7 +8104,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "84ac273f-92eb-4689-a1f0-71f5e2ded7d5",
         "name": "Equilibrium Analysis",
         "definition": "Identify the current balance of forces. The current situation (equilibrium) persists because driving and restraining forces are roughly equal. To create change, you must disrupt this balance — strengthen drivers, weaken resistors, or both.",
         "formula": null,
@@ -8181,7 +8181,7 @@ export const staticFrameworks = [
     "content": "# Cognitive Biases & Debiasing\n\n## CEO Use Case\nYour VP Sales presents an acquisition target with a 'compelling' narrative. Confirmation bias makes you seek evidence FOR the deal and ignore red flags. Anchoring makes you fixate on the asking price. Overconfidence makes you underestimate integration risk. Debiasing tools prevent this cascade.\n\n## Core Biases CEOs Must Master\n- **Confirmation**: seeking evidence that supports what you already believe\n- **Anchoring**: first number you see becomes the reference point, even if arbitrary\n- **Overconfidence**: systematically overestimating your knowledge and prediction accuracy\n- **Availability**: recent/vivid events outweigh base rates and statistics\n- **Survivorship**: studying successes without seeing the failures that didn't survive\n- **Sunk Cost**: treating money/time already spent as a reason to continue\n- **Framing**: how the choice is presented changes your answer\n- **Hindsight**: 'I knew it all along' — prevents learning from mistakes\n\n## Key CEO Benefits\n- Decisions improve when you know what's distorting them\n- Calibrated confidence = better bet-sizing\n- Reduces costly 'narrative fallacy' in board presentations",
     "concepts": [
       {
-        "id": "",
+        "id": "98a4e0eb-9a1e-4ca0-a0e1-7e5f43d7eb85",
         "name": "Confirmation Bias",
         "definition": "Seeking, interpreting, and remembering information that confirms your existing beliefs while ignoring contradictory evidence. The most pervasive bias in business.",
         "formula": null,
@@ -8228,7 +8228,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "cce60de9-6183-402a-a84e-2acf60508e8f",
         "name": "Anchoring Bias",
         "definition": "The first number or information you encounter disproportionately influences your judgment. Initial offers, industry benchmarks, and first impressions all anchor you.",
         "formula": null,
@@ -8275,7 +8275,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "006a67b0-6146-4468-ade0-25dd755333c0",
         "name": "Overconfidence Bias",
         "definition": "Systematically overestimating your knowledge, predicting narrower confidence intervals than reality warrants. Your 90% confidence predictions are right only 50-70% of the time.",
         "formula": null,
@@ -8322,7 +8322,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8f613726-5982-4453-b113-f797ce456605",
         "name": "Availability Bias",
         "definition": "Judging the likelihood of an event by how easily you can recall examples. Vivid, recent, or emotional events seem more common than they actually are.",
         "formula": null,
@@ -8369,7 +8369,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e0579260-2597-43b7-aecf-38857cc50c20",
         "name": "Survivorship Bias",
         "definition": "Studying successful companies/people/strategies without seeing the failures that didn't survive. The 'graveyard' of failures contains the counterexamples you need.",
         "formula": null,
@@ -8416,7 +8416,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d611744c-3db3-41ed-90f0-c59ede2aa0b4",
         "name": "Sunk Cost Fallacy",
         "definition": "Treating money, time, or effort already spent as a reason to continue investing. Rational decision-making ignores sunk costs — only future costs and benefits matter.",
         "formula": null,
@@ -8463,7 +8463,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "c3d6bf54-0a07-4985-ade4-bd4531c17ef9",
         "name": "Framing Effect",
         "definition": "How a choice is presented changes what you decide. '80% success rate' feels different from '20% failure rate' — even though they're identical. Frame the question before deciding.",
         "formula": null,
@@ -8510,7 +8510,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7ca5208e-e6b2-44a7-8d06-cfb1afe7f2ed",
         "name": "Hindsight Bias",
         "definition": "'I knew it all along' — after an outcome occurs, you believe you predicted it. Prevents learning because you rewrite history to make yourself look prescient.",
         "formula": null,
@@ -8585,7 +8585,7 @@ export const staticFrameworks = [
     "content": "# Multi-Criteria Decision Analysis\n\n## CEO Use Case\nYou're choosing between 3 office locations, 5 vendor proposals, or 4 strategy options. Each has 8-12 criteria (cost, quality, speed, risk, culture fit). Guts says 'Option B.' MCDA shows Option C scores higher on the criteria YOU said were most important — your gut was overweighting one vivid factor.\n\n## Core Concepts\n- **Weighted Scoring Matrix**: assign weights to criteria, score each option, multiply, sum — highest score wins\n- **Analytic Hierarchy Process (AHP)**: pairwise comparisons ('is cost 3x more important than culture?') for rigorous weighting\n- **Trade-off Curves**: visualize what you give up on one criterion to gain on another\n- **Sensitivity at Decision Points**: test whether small weight changes flip the winner\n\n## Key CEO Benefits\n- Makes trade-offs explicit — 'we chose lower cost over higher quality' is documented, not hidden\n- Defensible to stakeholders: 'here's exactly why we chose Option C'\n- Reveals when you're overcomplicating — some criteria don't differentiate options at all",
     "concepts": [
       {
-        "id": "",
+        "id": "5d168beb-625f-48ec-8640-6b175cfa688a",
         "name": "Weighted Scoring Matrix",
         "definition": "List criteria, assign weights (must sum to 100%), score each option 1-10 on each criterion, multiply score × weight and sum. The option with the highest weighted sum is the analytically 'best' choice.",
         "formula": null,
@@ -8632,7 +8632,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "105019ba-d8b5-4c5b-b0d5-e59997e7437c",
         "name": "Analytic Hierarchy Process (AHP)",
         "definition": "Structured pairwise comparison: instead of guessing weights, compare criteria two at a time. 'Is Cost more important than Quality? How much more? (1-9 scale).' Mathematically derives consistent weights.",
         "formula": null,
@@ -8679,7 +8679,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "fdddf2e5-b11d-49be-9d50-3bc049495963",
         "name": "Trade-Off Curves",
         "definition": "Plot two criteria against each other for all options. Visualize the frontier — options that are NOT dominated (no other option beats them on BOTH criteria). Choose from the frontier.",
         "formula": null,
@@ -8726,7 +8726,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "cd472212-4588-4c22-bdb9-47f0cebc3b2c",
         "name": "Criteria Weighting Methods",
         "definition": "Five ways to assign weights: 1) Direct rating (just guess %) 2) Point allocation (spread 100 points) 3) Ranking (then convert to weights) 4) AHP pairwise (most rigorous) 5) Swing weighting (how much would improving from worst-to-best on this criterion matter?).",
         "formula": null,
@@ -8773,7 +8773,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "406febc2-1357-4f24-937a-c49acfe88749",
         "name": "Sensitivity at Decision Points",
         "definition": "Test whether small changes in criteria weights change which option wins. If Winner A beats Winner B by 0.5 points, and changing 'quality' weight from 25% to 26% flips the result to B — the decision is FRAGILE. Investigate that criterion before committing.",
         "formula": null,
@@ -8820,7 +8820,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "26d8595c-d491-4c23-8d99-9cc7ed82f1fe",
         "name": "Non-Compensatory Rules",
         "definition": "Some criteria are MUST-HAVES where a bad score eliminates the option regardless of other strengths (non-compensatory). Others are NICE-TO-HAVES where strengths can compensate for weaknesses. Filter out must-have failures first, then score the survivors.",
         "formula": null,
@@ -8895,7 +8895,7 @@ export const staticFrameworks = [
     "content": "# Decision Quality Framework\n\n## CEO Use Case\nBoard asks: 'What was your decision process for this $50M acquisition?' DQF gives you 6 elements to demonstrate quality: the frame was correct, alternatives were explored, information was sufficient, values were clear, reasoning was sound, and commitment is in place.\n\n## Six Elements\n1. **Appropriate Frame**: are you solving the right problem?\n2. **Creative Alternatives**: did you generate enough high-quality options?\n3. **Meaningful Information**: do you have the right data at the right reliability?\n4. **Clear Values**: are your trade-off preferences explicit?\n5. **Sound Reasoning**: does your logic hold up under scrutiny?\n6. **Commitment to Action**: are resources and accountability in place?\n\n## Key CEO Benefits\n- Framework for auditing decisions (not just making them)\n- Identifies WHICH element is weak before you commit\n- Board-ready documentation of decision quality",
     "concepts": [
       {
-        "id": "",
+        "id": "f88afcf7-8f07-49ea-a25f-c6fa79035e3e",
         "name": "Appropriate Frame",
         "definition": "The decision frame defines what is IN and what is OUT. A bad frame solves the wrong problem brilliantly. The most common decision error is not bad analysis — it's answering the wrong question.",
         "formula": null,
@@ -8942,7 +8942,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ebec8f28-4208-40c8-9741-b6ecfc6b8a56",
         "name": "Creative Alternatives",
         "definition": "Most decisions fail at the alternatives stage — people pick from 1-2 options when 5+ exist. Great decisions require a CREATIVE set of mutually exclusive, collectively exhaustive alternatives.",
         "formula": null,
@@ -8989,7 +8989,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "395c5bf9-da1a-4daf-9c0e-bc11163f42e5",
         "name": "Sound Reasoning",
         "definition": "Can you explain WHY you chose X over Y in a way that a skeptical third party would find compelling? Sound reasoning connects information to values through logical inference — no gaps, no leaps, no narrative fallacies.",
         "formula": null,
@@ -9036,7 +9036,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b8741b0d-85c3-4f98-b0c5-00c53bf9ce76",
         "name": "Commitment to Action",
         "definition": "A decision without commitment is just a conversation. DQ Element 6: who will do what by when? What resources are allocated? What's the follow-up mechanism? How will we know if the decision was right?",
         "formula": null,
@@ -9083,7 +9083,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8f82f123-4b07-46d2-97bf-db6d2eac9f23",
         "name": "Meaningful Information",
         "definition": "Do you have the RIGHT information at the RIGHT reliability? Not more data — better data. For each key uncertainty, ask: what do we know? What's our confidence? What would it cost to learn more? Is the decision sensitive to this information?",
         "formula": null,
@@ -9130,7 +9130,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "aa368bc1-e671-4a1e-8915-56d5d3a5f5a0",
         "name": "Clear Values & Trade-offs",
         "definition": "What are you optimizing for? Time, money, quality, risk, growth, culture? Explicitly state your trade-off preferences. 'We value time-to-market 2x more than cost savings.' Without this, you can't compare options.",
         "formula": null,
@@ -9205,7 +9205,7 @@ export const staticFrameworks = [
     "content": "# Intuition vs Analysis\n\n## CEO Use Case\nYour Head of Product says 'I just KNOW this feature will work.' Is this real expertise talking, or overconfidence? Framework: intuition works when feedback is fast, domain is stable, and expertise is deep (think: master chess player). It fails when feedback is delayed, domain is novel, or stakes are high (think: startup's first product launch).\n\n## When to Use Each\n- **Intuition**: stable environment, deep valid experience, immediate feedback, pattern recognition works\n- **Analysis**: novel environment, limited experience, delayed feedback, high complexity\n- **Combine both**: generate options with analysis, select with intuition, stress-test with analysis\n\n## Key CEO Benefits\n- Stops you from over-analyzing the obvious\n- Prevents gut decisions on genuinely complex problems\n- Builds trust with data-driven teams while preserving experienced judgment",
     "concepts": [
       {
-        "id": "",
+        "id": "65a962d3-60d6-4687-aeb9-c7c6939ac7fc",
         "name": "Klein's Recognition-Primed Decision (RPD)",
         "definition": "Gary Klein's research on firefighters, military commanders, and ICU nurses: experts don't compare options — they recognize patterns and mentally simulate the first viable option. If the simulation works, they act. If not, they adjust.",
         "formula": null,
@@ -9252,7 +9252,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "4975f0c3-e7e4-4582-8c29-01a639054a06",
         "name": "When Intuition Works",
         "definition": "Intuition is reliable when: 1) The environment is stable (patterns repeat) 2) You have 10,000+ hours of deliberate practice with rapid feedback 3) The problem type is one you've encountered many times before.",
         "formula": null,
@@ -9299,7 +9299,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "9eade9f4-7070-40be-83e5-ebaf4e58d1f8",
         "name": "When Intuition Fails",
         "definition": "Intuition is unreliable when: 1) The environment is novel or changing 2) Feedback is delayed or noisy 3) You lack deep domain experience 4) The problem involves probabilities and base rates your brain can't compute intuitively.",
         "formula": null,
@@ -9346,7 +9346,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b82bd53d-367d-41f8-97bc-162f5b85d36f",
         "name": "Combining Intuition + Analysis",
         "definition": "The best decisions use BOTH: 1) Analysis to generate options and eliminate clearly bad ones 2) Intuition to select between the remaining viable options 3) Analysis again to stress-test the intuitive choice.",
         "formula": null,
@@ -9393,7 +9393,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "aedcfc59-15d8-48d7-95cd-fef46ec2f047",
         "name": "The Deliberation-Without-Attention Effect",
         "definition": "For complex decisions, your unconscious mind processes information better when you're NOT consciously focusing on it. Take a break, sleep on it, distract yourself — then decide. Your unconscious does better integration of complex information.",
         "formula": null,
@@ -9440,7 +9440,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "531386ef-400e-4333-b516-34882dec47e6",
         "name": "Calibrating Expert Judgment",
         "definition": "Even experts are overconfident. Calibrate by tracking predictions: 'You said there was a 90% chance of X. Did X happen 90% of the time?' Most experts are at 50-70% for their '90% confident' predictions. Use calibration training to improve.",
         "formula": null,
@@ -9515,7 +9515,7 @@ export const staticFrameworks = [
     "content": "# Decision Speed & Velocity\n\n## CEO Use Case\nAmazon: 'Most decisions should be made with ~70% of the information you wish you had. If you wait for 90%, you're probably too slow.' The cost of slow decisions compounds — every day you delay is a day competitors move. For reversible (Type 2) decisions, speed matters more than accuracy.\n\n## Core Concepts\n- **Type 1**: irreversible, high-stakes — take your time, get it right (M&A, major strategy)\n- **Type 2**: reversible — decide fast, iterate (product features, pricing tests, hires you can undo)\n- **70% Rule**: decide when you have ~70% of the info you want — the last 30% costs more in time than it's worth in precision\n- **Disagree and Commit**: you don't have to agree with a decision, but once made, you commit fully\n\n## Key CEO Benefits\n- Speed IS a competitive advantage\n- Most decisions everyone agonizes over are Type 2 (reversible)\n- Empowers teams to decide faster without escalation",
     "concepts": [
       {
-        "id": "",
+        "id": "832490ed-9329-4552-8d8f-575468050f25",
         "name": "Type 1 vs Type 2 Decisions (Bezos)",
         "definition": "Type 1: irreversible, one-way doors — high stakes, hard to undo. Take time, get broad input, analyze deeply. Type 2: reversible, two-way doors — low stakes, easy to undo. Decide fast, iterate if wrong.",
         "formula": null,
@@ -9562,7 +9562,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d0e8cb1c-a7cc-46a7-9882-016a3d8f021e",
         "name": "70% Rule (Bezos)",
         "definition": "Decide when you have ~70% of the information you wish you had. The last 30% typically costs more in time and opportunity than it adds in precision. You can course-correct later.",
         "formula": null,
@@ -9609,7 +9609,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "cf841de4-0b3b-4f38-9918-aaa7e47aab42",
         "name": "Disagree and Commit",
         "definition": "Amazon leadership principle: you don't have to agree with a decision, but once it's made, you commit to it fully as if it were your own. This unlocks speed — you can disagree vigorously in the room, then execute without reservation outside it.",
         "formula": null,
@@ -9656,7 +9656,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ef54c944-9570-4943-b264-5cdfc6175825",
         "name": "Decision Fatigue",
         "definition": "The quality of your decisions degrades as you make more of them. Judges grant parole 65% of the time in the morning — near 0% before lunch. After food, resets to 65%. CEOs face this every day.",
         "formula": null,
@@ -9703,7 +9703,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ed36c0c9-9d76-4fc3-873d-edb6b3c84bc8",
         "name": "Decision Batching & Cadence",
         "definition": "Group similar decisions into regular cadences (weekly, monthly, quarterly) instead of making them ad-hoc. Creates organizational rhythm, reduces context-switching, and makes decision-making a repeatable process.",
         "formula": null,
@@ -9750,7 +9750,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7a6c9d3b-b21e-4d2d-8d53-e59027eef943",
         "name": "Escalation Paths",
         "definition": "Define WHAT decisions get escalated to whom, under WHAT conditions. Without clear escalation paths, everything floats to the CEO. With them, teams decide more and escalate less.",
         "formula": null,
@@ -9823,7 +9823,7 @@ export const staticFrameworks = [
     "content": "# Red Teaming & Wargaming\n\n## CEO Use Case\nBefore launching your new product, assemble a 'red team' — their JOB is to think like your competitor and find every weakness in your plan. Red team discovers: 'If we were the competitor, we'd launch a free tier 2 weeks before your launch and steal your thunder.' You adjust your plan. Better to find the flaw in a simulation than in the market.\n\n## Core Concepts\n- **Red Team**: internal group tasked with thinking adversarially — their only KPI is finding flaws in your plan\n- **Blue Team**: the 'friendly' team defending the plan — their job is responding to red team's attacks\n- **War Game**: structured simulation with rounds: Red attacks, Blue defends, After-Action Review captures lessons\n- **Pre-Mortem vs War Game**: pre-mortem asks 'why did WE fail?' War game asks 'how will THEY make us fail?'\n\n## Key CEO Benefits\n- Finds strategic blind spots BEFORE they cost millions\n- Best preparation for competitive response you'll face at launch\n- Breaks groupthink — giving smart people permission to attack the plan is liberating",
     "concepts": [
       {
-        "id": "",
+        "id": "639e1c49-d449-4101-be87-de1b40ddc43f",
         "name": "Red Team Structure",
         "definition": "Assign your best people to play the role of your toughest competitor — not as a critique exercise, but as an adversarial simulation. Their job is to WIN for the competitor, using only the resources and constraints that competitor actually has.",
         "formula": null,
@@ -9870,7 +9870,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "15970044-3f89-401f-90e7-06711c06b1b4",
         "name": "Competitor Simulation",
         "definition": "Go beyond 'Porter's Five Forces' and actually roleplay your competitor's next move. Given their capabilities, constraints, incentives, and culture — what's their most dangerous counter-move?",
         "formula": null,
@@ -9917,7 +9917,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "77d1055f-eed0-4d97-88be-849a3925e104",
         "name": "Pre-Mortem vs War Game",
         "definition": "Pre-mortem: 'We failed. Why?' Internal focus on OUR flaws. War game: 'How would a smart, motivated opponent defeat us?' External focus on THEIR moves. Both are essential; they reveal different failure modes.",
         "formula": null,
@@ -9964,7 +9964,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d1cd4c5a-0787-4957-952c-bbc52f95d7c8",
         "name": "After-Action Review (AAR) for War Games",
         "definition": "After every war game round, capture: 1) What did the red team exploit? 2) What surprised the blue team? 3) What assumption did blue team hold that red team disproved? 4) What's the action plan for each vulnerability found?",
         "formula": null,
@@ -10011,7 +10011,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e4fd0b56-d081-4333-a4ed-58e30192cf88",
         "name": "After-Action Review",
         "definition": "After every war game round, capture: 1) What did the red team exploit? 2) What surprised the blue team? 3) What assumption did blue team hold that red team disproved? 4) What's the action plan for each vulnerability found?",
         "formula": null,
@@ -10084,7 +10084,7 @@ export const staticFrameworks = [
     "content": "# Systems Architecture & Design\n\n## CEO Use Case\nYour CTO proposes a $2M, 18-month microservices migration. How do you evaluate this? Framework: microservices solve organizational scaling (Conway's Law), not technical scaling. If you have 5 teams, a well-structured monolith is faster and cheaper. Microservices pay off when you have 20+ teams that need independent deployment.\n\n## Core Concepts\n- **Monolith vs Microservices**: not a technical choice — an organizational one. Microservices enable team autonomy at the cost of operational complexity\n- **Coupling/Cohesion**: high cohesion (related things together) + low coupling (independent modules) = good architecture\n- **Strangler Fig**: migrate gradually — build new alongside old, route incrementally, retire old when unused\n- **Fitness Functions**: automated tests that verify architecture properties (latency <200ms, no circular dependencies, max 3 service hops)",
     "concepts": [
       {
-        "id": "",
+        "id": "e4de3b2b-7a6d-4c13-9f39-472a25fa72e0",
         "name": "Monolith vs Microservices Decision Framework",
         "definition": "Not a technical choice — an organizational scaling decision. Monolith: faster for <20 engineers, simpler ops, harder to scale teams. Microservices: slower initially, complex ops, enables independent team deployment. Choose based on team count, not vanity.",
         "formula": null,
@@ -10131,7 +10131,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "bf9746bf-0ce1-4035-be5e-bb56868eb5d7",
         "name": "Conway's Law in Practice",
         "definition": "Organizations design systems that mirror their communication structures. If you have 4 teams, you'll build 4 services. If teams can't communicate, their services won't integrate. Fix the org FIRST, then the architecture follows.",
         "formula": null,
@@ -10178,7 +10178,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7c257193-1ac0-4432-a80a-707bc5956743",
         "name": "Coupling & Cohesion",
         "definition": "High cohesion = related things live together (one module = one responsibility). Low coupling = modules don't depend on each other's internals. Good architecture maximizes cohesion and minimizes coupling.",
         "formula": null,
@@ -10225,7 +10225,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "84c5c382-4bb0-4c09-9aa0-5bb64942123b",
         "name": "Evolutionary Architecture",
         "definition": "Architecture that supports incremental, guided change over time. Uses fitness functions (automated tests verifying architecture properties) to prevent degradation. The opposite of 'big upfront design' that calcifies.",
         "formula": null,
@@ -10272,7 +10272,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "07ed2cea-0402-4cc0-b375-b51c62d59100",
         "name": "Strangler Fig Pattern",
         "definition": "Migrate from legacy to new system incrementally: 1) Build new alongside old 2) Route traffic gradually (10%, 50%, 100%) 3) Retire old when unused. Named after figs that grow around host trees — the new system 'strangles' the old.",
         "formula": null,
@@ -10344,7 +10344,7 @@ export const staticFrameworks = [
     "content": "# Site Reliability Engineering for CEOs\n\n## CEO Use Case\nYour biggest customer demands 99.99% uptime SLA (52 minutes downtime/year). Achieving this costs $2M/year in infrastructure and on-call headcount. Is it worth it? SRE framework: calculate the revenue at risk (0.01% downtime × $50M revenue = $5k customer impact). Error budget says: we can afford 99.9% (8 hours/year) and save $1.5M.\n\n## Core Concepts\n- **SLI** (Service Level Indicator): what you measure (latency, error rate, uptime)\n- **SLO** (Service Level Objective): your internal target (<200ms p99, 99.9% uptime)\n- **SLA** (Service Level Agreement): your customer promise (with penalties)\n- **Error Budget**: 1 - SLO = the amount of 'acceptable unreliability.' You can SPEND this on risky changes.\n- **Blameless Postmortem**: incident → timeline → contributing factors → action items. No blame, no names.",
     "concepts": [
       {
-        "id": "",
+        "id": "63ddbad1-ff2f-4190-b4ae-04831517572b",
         "name": "SLI, SLO, SLA Hierarchy",
         "definition": "SLI = raw metric (99.95% requests succeed). SLO = internal target (≥99.9% success rate). SLA = customer-facing promise with penalties (<99.5% = 10% credit). SLO should be tighter than SLA — a safety buffer.",
         "formula": null,
@@ -10391,7 +10391,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a83f5788-7df0-42b5-aaab-4cf398427bbe",
         "name": "Error Budgets",
         "definition": "Error budget = 1 - SLO. If your SLO is 99.9% uptime, your error budget is 0.1% (43 minutes/month of acceptable downtime). This is NOT a target to hit — it's a budget to SPEND on innovation and risk.",
         "formula": null,
@@ -10438,7 +10438,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7dfa631d-6bd8-46db-a60e-fa811791debd",
         "name": "Blameless Postmortems",
         "definition": "After every incident, write a postmortem: 1) Timeline (what happened, when) 2) Contributing factors (not 'who caused it') 3) Action items (prevent recurrence). No blame, no names — systems failed, not people.",
         "formula": null,
@@ -10485,7 +10485,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "941964c9-22f8-4733-a8d8-62b38f47a768",
         "name": "Chaos Engineering",
         "definition": "Deliberately inject failures into production to verify the system handles them gracefully. 'What happens if the payment processor goes down?' Test it — don't wait for it to happen at 3am.",
         "formula": null,
@@ -10557,7 +10557,7 @@ export const staticFrameworks = [
     "content": "# Technical Diligence for CEOs\n\n## CEO Use Case\nYou're acquiring a startup for $50M. Financial diligence says the numbers check out. But what about their tech? Technical diligence reveals: 80% of engineers have <1 year tenure (key person risk), the codebase has 0% test coverage (future cost), and they're running on a single cloud region with no disaster recovery (existential risk). You adjust the deal: $30M cash + $20M earnout + key person retention packages.\n\n## Core Concepts\n- **Code Quality**: test coverage, complexity, dependency freshness, documentation\n- **Team Assessment**: bus factor, tenure distribution, hiring velocity, engineering culture signals\n- **Tech Debt**: quantify how much of engineering capacity is spent on maintenance vs new features\n- **Security**: vulnerability management, access controls, compliance certification status\n- **Scalability**: current infrastructure limits, growth trajectory, cost at 10x scale",
     "concepts": [
       {
-        "id": "",
+        "id": "0890dc1d-ebe1-47dd-9f7c-08d0fb9d7ec8",
         "name": "Code & Architecture Quality Assessment",
         "definition": "Quick signals of codebase health: test coverage, static analysis findings, dependency freshness, architecture documentation existence, and deployment frequency. These are leading indicators of future engineering velocity.",
         "formula": null,
@@ -10604,7 +10604,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "30777ddf-58bf-47d1-a8fe-809965bd7fd1",
         "name": "Engineering Team Assessment",
         "definition": "Bus factor: how many key people could get 'hit by a bus' before the system becomes unmaintainable? 1-2 people = extreme risk. Tenure distribution: if 50%+ of engineers have <1 year tenure, institutional knowledge is fragile.",
         "formula": null,
@@ -10651,7 +10651,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a013e000-f2ff-42d0-ad44-e9cd548ca3d8",
         "name": "Tech Debt Audit",
         "definition": "Quantify tech debt not as 'we have tech debt' (everyone does) but as a PERCENTAGE of engineering capacity consumed by maintenance vs new features. >30% maintenance capacity = tech debt crisis requiring dedicated paydown.",
         "formula": null,
@@ -10698,7 +10698,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "cbaeb300-7f6a-4ce1-9269-cb85fb2b3424",
         "name": "Scalability & Infrastructure Assessment",
         "definition": "Can the current infrastructure handle 10x growth without fundamental rearchitecture? What breaks first? What's the cloud bill at 10x current traffic? These are CEO-level questions for any tech company.",
         "formula": null,
@@ -10771,7 +10771,7 @@ export const staticFrameworks = [
     "content": "# Data Strategy & Analytics Engineering\n\n## CEO Use Case\nYour teams can't agree on basic metrics. Sales says ARR is $12M, Finance says $10.5M, Product says $9.8M. Different definitions, different data sources, different filtering. You need a metrics layer — a single source of truth that every dashboard pulls from. Until you have this, you're not a data-driven company — you're a company with data arguments.\n\n## Core Concepts\n- **Data Warehouse vs Lake vs Mesh**: warehouse = structured, governed, BI-friendly. Lake = raw, flexible, data-scientist-friendly. Mesh = decentralized, domain-owned, scaling-friendly\n- **Metrics Layer**: a semantic layer between raw data and dashboards. 'Revenue' is defined ONCE, used everywhere\n- **Data Quality**: freshness, completeness, accuracy, lineage. 'The dashboard says X — how do I know that's right?'\n- **Experimentation Platform**: infrastructure to run A/B tests at scale with statistical rigor, not spreadsheets",
     "concepts": [
       {
-        "id": "",
+        "id": "40ac0323-cf63-4be5-8c6e-ff8c2de0c4c1",
         "name": "Data Warehouse vs Lake vs Mesh",
         "definition": "Warehouse (Snowflake, BigQuery): structured SQL, fast queries, BI-friendly. Lake (S3, ADLS): raw files, flexible schemas, cheap storage. Mesh: decentralized ownership — each domain owns its data and exposes it as a product.",
         "formula": null,
@@ -10818,7 +10818,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "973e52e3-60f6-4221-9406-bee4cd73bb1f",
         "name": "Metrics Layer & Single Source of Truth",
         "definition": "A semantic layer between raw data and every dashboard. Define 'Revenue' once as code — every dashboard, every report, every email pulls the same definition. No more arguing about whose numbers are right.",
         "formula": null,
@@ -10865,7 +10865,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ad1ef794-0b1b-4a67-a886-5d4e346a7ebd",
         "name": "Data Quality & Observability",
         "definition": "Data observability: freshness (is data arriving on time?), completeness (are rows missing?), accuracy (do values make sense?), lineage (where did this data come from?). Without it, decisions are made on bad data.",
         "formula": null,
@@ -10912,7 +10912,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "66b1c922-e594-48c5-83f5-ad9903f43372",
         "name": "GDPR/CCPA Compliance Engineering",
         "definition": "Data privacy regulations require engineering changes: data inventory (what data do you have?), data subject access requests (give users their data), right to deletion (purge user data everywhere), consent management.",
         "formula": null,
@@ -10985,7 +10985,7 @@ export const staticFrameworks = [
     "content": "# AI/ML Engineering & MLOps\n\n## CEO Use Case\nYour board demands an 'AI strategy' by next quarter. Framework: AI isn't one thing. You need: 1) ML for specific product features (recommendations, fraud detection) 2) LLMs for content/customer support/internal tools 3) AI governance for safety/compliance. The engineering infrastructure for each is different. Don't just 'add AI' — build the capabilities that serve your strategy.\n\n## Core Concepts\n- **ML Lifecycle**: data → training → evaluation → deployment → monitoring → retraining (it's a cycle, not a one-time project)\n- **Feature Store**: centralized repository of ML features — prevents teams from rebuilding the same features\n- **Model Monitoring**: accuracy degradation, data drift, concept drift — models degrade in production\n- **LLM Strategy**: fine-tune vs RAG vs prompt engineering. Each has different cost/complexity/accuracy trade-offs",
     "concepts": [
       {
-        "id": "",
+        "id": "284896f0-0bb5-4217-ab13-847e407e4860",
         "name": "ML Model Lifecycle",
         "definition": "ML is NOT software. Software: write code → test → deploy → done. ML: collect data → train → evaluate → deploy → MONITOR DRIFT → retrain → repeat. 80% of the work is post-deployment (monitoring, retraining, data pipelines). CEOs underestimate this.",
         "formula": null,
@@ -11032,7 +11032,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "f99d49ae-e292-4167-88ee-2047b9ea7ae4",
         "name": "Feature Stores & Training Pipelines",
         "definition": "Feature store = centralized repository of ML features (user_age_last_30_days, avg_purchase_value). Without it, every ML team builds the same features from scratch. With it, features are shared, consistent, and versioned.",
         "formula": null,
@@ -11079,7 +11079,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "63d571f9-e276-4c6b-96e1-2e3d7e24c089",
         "name": "LLM / Foundation Model Strategy",
         "definition": "Build vs fine-tune vs prompt vs RAG. Build: train from scratch ($10M+, for foundational models only). Fine-tune: adapt existing model ($50k-500k, for domain-specific tasks). Prompt: engineer the input ($0 in model cost, high in prompt engineering). RAG: retrieve + augment + generate ($10k-100k, for knowledge-base tasks).",
         "formula": null,
@@ -11126,7 +11126,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "306c4c4d-fcf8-4141-b395-cbe159a63a3d",
         "name": "AI Governance & Responsible AI",
         "definition": "Framework for ensuring AI is safe, fair, and compliant: bias testing, explainability, human-in-the-loop for high-stakes decisions, model cards for transparency, and alignment with emerging regulations (EU AI Act).",
         "formula": null,
@@ -11199,7 +11199,7 @@ export const staticFrameworks = [
     "content": "# Security & Compliance Engineering\n\n## CEO Use Case\nYour biggest enterprise prospect requires SOC2 certification before signing. Timeline: 6-9 months, cost: $100-300k. Is it worth it? Framework: SOC2 unlocks $2M ARR in enterprise deals, reduces security questionnaire response time from 2 weeks to 2 hours, and provides a structured security program. ROI: typically positive within 12 months for B2B companies >$5M ARR.\n\n## Core Concepts\n- **Shift-Left**: security testing happens as code is written (in the IDE, in CI), not after deployment. Catches issues when they're cheapest to fix\n- **Zero Trust**: 'never trust, always verify.' Every request is authenticated and authorized, even from inside the network. No more 'trusted internal network'\n- **Threat Modeling**: structured process to identify what an attacker might target, how they'd attack, and how to defend. STRIDE framework: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege\n- **Compliance ≠ Security**: compliance proves you have CONTROLS. Security means those controls actually WORK. Don't confuse the audit report with actual protection",
     "concepts": [
       {
-        "id": "",
+        "id": "5ee52bca-c95a-4f0d-8c30-84ff9deeda6d",
         "name": "Shift-Left Security / DevSecOps",
         "definition": "Integrate security testing into the development pipeline, not as a separate gate at the end. SAST (static analysis) in IDE, dependency scanning in CI, container scanning before deploy. Catch vulnerabilities when they cost $100 to fix, not $10,000 in production.",
         "formula": null,
@@ -11246,7 +11246,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "11dd0ee2-a1f5-44ee-9625-26a65a4cf2f2",
         "name": "Zero Trust Architecture",
         "definition": "Abandon the 'trusted internal network' model. Every request, whether from the internet or from another internal service, must be authenticated and authorized. Microsegmentation: even if an attacker breaches one service, they can't reach others.",
         "formula": null,
@@ -11293,7 +11293,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0458f4ad-3577-482f-80f5-b3ee4fe14c6d",
         "name": "Threat Modeling (STRIDE)",
         "definition": "STRIDE: Spoofing (pretending to be someone else), Tampering (modifying data), Repudiation (denying an action), Information Disclosure (leaking data), Denial of Service (overwhelming the system), Elevation of Privilege (gaining unauthorized access). Model threats for each component.",
         "formula": null,
@@ -11340,7 +11340,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d85edd66-514a-4f68-925a-724c8286655a",
         "name": "SOC2 / ISO 27001 Compliance",
         "definition": "SOC2 (US): proves you have controls for security, availability, processing integrity, confidentiality, privacy. ISO 27001 (international): information security management system. Both require 6-12 months of preparation and are audited annually.",
         "formula": null,
@@ -11412,7 +11412,7 @@ export const staticFrameworks = [
     "content": "# Capital Allocation Framework\n\n## CEO Use Case\nThe board asks: 'You have $50M in cash. What's the plan?' Framework guides you through the hierarchy: 1) Reinvest if ROIC > WACC 2) Acquire if strategic returns > organic 3) Return to shareholders (buyback if undervalued, dividend if stable) 4) Pay down debt if over-levered 5) Hold cash for optionality.\n\n## Core Concepts\n- **Capital Allocation Hierarchy**: ranked from highest-return to lowest-return use of capital\n- **ROIC vs WACC**: invest only when returns exceed cost of capital\n- **Buyback Math**: buy back only when stock is undervalued (below intrinsic value); buybacks at peak valuations destroy value\n- **Dividend Signaling**: dividends signal stability but are 'sticky' — once you start, stopping sends a terrible signal",
     "concepts": [
       {
-        "id": "",
+        "id": "b31cfd4e-8d11-44ef-937a-61812743ac10",
         "name": "Capital Allocation Hierarchy",
         "definition": "Ranked uses of capital from highest expected return to lowest: 1) Reinvest in existing business (ROIC > WACC) 2) Strategic M&A 3) Share buybacks (if undervalued) 4) Dividends 5) Debt paydown (if leverage > target) 6) Cash reserve (optionality). Start at #1 and work down.",
         "formula": null,
@@ -11459,7 +11459,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "295dbe5b-d080-40fb-97c3-e0a8eefc2a39",
         "name": "ROIC vs WACC Test",
         "definition": "ONLY invest when expected return on invested capital exceeds your weighted average cost of capital. ROIC > WACC = value creation. ROIC < WACC = value destruction — you'd create more value by returning capital to shareholders.",
         "formula": null,
@@ -11506,7 +11506,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "f40607c0-c8a1-4841-9905-4edba1c33359",
         "name": "Share Buyback Math",
         "definition": "Buy back shares ONLY when stock price < intrinsic value. If the stock is undervalued, a buyback is the highest-return capital allocation. If overvalued, it's value-destroying — you're overpaying for your own shares.",
         "formula": null,
@@ -11553,7 +11553,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d565a093-6ade-4481-ad4b-44d7a9b11474",
         "name": "Dividend Policy",
         "definition": "Dividends signal confidence in stable cash flows. But they're 'sticky' — cutting a dividend is seen as a crisis signal. Only initiate when cash flows are predictably stable. Growth companies: 0% payout. Mature: 20-50% payout.",
         "formula": null,
@@ -11625,7 +11625,7 @@ export const staticFrameworks = [
     "content": "# Working Capital Management\n\n## CEO Use Case\nYour company is growing 30% year-over-year but always seems cash-poor. Diagnosis: DSO is 65 days (customers pay in 2+ months) while DPO is 25 days (you pay suppliers in <1 month). You're effectively financing your customers while your suppliers won't wait. Fixing this gap frees up $2M in cash — without raising capital.\n\n## Core Concepts\n- **Cash Conversion Cycle** = DIO + DSO - DPO. The days between paying for inventory and collecting cash from customers. Lower is better.\n- **DSO**: how long customers take to pay. Target <30 days for most businesses.\n- **DPO**: how long you take to pay suppliers. Extend without damaging relationships (30-90 days typical).\n- **Negative Working Capital**: receive cash from customers BEFORE paying suppliers. The holy grail — customers finance your operations.",
     "concepts": [
       {
-        "id": "",
+        "id": "71baf538-bc00-4447-9983-f73a914a7cec",
         "name": "Cash Conversion Cycle (CCC)",
         "definition": "CCC = DIO + DSO - DPO. The number of days between paying your supplier (cash out) and collecting from your customer (cash in). Every day you can reduce the CCC frees up cash equal to (daily revenue × days reduced).",
         "formula": null,
@@ -11672,7 +11672,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e321ec29-8e79-4ab6-891f-396ed2a73edc",
         "name": "Days Sales Outstanding (DSO)",
         "definition": "DSO = (Accounts Receivable / Revenue) × 365. The average number of days it takes customers to pay you. Lower = better cash flow. DSO > 45 days for non-enterprise is a red flag — you're lending money to customers for free.",
         "formula": null,
@@ -11719,7 +11719,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ed8d2c4f-93cb-4a62-8013-022dcb54cbb1",
         "name": "Negative Working Capital",
         "definition": "Receive cash from customers BEFORE you have to pay your suppliers. DSO < DPO + DIO means customers are financing your business. Dell perfected this: build-to-order, customer pays immediately, Dell pays suppliers in 30 days.",
         "formula": null,
@@ -11766,7 +11766,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a0c0e2c7-f2ec-4c7e-bb62-1baf91361619",
         "name": "Working Capital Optimization",
         "definition": "For every $1 freed from working capital, you avoid $1 of fundraising dilution. A company with $10M revenue can typically free $1-3M in cash through working capital optimization — equivalent to a $1-3M funding round at $0 dilution.",
         "formula": null,
@@ -11838,7 +11838,7 @@ export const staticFrameworks = [
     "content": "# Fundraising & Capital Structure\n\n## CEO Use Case\nYou're raising $10M Series A. Two term sheets: VC-A offers $10M at $40M pre ($50M post) with 1x non-participating liquidation preference. VC-B offers $12M at $48M pre ($60M post) with 2x participating preferred. VC-A looks like more dilution but is actually BETTER for founders in most exit scenarios. You need to model the waterfall to understand why.\n\n## Core Concepts\n- **Debt vs Equity**: debt preserves ownership but requires cash flow. Equity dilutes but doesn't require repayment. Venture debt: non-dilutive but needs equity raised first.\n- **Liquidation Preference**: who gets paid first/last in an exit. 1x non-participating = investor gets money back then shares prorata. 2x participating = investor gets 2x money back AND shares prorata — founders get crushed.\n- **Dilution Waterfall**: model ownership through multiple rounds. A $10M round at $50M post = 20% dilution. The ESOP pool also dilutes you (pre-money vs post-money pool matters).",
     "concepts": [
       {
-        "id": "",
+        "id": "7dabcc85-7265-4ec8-bd3a-77c59ca6e423",
         "name": "Debt vs Equity Decision",
         "definition": "Debt: non-dilutive, tax-deductible interest, requires fixed repayment, increases bankruptcy risk. Equity: dilutive, no repayment required, patient capital, aligns investors with your success. Most startups should raise equity; profitable companies should consider debt.",
         "formula": null,
@@ -11885,7 +11885,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0c61ce3e-69a0-4080-a0f4-8982b3e0de52",
         "name": "Liquidation Preferences",
         "definition": "The order and amount investors get paid in an exit. 1x non-participating (standard, founder-friendly): investor gets their money back OR converts to common at their ownership %. 2x participating (aggressive, investor-friendly): gets 2x money back AND their pro-rata share — can leave founders with zero.",
         "formula": null,
@@ -11932,7 +11932,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "61f36c8f-9c2c-4eed-91b1-5401d5d090d5",
         "name": "Dilution Waterfall",
         "definition": "Model how ownership changes through each funding round + ESOP. Seed → Series A → Series B → exit. Each round dilutes prior shareholders. A founder starting at 80% may end at 15% after Series C + ESOP.",
         "formula": null,
@@ -11979,7 +11979,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "cc8d2eee-b747-40bb-b14e-bf20ea4a458a",
         "name": "Venture Debt",
         "definition": "A loan to extend runway between equity rounds. Typically 10-25% of the last equity round amount, 3-5 year term, 10-15% interest + warrants (0.5-2% of company). Only available AFTER you've raised equity.",
         "formula": null,
@@ -12051,7 +12051,7 @@ export const staticFrameworks = [
     "content": "# M&A Financial Modeling\n\n## CEO Use Case\nYour team proposes acquiring Company X for $50M. They project 'significant synergies.' Framework demands: show me the accretion/dilution analysis, quantify synergies by type (cost vs revenue), the earnout structure, purchase price allocation, and pro forma financials. If the deal is dilutive for more than 12 months without a clear path to accretion, don't do it.\n\n## Core Concepts\n- **Accretion/Dilution**: compare buyer's EPS before and after acquisition. Accretive = EPS goes UP (good). Dilutive = EPS goes DOWN (may still be justified by strategic value).\n- **Synergy Types**: cost synergies (headcount reduction, scale) are reliable (80-100% of target). Revenue synergies (cross-sell, new markets) are aspirational (20-50% of target).\n- **Purchase Price Allocation**: split purchase price into tangible assets, identifiable intangibles, and goodwill. Drives future amortization and tax treatment.",
     "concepts": [
       {
-        "id": "",
+        "id": "732ea355-73e2-4f80-bbb3-e518fc31fb84",
         "name": "Accretion/Dilution Analysis",
         "definition": "Compare pro forma EPS (buyer + target combined) vs standalone buyer EPS. Accretive: combined EPS > standalone EPS (deal 'pays for itself'). Dilutive: combined EPS < standalone (deal reduces earnings). Most deals targeting <24 months to accretion.",
         "formula": null,
@@ -12098,7 +12098,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7461fe0f-77f4-427b-97c1-ab102d54ca4a",
         "name": "Synergy Quantification",
         "definition": "Cost synergies (headcount elimination, vendor consolidation, facility closing): highly reliable, realize 80-100%. Revenue synergies (cross-selling, bundled offerings, market expansion): less reliable, realize 20-50%. Always separate them in your model.",
         "formula": null,
@@ -12145,7 +12145,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "847bf6a2-0108-45a3-b4fd-1359e30a5617",
         "name": "Goodwill & Intangibles",
         "definition": "When you acquire a company for more than its net tangible assets, the excess is allocated to identifiable intangibles (customer relationships, technology, brand) and any remainder goes to Goodwill. Goodwill is tested annually for impairment — a write-down signals a bad deal.",
         "formula": null,
@@ -12192,7 +12192,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ce7bf24b-21d9-46db-a240-7f8ac64a4192",
         "name": "Earnout Modeling",
         "definition": "Part of the purchase price is paid only if the acquired company hits specific targets post-close. Ties payment to performance, reduces buyer's risk of overpaying, and incentivizes the seller to ensure smooth integration.",
         "formula": null,
@@ -12264,7 +12264,7 @@ export const staticFrameworks = [
     "content": "# Investor Relations & Earnings Communication\n\n## CEO Use Case\nYou missed quarterly revenue by 3%. The stock drops 15% in after-hours trading. Your earnings call and shareholder letter are the difference between 'thesis intact, temporary headwinds' and 'management has lost credibility.' Framework: acknowledge the miss honestly, explain the 'why' specifically, present the corrective action, and re-commit to long-term targets.\n\n## Core Concepts\n- **Earnings Call Structure**: prepared remarks (5-10 min CEO), CFO detail (5-10 min), Q&A (30-45 min). The Q&A is where credibility is won or lost.\n- **Guidance Philosophy**: give specific guidance (held accountable) vs give ranges (wiggle room) vs give no guidance (Berkshire). Each has trade-offs.\n- **Shareholder Letters**: Buffett-style annual letters build long-term trust. Write them yourself, be honest about mistakes, explain the business simply.\n- **Regulation FD**: you can't selectively disclose material information. What you tell one investor, you must tell all simultaneously.",
     "concepts": [
       {
-        "id": "",
+        "id": "9be1e7ac-e474-4185-b662-6a5926a8c8ca",
         "name": "Earnings Call Strategy",
         "definition": "Prepare for the narrative (what story are you telling this quarter?), the data (every metric must reconcile), and the hard questions (identify top 5 brutal questions and script answers). The prepared remarks frame the narrative; the Q&A proves your command.",
         "formula": null,
@@ -12311,7 +12311,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "360fb268-8c5f-4c93-a6b2-63b6db006102",
         "name": "Guidance Philosophy",
         "definition": "Three approaches: 1) Specific guidance (Q1 revenue $50-52M) — holds you accountable, builds credibility. 2) Ranges only (15-25% growth) — flexibility. 3) No guidance (Berkshire) — forces investors to focus on long-term. Choose based on predictability of your business.",
         "formula": null,
@@ -12358,7 +12358,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "62571583-161a-4b3e-b619-eab5f42c13f2",
         "name": "Shareholder Letter Writing",
         "definition": "The annual shareholder letter is your direct channel to owners. Buffett writes his himself — it's the most widely read business document in the world. Write honestly about mistakes, explain the business in plain English, and communicate the long-term vision.",
         "formula": null,
@@ -12405,7 +12405,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "f1e9172c-2d6b-47b4-9720-15ceb8bab4d0",
         "name": "Activist Investor Defense",
         "definition": "Activist investors buy 5-15% of your stock and demand changes (spin-off, buyback, board seat, sale). Defense: 1) Know your vulnerabilities (what would an activist attack?) 2) Have a plan before they arrive 3) Engage, don't fight reflexively 4) Win proxy fight if necessary.",
         "formula": null,
@@ -12477,7 +12477,7 @@ export const staticFrameworks = [
     "content": "# Hiring & Talent Acquisition\n\n## CEO Use Case\nYour VP of Engineering made 3 bad senior hires this year. Each cost $50k in salary + recruiter fees before they left. Worse: their teams lost 6 months of productivity. Root cause: no structured scorecard, interviews were 'good conversations' rather than evidence-based assessments.\n\n## Core Concepts\n- **Structured Interviewing**: every candidate gets the same questions. Answers are scored against a rubric. Eliminates the 'halo effect' (one impressive story dominating the evaluation).\n- **Bar Raisers**: designated interviewers whose ONLY job is to assess if candidate raises the bar. They have veto power over any hire, regardless of role or seniority (Amazon practice).\n- **Scorecards**: define what 'great' looks like BEFORE seeing candidates. Rate on specific competencies with behavioral evidence, not feelings.\n- **Quality of Hire**: measure 6-month performance rating, ramp time, and 1-year retention to assess hiring quality.",
     "concepts": [
       {
-        "id": "",
+        "id": "867514c2-eeb4-4f4f-9397-1d9ff2f4a499",
         "name": "Structured Interviewing",
         "definition": "Every candidate for a role gets the same questions, evaluated against the same rubric. Behavioral questions ('Tell me about a time when...') are far more predictive than brainteasers or hypotheticals.",
         "formula": null,
@@ -12524,7 +12524,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "139fdeba-35d3-4715-9b06-cd031879e62d",
         "name": "Hiring Scorecards",
         "definition": "Before posting a job, define EXACTLY what success looks like: 1) Mission (what will they achieve in 12 months?) 2) Outcomes (3-5 specific deliverables) 3) Competencies (what skills/behaviors predict success?). Interview against this, not the resume.",
         "formula": null,
@@ -12571,7 +12571,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d5851afa-ccdf-4768-8bcf-26f2d56c9771",
         "name": "Bar Raiser Programs",
         "definition": "Bar Raisers are specially trained interviewers who are NOT on the hiring team. Their sole objective: ensure every hire raises the average. They have veto power — even if the hiring manager wants to hire, the Bar Raiser can say no.",
         "formula": null,
@@ -12618,7 +12618,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0d94cceb-2a68-4568-87cb-2ea262d33e62",
         "name": "Onboarding Acceleration",
         "definition": "First 90 days determine a hire's long-term success. Structured onboarding: pre-start prep, first-week setup, 30/60/90-day milestones with clear deliverables, assigned buddy, and executive check-ins at 14, 30, and 90 days.",
         "formula": null,
@@ -12690,7 +12690,7 @@ export const staticFrameworks = [
     "content": "# Performance Management Systems\n\n## CEO Use Case\nYour annual review process takes 4 weeks, 200 hours of manager time, and changes exactly 0 decisions (everyone got 'meets expectations'). Your top performers resent it ('why am I rated the same as John?'). Your low performers are surprised ('no one told me I was underperforming'). Framework redesigns this for impact, not paperwork.\n\n## Core Concepts\n- **OKR-Linked Reviews**: performance reviews assess progress against OKRs, not vague 'demonstrates leadership' metrics\n- **360 Feedback**: collect input from manager, peers, direct reports, and stakeholders. Triangulate patterns.\n- **Calibration Sessions**: managers meet to calibrate ratings across teams. Prevents rating inflation and inconsistency.\n- **Separation principle**: rate performance (what you achieved) and potential (can you grow) separately. High performer/low potential ≠ promotion material — reward, don't promote.",
     "concepts": [
       {
-        "id": "",
+        "id": "01a92b98-508a-4855-94a3-1fe033d1059d",
         "name": "OKR-Linked Performance Reviews",
         "definition": "Performance = outcomes achieved, not hours worked. Link review ratings to OKR completion: 70-80% OKR completion = meets expectations. 90%+ = exceeds. <50% = needs improvement. Eliminates subjectivity.",
         "formula": null,
@@ -12737,7 +12737,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "89c42693-b0d3-4f63-951c-7d81421afa16",
         "name": "360-Degree Feedback",
         "definition": "Collect structured feedback from 5-8 people: manager, 3-4 peers, 2-3 direct reports, 1-2 cross-functional stakeholders. Triangulate patterns. If 6 out of 8 people say you're a poor listener — you're a poor listener.",
         "formula": null,
@@ -12784,7 +12784,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "c530793f-780d-4886-aca6-b58ee6c2faee",
         "name": "Calibration Sessions",
         "definition": "Managers meet to calibrate ratings across teams: 'Sarah got Exceeds from me. Here's the evidence.' Other managers challenge: 'That evidence looks like Meets compared to what Maria achieved.' Prevents rating inflation and ensures standards are consistent.",
         "formula": null,
@@ -12831,7 +12831,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a9a558cf-87a5-41e5-b8e1-a807cdc1c5c8",
         "name": "Performance Improvement Plans (PIPs)",
         "definition": "A written plan for an underperforming employee: specific, measurable goals with a 30-90 day timeline. Weekly check-ins. At the end: meets goals (exits PIP successfully) or doesn't (termination). NOT a 'pre-firing checklist' — a genuine attempt to improve.",
         "formula": null,
@@ -12903,7 +12903,7 @@ export const staticFrameworks = [
     "content": "# Compensation & Incentive Design\n\n## CEO Use Case\nYour top engineer is leaving for a competitor offering 30% more total comp. You match the offer. Now 3 other senior engineers want 'equity adjustments.' Without a comp philosophy, every retention becomes a one-off negotiation, and you're losing. Framework: define your comp philosophy (where in the market do you pay? at 50th, 75th, or 90th percentile?), then apply consistently.\n\n## Core Concepts\n- **Total Rewards Philosophy**: decide your market position (P50/P75/P90), comp mix (base/bonus/equity), and refresh philosophy. Document it. Apply it.\n- **Equity Design**: ISO vs NSO, vesting schedules (4yr/1yr cliff standard), post-termination exercise windows (90 days vs 10 years), refreshes.\n- **Sales Comp**: base/variable split (50/50 or 60/40), accelerators above quota, clawbacks for churned deals, team vs individual.\n- **Performance Multipliers**: multiply bonus by individual performance (0.5x-2x) AND company performance (0.8x-1.2x). Both matter.",
     "concepts": [
       {
-        "id": "",
+        "id": "f5a77cba-0458-4c1b-8f46-a8570cf8f085",
         "name": "Total Rewards Philosophy",
         "definition": "A written document stating: 1) What percentile of the market do we target? 2) What's our mix of base/bonus/equity by level? 3) How often do we refresh equity? 4) What's our philosophy on internal equity vs external market?",
         "formula": null,
@@ -12950,7 +12950,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "6e6438b5-2668-4023-b4f4-ccab9ceb305b",
         "name": "Equity Grant Design",
         "definition": "Standard terms: 4-year vesting, 1-year cliff (no equity until 12 months). Post-termination exercise window: 90 days (standard, forces exercise or forfeiture) vs 10 years (emerging best practice, kinder to employees). Refresh grants at promotion and periodically.",
         "formula": null,
@@ -12997,7 +12997,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "70f7534f-b655-4577-96cd-4f4843f937a4",
         "name": "Sales Compensation Models",
         "definition": "The formula that drives your entire revenue engine. Typical SaaS AE: 50/50 base/variable split. OTE (on-target earnings) = base + commission at 100% quota. Accelerators: earn FASTER above 100% (1.5x-3x multiplier). Clawbacks: if customer churns within 6 months, commission is clawed back.",
         "formula": null,
@@ -13044,7 +13044,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "7553eca6-c85b-4d91-b0ec-0979d5493dcb",
         "name": "Performance-Based Bonus Structures",
         "definition": "Bonus = target × company performance multiplier × individual performance multiplier. Company hits 90% of targets → 0.8x multiplier. Individual gets 'exceeds' rating → 1.5x. Bonus = target × 0.8 × 1.5 = 1.2x target.",
         "formula": null,
@@ -13115,7 +13115,7 @@ export const staticFrameworks = [
     "content": "# Business Continuity & Disaster Recovery\n\n## CEO Use Case\nYour primary data center goes offline. Your DR site is 200 miles away. How fast can you recover? RTO (Recovery Time Objective): 4 hours. RPO (Recovery Point Objective): 15 minutes of data loss. But when was this last tested? '2 years ago — it worked then.' That's not a DR plan. That's hope.\n\n## Core Concepts\n- **RTO**: how long can you be down before it's existential damage? (Target: 4 hours for critical systems, 24 hours for non-critical)\n- **RPO**: how much data can you afford to lose? (Target: 15 min for transactions, 24 hours for analytics)\n- **Business Impact Analysis (BIA)**: which systems, if lost, would cause the most financial/reputational harm? Prioritize their recovery.\n- **Failover Testing**: test DR quarterly, not annually. Include tabletop exercises (people/process) AND technical failover (systems).",
     "concepts": [
       {
-        "id": "",
+        "id": "c94594a6-4f72-420d-bddd-9d852a6ce347",
         "name": "RTO & RPO (Recovery Objectives)",
         "definition": "RTO = maximum acceptable downtime before business-threatening damage. RPO = maximum acceptable data loss measured in time. Critical systems: RTO <4 hours, RPO <15 min. Non-critical: RTO <24 hours, RPO <24 hours.",
         "formula": null,
@@ -13162,7 +13162,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "27aade59-3462-425a-8cac-ad219694a7a7",
         "name": "Business Impact Analysis (BIA)",
         "definition": "For each business process: 'If this stops working, what's the financial impact after 1 hour, 4 hours, 24 hours, 1 week?' Rank processes by impact. The top-ranked processes get the fastest RTO/RPO.",
         "formula": null,
@@ -13209,7 +13209,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "369c0817-53d7-47ea-a4e7-1e1a8c8e0492",
         "name": "Failover Testing",
         "definition": "Test your disaster recovery quarterly. Tabletop exercise (walk through the runbook): 'The primary data center just burned down. What do you do first?' Technical test: actually switch traffic to DR site and verify everything works.",
         "formula": null,
@@ -13280,7 +13280,7 @@ export const staticFrameworks = [
     "content": "# Regulatory Risk & Compliance\n\n## CEO Use Case\nYou're entering the EU market. GDPR applies. You're also planning Series C and will need SOX compliance within 18 months. And the EU AI Act is coming for your ML features. Framework helps you map the regulatory landscape, prioritize based on risk, and build a scalable compliance program.\n\n## Core Concepts\n- **Regulatory Landscape Mapping**: identify every regulation that applies to your company by jurisdiction, product, and data type\n- **Risk-Based Compliance**: not all regulations are equally enforced or equally relevant. Prioritize compliance investment by risk (likelihood × regulatory impact).\n- **Audit Readiness**: if an auditor walked in today, what evidence would you show them? Compliance is documentation + controls + evidence of controls operating.\n- **Whistleblower & Ethics**: every public company needs a formal whistleblower program. Anonymous reporting, non-retaliation policy, investigation process.",
     "concepts": [
       {
-        "id": "",
+        "id": "a4f7cc8d-a9f2-4ba1-acda-2ccf72bb922b",
         "name": "Regulatory Landscape Mapping",
         "definition": "Create a matrix: rows = regulations (GDPR, CCPA, SOC2, SOX, HIPAA, EU AI Act), columns = applicability (yes/no), risk level (high/med/low), compliance status (compliant/gap/unknown), and remediation cost. Prioritize by risk level.",
         "formula": null,
@@ -13327,7 +13327,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "2cb1b65e-89ff-4b33-bc85-db8222451184",
         "name": "Compliance Program Design",
         "definition": "A compliance program has 6 elements: 1) Written policies 2) Training 3) Monitoring 4) Reporting mechanism 5) Investigation process 6) Enforcement/discipline. DOJ/SEC evaluate these when assessing corporate wrongdoing penalties.",
         "formula": null,
@@ -13374,7 +13374,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "48695180-59f8-4b0e-b045-4a0f869ed339",
         "name": "Audit Readiness",
         "definition": "Can you produce evidence that your controls exist and work within 48 hours of an auditor's request? Evidence = logs, screenshots, documented approvals, test results, meeting minutes. Build evidence generation INTO your processes, not after the fact.",
         "formula": null,
@@ -13445,7 +13445,7 @@ export const staticFrameworks = [
     "content": "# Cross-Cultural Negotiation\n\n## CEO Use Case\nYou're negotiating a partnership with a Japanese conglomerate. You present your best offer upfront, expect a quick counter, and push for a decision by Friday. The Japanese team goes silent for 2 weeks. What went wrong? High-context culture: relationship comes first, decisions are consensus-driven and slow, your directness was perceived as aggressive. Framework helps you adapt.\n\n## Core Concepts\n- **High-Context vs Low-Context**: HC (Japan, China, Arab countries): meaning is in the CONTEXT (who said it, where, how). LC (US, Germany, Scandinavia): meaning is in the WORDS (explicit, direct).\n- **Relationship-First**: many cultures won't discuss business until they know you and trust you. Multiple meetings before the first proposal. Seen as 'wasting time' by deal-first cultures — but it's the essential pre-work.\n- **Face**: in many Asian cultures, causing someone to lose face (public embarrassment, direct refusal) is worse than losing the deal. Frame concessions as 'mutual benefit' not 'you were wrong.'",
     "concepts": [
       {
-        "id": "",
+        "id": "a28abdb5-3761-44c7-9058-270f4d097784",
         "name": "High-Context vs Low-Context Communication",
         "definition": "High-context: meaning is embedded in the context — who is speaking, their relationship to you, what is NOT said. 'We will consider it' often means NO. Low-context: meaning is in the explicit words. 'No' means no. Mismatched styles cause disastrous misunderstandings.",
         "formula": null,
@@ -13492,7 +13492,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "fee598ad-c6ba-40b7-95f7-821606500bb9",
         "name": "Relationship-First vs Deal-First",
         "definition": "Relationship-first cultures (most of Asia, Latin America, Middle East, Africa): you build trust over meals, meetings, and months BEFORE discussing terms. Deal-first (US, Northern Europe): you discuss terms immediately and let trust build through the process.",
         "formula": null,
@@ -13539,7 +13539,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ee44275d-1279-4ad1-986e-0b6182fd7d08",
         "name": "Face-Saving Dynamics",
         "definition": "In many cultures, 'face' (dignity, respect, social standing) is more important than financial terms. Never publicly contradict a senior counterpart, never force someone to admit they were wrong, and frame concessions as mutual discovery, not capitulation.",
         "formula": null,
@@ -13610,7 +13610,7 @@ export const staticFrameworks = [
     "content": "# Supply Chain Management for CEOs\n\n## CEO Use Case\nCOVID taught every CEO: your Just-in-Time supply chain is fragile. When one supplier in a country you can't name goes down, your entire production stops. Post-COVID framework: Just-in-Case inventory buffers for critical components + supplier diversification + supply chain risk mapping.\n\n## Core Concepts\n- **Supplier Diversification**: never single-source a critical component. Dual-source (2 suppliers) or multi-source (3+). More expensive but dramatically reduces risk.\n- **Just-in-Time vs Just-in-Case**: JIT = minimal inventory, lower cost, fragile. JIC = buffer inventory, higher cost, resilient. Most CEOs post-COVID now carry 2-4 weeks of critical inventory.\n- **Supply Chain Risk Mapping**: map every supplier, their suppliers (Tier 2), and their locations. Identify concentration risk: 'We have 3 suppliers — all in the same flood zone.'\n- **Total Cost of Ownership**: purchase price + shipping + tariffs + inventory carrying cost + quality cost + risk premium. Cheapest unit price ≠ cheapest TCO.",
     "concepts": [
       {
-        "id": "",
+        "id": "b3e7ac00-f158-4a8f-9c52-3ff5ceadc43c",
         "name": "Supplier Diversification Strategy",
         "definition": "Never single-source critical components. Minimum: dual-source (primary supplier at 70% volume, secondary at 30%). Better: multi-source across geographies (Taiwan + Vietnam + Mexico). Diversity = resilience.",
         "formula": null,
@@ -13657,7 +13657,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "81daaec1-e50a-4ecc-b328-0d26f41b8cbb",
         "name": "Just-in-Time vs Just-in-Case",
         "definition": "JIT: inventory arrives exactly when needed (lower cost, fragile). JIC: hold 2-8 weeks of buffer inventory (higher cost, resilient). Post-COVID consensus: JIT for predictable, multi-sourced components. JIC for single-sourced, long-lead-time, or critical components.",
         "formula": null,
@@ -13704,7 +13704,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "6ddab9ea-f557-4eb9-acbf-080ab75e0c33",
         "name": "Supply Chain Risk Mapping",
         "definition": "Map every supplier (Tier 1), their suppliers (Tier 2), and geographic concentrations. Identify single points of failure: 'Our 3 suppliers of component X all source from the same Tier 2 factory in Thailand.' Diversification is an illusion if Tier 2 is concentrated.",
         "formula": null,
@@ -13776,7 +13776,7 @@ export const staticFrameworks = [
     "content": "# Product-Market Fit & Growth Engines\n\n## CEO Use Case\nInvestors ask: 'Do you have product-market fit?' You say yes because you're growing. But the PMF survey reveals: only 25% of users would be 'very disappointed' if your product disappeared. The threshold for PMF is 40%+. You don't have PMF — you have growth masking retention problems.\n\n## Core Concepts\n- **Sean Ellis PMF Test**: survey users: 'How would you feel if you could no longer use [product]?' Very disappointed / Somewhat disappointed / Not disappointed. PMF threshold: >=40% 'very disappointed.'\n- **Growth Loops**: self-reinforcing cycles where the output of one cycle feeds the input of the next (Pinterest: save content → content gets discovered → new users join → save more content)\n- **Flywheel**: a series of steps where each step's momentum powers the next (Amazon: lower prices → more customers → more sellers → better selection → lower prices)\n- **Expansion Revenue**: NRR > 100% means existing customers grow faster than you lose them. The holy grail of PMF.",
     "concepts": [
       {
-        "id": "",
+        "id": "7dd68e61-386a-4c46-b281-784847d2ec5e",
         "name": "PMF Survey (Sean Ellis Test)",
         "definition": "Survey active users: 'How would you feel if [product] no longer existed?' Options: Very disappointed, Somewhat disappointed, Not disappointed. PMF threshold: >=40% 'very disappointed.' If >=40%, you have PMF. If 25-40%, you're close. If <25%, you don't have PMF.",
         "formula": null,
@@ -13823,7 +13823,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "189be9bf-8c01-41e1-a180-67c06b6033a1",
         "name": "Growth Loops vs Funnels",
         "definition": "Funnel: acquisition → activation → retention → revenue → referral (linear, leaks at each stage). Growth Loop: product generates its own growth. Each user who joins creates value that brings more users. Loops compound; funnels decay.",
         "formula": null,
@@ -13870,7 +13870,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "ac3d8e85-2572-4ee4-9bba-0d309ef82600",
         "name": "Flywheel Design",
         "definition": "A self-reinforcing cycle where each step powers the next. Unlike a funnel (where energy leaks at each step), a flywheel accumulates momentum. The CEO's job is to identify and remove friction from the flywheel.",
         "formula": null,
@@ -13917,7 +13917,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "43c4addc-0d5e-458a-89af-c5d2bcdbe2f3",
         "name": "Expansion Revenue Mechanics",
         "definition": "NRR > 100% means your existing customer base grows even if you add zero new customers. Expansion revenue comes from: seat expansion (more users), usage expansion (higher tiers), product adoption (additional modules), price increases.",
         "formula": null,
@@ -13988,7 +13988,7 @@ export const staticFrameworks = [
     "content": "# Platform Business Models & Network Effects\n\n## CEO Use Case\nYou're launching a two-sided marketplace. The chicken-and-egg problem: buyers won't come without sellers, sellers won't come without buyers. Framework: subsidize one side (give free value), monetize the other. Credit cards: subsidize cardholders (points, cashback), charge merchants (interchange fees).\n\n## Core Concepts\n- **Network Effect Types**: Direct (more users = more valuable, like WhatsApp), Indirect/Two-Sided (more buyers attract more sellers, like eBay), Data (more usage improves the product, like Google Search)\n- **Chicken-and-Egg**: solve by subsidizing one side (pay them to join), using marquee users (anchor tenants), or building single-player utility first\n- **Platform Pricing**: charge the side that values the platform more or has more to lose. Usually: charge the 'money' side, subsidize the 'attention' side.",
     "concepts": [
       {
-        "id": "",
+        "id": "bc65361c-2d79-4ffd-a96d-0534f82571cc",
         "name": "Network Effect Types",
         "definition": "Direct: each new user directly increases value for ALL users (WhatsApp, WeChat). Indirect/Two-Sided: more of Type A attracts more of Type B, and vice versa (Uber, Airbnb). Data: more usage generates more data, which improves the product (Google Search, Netflix recommendations).",
         "formula": null,
@@ -14035,7 +14035,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "9f759f2e-4961-48be-acdd-f77aef6b5747",
         "name": "Chicken-and-Egg Problem",
         "definition": "Two-sided platforms need BOTH sides to participate, but neither will join without the other. Solutions: 1) Subsidize one side (pay them) 2) Build single-player utility first 3) Use marquee users as anchor tenants 4) Fake it till you make it (seed supply/demand artificially).",
         "formula": null,
@@ -14082,7 +14082,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "e4ce0d2c-a66c-4354-b6bc-0294cbc2dabf",
         "name": "Platform Pricing (Which Side to Charge)",
         "definition": "Two-sided platforms must decide: which side pays, which side gets subsidized? Framework: charge the side that needs the other side more, or the side with lower price sensitivity, or the side with fewer alternatives.",
         "formula": null,
@@ -14153,7 +14153,7 @@ export const staticFrameworks = [
     "content": "# Disruption Response Playbook\n\n## CEO Use Case\nA startup just raised $50M to build a cheaper, simpler version of your product. Your board says 'crush them.' Your innovation team says 'acquire them.' Framework helps you choose: is this sustaining innovation (you should win) or disruptive innovation (you probably can't win head-on)?\n\n## Core Concepts\n- **Disruption Detection**: early signals — are they serving your worst customers or non-consumers? Are you ignoring them because the margins look terrible? That's classic disruption.\n- **Ignore vs Acquire vs Compete**: Ignore (they'll fail on their own, 50% of startups do). Acquire (buy the disruption, integrate carefully). Compete (launch your own simpler version but in a SEPARATE unit).\n- **Self-Disruption**: the only way to survive disruption is to disrupt yourself first. This requires a separate business unit with different metrics, culture, and leadership — insulated from the core business.",
     "concepts": [
       {
-        "id": "",
+        "id": "dca70bf2-033f-477e-80e1-c6c985a216b7",
         "name": "Disruption Detection",
         "definition": "Early signals you're being disrupted: 1) Startup targeting your LOWEST-MARGIN customers 2) Startup selling to NON-CONSUMERS (people you never served) 3) Your sales team says 'they're not a threat' (they never see it coming) 4) Their product is simpler/cheaper but 'worse' by your metrics.",
         "formula": null,
@@ -14200,7 +14200,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "1434dca2-4308-4f08-90f9-041d38868ea3",
         "name": "Ignore vs Acquire vs Compete Framework",
         "definition": "Ignore: if the disruptor's business model can't scale unit economics beyond the niche. Acquire: if their technology complements yours and cultural integration is possible. Compete: launch your own answer, but ONLY in a separate business unit with different metrics and culture.",
         "formula": null,
@@ -14247,7 +14247,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "9ab7cb6a-399b-4b0f-abf2-4520af2ba047",
         "name": "Self-Disruption (Separate Unit)",
         "definition": "The only proven defense against disruption: launch your own disruptive product in a SEPARATE organization. Different location, different metrics, different compensation, different leadership. Shield it from the core business's margin expectations.",
         "formula": null,
@@ -14318,7 +14318,7 @@ export const staticFrameworks = [
     "content": "# Blue Ocean Strategy\n\n## CEO Use Case\nYour industry is a red ocean: blood-red competition, shrinking margins, commoditization. Blue Ocean Strategy asks: what factors does the industry compete on that we could ELIMINATE? What should we REDUCE well below industry standard? What should we RAISE well above? What should we CREATE that the industry has never offered? The answers define uncontested market space.\n\n## Core Concepts\n- **ERRC Grid**: Eliminate (which industry conventions can we remove entirely?), Reduce (what can we lower well below standard?), Raise (what should be dramatically improved?), Create (what can we offer that no one has?)\n- **Strategy Canvas**: a visual comparison of your offering vs competitors across key competitive factors. Blue Ocean shifts the curve — it doesn't just beat competitors on the same factors.\n- **Value Innovation**: simultaneous pursuit of differentiation AND low cost. Not a trade-off — a break from the trade-off.",
     "concepts": [
       {
-        "id": "",
+        "id": "95f6bf6e-b2a0-4c45-9fe6-4aef1ed14af9",
         "name": "ERRC Grid",
         "definition": "Eliminate (remove features/costs the industry takes for granted), Reduce (cut well below industry standard on factors customers don't value that much), Raise (dramatically improve what customers do value), Create (offer things the industry never has). Together, these four moves create a new value curve.",
         "formula": null,
@@ -14365,7 +14365,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "29ee02c8-fcd6-4804-b455-41fc21876cf7",
         "name": "Strategy Canvas",
         "definition": "Plot your offering and your competitors on the SAME set of competitive factors. A Blue Ocean shift happens when your curve is fundamentally DIFFERENT — not just higher on all factors (which is expensive), but higher on some and lower on others.",
         "formula": null,
@@ -14412,7 +14412,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "91e5ea90-4773-4337-8788-3777740f7d26",
         "name": "Three Tiers of Non-Customers",
         "definition": "Don't just fight for existing customers. Blue Ocean targets non-customers: Tier 1 (soon-to-be non-customers — ready to leave), Tier 2 (refusing non-customers — consciously chose against your industry), Tier 3 (unexplored non-customers — never considered your industry).",
         "formula": null,
@@ -14483,7 +14483,7 @@ export const staticFrameworks = [
     "content": "# Capacity Planning & Forecasting\n\n## CEO Use Case\nYour SaaS is growing 40% YoY. When do you invest in the next server cluster? Too early = wasted money. Too late = outages, customer churn. Capacity planning uses demand forecasting + lead time to determine when to trigger capacity additions.\n\n## Core Concepts\n- **Demand Forecasting**: quantitative (time series, regression) and qualitative (expert judgment, Delphi method). Forecast accuracy degrades with horizon — closer = better.\n- **Little's Law**: L = λ × W. Average number of items in system = arrival rate × average time in system. Universal law that applies to factory floors, call centers, and sprint backlogs.\n- **Bullwhip Effect**: small demand fluctuations at the retail level amplify upstream — retailers order more → wholesalers order even more → manufacturers overproduce massively. Caused by batch ordering, price fluctuations, and lack of visibility.",
     "concepts": [
       {
-        "id": "",
+        "id": "c2ed2a11-6b4b-415f-999c-ce158cc65ad1",
         "name": "Little's Law",
         "definition": "L = λ × W. Work-in-Progress (L) = Arrival Rate (λ) × Cycle Time (W). To reduce cycle time, you must either reduce WIP or increase throughput. You CAN'T reduce all three simultaneously.",
         "formula": null,
@@ -14530,7 +14530,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "571a65ee-8703-47a0-8ecb-3dc3dbddabed",
         "name": "The Bullwhip Effect",
         "definition": "Small demand fluctuations at customer level amplify at each upstream stage. Retailer orders 5% more → wholesaler sees 10% spike → manufacturer ramps production 20% → raw material suppliers panic and produce 40% more. Result: massive overproduction, inventory waste, and write-offs.",
         "formula": null,
@@ -14577,7 +14577,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "a0cf7f3f-dfc9-4b72-aad0-6d44272eeddc",
         "name": "Demand Forecasting Methods",
         "definition": "Quantitative: time series (moving average, exponential smoothing, ARIMA), causal (regression, leading indicators). Qualitative: expert judgment, Delphi method, market research, sales force composite. Combine both for best results — quantitative baseline + qualitative adjustments.",
         "formula": null,
@@ -14648,7 +14648,7 @@ export const staticFrameworks = [
     "content": "# Process Mining & Optimization\n\n## CEO Use Case\nYour 'standard' sales process says: lead → qualify → demo → proposal → close. Process mining of your CRM data reveals: 40% of deals skip the demo step, 25% go straight from lead to proposal (and have 3x lower close rate). Your actual process is messier than you think — and optimizing it saves millions.\n\n## Core Concepts\n- **Process Discovery**: mine event logs (timestamps, activities, case IDs) to visualize the ACTUAL process flow, including all the variants people actually follow.\n- **Conformance Checking**: compare the discovered process against the documented SOP. Identify deviations, bottlenecks, and compliance violations.\n- **Bottleneck Identification**: find where cases spend the most time waiting. The gap between events (not the activity itself) is usually the bottleneck.\n- **Process Variant Analysis**: how many process variants exist? A 'standard' process with 47 variants is a myth — standardize the best variants, eliminate the worst.",
     "concepts": [
       {
-        "id": "",
+        "id": "6759945f-4009-4a92-b35b-77ee810ffa50",
         "name": "Process Discovery from Event Logs",
         "definition": "Every enterprise system generates event logs with timestamps. Process mining reconstructs the actual process: which activities happened, in what order, by whom, and how long each took. This is the REAL process, not the one in the SOP document.",
         "formula": null,
@@ -14695,7 +14695,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "85cfaee3-25c3-45a2-b9df-d06bdda7550a",
         "name": "Conformance Checking",
         "definition": "Compare the discovered process to your documented SOP. Every deviation is either: 1) A compliance violation (fix it) 2) An undocumented improvement (document it) 3) A work-around for a broken process (fix the process).",
         "formula": null,
@@ -14742,7 +14742,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "b1742e76-5711-4a14-93fc-b90cfc7a9bc8",
         "name": "Bottleneck Identification",
         "definition": "Process mining shows waiting times BETWEEN activities (not activity durations). The bottleneck is usually not the slowest activity — it's the longest WAIT between activities. Look for cases sitting idle, waiting for a handoff.",
         "formula": null,
@@ -14813,7 +14813,7 @@ export const staticFrameworks = [
     "content": "# Intellectual Property Strategy\n\n## CEO Use Case\nYour startup has developed a novel ML algorithm. Do you patent it (20-year monopoly, but you must publicly disclose how it works) or protect it as a trade secret (unlimited duration, but no legal protection if someone reverse-engineers it)? The wrong choice can lose your competitive moat.\n\n## Core Concepts\n- **Patent vs Trade Secret**: patent = public disclosure in exchange for 20-year monopoly. Trade secret = keep it secret forever, but if independently discovered or leaked, you have no protection.\n- **Patent Portfolio**: don't just patent your product — patent the ALTERNATIVES your competitors would use to get around your patent. Build a fence, not just a gate.\n- **Freedom to Operate (FTO)**: before launching, search whether someone else's patent covers what you're doing. 'We didn't know' is not a defense — willful infringement = 3x damages.\n- **Defensive Publishing**: if you're NOT going to patent something, publish it publicly. This creates prior art that prevents others from patenting it and suing YOU later.",
     "concepts": [
       {
-        "id": "",
+        "id": "7181ee71-eaa7-4927-bfab-24f13b15c9e3",
         "name": "Patent Portfolio Strategy",
         "definition": "Don't patent just your product — patent the PROBLEM SPACE. A good portfolio includes: core patents (your product), blocking patents (alternatives competitors might use), and surrounding patents (improvements, applications, methods). Build a fence, not a gate.",
         "formula": null,
@@ -14860,7 +14860,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "28178e24-715c-40a5-989c-6aeb9bd9677a",
         "name": "Trade Secret vs Patent Decision",
         "definition": "Patent if: 1) the invention is easily reverse-engineered (you'll lose the secret anyway) 2) you want licensing revenue 3) the 20-year window is sufficient. Trade secret if: 1) it's difficult to reverse-engineer (manufacturing process, formula) 2) you can keep it secret (limited access) 3) indefinite protection matters more than a 20-year monopoly.",
         "formula": null,
@@ -14907,7 +14907,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "18eb76ce-b3c3-4fba-b2d5-f2d2bda44989",
         "name": "Freedom to Operate (FTO)",
         "definition": "Before you launch a product in a new market, search existing patents to ensure you're not infringing. An FTO opinion from patent counsel says 'we've searched and found no blocking patents.' Without it, you're flying blind into potential lawsuits.",
         "formula": null,
@@ -14978,7 +14978,7 @@ export const staticFrameworks = [
     "content": "# Open Innovation & Corporate Venturing\n\n## CEO Use Case\nNot all smart people work for you. Open Innovation says: leverage external ideas, external R&D, and external startups to complement your internal innovation. P&G's Connect + Develop program: 50% of new products involve external partners. Procter & Gamble went from 15% R&D productivity to 50%+.\n\n## Core Concepts\n- **Open Innovation**: systematically using external ideas and paths to market alongside internal ones. Inbound (bringing outside ideas in) and outbound (licensing your unused IP out).\n- **Corporate Venture Capital (CVC)**: investing in startups strategically (not just for financial return). Objectives: window on technology, option to acquire, ecosystem development, or financial return.\n- **Innovation Scouting**: having people in tech hubs (Silicon Valley, Tel Aviv, Berlin) whose job is finding startups relevant to your strategy. Proactive, not reactive.\n- **Partnership Structures**: from loosest to tightest: technology scouting → proof of concept → joint development → licensing → minority investment → majority acquisition.",
     "concepts": [
       {
-        "id": "",
+        "id": "0a94eb2b-f3f1-42b8-a701-05bf1ce3d2da",
         "name": "Open Innovation Models",
         "definition": "Inbound: bring external ideas IN (customer suggestions, university research, startup partnerships, competitor analysis). Outbound: send your unused IP OUT (license, spin-off, sell). P&G's target: 50% of innovation from external sources. Means: you need half the internal R&D budget.",
         "formula": null,
@@ -15025,7 +15025,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "9dc7694a-c15c-4b84-98de-754985bd1b0c",
         "name": "Corporate Venture Capital (CVC)",
         "definition": "Your company invests directly in external startups. Strategic objectives (not just financial): 1) Window on technology 2) Option to acquire 3) Ecosystem development 4) Financial return (least important). Research shows CVCs with primarily financial objectives underperform; strategic CVCs outperform.",
         "formula": null,
@@ -15072,7 +15072,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "91204705-9280-46aa-b642-fa5c0d7b6eb1",
         "name": "Innovation Scouting",
         "definition": "Station scouts in tech hubs to find startups BEFORE they're on your M&A team's radar. Scouts attend demo days, hackathons, meetups. They build relationships with founders 12-24 months before any deal.",
         "formula": null,
@@ -15143,7 +15143,7 @@ export const staticFrameworks = [
     "content": "# Multi-Party Negotiation & Coalition Building\n\n## CEO Use Case\nYou're renegotiating a contract with 3 unions, 2 suppliers, and 1 regulator all at once. Each has different demands, different leverage, and different timelines. Soloing each negotiation sequentially leads to whipsaw (you give concessions to all). Coalition negotiation: form alliances, trade across issues, build a package that creates a majority.\n\n## Core Concepts\n- **Minimum Winning Coalition**: you don't need everyone to agree — you need ENOUGH to carry the decision. Identify the smallest group whose support guarantees victory.\n- **Agenda Setting**: in multi-party negotiations, whoever controls the agenda (what's discussed, in what order) has enormous power. Frame the issues, sequence the parties, set the timeline.\n- **Mediation & Facilitation**: when parties are deadlocked, a neutral third party can propose solutions without anyone 'losing face' by suggesting them. The CEO often plays this role internally (between warring VPs).",
     "concepts": [
       {
-        "id": "",
+        "id": "c6d6a648-7306-479b-836a-b47cae34a167",
         "name": "Coalition Formation Strategy",
         "definition": "Map all parties on ISSUES (what they want) and LEVERAGE (what they can do about it). Form a coalition of parties whose interests are compatible. Start with the easiest supporter and build outward — momentum attracts fence-sitters.",
         "formula": null,
@@ -15190,7 +15190,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "9f6921f2-c983-4807-bd70-f7ade2e2b8fb",
         "name": "Minimum Winning Coalition",
         "definition": "Don't try to satisfy everyone. Identify the MINIMUM number of parties needed to reach agreement, build a coalition with them, and get the deal done. Adding more parties beyond the minimum introduces more demands without adding value.",
         "formula": null,
@@ -15237,7 +15237,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "d1ab23eb-20f0-43a0-bfdd-7f7cdb1f15d0",
         "name": "Multi-Party Agenda Setting",
         "definition": "Control the sequence of negotiations: who gets approached first, which issues get discussed when, and what's the deadline. Early wins create momentum; early concessions create expectations of weakness. Frame the issue in a way that favors your coalition.",
         "formula": null,
@@ -15308,7 +15308,7 @@ export const staticFrameworks = [
     "content": "# Quantitative Risk Assessment\n\n## CEO Use Case\nBoard asks: 'What's our biggest risk and how much could it cost us?' Qualitative answer: 'Cybersecurity — we've invested in defenses.' Quantitative answer: 'A ransomware attack has a 15% annual probability with expected loss of $8M (95% CVaR). We carry $5M cyber insurance and have a $3M deductible. Our risk appetite allows up to $2M uncovered loss — we're at $3M, so we need to either increase coverage or reduce vulnerability. That's a specific, actionable risk conversation.'\n\n## Core Concepts\n- **Risk Matrix (Likelihood × Impact)**: the classic 5×5 heatmap. Quick, visual, but can be misleading (compresses complex distributions into single numbers).\n- **VaR (Value at Risk)**: the maximum loss at a given confidence level. $10M VaR(95%) = we're 95% confident we won't lose more than $10M.\n- **CVaR (Conditional VaR)**: the expected loss GIVEN that you exceed VaR. Answers: 'when things go really wrong, how wrong do they go?'\n- **Risk Appetite Statement**: a formal declaration of how much risk the company is willing to accept in pursuit of its objectives. Signed by the board, communicated to all.",
     "concepts": [
       {
-        "id": "",
+        "id": "f799e37f-2b96-42de-9141-6b0397de89b7",
         "name": "Risk Matrix (Likelihood × Impact)",
         "definition": "Plot every risk on a 5×5 grid: Likelihood (Almost Certain to Rare) × Impact (Insignificant to Catastrophic). The top-right quadrant (high likelihood, high impact) gets immediate attention. Simple, visual, but beware: different risks with the same 'score' can have very different distributions.",
         "formula": null,
@@ -15355,7 +15355,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "86264957-a21c-4220-8444-272a9f0d881d",
         "name": "Value at Risk (VaR) & CVaR",
         "definition": "VaR(95%) = $10M means 'in 95% of scenarios, we lose ≤$10M.' CVaR answers: 'in the 5% of scenarios where we DO exceed $10M, what's our average loss?' CVaR is usually 20-50% higher than VaR. Always report both.",
         "formula": null,
@@ -15402,7 +15402,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "0d07f030-1e8a-4978-a474-ba3e64f2f030",
         "name": "Risk Appetite Statements",
         "definition": "A board-approved document declaring: 1) How much risk the company is willing to take 2) In what areas 3) Measured how 4) With what limits. Not 'we're risk-aware' — specific thresholds that trigger action.",
         "formula": null,
@@ -15473,7 +15473,7 @@ export const staticFrameworks = [
     "content": "# Insurance & Risk Transfer\n\n## CEO Use Case\nYour company pays $2M/year in insurance premiums across 15 policies (cyber, D&O, property, GL, E&O, workers comp, etc.). Your broker presents this as 'the cost of protection.' Framework says: insurance should be your LAST resort for risks you can't retain, mitigate, or contractually transfer. Retain predictable risks (self-insure), mitigate controllable risks, transfer only catastrophic risks.\n\n## Core Concepts\n- **Risk Transfer Spectrum**: Retain (pay out of pocket for small losses) → Mitigate (reduce probability or impact) → Contractual Transfer (indemnification, hold-harmless clauses) → Insurance (transfer to an insurer) → Hedge (financial instruments for market risks).\n- **Captive Insurance**: your wholly-owned insurance company that insures your parent company. Tax-advantageous, keeps underwriting profits, covers risks the commercial market won't.\n- **Self-Insurance**: set aside reserves instead of paying premiums. Works for high-frequency, low-severity risks (worker injuries, minor property damage).\n- **Parametric Insurance**: pays out automatically when a PRE-DEFINED parameter is triggered (earthquake magnitude >7.0, rainfall >X inches). No claims adjuster, no dispute, fast payout.",
     "concepts": [
       {
-        "id": "",
+        "id": "d0eb30c5-c136-47ca-8eea-9c45f6e58587",
         "name": "Risk Transfer Spectrum",
         "definition": "Not all risks need insurance. Decision framework: 1) Can we RETAIN this risk? (low severity, predictable) 2) Can we MITIGATE it? (reduce probability or impact) 3) Can we CONTRACTUALLY transfer it? (indemnification from partners) 4) Should we INSURE it? (catastrophic, unpredictable) 5) Should we HEDGE it? (financial market risks).",
         "formula": null,
@@ -15520,7 +15520,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "02ad328d-0c5e-4991-bf1c-15b97b74d0e8",
         "name": "Captive Insurance",
         "definition": "A wholly-owned insurance subsidiary that insures the parent company. Advantages: 1) Keep underwriting profits (don't pay them to a commercial insurer) 2) Cover risks the market won't touch 3) Tax benefits (premiums paid to captive are tax-deductible, captive's reserves grow tax-advantaged). Typically makes sense at $1M+ in annual premiums.",
         "formula": null,
@@ -15567,7 +15567,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "25e2b4a4-d084-43d5-ae5d-2aefee52b7ab",
         "name": "Parametric Insurance",
         "definition": "Pays out automatically when a predefined trigger is met — no loss assessment, no claims adjuster, no dispute. Example: 'If hurricane wind speed exceeds 120mph at our location, pay $5M within 48 hours.' Faster and more certain than traditional indemnity insurance.",
         "formula": null,
@@ -15639,7 +15639,7 @@ export const staticFrameworks = [
     "content": "# Cyber Risk Management Framework\n\n## CEO Use Case\nThe board asks: 'What's our biggest cyber risk and what are we doing about it?' You need to answer in business terms, not technical jargon. Framework: NIST CSF structures your program, FAIR quantifies your risks in dollars, and ransomware readiness ensures you can recover when (not if) you're hit.\n\n## Core Concepts\n- **NIST Cybersecurity Framework (CSF)**: the global standard: Identify, Protect, Detect, Respond, Recover. Not a compliance checklist — a continuous improvement framework.\n- **FAIR Model**: Factor Analysis of Information Risk — the emerging standard for quantifying cyber risk in financial terms. 'Ransomware event: 15% annual probability, $3M-$12M loss range.'\n- **Ransomware Readiness**: 3-2-1 backup strategy (3 copies, 2 different media, 1 offsite). Tabletop exercises for ransom decision (pay or not?). Pre-negotiated ransomware response firm on retainer.\n- **Third-Party Cyber Risk**: your security is only as strong as your weakest vendor. Assess critical vendors, require SOC2, implement vendor risk management program.",
     "concepts": [
       {
-        "id": "",
+        "id": "ef0ad0f5-cc55-4c9c-b0bb-7f4502d3df7a",
         "name": "NIST Cybersecurity Framework",
         "definition": "Five functions: IDENTIFY (asset management, risk assessment, governance), PROTECT (access control, training, data security), DETECT (anomalies, continuous monitoring), RESPOND (response planning, communications, analysis), RECOVER (recovery planning, improvements, communications).",
         "formula": null,
@@ -15686,7 +15686,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "83746650-2f94-4790-8936-39ee4689960c",
         "name": "FAIR Model (Breach Quantification)",
         "definition": "Factor Analysis of Information Risk: the standard for quantifying cyber risk in dollars. Loss Event Frequency × Loss Magnitude = Annualized Loss Expectancy (ALE). Turns 'our cyber risk is high' into 'our cyber risk is $3.2M/year expected loss.'",
         "formula": null,
@@ -15733,7 +15733,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "8e57dd00-8303-4dcc-a186-e8a281560d42",
         "name": "Ransomware Readiness",
         "definition": "The single most likely cyber event for most companies. Readiness: 1) Immutable backups (3-2-1 rule) 2) Offline backup that ransomware can't reach 3) Pre-negotiated incident response firm on retainer 4) Ransom payment decision framework (board-approved policy BEFORE you're hit) 5) Tabletop exercise quarterly.",
         "formula": null,
@@ -15804,7 +15804,7 @@ export const staticFrameworks = [
     "content": "# Geopolitical Risk Analysis\n\n## CEO Use Case\nYour manufacturing is 60% in China. Taiwan tensions escalate. Your board asks: 'What's our exposure and what's the plan?' Geopolitical risk analysis maps your exposure (country, supplier, logistics chokepoint), quantifies the impact of plausible scenarios, and defines mitigation (diversified suppliers, inventory buffers, political risk insurance).\n\n## Core Concepts\n- **Country Risk Assessment**: evaluate political stability, regulatory environment, currency risk, corruption, infrastructure, and labor conditions for every country you operate in or source from.\n- **Sanctions & Export Controls**: OFAC, BIS, EU sanctions — violating these is a CRIMINAL offense, not a regulatory fine. Screening customers, suppliers, and transactions against sanctions lists is mandatory.\n- **Supply Chain Geopolitical Mapping**: map your supply chain not just by supplier, but by country, sub-region, and logistics chokepoint (Strait of Malacca, Suez Canal, semiconductor foundry concentration in Taiwan).",
     "concepts": [
       {
-        "id": "",
+        "id": "431092de-c95c-4dc8-9b8c-4c3a9f98bb38",
         "name": "Country Risk Assessment",
         "definition": "Evaluate every country in your footprint on: Political (regime stability, corruption, rule of law), Economic (currency volatility, inflation, debt levels), Social (labor unrest, demographic trends), Technology (infrastructure, IP protection), Environmental (climate vulnerability), Legal (regulatory predictability, contract enforcement).",
         "formula": null,
@@ -15851,7 +15851,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "285d5fe0-ddb4-4e2f-b1dd-34573d34ddc5",
         "name": "Sanctions & Export Controls",
         "definition": "US sanctions (OFAC), EU sanctions, UN sanctions — different lists, different rules. Know which apply to you based on: 1) Your jurisdiction 2) Your customers' locations 3) Your products (dual-use technology needs export license). Violating sanctions is criminal, not civil. Penalties can include prison for executives.",
         "formula": null,
@@ -15898,7 +15898,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "16ad05f9-7cc8-43d6-86d5-41123dfe80bd",
         "name": "Supply Chain Geopolitical Mapping",
         "definition": "Map every Tier 1-2 supplier by country and sub-region. Identify geographic concentration: 'We have 3 suppliers — all in Taiwan.' Overlay with geopolitical risk: China-Taiwan tensions, South China Sea shipping lanes, semiconductor foundry concentration.",
         "formula": null,
@@ -15969,7 +15969,7 @@ export const staticFrameworks = [
     "content": "# Financial Risk Management\n\n## CEO Use Case\nYour company has €10M in European revenue. The Euro drops 15% against the dollar. That's $1.5M in revenue that just disappeared because of currency. An FX hedging program could have locked in the rate and protected your P&L. This is the CFO's domain — but the CEO must ensure the treasury function is doing its job.\n\n## Core Concepts\n- **FX Hedging**: use forward contracts, options, and natural hedging (matching revenues and costs in same currency) to reduce currency exposure.\n- **Interest Rate Risk**: if you have floating-rate debt, rising rates increase your interest expense. Swap to fixed-rate or hedge with interest rate swaps.\n- **Counterparty Credit Risk**: when you deposit cash at a bank or enter a derivative contract, you have exposure to that counterparty failing. Diversify banks, use collateral agreements.\n- **Concentration Risk**: no single bank should hold >25% of your cash. Silicon Valley Bank collapse in 2023 taught this lesson the hard way.",
     "concepts": [
       {
-        "id": "",
+        "id": "dccc0c0a-0788-480e-b799-67c85cbc8ac6",
         "name": "FX Hedging Strategies",
         "definition": "Natural hedge: match revenues and costs in the same currency (pay European employees in euros, not dollars). Forward contracts: lock in today's rate for future currency needs. Options: pay a premium for the right (not obligation) to exchange at a specific rate. Layered hedging: hedge 50-70% of expected exposure, leave rest to benefit from favorable moves.",
         "formula": null,
@@ -16016,7 +16016,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "f7ddaa12-885e-42fe-9d88-0459345300e1",
         "name": "Counterparty Credit Risk",
         "definition": "When you deposit money in a bank or enter a derivative contract, you're exposed to that counterparty's creditworthiness. If they fail, you lose your deposit or your hedge. Manage by diversifying counterparties, monitoring their credit ratings, and using collateral agreements (CSA for derivatives).",
         "formula": null,
@@ -16063,7 +16063,7 @@ export const staticFrameworks = [
         ]
       },
       {
-        "id": "",
+        "id": "dae07f38-0fd5-40f9-bab6-aaf49d56e9fc",
         "name": "Treasury Policy Design",
         "definition": "A board-approved document governing: 1) Which financial risks is the company willing/not willing to take? 2) How are those risks measured? 3) What hedging limits and instruments are permitted? 4) Who has authority to execute hedges? 5) How is compliance monitored? Prevents rogue trading and ensures alignment with risk appetite.",
         "formula": null,

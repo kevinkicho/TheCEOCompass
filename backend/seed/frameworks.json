@@ -97,7 +97,8 @@
           ],
           "correct": 1,
           "explanation": "Option 2 applies first principles: decompose 'hospitality' to fundamentals (sleep, shower, safety, location) and rebuild from there. This is how Airbnb unbundled the hotel experience. Option 1 is reasoning by analogy (copy the competitor). Options 3 and 4 optimize within existing assumptions rather than questioning them."
-        }
+        },
+        "id": "75401f36-36b9-46be-9543-2a68af069895"
       },
       {
         "name": "Inversion",
@@ -171,7 +172,8 @@
           ],
           "correct": 0,
           "explanation": "Option 1 applies inversion: assume the acquisition fails catastrophically, then trace the failure modes (synergy collapse, talent flight, technological obsolescence). The walk-away question is critical — if you can't answer it, you're not ready to acquire. Options 2-4 all operate within the assumption that the acquisition is a good idea."
-        }
+        },
+        "id": "866424ad-a587-4f98-b0d3-5953e0452c19"
       },
       {
         "name": "OODA Loop",
@@ -245,7 +247,8 @@
           ],
           "correct": 0,
           "explanation": "Option 1 is the OODA response: Observe (competitor shipped → market likely shifting), Orient (our feature concept was validated, but our timeline is now a liability), Decide (ship a leaner version fast), Act (2-week sprint). Then immediately loop: observe customer response to both features and orient for the next cycle. Option 3 is classic analysis paralysis."
-        }
+        },
+        "id": "36fefeef-99f3-4390-a6b5-cb70c60e65d9"
       },
       {
         "name": "Second-Order Thinking",
@@ -319,7 +322,8 @@
           ],
           "correct": 1,
           "explanation": "Option 2 traces the second-order effect through employee behavior change. If employees use the extra day for side projects, freelancing, or starting companies, you may face IP issues, divided attention, or increased turnover to entrepreneurship. If they use it for rest and skill development, productivity might actually increase. The consequence depends on the specific workforce and culture — which is exactly why you need to trace it before committing."
-        }
+        },
+        "id": "073ad1d8-8d46-4849-b7e8-a74302f1b019"
       },
       {
         "name": "Probabilistic Thinking",
@@ -393,7 +397,8 @@
           ],
           "correct": 0,
           "explanation": "Expected value = (0.20 × $500M) + (0.50 × $50M) + (0.30 × $0) = $100M + $25M + $0 = $125M. The $20M offer is less than one-sixth of the expected value. This is exactly the bet Bezos describes: the expected value is compelling despite the 30% chance of total loss. Option 4 confuses risk (30% failure) with negative EV — they're different concepts."
-        }
+        },
+        "id": "9db8e77d-25eb-49e4-87d8-2dab983d00e1"
       },
       {
         "name": "Pre-Mortem Analysis",
@@ -467,7 +472,8 @@
           ],
           "correct": 1,
           "explanation": "Option 2 converts the pre-mortem insight into an action: test the failure hypothesis BEFORE launch. If those 3 customers confirm that competitor X has a structural advantage (e.g., integration with existing enterprise tools you can't match), better to know now than after a failed launch. This is the whole point of a pre-mortem: identify the failure cause, then validate or invalidate it while there's still time to act."
-        }
+        },
+        "id": "5df0d533-8053-4ce5-baed-8506eab6a349"
       }
     ]
   },
@@ -575,7 +581,8 @@
           ],
           "correct": 3,
           "explanation": "EBITDA alone can't answer this. Company A: $20M EBITDA - $8M capex = $12M operating cash flow before working capital. Company B: $10M - $2M = $8M. But Company B is growing faster (30% vs 10%), which likely consumes more working capital. And at 10x EBITDA, Company A costs $200M, Company B costs $100M. Without working capital, tax rates, and growth capital needs, you can't compare. Never evaluate an acquisition on EBITDA multiple alone."
-        }
+        },
+        "id": "c511217c-b815-46e4-8a72-1e2500a6d14e"
       },
       {
         "name": "Free Cash Flow",
@@ -651,7 +658,8 @@
           ],
           "correct": 3,
           "explanation": "FCF = Net Income ($10M) + Depreciation ($3M) - Capex ($5M) - Change in Working Capital. Working capital change = (Receivables +$2M) + (Inventory +$1M) - (Payables +$1M) = +$2M. So FCF = $10M + $3M - $5M - $2M = $6M. The company earned $10M but only generated $6M in actual cash — the other $4M is tied up in fixed assets and working capital. This is exactly why FCF matters more than net income."
-        }
+        },
+        "id": "5bc24c56-d964-4646-bbb3-11e15d01e048"
       },
       {
         "name": "ROIC",
@@ -727,7 +735,8 @@
           ],
           "correct": 0,
           "explanation": "Division A: ROIC = $50M/$200M = 25%, spread over WACC = 15%. Division B: ROIC = $30M/$300M = 10%, spread = 0%. Division B is growing fast but exactly AT its cost of capital — growth creates zero value. Division A creates 15% excess returns on every dollar invested AND is growing — that's value creation. Division B needs to improve ROIC before growth matters. This is the trap: fast growth feels productive even when it destroys no value."
-        }
+        },
+        "id": "a3535811-c93d-403f-ac2d-6d8e89436925"
       },
       {
         "name": "DuPont Analysis",
@@ -801,7 +810,8 @@
           ],
           "correct": 1,
           "explanation": "The margin decline drove the ROE drop (8% × 1.0 × 2.0 = 16%). Adding leverage to compensate (option A) would create a riskier business with the same underlying problem. The margin issue needs to be diagnosed — is it pricing pressure (competition), cost inflation (suppliers), or mix shift (selling more low-margin products)? Each has a different fix. DuPont identifies WHERE to focus."
-        }
+        },
+        "id": "9fbcfd4b-d95e-48b7-bc0c-33b440d980a2"
       },
       {
         "name": "DCF Valuation",
@@ -875,7 +885,8 @@
           ],
           "correct": 0,
           "explanation": "Terminal Value = Year 1 FCF × (1 + g) / (WACC - g) = $100M × 1.05 × 1.03 / (0.10 - 0.03) = $100M × 1.05 × 1.03 / 0.07. Wait — that's double-counting growth. Actually: Year 1 FCF = $100M × 1.05 = $105M. Terminal Value = $105M × (1.03) / (0.10 - 0.03) = $108.15M / 0.07 = $1,545M. PV of Year 1 FCF = $105M / 1.10 = $95.5M. PV of Terminal Value = $1,545M / 1.10 = $1,404.5M. Enterprise Value = $95.5M + $1,404.5M = $1,500M. The $1.5B offer is approximately fair value."
-        }
+        },
+        "id": "aa6de2de-2042-47a1-b8f7-cdf8438d7c8f"
       },
       {
         "name": "LBO Modeling",
@@ -949,7 +960,8 @@
           ],
           "correct": 1,
           "explanation": "After Year 1: Debt = $60M - ($8M FCF - $3.6M interest) = $60M - $4.4M = $55.6M (simplified — interest is paid from FCF, then remaining FCF pays principal). Actually more precisely: FCF = $8M. Interest = $60M × 6% = $3.6M. Remaining = $4.4M to pay down debt. Debt at year end = $55.6M. Company value = $100M. Equity = $100M - $55.6M = $44.4M. MOIC = $44.4M / $40M = 1.11x. The equity value increased because debt was reduced — that's the LBO engine."
-        }
+        },
+        "id": "7a6a11ee-c304-47c8-bb36-4ffb6b4f5575"
       },
       {
         "name": "Unit Economics",
@@ -1023,7 +1035,8 @@
           ],
           "correct": 0,
           "explanation": "LTV = ARPU × Gross Margin / Churn = $50 × 0.80 / 0.04 = $1,000. LTV/CAC = $1,000 / $400 = 2.5x. Below the 3x threshold. The 4% monthly churn means average customer lifetime = 1/0.04 = 25 months (~2 years). Two levers: reduce churn to 3% (LTV → $1,333, LTV/CAC → 3.3x) or reduce CAC to $333 (LTV/CAC → 3.0x). Both are addressable — this isn't fatal, but requires attention."
-        }
+        },
+        "id": "ec487e8b-a206-4ba4-853a-d5bcf7017f82"
       },
       {
         "name": "Cap Table",
@@ -1097,7 +1110,8 @@
           ],
           "correct": 3,
           "explanation": "With non-participating preferred, investors must choose: EITHER their $10M liquidation preference OR convert to common and take 20% of $30M = $6M. They choose $10M (the higher amount). Common gets the remaining $20M. If the company sold for $100M, investors would convert to common and take 20% = $20M (higher than their $10M preference). At some exit value (~$50M), the conversion becomes better than the preference. This is the 'conversion point' — know where it is on your cap table."
-        }
+        },
+        "id": "836fd574-cf51-4317-8fdb-d86c1cbd1e82"
       }
     ]
   },
@@ -1205,7 +1219,8 @@
           ],
           "correct": 1,
           "explanation": "Fast growth doesn't overcome structural disadvantage. Tesla's Supercharger network succeeded because it was exclusive to Tesla vehicles (differentiation), broadly deployed before competitors (first-mover), and integrated with vehicle purchase (switching cost). Enter only if you identify structural countermeasures."
-        }
+        },
+        "id": "8bc56301-96f3-4d13-9a01-c845a97215c0"
       },
       {
         "name": "VRIO",
@@ -1279,7 +1294,8 @@
           ],
           "correct": 1,
           "explanation": "The manufacturing process is Valuable, Rare, and Inimitable (trade secret) — the highest VRIO potential. The brand is imitable (Tesla had no brand in 2010). The sales team is not rare. Invest where competitors cannot replicate even with unlimited money and time."
-        }
+        },
+        "id": "6d00ebaf-9e29-4f2f-b41c-00d7f862bcd6"
       },
       {
         "name": "Jobs-to-be-Done",
@@ -1354,7 +1370,8 @@
           ],
           "correct": 1,
           "explanation": "The full job includes functional AND emotional dimensions. If you only solve the functional job (making holes), you miss why they chose a drill instead of adhesive hooks or hiring a handyman. Understanding the full job — including social and emotional dimensions — reveals competition far broader than 'other power tool brands.'"
-        }
+        },
+        "id": "f0d7f10b-e9d6-42f2-b6fe-b6a216c8155c"
       },
       {
         "name": "SWOT",
@@ -1428,7 +1445,8 @@
           ],
           "correct": 3,
           "explanation": "The same external trend can be BOTH opportunity and threat. List it twice and develop strategies for both. What matters for SWOT purity: it's external. Whether it's positive or negative depends on your specific situation and response capability."
-        }
+        },
+        "id": "18c01b06-80d9-4e51-8e64-10a8e655a668"
       },
       {
         "name": "BCG Matrix",
@@ -1502,7 +1520,8 @@
           ],
           "correct": 1,
           "explanation": "A: 40% share in slow growth = Cash Cow. B: 15% share in high growth — if the leader has 25%, relative share is 0.6x = not a Star, it's a Question Mark. C: 5% share, slow growth = Dog. Cash from A funds B (the Question Mark with best chance of becoming Star). C adds no strategic value."
-        }
+        },
+        "id": "53d2d0c4-7ee5-47f7-b457-ae9bfe745cea"
       },
       {
         "name": "Ansoff Matrix",
@@ -1576,7 +1595,8 @@
           ],
           "correct": 1,
           "explanation": "Product Development (new product to existing market) is the highest-probability adjacent move. You already have relationships, trust, and integration. This is the Salesforce playbook: Sales Cloud → Service Cloud → Marketing Cloud."
-        }
+        },
+        "id": "b5aec5be-b8a7-4d3b-90b1-32dcb8430d95"
       },
       {
         "name": "Blue Ocean",
@@ -1650,7 +1670,8 @@
           ],
           "correct": 2,
           "explanation": "Option 3 describes CitizenM and similar affordable luxury hotels. Eliminated traditional front desk (expensive, slow), reduced room size (more rooms per floor), raised lobby experience (co-working/social), created sense of place. Value innovation: lower cost AND higher perceived value."
-        }
+        },
+        "id": "4e11520d-b97d-4597-b627-b7c3cb104084"
       },
       {
         "name": "Network Effects",
@@ -1724,7 +1745,8 @@
           ],
           "correct": 1,
           "explanation": "LinkedIn's network effect means a general-purpose competitor can't win — even with better product. Start with a niche where LinkedIn is weakest (GitHub for developers, Dribbble for designers). Expand only after niche network effect is strong. Every successful social network competitor started narrow, not broad."
-        }
+        },
+        "id": "c5b5190b-f43d-4b11-b2c3-51bf4fcb4ba6"
       }
     ]
   },
@@ -1767,7 +1789,8 @@
           "design"
         ],
         "order_index": 1,
-        "example": "Engineering VP with 4 Tech Leads (each managing 5-7 engineers) = good span. VP with 15 direct reports = too wide, becomes bottleneck. | Call center: Team leads can manage 15-20 agents (simple, repetitive work). Optimal span depends on task complexity. | Fast-growing startup: CEO with 8 direct reports (product, eng, sales, marketing, finance, people, legal, ops) = too wide. Need COO layer."
+        "example": "Engineering VP with 4 Tech Leads (each managing 5-7 engineers) = good span. VP with 15 direct reports = too wide, becomes bottleneck. | Call center: Team leads can manage 15-20 agents (simple, repetitive work). Optimal span depends on task complexity. | Fast-growing startup: CEO with 8 direct reports (product, eng, sales, marketing, finance, people, legal, ops) = too wide. Need COO layer.",
+        "id": "37a25984-7efe-48ab-9cd2-a3e5e8b64818"
       },
       {
         "name": "Nine-Box Grid",
@@ -1777,7 +1800,8 @@
           "review"
         ],
         "order_index": 2,
-        "example": "High performer / High potential (box 9): Promote now. Give stretch assignments. Invest in development. Your future VPs. | High performer / Low potential (box 6): Reward and retain. Don't promote out of expertise. They're valuable where they are. | Low performer / Low potential (box 1): Exit with dignity. Draining management attention. Better for them and the company."
+        "example": "High performer / High potential (box 9): Promote now. Give stretch assignments. Invest in development. Your future VPs. | High performer / Low potential (box 6): Reward and retain. Don't promote out of expertise. They're valuable where they are. | Low performer / Low potential (box 1): Exit with dignity. Draining management attention. Better for them and the company.",
+        "id": "7acf1cb0-d6ef-41a9-a2b5-0e06415d1248"
       },
       {
         "name": "Psychological Safety",
@@ -1787,7 +1811,8 @@
           "teams"
         ],
         "order_index": 3,
-        "example": "Google Project Aristotle: Studied 180 teams. Top predictor of success wasn't IQ, experience, or personality — it was psychological safety. Teams that admit mistakes outperform. | Pixar 'Braintrust': Directors present rough cuts. Everyone gives brutally honest feedback. No rank, no authority — just making the movie better. Safety to be wrong. | Failed culture: Bridgewater (before fixes). 'Radical transparency' without safety = fear, silence, politics. Safety must come before candor."
+        "example": "Google Project Aristotle: Studied 180 teams. Top predictor of success wasn't IQ, experience, or personality — it was psychological safety. Teams that admit mistakes outperform. | Pixar 'Braintrust': Directors present rough cuts. Everyone gives brutally honest feedback. No rank, no authority — just making the movie better. Safety to be wrong. | Failed culture: Bridgewater (before fixes). 'Radical transparency' without safety = fear, silence, politics. Safety must come before candor.",
+        "id": "a7a1261b-5477-4b1e-96cf-7c3215a1dd85"
       },
       {
         "name": "OKRs",
@@ -1797,7 +1822,8 @@
           "alignment"
         ],
         "order_index": 4,
-        "example": "Google: Objective: 'Make the web faster.' KR1: Page load time < 200ms. KR2: 99th percentile < 500ms. KR3: Reduce data usage 25%. Measurable, specific, ambitious. | Startup: O: 'Achieve product-market fit in enterprise segment.' KR1: 10 enterprise pilots. KR2: 3 convert to paid. KR3: NPS > 40 in segment. | Anti-pattern: O: 'Do better at sales.' KR1: 'Try harder.' Not measurable. Not time-bound. Not OKRs. Just wishes."
+        "example": "Google: Objective: 'Make the web faster.' KR1: Page load time < 200ms. KR2: 99th percentile < 500ms. KR3: Reduce data usage 25%. Measurable, specific, ambitious. | Startup: O: 'Achieve product-market fit in enterprise segment.' KR1: 10 enterprise pilots. KR2: 3 convert to paid. KR3: NPS > 40 in segment. | Anti-pattern: O: 'Do better at sales.' KR1: 'Try harder.' Not measurable. Not time-bound. Not OKRs. Just wishes.",
+        "id": "38c468bc-2527-467a-91e9-eb72f22ebd5e"
       },
       {
         "name": "ADKAR Change Management",
@@ -1807,7 +1833,8 @@
           "change"
         ],
         "order_index": 5,
-        "example": "Diagnosing ADKAR: Company rolling out new CRM. Survey employees: Awareness? 80% understand WHY. Desire? 35% want to change (they like the old system). That's the bottleneck — don't train yet (Knowledge), solve Desire first. Show how new CRM reduces manual data entry by 50% (personal benefit). | Awareness: Not 'management decided to restructure.' But 'our market share dropped 8% and competitors are consolidating. We need to respond.' Context creates awareness. | Reinforcement: Not just celebrating wins. Auditing — 6 months post-change, are people actually using the new process or reverted to old habits? If 30% reverted, reinforcement failed. Diagnose and fix."
+        "example": "Diagnosing ADKAR: Company rolling out new CRM. Survey employees: Awareness? 80% understand WHY. Desire? 35% want to change (they like the old system). That's the bottleneck — don't train yet (Knowledge), solve Desire first. Show how new CRM reduces manual data entry by 50% (personal benefit). | Awareness: Not 'management decided to restructure.' But 'our market share dropped 8% and competitors are consolidating. We need to respond.' Context creates awareness. | Reinforcement: Not just celebrating wins. Auditing — 6 months post-change, are people actually using the new process or reverted to old habits? If 30% reverted, reinforcement failed. Diagnose and fix.",
+        "id": "2b5d26bb-632d-432e-99e6-06b786681523"
       },
       {
         "name": "Org Design (span/layer)",
@@ -1817,7 +1844,8 @@
           "design"
         ],
         "order_index": 6,
-        "example": "Startup at 50 people: 2 layers (CEO > team leads). Span of 5-7. Flat works at this size. | Scale-up at 200: 3 layers (CEO > VPs > Directors > teams). Spans of 5-8. Need middle management layer. | Enterprise at 2000: 5-6 layers. Spans of 6-10. Too many layers = slow decisions. Too wide spans = overwhelmed managers."
+        "example": "Startup at 50 people: 2 layers (CEO > team leads). Span of 5-7. Flat works at this size. | Scale-up at 200: 3 layers (CEO > VPs > Directors > teams). Spans of 5-8. Need middle management layer. | Enterprise at 2000: 5-6 layers. Spans of 6-10. Too many layers = slow decisions. Too wide spans = overwhelmed managers.",
+        "id": "0f43f54b-37ff-4121-916d-defb44044dcc"
       },
       {
         "name": "Talent Density",
@@ -1827,7 +1855,8 @@
           "talent"
         ],
         "order_index": 7,
-        "example": "Netflix: 'Adequate performance gets a generous severance package.' Keep only A-players. Average performers drag everyone down. | Median team vs elite team: 10 average engineers = 1x output. 5 elite engineers = 5x output. Pay 2x salary for 5x output = rational. | Hiring mistake cost: Bad VP Sales costs $500k salary + $5M missed pipeline + 12 months of team churn. 'Hire slow, fire fast' is a $5M lesson."
+        "example": "Netflix: 'Adequate performance gets a generous severance package.' Keep only A-players. Average performers drag everyone down. | Median team vs elite team: 10 average engineers = 1x output. 5 elite engineers = 5x output. Pay 2x salary for 5x output = rational. | Hiring mistake cost: Bad VP Sales costs $500k salary + $5M missed pipeline + 12 months of team churn. 'Hire slow, fire fast' is a $5M lesson.",
+        "id": "fbc7795e-dd24-488b-80e6-8f489ecbc3e0"
       },
       {
         "name": "Kotter's 8-Step Change Model",
@@ -1837,7 +1866,8 @@
           "org",
           "change"
         ],
-        "order_index": 8
+        "order_index": 8,
+        "id": "7b09b5e4-09ee-488c-a555-f836ab2917bb"
       }
     ]
   },
@@ -1944,7 +1974,8 @@
           ],
           "correct": 1,
           "explanation": "This team is High/Elite: Deployment Frequency (weekly-to-monthly = High), Lead Time (2 weeks = High), Change Failure Rate (5% = Elite, 0-15%), Time to Restore (4 hours = High, less than 1 day). The mixed profile (High on 3, Elite on 1) is common and healthy. Focus on improving deployment frequency toward weekly or daily to reach Elite on all four. The key: the failure rate is already elite — they can increase deployment speed without sacrificing quality."
-        }
+        },
+        "id": "c58ba61a-4dc0-4854-80ee-5b8373212e7d"
       },
       {
         "name": "RICE Prioritization",
@@ -2018,7 +2049,8 @@
           ],
           "correct": 2,
           "explanation": "Project C has the highest RICE score (300), followed by A (400? Let me recalculate: 1000 × 2 × 0.8 = 1600, / 4 = 400; C: 500 × 1 × 0.6 = 300, / 1 = 300; B: 200 × 3 × 0.5 = 300, / 2 = 150). Actually A = 400, C = 300, B = 150. Project A has the highest score. But Project C is a quick win — 6x higher efficiency per unit effort. The right move: do C first (1 week, delivers real impact), then start A (the big bet). This is why RICE is used for prioritization sequencing, not just go/no-go."
-        }
+        },
+        "id": "cdf582ce-f684-4677-86e4-306900085224"
       },
       {
         "name": "Tech Debt Quadrant",
@@ -2092,7 +2124,8 @@
           ],
           "correct": 1,
           "explanation": "This is Prudent & Deliberate. You intentionally chose speed over quality, you recognized the trade-off at the time, you documented the decision, and you committed to repayment (adding tests next quarter). This is the responsible way to incur tech debt. It becomes Reckless if: 1) you don't document it, 2) you don't have a repayment plan, or 3) you've deferred so many times that the 'quarterly' plan is clearly aspirational. Track your repayment — if tests aren't written in the next quarter, the debt just crossed into Reckless territory."
-        }
+        },
+        "id": "8afa9ed3-74b5-439d-a8d7-4b003843f2d2"
       },
       {
         "name": "Build vs Buy",
@@ -2166,7 +2199,8 @@
           ],
           "correct": 1,
           "explanation": "A customer support ticketing system is the textbook definition of a 'buy' decision. It's not strategically differentiating (it doesn't make your product unique), the vendor product (Zendesk) is mature and well-integrated, and building it distracts engineering from the core product. The 3-month build estimate is almost certainly optimistic — and maintenance will consume ongoing engineering time forever. The best case scenario for building is: you spend 3 months building, then 6 months iterating to reach Zendesk's feature parity, then own a system you'll maintain forever. Buy Zendesk."
-        }
+        },
+        "id": "9706bf39-7e6b-4d0e-a5f9-593649540d7e"
       },
       {
         "name": "Kano Model",
@@ -2240,7 +2274,8 @@
           ],
           "correct": 2,
           "explanation": "The mobile app is shifting from Delighter (before competitor had it) to Basic (now that they do). But Option C suggests the best Kano strategy: if you MUST build it, don't just match parity — add features that make it a Performance feature or Delighter. A mobile app with unique capabilities (push notifications for specific events, mobile-first features the web doesn't have) will drive satisfaction. A plain parity mobile app is just catching up to the new Basic. Option A is the most common mistake: assuming a requested feature is a Performance feature when it's actually becoming Basic."
-        }
+        },
+        "id": "ceb97418-f727-4930-b921-bce52b737662"
       },
       {
         "name": "RICE/ICE/WSJF Prioritization",
@@ -2314,7 +2349,8 @@
           ],
           "correct": 0,
           "explanation": "For high-uncertainty environments, RICE is better because the Confidence dimension explicitly penalizes projects with untested assumptions. This prevents teams from investing heavily in unvalidated ideas. In stable environments, WSJF's Cost of Delay framework is powerful — it captures the urgency of delayed features. But in high uncertainty, the biggest risk isn't 'are we working on the most urgent thing?' — it's 'are we working on something that will actually matter?' Confidence captures this. This is also why ICE (which eliminates Reach and doesn't have Confidence) is too simple for high-uncertainty situations."
-        }
+        },
+        "id": "51ae67d1-8c88-4638-a556-da6fb69d6870"
       },
       {
         "name": "SPACE Framework",
@@ -2388,7 +2424,8 @@
           ],
           "correct": 0,
           "explanation": "High Activity + Declining Performance + Flat Customer Outcomes = an Efficiency problem or a Strategy problem. The team is busy but either: (1) working on the wrong things (Performance — the feature selection is off), (2) spending time on non-value-added work (Efficiency — context switching, rework, debugging, meetings), or (3) both. SPACE disaggregates 'busy' from 'productive.' The fix: measure what they're actually spending time on (Efficiency), and validate whether the delivered features are driving customer outcomes (Performance). Don't ask them to work harder — that will just accelerate the wrong direction."
-        }
+        },
+        "id": "84ef1aa9-e0e8-43f9-b624-1454a046e93e"
       },
       {
         "name": "Tech Debt Management",
@@ -2462,7 +2499,8 @@
           ],
           "correct": 1,
           "explanation": "Option B is the correct math: the team is already LOSING 40% capacity to tech debt. If you allocate 20% to debt repayment and succeed in reducing workaround time from 40% to 20%, your net capacity for features goes from 60% (100% - 40% debt tax) to 80% (80% capacity - 20% debt repayment + 20% reclaimed time). The team gains net capacity. Option C creates burnout. Option D is the 'rewrite trap' that almost always fails. The 20% rule IS the solution to the feature pressure — it's not a reduction in feature output, it's an investment in future feature velocity."
-        }
+        },
+        "id": "38784286-8f2b-4494-a757-9e9aa43f4ed0"
       }
     ]
   },
@@ -2572,7 +2610,8 @@
           ],
           "correct": 3,
           "explanation": "RPN = 6 × 4 × 3 = 72. Option D is correct: Detection is the easiest lever to pull. Installing an automatic shutdown sensor that stops the machine before it overheats reduces Detection from 3 to 1 (assuming the shutdown is reliable), making RPN = 6 × 4 × 1 = 24 — a 67% reduction in total risk. This is almost always cheaper than redesigning the machine (reducing Severity) or improving the underlying failure rate (reducing Occurrence). FMEA's value is showing you where the cheapest risk reduction lives."
-        }
+        },
+        "id": "f5e4f7d5-7aa7-4228-8537-957db38d701c"
       },
       {
         "name": "Crisis First Hour",
@@ -2646,7 +2685,8 @@
           ],
           "correct": 1,
           "explanation": "Option B is the correct crisis first-hour playbook: activate team (legal + quality + comms), investigate, prepare a holding statement for release within 90 minutes. You don't have enough data for a recall (Option C). You must not wait (Option A) — the news will break before you respond. Directly contacting the family (Option D) is a good instinct but should be handled by someone trained in crisis communication, not the CEO directly."
-        }
+        },
+        "id": "e17f6294-4836-4871-b412-0825407c09f8"
       },
       {
         "name": "Business Judgment Rule",
@@ -2720,7 +2760,8 @@
           ],
           "correct": 1,
           "explanation": "The Business Judgment Rule asks about PROCESS, not OUTCOME. The board met twice, received written materials, reviewed financial projections, and asked questions. This demonstrates they were adequately informed, disinterested, and acting in good faith. The fact that the acquisition failed doesn't remove their protection — otherwise no board would ever approve a risky acquisition. The rule exists precisely because business decisions involve uncertainty, and good decisions can have bad outcomes."
-        }
+        },
+        "id": "b1fe7e55-09e7-42f8-a6be-51356ee13240"
       },
       {
         "name": "COSO ERM",
@@ -2794,7 +2835,8 @@
           ],
           "correct": 2,
           "explanation": "Option C applies COSO ERM correctly: 1) Assess the risk against your defined risk appetite, 2) Understand what's at stake (revenue, capital deployed, reputational risk), 3) Design a risk response (contingency plan), 4) Monitor the regulatory environment as part of ongoing performance review. ERM doesn't tell you to avoid the risk — it tells you to understand it and decide consciously whether the potential return justifies the risk."
-        }
+        },
+        "id": "a31e41e3-4a14-4c6a-a675-7f0e85b34a04"
       },
       {
         "name": "ISO 31000",
@@ -2868,7 +2910,8 @@
           ],
           "correct": 2,
           "explanation": "Option C applies the ISO 31000 process: Identify (specific corruption risks), Analyze (likelihood × impact), Evaluate (against risk appetite), Treat (due diligence, training, contract provisions). The framework doesn't predetermine the decision — it ensures the decision is INFORMED by a systematic risk assessment. $5M savings with proper corruption controls might be acceptable. The same savings without any controls might not be. The process produces the answer."
-        }
+        },
+        "id": "3c0d1b73-99f2-4eba-a6ef-f0fc747e7f60"
       },
       {
         "name": "Crisis Communication",
@@ -2942,7 +2985,8 @@
           ],
           "correct": 1,
           "explanation": "Option B follows crisis communication principles: speed (statement now), empathy (addressing affected customers), accuracy (share only what you know, commit to more), action (regulator notified, customer contact planned). Option A waits too long — the void will be filled by speculation. Option C shares too much before you have verified facts. Option D is a cover-up that will destroy trust when the breach inevitably becomes public."
-        }
+        },
+        "id": "761ef140-0e9c-4eba-bedc-770f1bb90782"
       },
       {
         "name": "Fiduciary Duties",
@@ -3016,7 +3060,8 @@
           ],
           "correct": 0,
           "explanation": "Option A is the only defensible approach. The CEO's spouse's financial interest creates an indirect conflict that falls under the Duty of Loyalty. The proper process: full disclosure to the board, CEO recusal from discussion and vote, independent director evaluation of whether the terms are fair to the corporation, and documented approval. Even if the lease is at market rates, failing to follow this process creates litigation risk. A plaintiff's lawyer will argue that independent directors might have negotiated better terms if the CEO wasn't conflicted."
-        }
+        },
+        "id": "9d439169-a33b-42cb-9631-09829338f307"
       },
       {
         "name": "Board Governance",
@@ -3090,7 +3135,8 @@
           ],
           "correct": 1,
           "explanation": "Option B addresses the most fundamental gap: independent directors. A board with no independents is effectively an extension of management and investors — it lacks the objectivity to challenge strategy, evaluate CEO performance, or represent minority shareholders. Independent directors bring: objectivity, missing expertise, crisis management experience, and the ability to hold executive sessions. Adding committees (Option D) without independents just formalizes the dysfunction. Adding directors (Option A) without independence just adds more founder/investor voices. Option 1 directly addresses the core governance deficit."
-        }
+        },
+        "id": "c3f0633b-014d-4f7f-a6db-e68c5c773982"
       },
       {
         "name": "Turnaround Playbook",
@@ -3164,7 +3210,8 @@
           ],
           "correct": 1,
           "explanation": "Option B is the textbook turnaround first step: 13-week cash forecast (understand the exact timeline), immediate cost cuts ($1M/month halves the burn to $2M → extends runway from 6 to 12 months), and credit line renegotiation (preserve access to remaining $3M). Options A and C are 'grow before stabilize' errors. Option D might be right eventually, but you can't sell a company effectively from a position of panic. Stabilize first — THEN evaluate strategic options including sale."
-        }
+        },
+        "id": "0401c151-044c-4c21-895d-d45250049637"
       }
     ]
   },
@@ -3209,7 +3256,8 @@
           "simple"
         ],
         "order_index": 1,
-        "example": "Server crashed. Why? Database overloaded. Why? Spike in queries from reporting feature. Why? Users running large reports simultaneously. Why? No queue system for heavy queries. Why? Report feature built without considering scale. Root cause: no architecture review for new features. | Customer churn. Why? Product too hard to use. Why? Onboarding takes 30 days. Why? Manual setup required. Why? No self-service wizard built. Why? Product team prioritized new features over onboarding. Root cause: misaligned priorities. | Not always 5: 'Why did the project miss deadline?' 'Because we were understaffed.' 'Why?' 'Because hiring is frozen.' Done in 2. The number varies — stop when you reach a systemic cause, not a person."
+        "example": "Server crashed. Why? Database overloaded. Why? Spike in queries from reporting feature. Why? Users running large reports simultaneously. Why? No queue system for heavy queries. Why? Report feature built without considering scale. Root cause: no architecture review for new features. | Customer churn. Why? Product too hard to use. Why? Onboarding takes 30 days. Why? Manual setup required. Why? No self-service wizard built. Why? Product team prioritized new features over onboarding. Root cause: misaligned priorities. | Not always 5: 'Why did the project miss deadline?' 'Because we were understaffed.' 'Why?' 'Because hiring is frozen.' Done in 2. The number varies — stop when you reach a systemic cause, not a person.",
+        "id": "5dcf25fc-3178-4921-bebb-9c6b9cb38769"
       },
       {
         "name": "Fishbone / Ishikawa",
@@ -3219,7 +3267,8 @@
           "multi-factor"
         ],
         "order_index": 2,
-        "example": "Manufacturing defect: People (untrained operators), Process (no QA checkpoint), Technology (old machine), Measurement (defect not caught until final), Environment (humidity affecting materials). | Sales miss: People (2 reps on leave), Process (no standardized pitch), Technology (CRM data stale), Measurement (pipeline inflated), Environment (competitor launched free tier). | Never start with 'People' as the cause. Default to Process first. Most problems are process problems, not people problems."
+        "example": "Manufacturing defect: People (untrained operators), Process (no QA checkpoint), Technology (old machine), Measurement (defect not caught until final), Environment (humidity affecting materials). | Sales miss: People (2 reps on leave), Process (no standardized pitch), Technology (CRM data stale), Measurement (pipeline inflated), Environment (competitor launched free tier). | Never start with 'People' as the cause. Default to Process first. Most problems are process problems, not people problems.",
+        "id": "78d7b0c7-9760-4a85-9f5e-627f9fa7613c"
       },
       {
         "name": "Causal Loop Diagrams",
@@ -3229,7 +3278,8 @@
           "systems"
         ],
         "order_index": 3,
-        "example": "Limits to Growth: Growth → more customers → more support tickets → slower response → lower satisfaction → slower growth. Balancing loop eventually dominates. | Success to the Successful: Product A gets more investment (it's successful) → gets better → gets more customers → gets more investment. Product B starves. Self-fulfilling. | Shifting the Burden: Symptom: customer complaints. Quick fix: add more support agents. Symptom returns. Real fix: improve product quality. Quick fix delays real solution."
+        "example": "Limits to Growth: Growth → more customers → more support tickets → slower response → lower satisfaction → slower growth. Balancing loop eventually dominates. | Success to the Successful: Product A gets more investment (it's successful) → gets better → gets more customers → gets more investment. Product B starves. Self-fulfilling. | Shifting the Burden: Symptom: customer complaints. Quick fix: add more support agents. Symptom returns. Real fix: improve product quality. Quick fix delays real solution.",
+        "id": "57810f7c-d7bb-46ec-afa3-8386ce9ff92d"
       },
       {
         "name": "Root Cause Analysis",
@@ -3239,7 +3289,8 @@
           "formal"
         ],
         "order_index": 5,
-        "example": "Formal RCA at NASA: Challenger disaster → timeline of events → O-ring failure as proximate cause → flawed decision-making process as root cause → redesign launch approval process. | Healthcare RCA: Patient receives wrong medication → timeline: nurse misread label → proximate: similar packaging → root: pharmacy stocked look-alike drugs next to each other → solution: separate storage. | Enterprise RCA output: 1-page summary with timeline, causal factor chart, root causes (plural), corrective actions (immediate + preventive), verification checkpoint at 90 days."
+        "example": "Formal RCA at NASA: Challenger disaster → timeline of events → O-ring failure as proximate cause → flawed decision-making process as root cause → redesign launch approval process. | Healthcare RCA: Patient receives wrong medication → timeline: nurse misread label → proximate: similar packaging → root: pharmacy stocked look-alike drugs next to each other → solution: separate storage. | Enterprise RCA output: 1-page summary with timeline, causal factor chart, root causes (plural), corrective actions (immediate + preventive), verification checkpoint at 90 days.",
+        "id": "a945724f-5cad-47bc-a7ee-7cec3e5860f7"
       },
       {
         "name": "Fault Tree Analysis",
@@ -3249,7 +3300,8 @@
           "quantitative"
         ],
         "order_index": 6,
-        "example": "Reactor meltdown FTA: Top event = meltdown. AND gate: loss of cooling AND failure of emergency shutdown. Loss of cooling: pump failure OR power loss OR operator error. Assign probabilities to each basic event. | E-commerce outage: Top event = checkout fails. OR gate: payment processor down OR database timeout OR CDN failure. Each with probability and monitoring. | Probability math: If payment processor fails 0.1% of time and database times out 0.05%, combined probability at OR gate ≈ 0.15%. Not 0.1 + 0.05 = 0.15% (roughly) due to potential overlap."
+        "example": "Reactor meltdown FTA: Top event = meltdown. AND gate: loss of cooling AND failure of emergency shutdown. Loss of cooling: pump failure OR power loss OR operator error. Assign probabilities to each basic event. | E-commerce outage: Top event = checkout fails. OR gate: payment processor down OR database timeout OR CDN failure. Each with probability and monitoring. | Probability math: If payment processor fails 0.1% of time and database times out 0.05%, combined probability at OR gate ≈ 0.15%. Not 0.1 + 0.05 = 0.15% (roughly) due to potential overlap.",
+        "id": "5e65cca7-8798-439c-89e0-ba1cff32272a"
       },
       {
         "name": "Just Culture",
@@ -3259,7 +3311,8 @@
           "human-factors"
         ],
         "order_index": 7,
-        "example": "Human error (slip): Nurse accidentally grabs wrong vial (looks identical). Console the person, fix the system (change vial design). | At-risk behavior (drift): Developer skips code review because 'we always skip it when in a rush.' Coach — this is normalized deviance. Fix the culture that rewards speed over quality. | Reckless behavior: Employee deliberately disables safety system to work faster. Disciplinary action. They knew the risk and chose to ignore it."
+        "example": "Human error (slip): Nurse accidentally grabs wrong vial (looks identical). Console the person, fix the system (change vial design). | At-risk behavior (drift): Developer skips code review because 'we always skip it when in a rush.' Coach — this is normalized deviance. Fix the culture that rewards speed over quality. | Reckless behavior: Employee deliberately disables safety system to work faster. Disciplinary action. They knew the risk and chose to ignore it.",
+        "id": "e353aae2-8622-48ed-9723-3ac3f5cf6473"
       },
       {
         "name": "Causal Inference",
@@ -3269,7 +3322,8 @@
           "data-driven"
         ],
         "order_index": 8,
-        "example": "Difference-in-Differences: New return policy in California stores, no change in Nevada. Compare pre/post difference between CA and NV. Removes time trend bias. | Regression Discontinuity: Score above 700 gets credit card approval; below 700 gets rejected. Compare default rates just above and just below 700. Random-like assignment at cutoff. | Instrumental Variable: Want to measure effect of education on income, but ability is a confounder. Use draft lottery number (random, affects education) as instrument."
+        "example": "Difference-in-Differences: New return policy in California stores, no change in Nevada. Compare pre/post difference between CA and NV. Removes time trend bias. | Regression Discontinuity: Score above 700 gets credit card approval; below 700 gets rejected. Compare default rates just above and just below 700. Random-like assignment at cutoff. | Instrumental Variable: Want to measure effect of education on income, but ability is a confounder. Use draft lottery number (random, affects education) as instrument.",
+        "id": "f650a488-2d8e-42ae-ad62-c1b2e1957634"
       }
     ]
   },
@@ -3381,7 +3435,8 @@
           ],
           "correct": 3,
           "explanation": "Current BATNA: $130K (stay at current job). Weak. The right move: pause, get another offer. With a second offer, your BATNA rises. The best time to negotiate is when you can credibly say no."
-        }
+        },
+        "id": "869d1281-4b40-4984-8e9e-ac3f21f10d5d"
       },
       {
         "name": "ZOPA",
@@ -3455,7 +3510,8 @@
           ],
           "correct": 0,
           "explanation": "The ZOPA is $15M-$20M. Every price in this range is better than each party's BATNA (seller gets >$15M, buyer pays <$20M). The negotiation determines WHERE in that $5M range the agreement lands — this is the distributative phase. But the existence of a ZOPA means a deal SHOULD happen — both parties are better off with an agreement in this range than without one. If they can't agree, it's a negotiation failure, not a ZOPA failure."
-        }
+        },
+        "id": "f844d448-a928-4fc5-bda2-e71a78593523"
       },
       {
         "name": "Anchoring",
@@ -3529,7 +3585,8 @@
           ],
           "correct": 2,
           "explanation": "Option C refuses their anchor frame entirely. Countering at $15M makes midpoint = $22.5M — above your range. Instead, agree on methodology (multiple of EBITDA? DCF with agreed assumptions?). Once methodology is agreed, the number follows — and you haven't been pulled toward their anchor."
-        }
+        },
+        "id": "3ee58241-9c24-4784-a75e-919ee9f3f049"
       },
       {
         "name": "Integrative Negotiation",
@@ -3603,7 +3660,8 @@
           ],
           "correct": 1,
           "explanation": "The landlord's interest is total revenue over the lease term. Your interest is lower payments in the early years when cash is tight. A graduated lease satisfies both interests: landlord gets $50/sq ft average over 5 years, you get $40 in year 1-2 when cash matters most. This is value creation through different time preferences — the landlord can wait for revenue, you can't wait for cash. Neither party sacrificed their core interest."
-        }
+        },
+        "id": "b33da690-deac-4384-82b7-e08cce0e252b"
       },
       {
         "name": "Distributive Negotiation",
@@ -3677,7 +3735,8 @@
           ],
           "correct": 2,
           "explanation": "Option C applies distributive technique: never accept a unilateral statement of finality without testing it, but also never directly challenge it (that escalates). Instead, trade: accept their 'final' price in exchange for non-price items. The silence after is crucial — it lets them feel the pressure of potentially losing the deal. If they agree to your add-ons, you got more value without re-opening price. If they don't, you can still accept $13K if it's within your range."
-        }
+        },
+        "id": "853e5aa9-6076-4d61-b178-a4bdb56e45c7"
       },
       {
         "name": "Principled Negotiation (Getting to Yes)",
@@ -3751,7 +3810,8 @@
           ],
           "correct": 1,
           "explanation": "Option B applies principled negotiation: discover the INTEREST behind the position. If the interest is feeling valued and having career growth, you can satisfy that through means other than salary (promotion, scope, title, equity). If the interest is purely financial ('my market value is $260K'), that's a different conversation requiring objective criteria (comp benchmarks). The key is asking WHY before countering. You lose nothing by understanding their interests, and you gain information that may reveal solutions neither party had considered."
-        }
+        },
+        "id": "3686965c-71e9-4dcf-ae0f-f00453335cc4"
       },
       {
         "name": "Game Theory / Prisoner's Dilemma",
@@ -3825,7 +3885,8 @@
           ],
           "correct": 3,
           "explanation": "This is a classic Prisoner's Dilemma. Defecting (building the feature when they don't) is the dominant strategy — you capture $15M if they cooperate. But if BOTH defect (build), you both lose $5M for no gain. The best outcome is mutual cooperation (neither builds). Option C is tit-for-tat: signal cooperation, build only if they defect. Option D (signal then defect) works once but destroys reputation in a repeated game. The mathematically optimal repeated-game strategy is: cooperate first, then mirror their last move. If they defect, you defect in the next round. If they cooperate, you cooperate."
-        }
+        },
+        "id": "4a11b52a-d49e-44f7-beb8-16b5bbe85f31"
       },
       {
         "name": "M&A Deal Structure",
@@ -3899,7 +3960,8 @@
           ],
           "correct": 1,
           "explanation": "Option B bridges the valuation gap using an earnout — you get $80M guaranteed (your floor) and the chance to earn $20M if the business performs (meets your valuation ceiling). Earnouts are ideal for situations where buyer and seller have different views on future growth. The escrow reduction in exchange for earnout participation is a fair trade: you're sharing upside, so you should share less downside risk. Option A is inflexible and may kill the deal. Option D leaves $20M on the table if the business performs. Option C gives you stock in the buyer — a different risk profile entirely."
-        }
+        },
+        "id": "f64e4050-28e6-4677-9034-b8b7a6ce60ce"
       }
     ]
   },
@@ -3946,7 +4008,8 @@
           "innovation",
           "strategy"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "d301cc58-151d-43f5-a04e-754878a04556"
       },
       {
         "name": "Crossing the Chasm",
@@ -3956,7 +4019,8 @@
           "innovation",
           "go-to-market"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "bc43fb6a-b2d5-4c99-bdac-57aaf9ec26a3"
       },
       {
         "name": "Lean Startup / Build-Measure-Learn",
@@ -3966,7 +4030,8 @@
           "innovation",
           "lean"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "766bd337-25d2-417d-98b4-fab939642055"
       },
       {
         "name": "Design Thinking",
@@ -3976,7 +4041,8 @@
           "innovation",
           "design"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "9a29b6ba-0160-47bb-bc1d-4b35b0a4d0b1"
       },
       {
         "name": "Stage-Gate Process",
@@ -3986,7 +4052,8 @@
           "innovation",
           "process"
         ],
-        "order_index": 5
+        "order_index": 5,
+        "id": "09611c34-1e1f-4559-ace1-27c71c8efadb"
       },
       {
         "name": "Ambidextrous Organization",
@@ -3996,7 +4063,8 @@
           "innovation",
           "org-design"
         ],
-        "order_index": 6
+        "order_index": 6,
+        "id": "0d2dbbc3-c785-4fb0-87b9-5878ea9927f0"
       },
       {
         "name": "Technology S-Curve",
@@ -4006,7 +4074,8 @@
           "innovation",
           "technology"
         ],
-        "order_index": 7
+        "order_index": 7,
+        "id": "72e76658-f4ad-4428-a74c-aedabd072fad"
       },
       {
         "name": "Innovator's Dilemma",
@@ -4016,7 +4085,8 @@
           "innovation",
           "strategy"
         ],
-        "order_index": 8
+        "order_index": 8,
+        "id": "6490c77a-d816-47a7-bf96-08efb6f3ff29"
       }
     ]
   },
@@ -4064,7 +4134,8 @@
           "strategy",
           "business-model"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "d53034e7-eff5-4fa6-b8a2-9fb9c088a346"
       },
       {
         "name": "Porter's Generic Strategies",
@@ -4074,7 +4145,8 @@
           "strategy",
           "competitive-positioning"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "efe86c96-dcf9-43d3-b924-d3262d16be37"
       },
       {
         "name": "Core Competency",
@@ -4084,7 +4156,8 @@
           "strategy",
           "capabilities"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "2168909a-4ec2-4cde-8ae9-3c09e6844890"
       },
       {
         "name": "Balanced Scorecard",
@@ -4094,7 +4167,8 @@
           "strategy",
           "measurement"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "d724fed6-3bbf-4e9b-9b59-89a50baf0d33"
       },
       {
         "name": "Strategy Map",
@@ -4104,7 +4178,8 @@
           "strategy",
           "visualization"
         ],
-        "order_index": 5
+        "order_index": 5,
+        "id": "02bb407a-18b2-4b67-b745-512ec1193514"
       },
       {
         "name": "Gap Analysis",
@@ -4114,7 +4189,8 @@
           "strategy",
           "planning"
         ],
-        "order_index": 6
+        "order_index": 6,
+        "id": "67f07e9f-8cc9-4aeb-a57f-2f97bcf7106c"
       },
       {
         "name": "OGSM Framework",
@@ -4124,7 +4200,8 @@
           "strategy",
           "planning"
         ],
-        "order_index": 7
+        "order_index": 7,
+        "id": "3419ed42-7eee-40ee-8f3c-4c4ec71bf2ee"
       },
       {
         "name": "MECE Principle",
@@ -4134,7 +4211,8 @@
           "strategy",
           "problem-solving"
         ],
-        "order_index": 8
+        "order_index": 8,
+        "id": "77d2b61b-0dd8-4aaf-b298-1b099998cc17"
       }
     ]
   },
@@ -4182,7 +4260,8 @@
           "operations",
           "quality"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "e2768083-c25f-4e42-ab09-9892c8a8c85b"
       },
       {
         "name": "Theory of Constraints",
@@ -4192,7 +4271,8 @@
           "operations",
           "constraints"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "1e118511-a439-4eb7-bfec-a0bb092e82d3"
       },
       {
         "name": "Lean Manufacturing / TPS",
@@ -4202,7 +4282,8 @@
           "operations",
           "lean"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "22892f9e-fe3c-4dca-ad16-70b001a9b34e"
       },
       {
         "name": "Pareto Principle (80/20)",
@@ -4212,7 +4293,8 @@
           "operations",
           "prioritization"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "1e8a0190-e197-4798-bd59-8c5ac7230d04"
       },
       {
         "name": "Just-in-Time (JIT)",
@@ -4222,7 +4304,8 @@
           "operations",
           "inventory"
         ],
-        "order_index": 5
+        "order_index": 5,
+        "id": "507ba497-e18a-4b74-bc39-d2da2a2ede90"
       },
       {
         "name": "Hoshin Kanri / Policy Deployment",
@@ -4232,7 +4315,8 @@
           "operations",
           "strategy"
         ],
-        "order_index": 6
+        "order_index": 6,
+        "id": "23a43668-b603-484b-8b86-106e71341e44"
       },
       {
         "name": "Statistical Process Control",
@@ -4243,7 +4327,8 @@
           "quality"
         ],
         "order_index": 7,
-        "formula": null
+        "formula": null,
+        "id": "f2dfd8ce-8ab7-4efa-b822-15747568446c"
       },
       {
         "name": "Total Quality Management (TQM)",
@@ -4254,7 +4339,8 @@
           "quality"
         ],
         "order_index": 7,
-        "formula": null
+        "formula": null,
+        "id": "4bc826ad-2b06-45d4-b894-63d9262daffa"
       }
     ]
   },
@@ -4299,7 +4385,8 @@
           "analysis",
           "decision-making"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "c361f748-3b93-4228-be4e-6728a05afa24"
       },
       {
         "name": "Decision Nodes vs Chance Nodes",
@@ -4309,7 +4396,8 @@
           "analysis",
           "decision-making"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "3c6816cb-5501-4d30-bf3e-844f062a1cd6"
       },
       {
         "name": "Value of Information",
@@ -4319,7 +4407,8 @@
           "analysis",
           "decision-making"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "d5800349-271e-4b8a-92f6-683936d9ab23"
       },
       {
         "name": "Real Options in Decision Trees",
@@ -4329,7 +4418,8 @@
           "analysis",
           "strategy"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "5d1d7900-4bf0-4cf2-9cf3-3c853197408c"
       },
       {
         "name": "Bayesian Updating in Trees",
@@ -4340,7 +4430,8 @@
           "probability"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "3824be67-b05d-45cb-a0f2-3ce96072b138"
       },
       {
         "name": "Sensitivity at Decision Nodes",
@@ -4351,7 +4442,8 @@
           "decision-making"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "82847472-8988-4e42-8648-44ee71a8993c"
       }
     ]
   },
@@ -4396,7 +4488,8 @@
           "analysis",
           "financial"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "160e6367-2c44-49d3-8a20-c0ab2201c876"
       },
       {
         "name": "Break-Even Analysis",
@@ -4406,7 +4499,8 @@
           "analysis",
           "financial"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "5997ad14-b991-45cb-b647-2d01f8f9ce4f"
       },
       {
         "name": "Scenario Testing",
@@ -4416,7 +4510,8 @@
           "analysis",
           "planning"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "3b7a5712-6bbe-4186-9150-10c1e3118fcc"
       },
       {
         "name": "Assumption Auditing",
@@ -4426,7 +4521,8 @@
           "analysis",
           "decision-making"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "8cd0b544-0c2e-446a-a14b-6cdb2cc425c4"
       },
       {
         "name": "Spider Charts",
@@ -4437,7 +4533,8 @@
           "visualization"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "5d4d4199-ba96-468d-bb1a-53b4f725f1e1"
       },
       {
         "name": "One-Way vs Two-Way Sensitivity",
@@ -4448,7 +4545,8 @@
           "modeling"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "5e1c65ae-af8f-42bf-98c4-d0f7d44658d1"
       }
     ]
   },
@@ -4494,7 +4592,8 @@
           "analysis",
           "org"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "0099b394-9fe8-4f57-ab47-b4401c73ba3e"
       },
       {
         "name": "Stakeholder Salience",
@@ -4504,7 +4603,8 @@
           "analysis",
           "org"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "9961e3ab-e253-4461-8d95-a02d508a88ac"
       },
       {
         "name": "RACI Mapping",
@@ -4514,7 +4614,8 @@
           "analysis",
           "org"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "aaba8aeb-f67d-4cfd-814a-c13fda632857"
       },
       {
         "name": "Influence Networks",
@@ -4524,7 +4625,8 @@
           "analysis",
           "org"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "a24b80ac-7c11-4b62-83e9-3900f1036172"
       },
       {
         "name": "Communication Planning",
@@ -4535,7 +4637,8 @@
           "communication"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "838ea6d1-c3a2-4aeb-b582-052c0144048a"
       },
       {
         "name": "Coalition Building",
@@ -4546,7 +4649,8 @@
           "influence"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "4727a848-8368-4867-ad11-64f6666389cc"
       }
     ]
   },
@@ -4590,7 +4694,8 @@
           "analysis",
           "saas"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "389330b3-480a-4aa1-8101-bf0d8ffd505d"
       },
       {
         "name": "Revenue Cohorts",
@@ -4601,7 +4706,8 @@
           "saas",
           "financial"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "069f79cd-192d-4c19-b5de-83630ce2e2a3"
       },
       {
         "name": "Cohort vs Aggregate Metrics",
@@ -4611,7 +4717,8 @@
           "analysis",
           "saas"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "d1a8bab9-6f46-474f-98bc-aabdec347f68"
       },
       {
         "name": "Leading Churn Indicators",
@@ -4622,7 +4729,8 @@
           "saas",
           "metrics"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "5f2c992a-b267-450e-940f-87e6a8382ea4"
       },
       {
         "name": "Cohort Definition (Time vs Behavior)",
@@ -4633,7 +4741,8 @@
           "segmentation"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "cf9ccbf9-d38f-4314-97aa-435a619912af"
       },
       {
         "name": "Cohort Lifecycle Patterns",
@@ -4644,7 +4753,8 @@
           "saas"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "1000fcee-b332-40bb-a279-df7282c0c377"
       }
     ]
   },
@@ -4690,7 +4800,8 @@
           "analysis",
           "simulation"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "9d73227d-b648-41f7-8bae-f63db9ff9555"
       },
       {
         "name": "Confidence Intervals (P10/P50/P90)",
@@ -4700,7 +4811,8 @@
           "analysis",
           "simulation"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "428bef6f-2a33-4f1f-b0e6-62755d586624"
       },
       {
         "name": "Value at Risk (VaR)",
@@ -4710,7 +4822,8 @@
           "analysis",
           "risk"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "dd147738-69ce-4d64-9958-b5ea0f12bbe9"
       },
       {
         "name": "Correlated Assumptions",
@@ -4721,7 +4834,8 @@
           "risk",
           "simulation"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "94580ea2-bd9f-45ad-89a6-b4e6a1427a52"
       },
       {
         "name": "Convergence Testing",
@@ -4732,7 +4846,8 @@
           "simulation"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "9927dda4-217b-4fe6-9735-58558be5deea"
       }
     ]
   },
@@ -4775,7 +4890,8 @@
           "analysis",
           "financial"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "2dcce5ae-4f17-4861-a8c3-719b07e0f124"
       },
       {
         "name": "Leading vs Lagging Indicators",
@@ -4785,7 +4901,8 @@
           "analysis",
           "metrics"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "109b2d01-2cc4-429f-8684-3da8c917d670"
       },
       {
         "name": "Operational Levers",
@@ -4795,7 +4912,8 @@
           "analysis",
           "operations"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "8060b058-3617-450b-8e32-a8e10683455e"
       },
       {
         "name": "KPI Design from Driver Trees",
@@ -4805,7 +4923,8 @@
           "analysis",
           "metrics"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "7b05e498-1163-45c5-8e29-825fc5a6ee04"
       },
       {
         "name": "Top-Down Decomposition",
@@ -4816,7 +4935,8 @@
           "metrics"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "fa42790f-3b67-4c85-a86d-4754b069e2fb"
       },
       {
         "name": "Cost Driver Trees",
@@ -4827,7 +4947,8 @@
           "financial"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "5136901c-7ad0-4b5a-923d-bf3478a694a1"
       }
     ]
   },
@@ -4873,7 +4994,8 @@
           "analysis",
           "experimentation"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "1c56ec35-f2e2-41c7-be7c-045a81c17a6d"
       },
       {
         "name": "Sample Size & Power",
@@ -4883,7 +5005,8 @@
           "analysis",
           "experimentation"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "480edef5-a164-41da-9a8c-136201e83858"
       },
       {
         "name": "The Peeking Problem",
@@ -4893,7 +5016,8 @@
           "analysis",
           "experimentation"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "520d6464-9532-44ba-b84d-6af3e631a3e0"
       },
       {
         "name": "Practical vs Statistical Significance",
@@ -4903,7 +5027,8 @@
           "analysis",
           "experimentation"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "f5badb26-8bfa-4230-bde2-f170e12c57bd"
       },
       {
         "name": "A/A Testing",
@@ -4914,7 +5039,8 @@
           "experimentation"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "b97a7014-ec76-4361-93d9-954f75174f64"
       },
       {
         "name": "Confidence Intervals in Experiments",
@@ -4925,7 +5051,8 @@
           "experimentation"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "a9b091ac-90e9-4f23-9c8f-74b0e2ba57fb"
       }
     ]
   },
@@ -4969,7 +5096,8 @@
           "analysis",
           "change"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "4328b546-eb34-4e8a-866c-19f87dd6cdc7"
       },
       {
         "name": "Force Scoring",
@@ -4979,7 +5107,8 @@
           "analysis",
           "change"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "7968748b-cbd3-4ad6-9ac2-eb80b7bdc91d"
       },
       {
         "name": "Force Reduction Strategy",
@@ -4989,7 +5118,8 @@
           "analysis",
           "change"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "d2a291ce-1487-4fd9-bd5a-057a4dcd6286"
       },
       {
         "name": "Change Management Integration",
@@ -5000,7 +5130,8 @@
           "change"
         ],
         "order_index": 4,
-        "formula": null
+        "formula": null,
+        "id": "04c48816-0f7d-42b1-91b6-f33bab56a7b2"
       },
       {
         "name": "Restraining Forces",
@@ -5011,7 +5142,8 @@
           "change"
         ],
         "order_index": 4,
-        "formula": null
+        "formula": null,
+        "id": "3951d0af-690a-4538-abcd-3901e7951110"
       },
       {
         "name": "Equilibrium Analysis",
@@ -5022,7 +5154,8 @@
           "change"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "e1b94a42-8574-449d-b235-6a4104524f7b"
       }
     ]
   },
@@ -5069,7 +5202,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "cb3cd380-812d-45f0-adfc-30d679175959"
       },
       {
         "name": "Anchoring Bias",
@@ -5079,7 +5213,8 @@
           "bias",
           "negotiation"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "355e1b3e-496f-4f86-9d13-f020ff09babd"
       },
       {
         "name": "Overconfidence Bias",
@@ -5089,7 +5224,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "3dd30dd4-0cc1-4f2f-b628-9cae72554be4"
       },
       {
         "name": "Availability Bias",
@@ -5099,7 +5235,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "53095282-5e52-4442-b62d-fec8f5ff21df"
       },
       {
         "name": "Survivorship Bias",
@@ -5109,7 +5246,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 5
+        "order_index": 5,
+        "id": "ac2e8575-3389-46a6-b321-7c6f8b03957c"
       },
       {
         "name": "Sunk Cost Fallacy",
@@ -5119,7 +5257,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 6
+        "order_index": 6,
+        "id": "0877dc61-fe37-41a4-917e-72ddd93787cd"
       },
       {
         "name": "Framing Effect",
@@ -5129,7 +5268,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 7
+        "order_index": 7,
+        "id": "013f76b1-23a8-4c68-aeec-c385b3700460"
       },
       {
         "name": "Hindsight Bias",
@@ -5139,7 +5279,8 @@
           "bias",
           "decision-making"
         ],
-        "order_index": 8
+        "order_index": 8,
+        "id": "7df284a2-c5df-4878-8ed3-82c3d768ca40"
       }
     ]
   },
@@ -5184,7 +5325,8 @@
           "decision-making",
           "analysis"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "debc1e4a-8a46-41f6-8a39-8851581d845d"
       },
       {
         "name": "Analytic Hierarchy Process (AHP)",
@@ -5194,7 +5336,8 @@
           "decision-making",
           "analysis"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "8d3741e5-4910-476d-baba-538aeff968d7"
       },
       {
         "name": "Trade-Off Curves",
@@ -5204,7 +5347,8 @@
           "decision-making",
           "analysis"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "3c1a93c4-1b13-4d68-ab35-c2babea29204"
       },
       {
         "name": "Criteria Weighting Methods",
@@ -5214,7 +5358,8 @@
           "decision-making",
           "analysis"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "869f8bab-d8f4-4d4d-8a43-ac5ca356b758"
       },
       {
         "name": "Sensitivity at Decision Points",
@@ -5225,7 +5370,8 @@
           "analysis"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "4a96af66-816a-4e69-8d83-3d912a546c16"
       },
       {
         "name": "Non-Compensatory Rules",
@@ -5236,7 +5382,8 @@
           "analysis"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "ac69d5a7-a813-41f7-a916-da2c2de8d9dc"
       }
     ]
   },
@@ -5282,7 +5429,8 @@
           "decision-making",
           "analysis"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "d7a1b8ef-dab4-4f7d-971b-e1be2e8d193d"
       },
       {
         "name": "Creative Alternatives",
@@ -5292,7 +5440,8 @@
           "decision-making",
           "creativity"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "e8586cbf-66ea-4267-9422-4780c6aadf6c"
       },
       {
         "name": "Sound Reasoning",
@@ -5302,7 +5451,8 @@
           "decision-making",
           "analysis"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "f64e845d-1896-40c9-9c5d-db073bf35589"
       },
       {
         "name": "Commitment to Action",
@@ -5312,7 +5462,8 @@
           "decision-making",
           "execution"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "6624a1f8-a14d-4d64-bb79-fcd7689f4e48"
       },
       {
         "name": "Meaningful Information",
@@ -5323,7 +5474,8 @@
           "analysis"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "0f9a8f53-8a1a-4af3-8b72-c8b79171f4a3"
       },
       {
         "name": "Clear Values & Trade-offs",
@@ -5334,7 +5486,8 @@
           "analysis"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "a823a307-8846-4959-a2ee-a121ece82352"
       }
     ]
   },
@@ -5380,7 +5533,8 @@
           "decision-making",
           "intuition"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "9b11a3b4-18b4-4b27-9444-afed756d9e82"
       },
       {
         "name": "When Intuition Works",
@@ -5390,7 +5544,8 @@
           "decision-making",
           "intuition"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "a1b365b7-fa39-49f8-ba9c-051a610e28c0"
       },
       {
         "name": "When Intuition Fails",
@@ -5400,7 +5555,8 @@
           "decision-making",
           "intuition"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "e3e832bd-8ad9-4093-894e-a33793fc092e"
       },
       {
         "name": "Combining Intuition + Analysis",
@@ -5410,7 +5566,8 @@
           "decision-making",
           "intuition"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "8caaa9f9-ff4c-4246-a108-a7a1d78c99dc"
       },
       {
         "name": "The Deliberation-Without-Attention Effect",
@@ -5421,7 +5578,8 @@
           "intuition"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "645f46d0-fcba-4649-bdeb-50dc988647e1"
       },
       {
         "name": "Calibrating Expert Judgment",
@@ -5432,7 +5590,8 @@
           "intuition"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "5795abd8-cfd8-4bc3-8c36-e09393fcb26c"
       }
     ]
   },
@@ -5477,7 +5636,8 @@
           "decision-making",
           "speed"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "ecd0765f-2207-4cf3-ba7d-f27cd4a3b947"
       },
       {
         "name": "70% Rule (Bezos)",
@@ -5487,7 +5647,8 @@
           "decision-making",
           "speed"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "8aa5905d-2c24-4dc5-932c-f5c1154a26bd"
       },
       {
         "name": "Disagree and Commit",
@@ -5497,7 +5658,8 @@
           "decision-making",
           "culture"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "fa80fde5-363a-43d0-bc48-93062ae28ffa"
       },
       {
         "name": "Decision Fatigue",
@@ -5507,7 +5669,8 @@
           "decision-making",
           "productivity"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "8227e6cc-b312-440e-bef8-fb613811f2ec"
       },
       {
         "name": "Decision Batching & Cadence",
@@ -5518,7 +5681,8 @@
           "productivity"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "b1f4d4a6-f892-42db-8ec9-6b38a1929b50"
       },
       {
         "name": "Escalation Paths",
@@ -5529,7 +5693,8 @@
           "org"
         ],
         "order_index": 6,
-        "formula": null
+        "formula": null,
+        "id": "0d8f9e9b-e4aa-445f-b8e3-ff5f1ec68d51"
       }
     ]
   },
@@ -5573,7 +5738,8 @@
           "decision-making",
           "competitive-strategy"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "0be0ff70-b4fb-480c-b0b8-31ee949df989"
       },
       {
         "name": "Competitor Simulation",
@@ -5583,7 +5749,8 @@
           "decision-making",
           "competitive-strategy"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "cfa97259-7de8-4462-af98-26ed705df5a0"
       },
       {
         "name": "Pre-Mortem vs War Game",
@@ -5593,7 +5760,8 @@
           "decision-making",
           "competitive-strategy"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "735292df-1924-4750-89c9-9dd3b607d733"
       },
       {
         "name": "After-Action Review (AAR) for War Games",
@@ -5603,7 +5771,8 @@
           "decision-making",
           "competitive-strategy"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "fab17bca-df27-4bb5-b47f-08d2ed49b18e"
       },
       {
         "name": "After-Action Review",
@@ -5614,7 +5783,8 @@
           "competitive-strategy"
         ],
         "order_index": 5,
-        "formula": null
+        "formula": null,
+        "id": "e7c50cb2-ee10-4a0f-abb0-1fa5f65f2355"
       }
     ]
   },
@@ -5657,7 +5827,8 @@
           "engineering",
           "architecture"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "af2f63db-b912-44f6-8bc4-ddfa468ea3de"
       },
       {
         "name": "Conway's Law in Practice",
@@ -5667,7 +5838,8 @@
           "engineering",
           "org"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "500b0287-4437-45f8-88b3-bd8de149a19c"
       },
       {
         "name": "Coupling & Cohesion",
@@ -5677,7 +5849,8 @@
           "engineering",
           "architecture"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "6cad4719-d800-48eb-abf3-32b6931e5a6c"
       },
       {
         "name": "Evolutionary Architecture",
@@ -5687,7 +5860,8 @@
           "engineering",
           "architecture"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "ae97f036-be0f-484f-ac82-6cdb5870756b"
       },
       {
         "name": "Strangler Fig Pattern",
@@ -5697,7 +5871,8 @@
           "engineering",
           "migration"
         ],
-        "order_index": 5
+        "order_index": 5,
+        "id": "ec28f44d-fac7-4d8b-81b0-ebe97b68f7c8"
       }
     ]
   },
@@ -5739,7 +5914,8 @@
           "engineering",
           "reliability"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "3483b4f3-014d-4ff5-b974-61921bf47754"
       },
       {
         "name": "Error Budgets",
@@ -5749,7 +5925,8 @@
           "engineering",
           "reliability"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "33c407dc-008c-4002-91e9-52f459471a73"
       },
       {
         "name": "Blameless Postmortems",
@@ -5759,7 +5936,8 @@
           "engineering",
           "reliability"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "8939d2d1-5577-4af4-a00d-983988ac3fc8"
       },
       {
         "name": "Chaos Engineering",
@@ -5769,7 +5947,8 @@
           "engineering",
           "reliability"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "e4a810e5-2218-4804-8064-6da6be6238d7"
       }
     ]
   },
@@ -5812,7 +5991,8 @@
           "engineering",
           "diligence"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "8d4993e3-808a-4ab2-b8e2-5f4cdabc5321"
       },
       {
         "name": "Engineering Team Assessment",
@@ -5822,7 +6002,8 @@
           "engineering",
           "people"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "6190f68c-6b42-4e27-8556-67f4b8f0e258"
       },
       {
         "name": "Tech Debt Audit",
@@ -5832,7 +6013,8 @@
           "engineering",
           "tech-debt"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "eaa83c27-3e0c-428d-b681-c7c43a29128b"
       },
       {
         "name": "Scalability & Infrastructure Assessment",
@@ -5842,7 +6024,8 @@
           "engineering",
           "infrastructure"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "7976dff9-8ed1-48bd-98eb-d215531f4ab5"
       }
     ]
   },
@@ -5886,7 +6069,8 @@
           "engineering",
           "data"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "3e7037df-b547-4e4f-b659-2ecd041fdf9c"
       },
       {
         "name": "Metrics Layer & Single Source of Truth",
@@ -5896,7 +6080,8 @@
           "engineering",
           "data"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "8cd02148-c06c-4bb8-b552-f50b41bf47c2"
       },
       {
         "name": "Data Quality & Observability",
@@ -5906,7 +6091,8 @@
           "engineering",
           "data"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "0b948461-77db-4a30-b558-5587aa29cafe"
       },
       {
         "name": "GDPR/CCPA Compliance Engineering",
@@ -5916,7 +6102,8 @@
           "engineering",
           "compliance"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "37010fe7-11d4-4ab4-b45b-e6462bb493fb"
       }
     ]
   },
@@ -5960,7 +6147,8 @@
           "engineering",
           "ml"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "58d25f06-dbfe-44be-ba02-218e66c225fc"
       },
       {
         "name": "Feature Stores & Training Pipelines",
@@ -5970,7 +6158,8 @@
           "engineering",
           "ml"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "d4945248-9e26-43d6-9241-10b3bfd8342a"
       },
       {
         "name": "LLM / Foundation Model Strategy",
@@ -5980,7 +6169,8 @@
           "engineering",
           "ai"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "153c49e3-01bf-489a-ad7b-336882f90fa4"
       },
       {
         "name": "AI Governance & Responsible AI",
@@ -5991,7 +6181,8 @@
           "ai",
           "compliance"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "50f7aed2-8b28-4aed-8422-7100a4e892b4"
       }
     ]
   },
@@ -6034,7 +6225,8 @@
           "engineering",
           "security"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "5c00eb61-c769-44dd-91c1-6e2132e79c23"
       },
       {
         "name": "Zero Trust Architecture",
@@ -6044,7 +6236,8 @@
           "engineering",
           "security"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "545b7559-9ee0-4cbd-855b-b087102f029b"
       },
       {
         "name": "Threat Modeling (STRIDE)",
@@ -6054,7 +6247,8 @@
           "engineering",
           "security"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "ca19c699-c0d7-409b-bf76-b9ea6563752b"
       },
       {
         "name": "SOC2 / ISO 27001 Compliance",
@@ -6064,7 +6258,8 @@
           "engineering",
           "compliance"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "ad87dd12-b814-4da0-9efb-687fcb3bcebb"
       }
     ]
   },
@@ -6107,7 +6302,8 @@
           "financial",
           "capital-allocation"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "9e1a5e59-c92f-4057-8444-987f3b34b656"
       },
       {
         "name": "ROIC vs WACC Test",
@@ -6117,7 +6313,8 @@
           "financial",
           "capital-allocation"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "5fc9230a-ee9d-49c3-a45c-84388b220bf8"
       },
       {
         "name": "Share Buyback Math",
@@ -6127,7 +6324,8 @@
           "financial",
           "capital-allocation"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "b11f09ec-acdd-4164-bc64-093353faf15b"
       },
       {
         "name": "Dividend Policy",
@@ -6137,7 +6335,8 @@
           "financial",
           "capital-allocation"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "843bf152-ea2a-44eb-b5ef-c6b359c49f3b"
       }
     ]
   },
@@ -6179,7 +6378,8 @@
           "financial",
           "working-capital"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "618f41af-5a56-46cd-97dc-7b730b7288fe"
       },
       {
         "name": "Days Sales Outstanding (DSO)",
@@ -6189,7 +6389,8 @@
           "financial",
           "working-capital"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "8be35b9a-63cc-4c20-9c2d-22f461408f3e"
       },
       {
         "name": "Negative Working Capital",
@@ -6199,7 +6400,8 @@
           "financial",
           "working-capital"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "8781a568-2741-424f-bc01-0b930034c899"
       },
       {
         "name": "Working Capital Optimization",
@@ -6209,7 +6411,8 @@
           "financial",
           "working-capital"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "c1391e07-8301-4002-a73c-c8ff9ede6c34"
       }
     ]
   },
@@ -6252,7 +6455,8 @@
           "financial",
           "fundraising"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "5a43beea-7ba9-452a-bd66-6ae28de90bf0"
       },
       {
         "name": "Liquidation Preferences",
@@ -6262,7 +6466,8 @@
           "financial",
           "fundraising"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "1dd405c7-fc86-49e7-be8c-9a0df4efc283"
       },
       {
         "name": "Dilution Waterfall",
@@ -6272,7 +6477,8 @@
           "financial",
           "fundraising"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "ed584905-de33-4b8a-8039-390bb95084ad"
       },
       {
         "name": "Venture Debt",
@@ -6282,7 +6488,8 @@
           "financial",
           "fundraising"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "af2e1d81-c35b-49dd-83c4-4de53863fdc9"
       }
     ]
   },
@@ -6325,7 +6532,8 @@
           "financial",
           "m-a"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "c364f492-c831-4546-bf40-9bc91fe79218"
       },
       {
         "name": "Synergy Quantification",
@@ -6335,7 +6543,8 @@
           "financial",
           "m-a"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "0e424588-cd4d-4257-9689-33f8a624c9b2"
       },
       {
         "name": "Goodwill & Intangibles",
@@ -6345,7 +6554,8 @@
           "financial",
           "m-a"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "dc9cbc4f-ad81-4949-9578-8a7254e900b0"
       },
       {
         "name": "Earnout Modeling",
@@ -6355,7 +6565,8 @@
           "financial",
           "m-a"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "9cc427d9-fe99-4fbe-a342-3a6f0a466ba0"
       }
     ]
   },
@@ -6398,7 +6609,8 @@
           "financial",
           "investor-relations"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "a573d581-31f5-4dac-9aac-0bdf33cd2d47"
       },
       {
         "name": "Guidance Philosophy",
@@ -6408,7 +6620,8 @@
           "financial",
           "investor-relations"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "66588b8d-d056-42e0-8bc2-1ba7d7c0b91d"
       },
       {
         "name": "Shareholder Letter Writing",
@@ -6418,7 +6631,8 @@
           "financial",
           "investor-relations"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "1be7fc27-670d-4c75-bf2d-2389ca7a3147"
       },
       {
         "name": "Activist Investor Defense",
@@ -6428,7 +6642,8 @@
           "financial",
           "investor-relations"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "e50feb92-dadd-4b4a-bf9b-f6be7004397f"
       }
     ]
   },
@@ -6469,7 +6684,8 @@
           "hiring",
           "process"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "df84a0d8-94d5-4503-8bb1-413cedb6a887"
       },
       {
         "name": "Hiring Scorecards",
@@ -6479,7 +6695,8 @@
           "hiring",
           "process"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "17109097-b4d5-4b72-945c-912e4f72b98e"
       },
       {
         "name": "Bar Raiser Programs",
@@ -6489,7 +6706,8 @@
           "hiring",
           "process"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "c1b62f56-884e-4fa2-b6fa-cbce1eaffa01"
       },
       {
         "name": "Onboarding Acceleration",
@@ -6499,7 +6717,8 @@
           "hiring",
           "onboarding"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "6a4ef72d-b0bf-4839-8582-1cee262c6956"
       }
     ]
   },
@@ -6541,7 +6760,8 @@
           "performance",
           "okr"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "47377761-ae85-445a-8643-5675b0d835a8"
       },
       {
         "name": "360-Degree Feedback",
@@ -6551,7 +6771,8 @@
           "performance",
           "feedback"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "74378d25-8584-41ab-93a8-8b8d2e554517"
       },
       {
         "name": "Calibration Sessions",
@@ -6561,7 +6782,8 @@
           "performance",
           "calibration"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "8d58e821-8bf8-4e0d-8355-ec67f7b35b07"
       },
       {
         "name": "Performance Improvement Plans (PIPs)",
@@ -6571,7 +6793,8 @@
           "performance",
           "management"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "79ab86c6-54a4-4d5c-888a-7db6daa9e08b"
       }
     ]
   },
@@ -6614,7 +6837,8 @@
           "compensation",
           "strategy"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "893e00e5-dd01-493e-9f62-41580d35fc1d"
       },
       {
         "name": "Equity Grant Design",
@@ -6624,7 +6848,8 @@
           "compensation",
           "equity"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "1230cb24-f46e-4dcc-829d-c4d85a183cdb"
       },
       {
         "name": "Sales Compensation Models",
@@ -6634,7 +6859,8 @@
           "compensation",
           "sales"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "25e10430-1953-41a2-87a1-37de44b6e279"
       },
       {
         "name": "Performance-Based Bonus Structures",
@@ -6644,7 +6870,8 @@
           "compensation",
           "performance"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "44a29e7c-a555-458c-a040-0c304cbdae39"
       }
     ]
   },
@@ -6685,7 +6912,8 @@
           "risk",
           "continuity"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "fc5fa912-0882-43d5-b1d0-73233dff3d2f"
       },
       {
         "name": "Business Impact Analysis (BIA)",
@@ -6695,7 +6923,8 @@
           "risk",
           "continuity"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "805530f6-9979-4d7b-8e6c-bae310692f03"
       },
       {
         "name": "Failover Testing",
@@ -6705,7 +6934,8 @@
           "risk",
           "continuity"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "121ab418-d2a6-49f2-a3df-dc13bdd658bb"
       }
     ]
   },
@@ -6746,7 +6976,8 @@
           "risk",
           "compliance"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "4762c85f-2782-4c80-b1d6-80a52a374156"
       },
       {
         "name": "Compliance Program Design",
@@ -6756,7 +6987,8 @@
           "risk",
           "compliance"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "2a48bd3c-ca68-4d55-8528-312e179a7c76"
       },
       {
         "name": "Audit Readiness",
@@ -6766,7 +6998,8 @@
           "risk",
           "compliance"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "877fae77-4a7f-4f19-9bdd-b0155f276ded"
       }
     ]
   },
@@ -6807,7 +7040,8 @@
           "negotiation",
           "culture"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "121a0cd3-7c7d-4e1f-b42d-10aeff56a4d8"
       },
       {
         "name": "Relationship-First vs Deal-First",
@@ -6817,7 +7051,8 @@
           "negotiation",
           "culture"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "3435ff5a-4904-4fca-85d8-0690644113ec"
       },
       {
         "name": "Face-Saving Dynamics",
@@ -6827,7 +7062,8 @@
           "negotiation",
           "culture"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "ee4a4db8-c0e0-4664-b688-ee0c67e1daa1"
       }
     ]
   },
@@ -6869,7 +7105,8 @@
           "operations",
           "supply-chain"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "d60e47e7-8644-41f6-ad9f-df9031f71f27"
       },
       {
         "name": "Just-in-Time vs Just-in-Case",
@@ -6879,7 +7116,8 @@
           "operations",
           "supply-chain"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "61d408c1-600e-44d3-8929-bbf28013899a"
       },
       {
         "name": "Supply Chain Risk Mapping",
@@ -6889,7 +7127,8 @@
           "operations",
           "supply-chain"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "1d25a982-a765-42f6-8caf-e1f7b36e2826"
       }
     ]
   },
@@ -6932,7 +7171,8 @@
           "innovation",
           "product"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "74ceb28b-680e-4f11-8cca-75e7b093e08a"
       },
       {
         "name": "Growth Loops vs Funnels",
@@ -6942,7 +7182,8 @@
           "innovation",
           "growth"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "f26ac1e6-0a68-4fdc-bbf6-42d01bc0dd38"
       },
       {
         "name": "Flywheel Design",
@@ -6952,7 +7193,8 @@
           "innovation",
           "growth"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "58a96530-a362-4820-b426-ea45abc4f5a6"
       },
       {
         "name": "Expansion Revenue Mechanics",
@@ -6962,7 +7204,8 @@
           "innovation",
           "growth"
         ],
-        "order_index": 4
+        "order_index": 4,
+        "id": "978c5119-2fe8-4f74-b5ff-4888975f66a6"
       }
     ]
   },
@@ -7004,7 +7247,8 @@
           "strategy",
           "platform"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "25c5cea4-c1a2-4a66-a963-45873f30f4ea"
       },
       {
         "name": "Chicken-and-Egg Problem",
@@ -7014,7 +7258,8 @@
           "strategy",
           "platform"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "260150f4-e773-4ee9-b676-194e9074993e"
       },
       {
         "name": "Platform Pricing (Which Side to Charge)",
@@ -7024,7 +7269,8 @@
           "strategy",
           "platform"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "f90970ca-e9f8-4e2d-a63c-ce50e950ee09"
       }
     ]
   },
@@ -7066,7 +7312,8 @@
           "strategy",
           "disruption"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "df99494d-be57-47ed-a5d4-6cb86882be9b"
       },
       {
         "name": "Ignore vs Acquire vs Compete Framework",
@@ -7076,7 +7323,8 @@
           "strategy",
           "disruption"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "f01029f6-cbb5-4a60-98fb-a1f8706c86cd"
       },
       {
         "name": "Self-Disruption (Separate Unit)",
@@ -7086,7 +7334,8 @@
           "strategy",
           "disruption"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "4e93344e-6eca-4562-8399-e8366d24959a"
       }
     ]
   },
@@ -7127,7 +7376,8 @@
           "strategy",
           "blue-ocean"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "dd8f1d28-a28c-40c2-a6dc-eebc4d88dda8"
       },
       {
         "name": "Strategy Canvas",
@@ -7137,7 +7387,8 @@
           "strategy",
           "blue-ocean"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "5fd71be2-332e-432b-9aad-76b40fb6395f"
       },
       {
         "name": "Three Tiers of Non-Customers",
@@ -7147,7 +7398,8 @@
           "strategy",
           "growth"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "f0b2934c-4f73-4395-8aa5-31bd198fee71"
       }
     ]
   },
@@ -7188,7 +7440,8 @@
           "operations",
           "capacity"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "53eff552-6559-4826-b51f-3a34d73c88d2"
       },
       {
         "name": "The Bullwhip Effect",
@@ -7198,7 +7451,8 @@
           "operations",
           "supply-chain"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "bae1af77-eca6-42eb-ad06-143b86ae2ed2"
       },
       {
         "name": "Demand Forecasting Methods",
@@ -7208,7 +7462,8 @@
           "operations",
           "forecasting"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "e23f2cb5-87c9-416a-b9e2-3b43f01aef03"
       }
     ]
   },
@@ -7249,7 +7504,8 @@
           "operations",
           "process-mining"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "0974e72c-fa31-4674-a306-d54e1caf7eda"
       },
       {
         "name": "Conformance Checking",
@@ -7259,7 +7515,8 @@
           "operations",
           "process-mining"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "13482c41-a4a1-4ef7-901f-00a13ef60650"
       },
       {
         "name": "Bottleneck Identification",
@@ -7269,7 +7526,8 @@
           "operations",
           "process-mining"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "0a4f0394-1feb-470f-ae65-7df42b30dffa"
       }
     ]
   },
@@ -7310,7 +7568,8 @@
           "innovation",
           "ip"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "0baabd04-b92f-411b-a9ef-a5b5d1477ce3"
       },
       {
         "name": "Trade Secret vs Patent Decision",
@@ -7320,7 +7579,8 @@
           "innovation",
           "ip"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "01765453-4a45-4e14-8094-5ed0f54cf7ba"
       },
       {
         "name": "Freedom to Operate (FTO)",
@@ -7330,7 +7590,8 @@
           "innovation",
           "ip"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "6553a055-5a28-4d6f-8359-eb2044871b58"
       }
     ]
   },
@@ -7372,7 +7633,8 @@
           "innovation",
           "open-innovation"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "24c04ede-6a65-4a77-8a3e-4de358d9422d"
       },
       {
         "name": "Corporate Venture Capital (CVC)",
@@ -7382,7 +7644,8 @@
           "innovation",
           "cvc"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "d85b34d8-1917-4fa3-ab7a-3cf72a6907c0"
       },
       {
         "name": "Innovation Scouting",
@@ -7392,7 +7655,8 @@
           "innovation",
           "scouting"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "07210219-bd1a-4445-86c6-a9450e765391"
       }
     ]
   },
@@ -7434,7 +7698,8 @@
           "negotiation",
           "multi-party"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "c8777a79-f9da-48e7-9562-40ba52d07c17"
       },
       {
         "name": "Minimum Winning Coalition",
@@ -7444,7 +7709,8 @@
           "negotiation",
           "multi-party"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "d6bbc6f6-8c98-4534-ad73-83d082dd6b58"
       },
       {
         "name": "Multi-Party Agenda Setting",
@@ -7454,7 +7720,8 @@
           "negotiation",
           "multi-party"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "8b64e5ea-162d-4561-96fd-39cc593f88b3"
       }
     ]
   },
@@ -7496,7 +7763,8 @@
           "risk",
           "assessment"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "5373c3a0-e386-4c6d-b779-bc93f37e8919"
       },
       {
         "name": "Value at Risk (VaR) & CVaR",
@@ -7506,7 +7774,8 @@
           "risk",
           "quantitative"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "38474996-c1c4-45fc-8de2-37bdcd854df7"
       },
       {
         "name": "Risk Appetite Statements",
@@ -7516,7 +7785,8 @@
           "risk",
           "governance"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "f7dc5af3-2fb0-485c-8780-33185a8cf605"
       }
     ]
   },
@@ -7558,7 +7828,8 @@
           "risk",
           "insurance"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "7611274b-9a8e-47cc-98ab-a1e13f1d9dc5"
       },
       {
         "name": "Captive Insurance",
@@ -7568,7 +7839,8 @@
           "risk",
           "insurance"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "d5d44872-3550-4a93-a2b2-d597f210f3ba"
       },
       {
         "name": "Parametric Insurance",
@@ -7578,7 +7850,8 @@
           "risk",
           "insurance"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "55a0a512-558f-4f9e-ab6a-8acfdcf2ef04"
       }
     ]
   },
@@ -7621,7 +7894,8 @@
           "risk",
           "cyber"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "ba2c08e3-c4f9-41cb-95d2-26032618fbf5"
       },
       {
         "name": "FAIR Model (Breach Quantification)",
@@ -7631,7 +7905,8 @@
           "risk",
           "cyber"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "83d65a3a-77ff-4cf1-ab88-98fd197f039f"
       },
       {
         "name": "Ransomware Readiness",
@@ -7641,7 +7916,8 @@
           "risk",
           "cyber"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "c8bae13d-827b-4ed3-9f59-77c3dc95373a"
       }
     ]
   },
@@ -7683,7 +7959,8 @@
           "risk",
           "geopolitical"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "0249fe39-864b-4f1b-8a42-55176aadc4cf"
       },
       {
         "name": "Sanctions & Export Controls",
@@ -7693,7 +7970,8 @@
           "risk",
           "geopolitical"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "7e2f4eb8-3eee-4a5f-b2d7-247aba21d594"
       },
       {
         "name": "Supply Chain Geopolitical Mapping",
@@ -7703,7 +7981,8 @@
           "risk",
           "geopolitical"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "bbc8bb0a-a24b-4d74-bc73-7ec9b9b81fce"
       }
     ]
   },
@@ -7745,7 +8024,8 @@
           "risk",
           "financial"
         ],
-        "order_index": 1
+        "order_index": 1,
+        "id": "d4e578ca-dba7-4023-897c-2ce02156c19e"
       },
       {
         "name": "Counterparty Credit Risk",
@@ -7755,7 +8035,8 @@
           "risk",
           "financial"
         ],
-        "order_index": 2
+        "order_index": 2,
+        "id": "b2e50b59-f1af-4a9c-8af8-a0d71449283c"
       },
       {
         "name": "Treasury Policy Design",
@@ -7765,7 +8046,8 @@
           "risk",
           "financial"
         ],
-        "order_index": 3
+        "order_index": 3,
+        "id": "e9bec0c5-3625-41d0-871e-4f86d643f179"
       }
     ]
   }

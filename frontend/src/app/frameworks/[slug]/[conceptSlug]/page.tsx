@@ -299,7 +299,7 @@ export default function ConceptDetailPage() {
     setter(null)
     if (setError) setError("")
     try {
-      const { parsed, cached } = await generator(...args, true)
+      const { parsed, cached } = await generator(...args)
       setter(parsed)
       setCached(cached)
       startCooldown()
@@ -312,13 +312,13 @@ export default function ConceptDetailPage() {
 
   const handleExplain = mkHandler(explainConcept, (p: any) => { setAiExplanation(p); setAiCached(true); setEditingPrompt(false) }, () => {}, (v: boolean) => setAiLoading(v), (e: string) => setAiError(e), concept.name, concept.definition, slug, true)
 
-  const handleWhyItMatters = mkHandler(generateWhyItMatters, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, concept.tags)
-  const handleHowToApply = mkHandler(generateHowToApply, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title)
-  const handleCommonPitfalls = mkHandler(generateCommonPitfalls, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title)
-  const handleConnectedConcepts = mkHandler(generateConnectedConcepts, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title)
-  const handleCaseStudy = mkHandler(generateCaseStudy, setAiCaseStudy, () => setAiCaseStudyCached(true), (v: boolean) => setAiCaseStudyLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
-  const handleExercise = mkHandler(generateTestYourself, setAiExercise, () => setAiExerciseCached(true), (v: boolean) => setAiExerciseLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
-  const handleExample = mkHandler(generateRealWorldExamples, setAiExample, () => setAiExampleCached(true), (v: boolean) => setAiExampleLoading(v), undefined, concept.name, concept.definition, slug, framework.title)
+  const handleWhyItMatters = mkHandler(generateWhyItMatters, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, true, concept.tags)
+  const handleHowToApply = mkHandler(generateHowToApply, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, true)
+  const handleCommonPitfalls = mkHandler(generateCommonPitfalls, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, true)
+  const handleConnectedConcepts = mkHandler(generateConnectedConcepts, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, true)
+  const handleCaseStudy = mkHandler(generateCaseStudy, setAiCaseStudy, () => setAiCaseStudyCached(true), (v: boolean) => setAiCaseStudyLoading(v), undefined, concept.name, concept.definition, slug, framework.title, true)
+  const handleExercise = mkHandler(generateTestYourself, setAiExercise, () => setAiExerciseCached(true), (v: boolean) => setAiExerciseLoading(v), undefined, concept.name, concept.definition, slug, framework.title, true)
+  const handleExample = mkHandler(generateRealWorldExamples, setAiExample, () => setAiExampleCached(true), (v: boolean) => setAiExampleLoading(v), undefined, concept.name, concept.definition, slug, framework.title, true)
 
   const handleSavePrompt = async () => {
     if (!db || !editPromptValue.trim()) return
