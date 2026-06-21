@@ -391,7 +391,7 @@ export default function ConceptDetailPage() {
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, why: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, why: false })); handleWhyItMatters() }}
               onCancel={() => setCatConfirm((d) => ({ ...d, why: false }))} />
-            {promptWhy && <PromptTooltip prompt={promptWhy}>prompt</PromptTooltip>}
+             <PromptTooltip prompt={promptWhy}>prompt</PromptTooltip>
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiEnrichment?.why_it_matters || concept.why_it_matters}</p>
         </div>
@@ -405,8 +405,8 @@ export default function ConceptDetailPage() {
             <SparkleBtn loading={false} confirm={!!catConfirm["how"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, how: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, how: false })); handleHowToApply() }}
-              onCancel={() => setCatConfirm((d) => ({ ...d, how: false }))} />
-            {promptHow && <PromptTooltip prompt={promptHow}>prompt</PromptTooltip>}
+               onCancel={() => setCatConfirm((d) => ({ ...d, how: false }))} />
+             <PromptTooltip prompt={promptHow}>prompt</PromptTooltip>
           </div>
           <ol className="space-y-2.5">{(aiEnrichment?.steps || concept.steps).map((step: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm">
@@ -425,8 +425,8 @@ export default function ConceptDetailPage() {
             <SparkleBtn loading={false} confirm={!!catConfirm["pitfalls"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, pitfalls: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, pitfalls: false })); handleCommonPitfalls() }}
-              onCancel={() => setCatConfirm((d) => ({ ...d, pitfalls: false }))} />
-            {promptPitfalls && <PromptTooltip prompt={promptPitfalls}>prompt</PromptTooltip>}
+               onCancel={() => setCatConfirm((d) => ({ ...d, pitfalls: false }))} />
+             <PromptTooltip prompt={promptPitfalls}>prompt</PromptTooltip>
           </div>
           <div className="space-y-2">{(aiEnrichment?.pitfalls || concept.pitfalls).map((pf: any, i: number) => (
             <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
@@ -445,8 +445,8 @@ export default function ConceptDetailPage() {
             <SparkleBtn loading={false} confirm={!!catConfirm["connected"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, connected: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, connected: false })); handleConnectedConcepts() }}
-              onCancel={() => setCatConfirm((d) => ({ ...d, connected: false }))} />
-            {promptConnected && <PromptTooltip prompt={promptConnected}>prompt</PromptTooltip>}
+               onCancel={() => setCatConfirm((d) => ({ ...d, connected: false }))} />
+             <PromptTooltip prompt={promptConnected}>prompt</PromptTooltip>
           </div>
           <div className="space-y-1.5">{(aiEnrichment?.related_concepts || concept.related_concepts).map((rc: any, i: number) => (
             <div key={i} className="flex items-start gap-2 text-sm">
@@ -466,8 +466,8 @@ export default function ConceptDetailPage() {
             <SparkleBtn loading={aiCaseStudyLoading} confirm={!!confirmCaseStudy}
               onSparkle={() => startConfirm(setConfirmCaseStudy)}
               onConfirm={() => { setConfirmCaseStudy(false); handleCaseStudy() }}
-              onCancel={() => setConfirmCaseStudy(false)} />
-            {promptCaseStudy && <PromptTooltip prompt={promptCaseStudy}>prompt</PromptTooltip>}
+               onCancel={() => setConfirmCaseStudy(false)} />
+             <PromptTooltip prompt={promptCaseStudy}>prompt</PromptTooltip>
           </div>
           <div className="space-y-2 text-sm">
             <div><p className="font-medium text-dark-700 dark:text-dark-300">Situation</p><p className="text-dark-600 dark:text-dark-400">{(aiCaseStudy || concept.case_study).situation}</p></div>
@@ -486,8 +486,8 @@ export default function ConceptDetailPage() {
             <SparkleBtn loading={aiExerciseLoading} confirm={!!confirmExercise}
               onSparkle={() => startConfirm(setConfirmExercise)}
               onConfirm={() => { setConfirmExercise(false); handleExercise() }}
-              onCancel={() => setConfirmExercise(false)} />
-            {promptExercise && <PromptTooltip prompt={promptExercise}>prompt</PromptTooltip>}
+               onCancel={() => setConfirmExercise(false)} />
+             <PromptTooltip prompt={promptExercise}>prompt</PromptTooltip>
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 mb-3 leading-relaxed">{(aiExercise || concept.exercise).scenario}</p>
           <div className="space-y-1.5 mb-3">{(aiExercise || concept.exercise).options.map((opt: string, i: number) => (
@@ -508,8 +508,8 @@ export default function ConceptDetailPage() {
             <SparkleBtn loading={aiExampleLoading} confirm={!!confirmExample}
               onSparkle={() => startConfirm(setConfirmExample)}
               onConfirm={() => { setConfirmExample(false); handleExample() }}
-              onCancel={() => setConfirmExample(false)} />
-            {promptExample && <PromptTooltip prompt={promptExample}>prompt</PromptTooltip>}
+               onCancel={() => setConfirmExample(false)} />
+             <PromptTooltip prompt={promptExample}>prompt</PromptTooltip>
           </div>
           <ul className="space-y-3">{(aiExample?.examples?.length ? aiExample.examples : (concept.example || "").split(" | ")).map((ex: string, i: number) => (
             <li key={i} className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300">
@@ -537,8 +537,8 @@ export default function ConceptDetailPage() {
           <SparkleBtn loading={aiLoading} confirm={!!confirmExplain}
             onSparkle={() => startConfirm(setConfirmExplain)}
             onConfirm={() => { setConfirmExplain(false); handleExplain() }}
-            onCancel={() => setConfirmExplain(false)} />
-          {(aiPromptText || promptExplain) && <PromptTooltip prompt={aiPromptText || promptExplain}>prompt</PromptTooltip>}
+             onCancel={() => setConfirmExplain(false)} />
+           <PromptTooltip prompt={aiPromptText || promptExplain}>prompt</PromptTooltip>
           {isAdmin && aiPromptText && !editingPrompt && (
             <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
               className="text-[10px] text-primary-500 hover:text-primary-600 transition"

@@ -321,15 +321,16 @@ Generate a realistic case study of a company that applied this concept. Return O
   "result": "What outcome they achieved (1-2 sentences)"
 }`
 
-export const buildTestYourselfPrompt = (_cn: string, _def: string, ft: string) =>
+export const buildTestYourselfPrompt = (cn: string, _def: string, ft: string) =>
   `Framework: ${ft}
+Concept: ${cn}
 
-Generate a self-test exercise for this concept. The exercise should test practical application. Return ONLY valid JSON:
+Generate a self-test exercise that teaches a CEO a valuable lesson about this concept. The explanation must be insightful and illuminating, not just "A is correct because..." — explain WHY it matters strategically. Return ONLY valid JSON:
 {
-  "scenario": "A brief business scenario (2-3 sentences)",
+  "scenario": "A realistic business scenario the CEO might face (2-3 sentences)",
   "options": ["First plausible option", "Second option (correct)", "Third option", "Fourth option"],
   "correct": <0-indexed index of the correct option>,
-  "explanation": "Why the correct answer is right and the others are wrong (1-2 sentences)"
+  "explanation": "A thorough explanation (2-4 sentences) that reveals the strategic reasoning behind the correct answer and why the others miss the mark. Make this genuinely educational."
 }`
 
 export const buildRealWorldExamplesPrompt = (_cn: string, _def: string, ft: string) =>
