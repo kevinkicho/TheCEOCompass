@@ -141,35 +141,15 @@ export default function ConceptDetailPage() {
   const [confirmExplain, setConfirmExplain] = useState(false)
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const [cooldown, setCooldown] = useState(0)
-  const cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  useEffect(() => {
-    return () => { if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current) }
-  }, [])
-
-  const startCooldown = () => {
+  const clearConfirms = () => {
     setCatConfirm({})
     setConfirmExplain(false)
     setConfirmCaseStudy(false)
     setConfirmExercise(false)
     setConfirmExample(false)
-    setCooldown(30)
-    if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current)
-    cooldownTimerRef.current = setInterval(() => {
-      setCooldown((c) => {
-        if (c <= 1) {
-          if (cooldownTimerRef.current) clearInterval(cooldownTimerRef.current)
-          cooldownTimerRef.current = null
-          return 0
-        }
-        return c - 1
-      })
-    }, 1000)
   }
 
   const startConfirm = (setter: (v: boolean) => void) => {
-    if (cooldown > 0) return
     setter(true)
     if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current)
     confirmTimerRef.current = setTimeout(() => setter(false), 5000)
@@ -302,10 +282,10 @@ export default function ConceptDetailPage() {
       const { parsed, cached } = await generator(...args)
       setter(parsed)
       setCached(cached)
-      startCooldown()
+      clearConfirms()
     } catch (err: any) {
       if (setError) setError(err.message || "Generation failed")
-      startCooldown()
+      clearConfirms()
     }
     setLoading(false)
   }
@@ -356,9 +336,6 @@ export default function ConceptDetailPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          {cooldown > 0 && (
-            <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">AI cooldown {cooldown}s</span>
-          )}
           {allConcepts.length > 1 && (
             <span className="text-dark-400 dark:text-dark-500">{currentIdx + 1} / {allConcepts.length}</span>
           )}
