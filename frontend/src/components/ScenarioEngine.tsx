@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { evaluateScenarioStage } from "@/lib/ollama"
+import { saveScenarioAttempt, loadScenarioHistory } from "@/lib/firebase-crud"
+import { isStaticHosting } from "@/components/RequiresBackend"
 import type { Scenario, ScenarioStage, StageResult, FeedbackResponse } from "@/lib/types"
 
 interface Props {
@@ -18,6 +20,14 @@ export function ScenarioEngine({ scenario }: Props) {
   const [isComplete, setIsComplete] = useState(false)
   const [finalOutcomeBranch, setFinalOutcomeBranch] = useState<string | null>(null)
   const [error, setError] = useState("")
+  const [stageHistory, setStageHistory] = useState<{ stageId: string; choice: string; score: number }[]>([])
+  const [pastAttempts, setPastAttempts] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!isStaticHosting) {
+      loadScenarioHistory(scenario.slug).then(setPastAttempts)
+    }
+  }, [scenario.slug])
 
   const currentStage = scenario.stages[currentStageIdx]
 
@@ -40,12 +50,23 @@ export function ScenarioEngine({ scenario }: Props) {
       }
       setFeedback(fb)
 
+      const thisChoice = choiceId || freeResponse || ""
+      const thisScore = parsed.score
+
       if (currentStageIdx >= scenario.stages.length - 1) {
+        const allStages = [...stageHistory, { stageId: currentStage.id, choice: thisChoice, score: thisScore }]
         setIsComplete(true)
         const option = scenario.stages[currentStageIdx].options.find((o) => o.id === choiceId)
-        if (option && option.score >= 8) setFinalOutcomeBranch("optimal")
-        else if (option && option.score >= 5) setFinalOutcomeBranch("acceptable")
-        else setFinalOutcomeBranch("poor")
+        let branch = "poor"
+        if (option && option.score >= 8) branch = "optimal"
+        else if (option && option.score >= 5) branch = "acceptable"
+        setFinalOutcomeBranch(branch)
+        if (!isStaticHosting) {
+          saveScenarioAttempt(scenario.slug, allStages)
+          loadScenarioHistory(scenario.slug).then(setPastAttempts)
+        }
+      } else {
+        setStageHistory((prev) => [...prev, { stageId: currentStage.id, choice: thisChoice, score: thisScore }])
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to evaluate choice")
@@ -62,6 +83,7 @@ export function ScenarioEngine({ scenario }: Props) {
 
   if (!attempt) {
     return (
+      <div>
       <div className="rounded-xl border border-dark-200 p-8 dark:border-dark-700">
         <div className="mb-6">
           <h2 className="mb-3 text-lg font-semibold text-dark-800 dark:text-dark-200">Context</h2>
@@ -81,6 +103,8 @@ export function ScenarioEngine({ scenario }: Props) {
         <button onClick={() => setAttempt(true)} disabled={isLoading}
           className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
         >{isLoading ? "Starting..." : "Start Scenario"}</button>
+      </div>
+      <PastAttempts pastAttempts={pastAttempts} />
       </div>
     )
   }
@@ -250,6 +274,27 @@ function FeedbackPanel({ feedback, onNext, isLastStage }: {
       <button onClick={onNext}
         className="w-full rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
       >{isLastStage ? "See Results" : "Continue &rarr;"}</button>
+    </div>
+  )
+}
+
+function PastAttempts({ pastAttempts }: { pastAttempts: any[] }) {
+  if (pastAttempts.length === 0) return null
+  return (
+    <div className="mt-8">
+      <h3 className="mb-3 text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">Past Attempts ({pastAttempts.length})</h3>
+      <div className="space-y-2">
+        {pastAttempts.map((a) => (
+          <div key={a.attemptId} className="rounded-lg border border-dark-200 dark:border-dark-700 p-3">
+            <p className="text-xs text-dark-500 dark:text-dark-400">
+              {new Date(a.completed_at).toLocaleDateString()} &middot; {a.stages.length} stages
+            </p>
+            <p className="text-xs text-dark-400 dark:text-dark-500 mt-1">
+              {a.stages.map((s: any) => `${s.stageId}: ${Math.round(s.score * 10)}%`).join(" → ")}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

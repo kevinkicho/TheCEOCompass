@@ -192,6 +192,33 @@ export async function markPathwayComplete(slug: string): Promise<void> {
   })
 }
 
+// ── Scenario History ──
+
+export async function saveScenarioAttempt(scenarioSlug: string, stages: { stageId: string; choice: string; score: number }[]): Promise<void> {
+  if (!db) return
+  const database = db!
+  const deviceId = getDeviceId()
+  const attemptId = crypto.randomUUID()
+  await set(ref(database, `scenarioHistory/${deviceId}/${scenarioSlug}/${attemptId}`), {
+    stages,
+    completed_at: new Date().toISOString(),
+  })
+}
+
+export async function loadScenarioHistory(scenarioSlug: string): Promise<{ attemptId: string; stages: { stageId: string; choice: string; score: number }[]; completed_at: string }[]> {
+  if (!db) return []
+  const database = db!
+  const deviceId = getDeviceId()
+  const snap = await get(ref(database, `scenarioHistory/${deviceId}/${scenarioSlug}`))
+  if (!snap.exists()) return []
+  const val = snap.val()
+  return Object.entries(val).map(([attemptId, d]: [string, any]) => ({
+    attemptId,
+    stages: d.stages || [],
+    completed_at: d.completed_at || "",
+  })).sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime())
+}
+
 // ── Saved Quotes ──
 
 export async function toggleFavoriteQuote(quoteId: string, data: { text: string; person: string }): Promise<boolean> {
