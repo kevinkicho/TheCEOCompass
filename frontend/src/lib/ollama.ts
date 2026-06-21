@@ -447,34 +447,28 @@ Return ONLY valid JSON:
   })
 
   return new Promise((resolve, reject) => {
-    const responseRef = ref(database, `responses/${requestId}`)
+    const responseRef = ref(database, `quotes/generated/${requestId}`)
     const statusRef = ref(database, `requests/${requestId}/status`)
     let done = false
+    const timeout = setTimeout(() => {
+      if (done) return; done = true; unsubStatus(); unsubResp()
+      reject(new Error("Quote request timed out after 120s — agent may not be running"))
+    }, 120000)
 
     const unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
-      const s = snap.val()
-      if (s === "error") {
-        done = true
-        unsubStatus()
-        unsubResp()
-        get(responseRef).then((s) => {
-          const d = s.val()
-          reject(new Error(d?.error || "Quote generation failed"))
-        })
+      if (snap.val() === "error") {
+        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+        get(responseRef).then((s) => reject(new Error(s.val()?.error || "Quote generation failed")))
       }
     })
 
     const unsubResp = onValue(responseRef, (snap) => {
       if (done) return
       const data = snap.val()
-      if (!data) return
-      if (data.result) {
-        done = true
-        unsubStatus()
-        unsubResp()
-        resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
-      }
+      if (!data?.result) return
+      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+      resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
     })
   })
 }
@@ -551,16 +545,18 @@ Return ONLY valid JSON:
   })
 
   return new Promise((resolve, reject) => {
-    const responseRef = ref(database, `responses/${requestId}`)
+    const responseRef = ref(database, `scenario-evaluations/${requestId}`)
     const statusRef = ref(database, `requests/${requestId}/status`)
     let done = false
+    const timeout = setTimeout(() => {
+      if (done) return; done = true; unsubStatus(); unsubResp()
+      reject(new Error("Scenario request timed out after 120s — agent may not be running"))
+    }, 120000)
 
     const unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
       if (snap.val() === "error") {
-        done = true
-        unsubStatus()
-        unsubResp()
+        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
         get(responseRef).then((s) => reject(new Error(s.val()?.error || "Scenario evaluation failed")))
       }
     })
@@ -569,9 +565,7 @@ Return ONLY valid JSON:
       if (done) return
       const data = snap.val()
       if (!data?.result) return
-      done = true
-      unsubStatus()
-      unsubResp()
+      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
       resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
     })
   })
