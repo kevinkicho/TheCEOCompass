@@ -1,0 +1,91 @@
+{
+  "rules": {
+    "requests": {
+      ".indexOn": "status",
+      "$requestId": {
+        ".read": "auth != null || true",
+        ".write": "auth != null || true"
+      }
+    },
+    "framework": {
+      "$slug": {
+        "$concept": {
+          "$category": {
+            "$entryId": {
+              ".read": true,
+              ".write": "auth != null || true"
+            }
+          }
+        }
+      }
+    },
+    "quotes": {
+      "generated": {
+        "$quoteId": {
+          ".read": true,
+          ".write": "auth != null || true"
+        }
+      }
+    },
+    "scenario-evaluations": {
+      "$evalId": {
+        ".read": true,
+        ".write": "auth != null || true"
+      }
+    },
+    "comparisons": {
+      "$comparisonId": {
+        ".read": true,
+        ".write": "auth != null || true"
+      }
+    },
+    "journal": {
+      "$deviceId": {
+        "entries": {
+          "$entryId": {
+            ".read": true,
+            ".write": true
+          }
+        }
+      }
+    },
+    "progress": {
+      "$deviceId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "viewed": {
+      "$deviceId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "favoriteQuotes": {
+      "$deviceId": {
+        "$quoteId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "quizResults": {
+      "$deviceId": {
+        "$resultId": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "scenarioHistory": {
+      "$deviceId": {
+        "$scenarioSlug": {
+          "$attemptId": {
+            ".read": true,
+            ".write": true
+          }
+        }
+      }
+    }
+  }
+}
