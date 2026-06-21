@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { getFrameworks } from "@/lib/api"
 import { generateQuiz } from "@/lib/ollama"
-import { StaticModeBanner } from "@/components/StaticModeBanner"
+import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
 
 
@@ -134,7 +134,7 @@ export default function QuizPage() {
         <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Quiz</h1>
         <p className="mb-4 text-dark-500 dark:text-dark-300">Test your knowledge of CEO frameworks with AI-generated questions.</p>
 
-        <StaticModeBanner
+        <StaticHostingBanner
           feature="AI-Generated Quizzes"
           description="Real-time LLM-generated questions with answer evaluation"
         />

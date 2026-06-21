@@ -4,31 +4,35 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getFrameworks } from "@/lib/api"
 import { loadPathwayProgress, markPathwayComplete, buildPathway } from "@/lib/firebase-crud"
+import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
 
 export default function PathwayPage() {
   const router = useRouter()
-  const [frameworks, setFrameworks] = useState<FrameworkListItem[]>([])
   const [pathwaySteps, setPathwaySteps] = useState<FrameworkListItem[]>([])
   const [completedIds, setCompletedIds] = useState<string[]>([])
   const [inProgressId, setInProgressId] = useState<string | null>(null)
   const [pathwayError, setPathwayError] = useState("")
 
   useEffect(() => {
-    Promise.all([
-      getFrameworks().catch((err) => { setPathwayError("Failed to load frameworks"); return [] }),
-      loadPathwayProgress().catch((err) => { setPathwayError("Failed to load progress"); return { completedIds: [], inProgressId: null } }),
-    ]).then(([fw, progress]) => {
-      setFrameworks(fw)
-      setCompletedIds(progress.completedIds)
-      setInProgressId(progress.inProgressId)
-      if (fw.length > 0) {
-        setPathwaySteps(buildPathway(fw))
-      }
-    })
+    getFrameworks()
+      .then((fw) => {
+        if (fw.length > 0) setPathwaySteps(buildPathway(fw))
+      })
+      .catch(() => setPathwayError("Failed to load frameworks"))
+
+    if (!isStaticHosting) {
+      loadPathwayProgress()
+        .then((progress) => {
+          setCompletedIds(progress.completedIds)
+          setInProgressId(progress.inProgressId)
+        })
+        .catch(() => {})
+    }
   }, [])
 
   const handleMarkComplete = async (slug: string) => {
+    if (isStaticHosting) return
     setPathwayError("")
     try {
       await markPathwayComplete(slug)
@@ -55,7 +59,12 @@ export default function PathwayPage() {
         <p className="mt-2 text-dark-500 dark:text-dark-300">Structured curriculum from strategic thinking to crisis management.</p>
       </div>
 
-      {pathwayError && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{pathwayError}</p>}
+      <StaticHostingBanner
+        feature="Persistent Progress Tracking"
+        description="Track completed modules and save your learning progress across sessions"
+      />
+
+      {pathwayError && !isStaticHosting && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{pathwayError}</p>}
 
       {/* Progress Summary */}
       <div className="mb-8 rounded-xl bg-primary-50 p-6 dark:bg-primary-900/20">

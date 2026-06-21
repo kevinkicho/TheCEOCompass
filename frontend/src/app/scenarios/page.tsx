@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getScenarios } from "@/lib/api"
-import { StaticModeBanner } from "@/components/StaticModeBanner"
+import { StaticHostingBanner } from "@/components/RequiresBackend"
 import type { ScenarioListItem } from "@/lib/types"
 
 export default function ScenariosPage() {
@@ -27,7 +27,7 @@ export default function ScenariosPage() {
         Apply frameworks to real-world CEO situations. Get AI-powered feedback on your decisions.
       </p>
 
-      <StaticModeBanner
+      <StaticHostingBanner
         feature="AI Scenarios"
         description="Interactive decision simulations with LLM coaching feedback"
       />

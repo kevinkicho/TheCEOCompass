@@ -2,15 +2,13 @@
 
 import { useState, type ReactNode } from "react"
 
-const isStaticHosting = typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")
+export const isStaticHosting = typeof window !== "undefined"
+  && !window.location.hostname.includes("localhost")
+  && !window.location.hostname.includes("127.0.0.1")
 
 export function useRequiresBackend() {
   const [showModal, setShowModal] = useState(false)
-  return {
-    isStaticHosting,
-    showModal,
-    setShowModal,
-  }
+  return { isStaticHosting, showModal, setShowModal }
 }
 
 export function BackendRequiredModal({ show, onClose, feature }: { show: boolean; onClose: () => void; feature: string }) {
@@ -27,17 +25,23 @@ export function BackendRequiredModal({ show, onClose, feature }: { show: boolean
         </div>
 
         <p className="text-dark-600 mb-4 dark:text-dark-300">
-          <strong>{feature}</strong> and other AI-powered features need the Python backend running locally.
+          <strong>{feature}</strong> and other AI-powered features need the local Node.js agent + Ollama running.
         </p>
 
         <div className="rounded-lg bg-dark-50 p-4 mb-4 dark:bg-dark-900">
           <p className="text-xs font-semibold text-dark-700 mb-2 dark:text-dark-300">Quick setup — 2 minutes</p>
           <div className="rounded bg-dark-800 p-3 font-mono text-[11px] text-green-300 text-left overflow-x-auto">
+            <p>git clone https://github.com/kevinkicho/TheCEOCompass.git</p>
             <p>cd TheCEOCompass/ceo-platform</p>
-            <p>source venv/bin/activate</p>
-            <p>PYTHONPATH=backend python backend/seed/seed_db.py</p>
-            <p>PYTHONPATH=backend uvicorn app.main:app --app-dir backend --port 50128 &</p>
-            <p>cd frontend && npm run dev</p>
+            <p># Terminal 1: Ollama</p>
+            <p>ollama run gemma4:latest</p>
+            <p># Terminal 2: Agent</p>
+            <p>cd agent && npm install</p>
+            <p># Add serviceAccountKey.json to agent/</p>
+            <p>node index.js</p>
+            <p># Terminal 3: Frontend</p>
+            <p>cd frontend && cp .env.example .env</p>
+            <p>npm install && npm run dev</p>
           </div>
         </div>
 
@@ -61,6 +65,29 @@ export function BackendGuard({ children, feature, onClick }: { children: ReactNo
       <div onClick={() => setShowModal(true)}>
         {children}
       </div>
+      <BackendRequiredModal show={showModal} onClose={() => setShowModal(false)} feature={feature} />
+    </>
+  )
+}
+
+export function StaticHostingBanner({ feature, description }: { feature: string; description: string }) {
+  const [showModal, setShowModal] = useState(false)
+
+  if (!isStaticHosting) return null
+
+  return (
+    <>
+      <button
+        onClick={() => setShowModal(true)}
+        className="mb-6 w-full rounded-xl border border-amber-200 bg-amber-50 p-4 text-left hover:bg-amber-100 transition"
+      >
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-lg">⚡</span>
+          <span className="font-semibold text-amber-800">Static Demo — {feature} requires local backend</span>
+        </div>
+        <p className="text-sm text-amber-600 ml-7">{description}</p>
+      </button>
+
       <BackendRequiredModal show={showModal} onClose={() => setShowModal(false)} feature={feature} />
     </>
   )

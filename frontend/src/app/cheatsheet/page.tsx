@@ -1,38 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useMemo } from "react"
 import type { Framework, FrameworkConcept } from "@/lib/types"
-
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
+import { staticFrameworks } from "@/lib/staticData"
 
 export default function CheatsheetPage() {
-  const [frameworks, setFrameworks] = useState<Framework[]>([])
   const [activeTab, setActiveTab] = useState("all")
   const [modalConcept, setModalConcept] = useState<FrameworkConcept | null>(null)
 
-  useEffect(() => {
-    fetch(`${API}/frameworks`)
-      .then((r) => r.json())
-      .then(async (list: { id: string }[]) => {
-        const details = await Promise.all(
-          list.map((fw) => fetch(`${API}/frameworks/${fw.id}`).then((r) => r.json()))
-        )
-        setFrameworks(details)
-      })
-      .catch(console.error)
-  }, [])
+  const frameworks = staticFrameworks as unknown as Framework[]
 
-  const tabs = [
+  const tabs = useMemo(() => [
     { key: "all", label: "All" },
     ...frameworks.map((fw) => ({
       key: fw.id,
       label: fw.title.slice(0, 18) + (fw.title.length > 18 ? "…" : ""),
     })),
-  ]
+  ], [frameworks])
 
-  const filteredFrameworks = activeTab === "all"
-    ? frameworks
-    : frameworks.filter((f) => f.id === activeTab)
+  const filteredFrameworks = useMemo(() =>
+    activeTab === "all"
+      ? frameworks
+      : frameworks.filter((f) => f.id === activeTab),
+  [activeTab, frameworks])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-16">
@@ -45,7 +35,7 @@ export default function CheatsheetPage() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${ activeTab === tab.key ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200 dark:bg-dark-800 dark:text-dark-300 dark:hover:bg-dark-600" }`}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${activeTab === tab.key ? "bg-primary-600 text-white" : "bg-dark-100 text-dark-600 hover:bg-dark-200 dark:bg-dark-800 dark:text-dark-300 dark:hover:bg-dark-600"}`}
           >
             {tab.label}
           </button>

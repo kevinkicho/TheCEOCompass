@@ -357,14 +357,16 @@ export default function ConceptDetailPage() {
 
       {(aiEnrichment?.why_it_matters || concept.why_it_matters) && (
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10 p-4">
-          <div className="flex items-center gap-1.5 mb-2">
+          <div className="flex items-center mb-2">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Why It Matters for CEOs</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="why_it_matters_for_ceos" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptWhy}>prompt</PromptTooltip>
             <SparkleBtn loading={false} confirm={!!catConfirm["why"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, why: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, why: false })); handleWhyItMatters() }}
               onCancel={() => setCatConfirm((d) => ({ ...d, why: false }))} />
-             <PromptTooltip prompt={promptWhy}>prompt</PromptTooltip>
+            </div>
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiEnrichment?.why_it_matters || concept.why_it_matters}</p>
         </div>
@@ -372,14 +374,16 @@ export default function ConceptDetailPage() {
 
       {((aiEnrichment?.steps?.length) || (concept.steps && concept.steps.length > 0)) && (
         <div className="mb-4">
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">How to Apply</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="how_to_apply" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptHow}>prompt</PromptTooltip>
             <SparkleBtn loading={false} confirm={!!catConfirm["how"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, how: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, how: false })); handleHowToApply() }}
                onCancel={() => setCatConfirm((d) => ({ ...d, how: false }))} />
-             <PromptTooltip prompt={promptHow}>prompt</PromptTooltip>
+            </div>
           </div>
           <ol className="space-y-2.5">{(aiEnrichment?.steps || concept.steps).map((step: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm">
@@ -392,14 +396,16 @@ export default function ConceptDetailPage() {
 
       {((aiEnrichment?.pitfalls?.length) || (concept.pitfalls && concept.pitfalls.length > 0)) && (
         <div className="mb-4">
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Common Pitfalls</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="common_pitfalls" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptPitfalls}>prompt</PromptTooltip>
             <SparkleBtn loading={false} confirm={!!catConfirm["pitfalls"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, pitfalls: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, pitfalls: false })); handleCommonPitfalls() }}
                onCancel={() => setCatConfirm((d) => ({ ...d, pitfalls: false }))} />
-             <PromptTooltip prompt={promptPitfalls}>prompt</PromptTooltip>
+            </div>
           </div>
           <div className="space-y-2">{(aiEnrichment?.pitfalls || concept.pitfalls).map((pf: any, i: number) => (
             <div key={i} className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
@@ -412,14 +418,16 @@ export default function ConceptDetailPage() {
 
       {((aiEnrichment?.related_concepts?.length) || (concept.related_concepts && concept.related_concepts.length > 0)) && (
         <div className="mb-4">
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Connected Concepts</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="connected_concepts" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptConnected}>prompt</PromptTooltip>
             <SparkleBtn loading={false} confirm={!!catConfirm["connected"]}
               onSparkle={() => startConfirm((v) => setCatConfirm((d) => ({ ...d, connected: v })))}
               onConfirm={() => { setCatConfirm((d) => ({ ...d, connected: false })); handleConnectedConcepts() }}
                onCancel={() => setCatConfirm((d) => ({ ...d, connected: false }))} />
-             <PromptTooltip prompt={promptConnected}>prompt</PromptTooltip>
+            </div>
           </div>
           <div className="space-y-1.5">{(aiEnrichment?.related_concepts || concept.related_concepts).map((rc: any, i: number) => (
             <div key={i} className="flex items-start gap-2 text-sm">
@@ -432,14 +440,16 @@ export default function ConceptDetailPage() {
 
       {(aiCaseStudy || concept.case_study) && (
         <div className="mb-4 rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800/50 p-4">
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center mb-3">
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Case Study: {(aiCaseStudy || concept.case_study).company}</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="case_study" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptCaseStudy}>prompt</PromptTooltip>
             <SparkleBtn loading={aiCaseStudyLoading} confirm={!!confirmCaseStudy}
               onSparkle={() => startConfirm(setConfirmCaseStudy)}
               onConfirm={() => { setConfirmCaseStudy(false); handleCaseStudy() }}
                onCancel={() => setConfirmCaseStudy(false)} />
-             <PromptTooltip prompt={promptCaseStudy}>prompt</PromptTooltip>
+            </div>
           </div>
           <div className="space-y-2 text-sm">
             <div><p className="font-medium text-dark-700 dark:text-dark-300">Situation</p><p className="text-dark-600 dark:text-dark-400">{(aiCaseStudy || concept.case_study).situation}</p></div>
@@ -451,14 +461,16 @@ export default function ConceptDetailPage() {
 
       {(aiExercise || concept.exercise) && (
         <div className="mb-4 rounded-lg border border-primary-200 dark:border-primary-800/40 bg-primary-50/30 dark:bg-primary-900/10 p-4">
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center mb-3">
             <p className="text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wide">Test Yourself</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="test_yourself" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptExercise}>prompt</PromptTooltip>
             <SparkleBtn loading={aiExerciseLoading} confirm={!!confirmExercise}
               onSparkle={() => startConfirm(setConfirmExercise)}
               onConfirm={() => { setConfirmExercise(false); handleExercise() }}
                onCancel={() => setConfirmExercise(false)} />
-             <PromptTooltip prompt={promptExercise}>prompt</PromptTooltip>
+            </div>
           </div>
           <p className="text-sm text-dark-700 dark:text-dark-300 mb-3 leading-relaxed">{(aiExercise || concept.exercise).scenario}</p>
           <div className="space-y-1.5 mb-3">{(aiExercise || concept.exercise).options.map((opt: string, i: number) => {
@@ -490,14 +502,16 @@ export default function ConceptDetailPage() {
 
       {(aiExample || concept.example) && (
         <div className="mb-4">
-          <div className="flex items-center gap-1.5 mb-3">
+          <div className="flex items-center mb-3">
             <p className="text-xs font-semibold text-dark-400 uppercase tracking-wide dark:text-dark-300">Real-World Examples</p>
+            <div className="flex items-center gap-1.5 ml-auto">
             <CatPageNav cat="real_world_examples" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+             <PromptTooltip prompt={promptExample}>prompt</PromptTooltip>
             <SparkleBtn loading={aiExampleLoading} confirm={!!confirmExample}
               onSparkle={() => startConfirm(setConfirmExample)}
               onConfirm={() => { setConfirmExample(false); handleExample() }}
                onCancel={() => setConfirmExample(false)} />
-             <PromptTooltip prompt={promptExample}>prompt</PromptTooltip>
+            </div>
           </div>
           <ul className="space-y-3">{(aiExample?.examples?.length ? aiExample.examples : (concept.example || "").split(" | ")).map((ex: string, i: number) => (
             <li key={i} className="flex items-start gap-3 text-sm text-dark-700 bg-dark-50 rounded-lg p-3 dark:bg-dark-900 dark:text-dark-300">
@@ -518,19 +532,21 @@ export default function ConceptDetailPage() {
           {aiError && (
           <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
         )}
-        <div className="flex items-center gap-1.5 mb-1">
+        <div className="flex items-center mb-1">
           <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Explain Further</p>
+          <div className="flex items-center gap-1.5 ml-auto">
           <CatPageNav cat="explain_further" catEntries={catEntries} catPage={catPage} goToCatPage={goToCatPage} />
+           <PromptTooltip prompt={aiPromptText || promptExplain}>prompt</PromptTooltip>
           <SparkleBtn loading={aiLoading} confirm={!!confirmExplain}
             onSparkle={() => startConfirm(setConfirmExplain)}
             onConfirm={() => { setConfirmExplain(false); handleExplain() }}
              onCancel={() => setConfirmExplain(false)} />
-           <PromptTooltip prompt={aiPromptText || promptExplain}>prompt</PromptTooltip>
           {isAdmin && aiPromptText && !editingPrompt && (
             <button onClick={() => { setEditPromptValue(aiPromptText); setEditingPrompt(true) }}
               className="text-[10px] text-primary-500 hover:text-primary-600 transition"
             >Edit</button>
           )}
+          </div>
         </div>
 
         {editingPrompt && (
