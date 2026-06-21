@@ -192,6 +192,33 @@ export async function markPathwayComplete(slug: string): Promise<void> {
   })
 }
 
+// ── Concept View Tracking ──
+
+function viewedPath(deviceId: string, frameworkSlug: string, conceptId?: string): string {
+  return conceptId
+    ? `viewed/${deviceId}/${frameworkSlug}/${conceptId}`
+    : `viewed/${deviceId}/${frameworkSlug}`
+}
+
+export async function markConceptViewed(frameworkSlug: string, conceptId: string): Promise<void> {
+  if (!db) return
+  const database = db!
+  const deviceId = getDeviceId()
+  await set(ref(database, viewedPath(deviceId, frameworkSlug, conceptId)), {
+    viewed_at: new Date().toISOString(),
+  })
+}
+
+export async function loadFrameworkProgress(frameworkSlug: string): Promise<string[]> {
+  if (!db) return []
+  const database = db!
+  const deviceId = getDeviceId()
+  const snap = await get(ref(database, viewedPath(deviceId, frameworkSlug)))
+  if (!snap.exists()) return []
+  const val = snap.val()
+  return Object.keys(val).filter((k) => k !== "viewed_at")
+}
+
 export function buildPathway(frameworks: FrameworkListItem[]) {
   const categoryOrder = [
     "decision-making", "strategy", "financial", "negotiation",

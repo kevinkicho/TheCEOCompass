@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
 import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, generateExplainFurther, buildExplainPrompt, checkCache, loadCategoryEntries, slugify } from "@/lib/ollama"
 import { db, ref, set, get, onChildAdded, off } from "@/lib/firebase"
+import { markConceptViewed } from "@/lib/firebase-crud"
 import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
@@ -229,7 +230,8 @@ export default function ConceptDetailPage() {
 
   useEffect(() => {
     checkConceptCache()
-  }, [checkConceptCache])
+    if (slug && result?.concept?.id) markConceptViewed(slug, result.concept.id)
+  }, [checkConceptCache, slug, result?.concept?.id])
 
   // Real-time listeners for new AI responses
   useEffect(() => {
