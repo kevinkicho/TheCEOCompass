@@ -168,6 +168,13 @@ async function callOllamaViaFirebase(
     const responseRef = ref(database, responsePath)
     const statusRef = ref(database, `requests/${requestId}/status`)
     let done = false
+    const timeout = setTimeout(() => {
+      if (done) return
+      done = true
+      unsubStatus()
+      unsubResp()
+      reject(new Error("AI request timed out after 120s — agent may not be running"))
+    }, 120000)
 
     const unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
@@ -177,6 +184,7 @@ async function callOllamaViaFirebase(
       }
       if (s === "error") {
         done = true
+        clearTimeout(timeout)
         unsubStatus()
         unsubResp()
         get(responseRef).then((s) => {
@@ -193,6 +201,7 @@ async function callOllamaViaFirebase(
       if (!data) return
       if (data.result) {
         done = true
+        clearTimeout(timeout)
         unsubStatus()
         unsubResp()
         console.log(`[AI] Response ${requestId} received (${data.result.length} chars) for ${category}`)
