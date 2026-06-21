@@ -571,4 +571,67 @@ Return ONLY valid JSON:
   })
 }
 
+// ── Concept Comparison ──
+
+export async function generateComparison(
+  conceptA: { name: string; definition: string; framework: string },
+  conceptB: { name: string; definition: string; framework: string },
+): Promise<{ comparison: string; similarities: string; differences: string; when_to_use_each: string }> {
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+  const prompt = `Compare two leadership concepts for a CEO audience.
+
+Concept A: "${conceptA.name}"
+Definition: ${conceptA.definition}
+Framework: ${conceptA.framework}
+
+Concept B: "${conceptB.name}"
+Definition: ${conceptB.definition}
+Framework: ${conceptB.framework}
+
+Return ONLY valid JSON with these fields:
+{
+  "comparison": "Brief 2-sentence comparison",
+  "similarities": "Key similarities (3-5 bullet points as a single string with | separators)",
+  "differences": "Key differences (3-5 bullet points as a single string with | separators)",
+  "when_to_use_each": "Decision framework: when to use each (2-3 sentences)"
+}`
+
+  const requestId = generateId()
+  const dbRef = ref(db!, `requests/${requestId}`)
+  await set(dbRef, {
+    type: "compare_concepts",
+    category: "comparison",
+    status: "pending",
+    created_at: Date.now(),
+    payload: { model, prompt },
+  })
+
+  const responseRef = ref(db!, `comparisons/${requestId}`)
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("Comparison request timed out after 120s. Is the agent running?"))
+    }, 120000)
+
+    let done = false
+    const unsubStatus = onValue(dbRef, (snap) => {
+      const s = snap.val()
+      if (!s) return
+      if (s.status === "error" && !done) {
+        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+        reject(new Error(s.error || "Comparison failed"))
+      }
+    })
+
+    const unsubResp = onValue(responseRef, (snap) => {
+      if (done) return
+      const data = snap.val()
+      if (!data?.result) return
+      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+      try { resolve(JSON.parse(data.result)) } catch { reject(new Error("Invalid comparison response")) }
+    })
+  })
+}
+
 export { slugify }
