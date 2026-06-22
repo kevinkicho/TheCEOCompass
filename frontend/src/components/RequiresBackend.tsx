@@ -1,10 +1,8 @@
 "use client"
 
 import { useState, type ReactNode } from "react"
-
-export const isStaticHosting = typeof window !== "undefined"
-  && !window.location.hostname.includes("localhost")
-  && !window.location.hostname.includes("127.0.0.1")
+import { isStaticHosting as isSH } from "@/lib/constants"
+export const isStaticHosting = isSH
 
 export function useRequiresBackend() {
   const [showModal, setShowModal] = useState(false)

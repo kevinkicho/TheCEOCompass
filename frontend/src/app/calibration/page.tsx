@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { computeCalibration, getCalibrationAdvice, type CalibrationResult } from "@/lib/calibration"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { SkeletonCard } from "@/components/SkeletonCard"
 
 export default function CalibrationPage() {
   const [data, setData] = useState<CalibrationResult | null>(null)
@@ -33,7 +34,7 @@ export default function CalibrationPage() {
 
       {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{error}</p>}
 
-      {loading && <p className="text-dark-500 dark:text-dark-300">Loading...</p>}
+      {loading && <SkeletonCard lines={4} />}
 
       {!loading && !data && !isStaticHosting && (
         <div className="rounded-xl border border-dark-200 p-8 text-center dark:border-dark-700">

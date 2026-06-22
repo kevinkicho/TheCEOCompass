@@ -5,6 +5,7 @@ import { db, ref, get } from "@/lib/firebase"
 import { loadPathwayProgress, buildPathway } from "@/lib/firebase-crud"
 import { getFrameworks } from "@/lib/api"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { SkeletonCard } from "@/components/SkeletonCard"
 import type { FrameworkListItem } from "@/lib/types"
 
 function getDeviceId(): string {
@@ -115,7 +116,7 @@ export default function WeeklyReviewPage() {
       />
 
       {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{error}</p>}
-      {loading && <p className="text-dark-500 dark:text-dark-300">Loading...</p>}
+      {loading && <SkeletonCard lines={4} />}
 
       {!loading && !isStaticHosting && (
         <>

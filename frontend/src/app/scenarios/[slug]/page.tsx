@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import { getScenario } from "@/lib/api"
 import { ScenarioEngine } from "@/components/ScenarioEngine"
 import { StaticHostingBanner } from "@/components/RequiresBackend"
+import { SkeletonCard } from "@/components/SkeletonCard"
 import type { Scenario } from "@/lib/types"
 
 export default function ScenarioPage() {
@@ -18,7 +19,7 @@ export default function ScenarioPage() {
   if (!scenario) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <p className="text-dark-500 dark:text-dark-300">Loading scenario...</p>
+        <SkeletonCard lines={3} />
       </div>
     )
   }

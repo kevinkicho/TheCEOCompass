@@ -7,6 +7,7 @@ import { getProgress, getCalibration, getJournalEntries, getFrameworks } from "@
 import type { Progress, CalibrationSummary, JournalEntry, FrameworkListItem } from "@/lib/types"
 import { useSettings } from "@/lib/settings"
 import { useAuth } from "@/lib/useAuth"
+import { SkeletonCard } from "@/components/SkeletonCard"
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -207,7 +208,7 @@ export default function ProfilePage() {
         <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Account</h2>
         <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-5 space-y-4">
           {authLoading ? (
-            <p className="text-sm text-dark-500 dark:text-dark-400">Loading...</p>
+            <SkeletonCard lines={2} className="border-0 p-0" />
           ) : user ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

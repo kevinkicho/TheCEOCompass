@@ -6,6 +6,7 @@ import { getFrameworkBySlug, getScenarios } from "@/lib/api"
 import { slugify } from "@/lib/ollama"
 import { loadFrameworkProgress } from "@/lib/firebase-crud"
 import { isStaticHosting } from "@/components/RequiresBackend"
+import { SkeletonCard } from "@/components/SkeletonCard"
 import type { Framework, ScenarioListItem } from "@/lib/types"
 
 export default function FrameworkDetailPage() {
@@ -31,7 +32,7 @@ export default function FrameworkDetailPage() {
   if (!framework) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16">
-        <p className="text-dark-500 dark:text-dark-300">Loading...</p>
+        <SkeletonCard lines={5} />
       </div>
     )
   }

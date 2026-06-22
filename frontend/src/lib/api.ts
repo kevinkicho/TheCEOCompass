@@ -6,9 +6,8 @@ import type {
 import { staticFrameworks } from "./staticData"
 import staticScenarioData from "@/data/scenarios.json"
 
+import { isStaticHosting } from "@/lib/constants"
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
-const isServer = typeof window === "undefined"
-const isStaticHosting = isServer || (!window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1"))
 
 const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "application/json" } })
 
