@@ -8,6 +8,10 @@ import type { Progress, CalibrationSummary, JournalEntry, FrameworkListItem } fr
 import { useSettings } from "@/lib/settings"
 import { useAuth } from "@/lib/useAuth"
 import { SkeletonCard } from "@/components/SkeletonCard"
+import { db, ref, get } from "@/lib/firebase"
+import { getDeviceId } from "@/lib/firebase-crud"
+import { analyzeBlindSpots, type BlindSpotReport } from "@/lib/ollama"
+import { isStaticHosting } from "@/lib/constants"
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -18,6 +22,11 @@ export default function ProfilePage() {
   const [frameworks, setFrameworks] = useState<FrameworkListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { settings, setSettings, loaded } = useSettings()
+
+  // Blind spot analysis
+  const [blindSpotReport, setBlindSpotReport] = useState<BlindSpotReport | null>(null)
+  const [blindSpotLoading, setBlindSpotLoading] = useState(false)
+  const [blindSpotError, setBlindSpotError] = useState("")
 
   useEffect(() => {
     Promise.all([
@@ -154,6 +163,94 @@ export default function ProfilePage() {
           })}
         </div>
       </div>
+
+      {/* Blind Spot Analysis */}
+      {!isStaticHosting && (
+        <div className="mb-8 rounded-xl border border-dark-200 p-6 dark:border-dark-700">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-semibold text-dark-900 dark:text-dark-100">Blind Spot Analysis</h2>
+              <p className="text-xs text-dark-500 dark:text-dark-400 mt-1">AI identifies gaps in your learning patterns across frameworks, quizzes, and journals</p>
+            </div>
+            <button
+              onClick={async () => {
+                if (blindSpotLoading) return
+                setBlindSpotLoading(true); setBlindSpotError(""); setBlindSpotReport(null)
+                try {
+                  if (!db) { throw new Error("Firebase not configured") }
+                  const deviceId = getDeviceId()
+                  const database = db!
+                  const [viewedSnap, reviewsSnap, quizSnap, journalSnap, progressSnap] = await Promise.all([
+                    get(ref(database, `viewed/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `reviews/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `quizResults/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `journal/${deviceId}/entries`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `progress/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
+                  ])
+
+                  const viewedFrameworks = viewedSnap.exists() ? Object.keys(viewedSnap.val()) : []
+                  const reviewedConcepts = reviewsSnap.exists() ? Object.keys(reviewsSnap.val()) : []
+                  const quizResults = quizSnap.exists()
+                    ? Object.values(quizSnap.val() as any).map((r: any) => ({ framework: r.framework_slug || "", pct: r.pct || 0 }))
+                    : []
+                  const journalEntries = journalSnap.exists() ? Object.keys(journalSnap.val()).length : 0
+                  const completedPathways = progressSnap.exists() ? (progressSnap.val().completed_ids || []) : []
+
+                  const report = await analyzeBlindSpots({ viewedFrameworks, reviewedConcepts, quizResults, journalEntries, completedPathways })
+                  setBlindSpotReport(report)
+                } catch (err: any) {
+                  setBlindSpotError(err.message || "Analysis failed")
+                }
+                setBlindSpotLoading(false)
+              }}
+              disabled={blindSpotLoading}
+              className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50 shrink-0"
+            >{blindSpotLoading ? "Analyzing..." : "Run Analysis"}</button>
+          </div>
+
+          {blindSpotError && <p className="mb-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{blindSpotError}</p>}
+
+          {blindSpotReport && (
+            <div className="space-y-3 animate-slide-up">
+              <div className="rounded-lg bg-primary-50 dark:bg-primary-900/20 p-3">
+                <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 uppercase tracking-wide mb-1">Summary</p>
+                <p className="text-sm text-dark-700 dark:text-dark-300">{blindSpotReport.summary}</p>
+              </div>
+
+              {blindSpotReport.gaps.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">Gaps</p>
+                  {blindSpotReport.gaps.map((g, i) => (
+                    <div key={i} className={`rounded-lg border p-3 ${g.severity === "high" ? "border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-900/10" : g.severity === "medium" ? "border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10" : "border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800"}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-xs font-medium text-dark-700 dark:text-dark-300">{g.area}</p>
+                        <span className={`text-[10px] font-medium uppercase ${g.severity === "high" ? "text-red-600" : g.severity === "medium" ? "text-amber-600" : "text-dark-400"}`}>{g.severity}</span>
+                      </div>
+                      <p className="text-xs text-dark-500 dark:text-dark-400">{g.recommendation}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {blindSpotReport.strengths.length > 0 && (
+                <div className="rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 p-3">
+                  <p className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1">Strengths</p>
+                  <ul className="space-y-1">
+                    {blindSpotReport.strengths.map((s, i) => (
+                      <li key={i} className="text-xs text-dark-600 dark:text-dark-400">• {s}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/40 p-3">
+                <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wide mb-1">Recommended Next Focus</p>
+                <p className="text-sm text-dark-700 dark:text-dark-300">{blindSpotReport.next_focus}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Quick Links */}
       <div className="grid gap-4 sm:grid-cols-3">

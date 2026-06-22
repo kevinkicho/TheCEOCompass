@@ -1,5 +1,6 @@
 import { db, ref, set, update, get, remove } from "./firebase"
 import type { JournalEntry, JournalOutcome, FrameworkListItem } from "./types"
+import { sm2, getNextReviewDate, type ReviewRating, type ReviewRecord } from "./spaced-repetition"
 
 const DEVICE_ID_KEY = "ceocompass_device_id"
 
@@ -260,6 +261,72 @@ export async function loadFavoriteQuotes(): Promise<{ id: string; text: string; 
   return Object.entries(val).map(([id, d]: [string, any]) => ({
     id, text: d.text || "", person: d.person || "",
   }))
+}
+
+// ── Spaced Repetition Reviews ──
+
+export async function markConceptReviewed(
+  frameworkSlug: string,
+  conceptId: string,
+  conceptName: string,
+  conceptSlug: string,
+  rating: ReviewRating,
+): Promise<ReviewRecord> {
+  const database = getDb()
+  const deviceId = getDeviceId()
+  const path = `reviews/${deviceId}/${conceptId}`
+  const snap = await get(ref(database, path))
+  const prev = snap.exists() ? snap.val() : { interval: 0, easeFactor: 2.5, reviewCount: 0, lastReviewedAt: new Date().toISOString() }
+
+  const updated = sm2(
+    { interval: prev.interval || 0, easeFactor: prev.easeFactor || 2.5, reviewCount: prev.reviewCount || 0 },
+    rating,
+  )
+  const now = new Date().toISOString()
+  const nextReviewAt = getNextReviewDate(now, updated.interval)
+
+  const record: ReviewRecord = {
+    conceptId,
+    frameworkSlug,
+    conceptName,
+    conceptSlug,
+    reviewCount: updated.reviewCount,
+    interval: updated.interval,
+    easeFactor: updated.easeFactor,
+    lastReviewedAt: now,
+    nextReviewAt,
+  }
+
+  await set(ref(database, path), record)
+  return record
+}
+
+export async function loadDueReviews(): Promise<ReviewRecord[]> {
+  const database = getDb()
+  const deviceId = getDeviceId()
+  const snap = await get(ref(database, `reviews/${deviceId}`))
+  if (!snap.exists()) return []
+  const val = snap.val()
+  return Object.values(val).filter((r: any) => {
+    if (!r.nextReviewAt) return false
+    return new Date(r.nextReviewAt).getTime() <= Date.now()
+  }) as ReviewRecord[]
+}
+
+export async function loadAllReviews(): Promise<ReviewRecord[]> {
+  const database = getDb()
+  const deviceId = getDeviceId()
+  const snap = await get(ref(database, `reviews/${deviceId}`))
+  if (!snap.exists()) return []
+  return Object.values(snap.val()) as ReviewRecord[]
+}
+
+export async function loadReviewRecord(conceptId: string): Promise<ReviewRecord | null> {
+  const database = getDb()
+  const deviceId = getDeviceId()
+  const snap = await get(ref(database, `reviews/${deviceId}/${conceptId}`))
+  if (!snap.exists()) return null
+  return snap.val() as ReviewRecord
 }
 
 // ── Concept View Tracking ──

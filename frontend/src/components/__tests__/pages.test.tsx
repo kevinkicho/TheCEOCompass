@@ -4,8 +4,9 @@ import { render, screen } from "@testing-library/react"
 // Mock Next.js navigation
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), prefetch: vi.fn() }),
-  useParams: () => ({ slug: "strategic-decision-making" }),
+  useParams: () => ({ slug: "strategic-decision-making", conceptSlug: "first-principles-thinking" }),
   usePathname: () => "/frameworks/strategic-decision-making",
+  redirect: vi.fn(),
 }))
 
 // Mock the API
@@ -89,8 +90,56 @@ vi.mock("@/lib/api", () => ({
   getJournalEntries: vi.fn().mockResolvedValue([]),
 }))
 
+// Mock Firebase modules (needed by review, calibration, concept detail, quotes pages)
+vi.mock("@/lib/firebase", () => ({
+  db: { ref: vi.fn(), get: vi.fn() },
+  ref: vi.fn(() => ({ key: "mock-ref" })),
+  get: vi.fn(() => Promise.resolve({ exists: () => false, val: () => null })),
+  set: vi.fn(() => Promise.resolve()),
+  update: vi.fn(() => Promise.resolve()),
+  remove: vi.fn(() => Promise.resolve()),
+}))
+
+vi.mock("@/lib/firebase-crud", () => ({
+  loadPathwayProgress: vi.fn().mockResolvedValue({ completedIds: [], inProgressId: null }),
+  buildPathway: vi.fn().mockReturnValue([]),
+  getDeviceId: vi.fn().mockReturnValue("mock-device-id"),
+  loadDueReviews: vi.fn().mockResolvedValue([]),
+  loadAllReviews: vi.fn().mockResolvedValue([]),
+  loadReviewRecord: vi.fn().mockResolvedValue(null),
+  markConceptReviewed: vi.fn().mockResolvedValue({
+    conceptId: "c1", frameworkSlug: "test", conceptName: "Test", conceptSlug: "test",
+    reviewCount: 1, interval: 1, easeFactor: 2.6,
+    lastReviewedAt: new Date().toISOString(), nextReviewAt: new Date().toISOString(),
+  }),
+  loadJournalEntries: vi.fn().mockResolvedValue([]),
+  loadFrameworkProgress: vi.fn().mockResolvedValue([]),
+  loadFavoriteQuotes: vi.fn().mockResolvedValue([]),
+}))
+
+vi.mock("@/lib/spaced-repetition", () => ({
+  getReviewStatus: vi.fn(() => "ok"),
+  getDaysUntilReview: vi.fn(() => 5),
+  ReviewRecord: {},
+  sm2: vi.fn(() => ({ interval: 1, easeFactor: 2.6, reviewCount: 1 })),
+  getNextReviewDate: vi.fn(() => new Date().toISOString()),
+  isDueForReview: vi.fn(() => false),
+}))
+
+vi.mock("@/components/RequiresBackend", () => ({
+  isStaticHosting: false,
+  StaticHostingBanner: () => null,
+  BackendRequiredModal: () => null,
+  BackendGuard: ({ children }: { children: React.ReactNode }) => children,
+}))
+
 // Test that imports work for all page components
 describe("Page imports are valid", () => {
+  it("imports home page without error", async () => {
+    const mod = await import("@/app/page")
+    expect(mod.default).toBeDefined()
+  })
+
   it("imports frameworks page without error", async () => {
     const mod = await import("@/app/frameworks/page")
     expect(mod.default).toBeDefined()
@@ -98,6 +147,11 @@ describe("Page imports are valid", () => {
 
   it("imports framework detail page without error", async () => {
     const mod = await import("@/app/frameworks/[slug]/page")
+    expect(mod.default).toBeDefined()
+  })
+
+  it("imports concept detail page without error", async () => {
+    const mod = await import("@/app/frameworks/[slug]/[conceptSlug]/page")
     expect(mod.default).toBeDefined()
   })
 
@@ -121,6 +175,26 @@ describe("Page imports are valid", () => {
     expect(mod.default).toBeDefined()
   })
 
+  it("imports review page without error", async () => {
+    const mod = await import("@/app/review/page")
+    expect(mod.default).toBeDefined()
+  })
+
+  it("imports calibration page without error", async () => {
+    const mod = await import("@/app/calibration/page")
+    expect(mod.default).toBeDefined()
+  })
+
+  it("imports quotes page without error", async () => {
+    const mod = await import("@/app/quotes/page")
+    expect(mod.default).toBeDefined()
+  })
+
+  it("imports simulator page without error", async () => {
+    const mod = await import("@/app/simulator/page")
+    expect(mod.default).toBeDefined()
+  })
+
   it("imports pathway page without error", async () => {
     const mod = await import("@/app/pathway/page")
     expect(mod.default).toBeDefined()
@@ -140,5 +214,79 @@ describe("Page imports are valid", () => {
     // next/font requires Node.js runtime, not testable in jsdom
     const mod = await import("@/app/layout")
     expect(mod.default).toBeDefined()
+  })
+
+  it("imports all page modules without error", async () => {
+    const pages = [
+      "@/app/page",
+      "@/app/frameworks/page",
+      "@/app/frameworks/[slug]/page",
+      "@/app/frameworks/[slug]/[conceptSlug]/page",
+      "@/app/scenarios/page",
+      "@/app/scenarios/[slug]/page",
+      "@/app/simulator/page",
+      "@/app/quiz/page",
+      "@/app/journal/page",
+      "@/app/review/page",
+      "@/app/calibration/page",
+      "@/app/quotes/page",
+      "@/app/pathway/page",
+      "@/app/profile/page",
+      "@/app/cheatsheet/page",
+    ]
+    for (const path of pages) {
+      const mod = await import(path)
+      expect(mod.default).toBeDefined()
+    }
+  })
+})
+
+// Component import validation — all components use named exports
+describe("Component imports are valid", () => {
+  const componentMap: Record<string, string[]> = {
+    ChatPanel: ["ChatPanel"],
+    CatPageNav: ["CatPageNav"],
+    SparkleBtn: ["SparkleBtn"],
+    PromptTooltip: ["PromptTooltip"],
+    SkeletonCard: ["SkeletonCard"],
+    ErrorBoundary: ["ErrorBoundary"],
+    ThemeProvider: ["ThemeProvider"],
+    ScenarioEngine: ["ScenarioEngine"],
+    ScenarioDecisionPrompt: ["ScenarioDecisionPrompt"],
+    ScenarioFeedbackPanel: ["ScenarioFeedbackPanel"],
+    ScenarioPastAttempts: ["ScenarioPastAttempts"],
+    QuoteCard: ["QuoteCard"],
+    Navbar: ["Navbar"],
+    AppSidebar: ["AppSidebar"],
+    RequiresBackend: ["StaticHostingBanner", "BackendGuard", "BackendRequiredModal", "isStaticHosting"],
+  }
+
+  for (const [name, exports] of Object.entries(componentMap)) {
+    it(`imports ${name} without error`, async () => {
+      const mod = await import(`@/components/${name}`)
+      for (const exp of exports) {
+        expect(mod[exp]).toBeDefined()
+      }
+    })
+  }
+
+  it("imports all components without error", async () => {
+    for (const [name, exports] of Object.entries(componentMap)) {
+      const mod = await import(`@/components/${name}`)
+      for (const exp of exports) {
+        expect(mod[exp]).toBeDefined()
+      }
+    }
+  })
+})
+
+// Verify that layout modules export generateMetadata for SEO
+describe("Page module structure", () => {
+  it("generateMetadata is exported from SSG page layouts", async () => {
+    const frameworkLayout = await import("@/app/frameworks/[slug]/layout")
+    expect(typeof frameworkLayout.generateMetadata).toBe("function")
+
+    const conceptLayout = await import("@/app/frameworks/[slug]/[conceptSlug]/layout")
+    expect(typeof conceptLayout.generateMetadata).toBe("function")
   })
 })

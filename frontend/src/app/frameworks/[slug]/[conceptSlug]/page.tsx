@@ -3,13 +3,16 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, slugify, generateComparison } from "@/lib/ollama"
+import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, slugify, generateComparison, crossPollinate, chatWithConcept, socraticTutor, teachBackEvaluate, generateAnalogy } from "@/lib/ollama"
 import { db, ref, set, get, onChildAdded } from "@/lib/firebase"
-import { markConceptViewed } from "@/lib/firebase-crud"
+import { markConceptViewed, markConceptReviewed, loadReviewRecord } from "@/lib/firebase-crud"
+import { getReviewStatus, getDaysUntilReview, type ReviewRating } from "@/lib/spaced-repetition"
+import { isStaticHosting } from "@/lib/constants"
 import { useAuth } from "@/lib/useAuth"
 import { CatPageNav } from "@/components/CatPageNav"
 import { PromptTooltip } from "@/components/PromptTooltip"
 import { SparkleBtn } from "@/components/SparkleBtn"
+import { ChatPanel, type ChatMessage } from "@/components/ChatPanel"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
 function findConcept(slug: string, conceptSlug: string): { framework: Framework; concept: FrameworkConcept } | null {
@@ -58,9 +61,26 @@ export default function ConceptDetailPage() {
 
   // Concept comparison
   const [compareTarget, setCompareTarget] = useState("")
+  const [compareMode, setCompareMode] = useState<"compare" | "cross">("compare")
   const [compareResult, setCompareResult] = useState<any>(null)
   const [compareLoading, setCompareLoading] = useState(false)
   const [compareError, setCompareError] = useState("")
+
+  // AI Learning Tools
+  const [learningMode, setLearningMode] = useState<"ask" | "socratic" | "teachback" | "analogy">("ask")
+  const [teachBackInput, setTeachBackInput] = useState("")
+  const [teachBackResult, setTeachBackResult] = useState<{ clarity: number; depth: number; gaps: string[]; improvement: string } | null>(null)
+  const [teachBackLoading, setTeachBackLoading] = useState(false)
+  const [analogyDomain, setAnalogyDomain] = useState("chef")
+  const [analogyResult, setAnalogyResult] = useState("")
+  const [analogyLoading, setAnalogyLoading] = useState(false)
+  const [learningError, setLearningError] = useState("")
+
+  // Spaced repetition review
+  const [reviewRecord, setReviewRecord] = useState<{ nextReviewAt: string; reviewCount: number; interval: number } | null>(null)
+  const [showReviewRating, setShowReviewRating] = useState(false)
+  const [reviewSubmitted, setReviewSubmitted] = useState(false)
+  const reviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Per-category pagination through multiple AI responses
   const [catEntries, setCatEntries] = useState<Record<string, any[]>>({})
@@ -107,10 +127,17 @@ export default function ConceptDetailPage() {
   }
 
   const handleNewEntry = useCallback((cat: string, id: string, data: any) => {
-    if (!data?.result) return
-    const now = Date.now()
-    if (now - (data.created_at || 0) > 86400000) return
-    const entry = { result: data.result, prompt: data.prompt, created_at: data.created_at }
+    if (!data?.result && !data?.real_world_example) return
+    const entry = {
+      result: data.result || JSON.stringify({
+        real_world_example: data.real_world_example || "",
+        ceo_insight: data.ceo_insight || "",
+        common_mistake: data.common_mistake || "",
+        related_tip: data.related_tip || "",
+      }),
+      prompt: data.prompt || "",
+      created_at: data.created_at,
+    }
     setCatEntries((d) => {
       const prev = d[cat] || []
       const exists = prev.some((e: any) => e.created_at === entry.created_at)
@@ -160,7 +187,15 @@ export default function ConceptDetailPage() {
   useEffect(() => {
     checkConceptCache().catch((err) => console.error("Cache load failed:", err))
     if (slug && result?.concept?.id) markConceptViewed(slug, result.concept.id)
+    if (result?.concept?.id && !isStaticHosting) {
+      loadReviewRecord(result.concept.id).then((r) => {
+        if (r) setReviewRecord({ nextReviewAt: r.nextReviewAt, reviewCount: r.reviewCount, interval: r.interval })
+      }).catch(() => {})
+    }
   }, [checkConceptCache, slug, result?.concept?.id])
+
+  // Cleanup review timeout on unmount
+  useEffect(() => () => { if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current) }, [])
 
   // Real-time listeners for new AI responses
   useEffect(() => {
@@ -193,10 +228,9 @@ export default function ConceptDetailPage() {
     try {
       const target = allConceptsForCompare.find((c: any) => c.id === compareTarget)
       if (!target) throw new Error("Target concept not found")
-      const res = await generateComparison(
-        { name: result.concept.name, definition: result.concept.definition, framework: result.framework.title },
-        { name: target.name, definition: target.definition, framework: target.framework },
-      )
+      const a = { name: result.concept.name, definition: result.concept.definition, framework: result.framework.title }
+      const b = { name: target.name, definition: target.definition, framework: target.framework }
+      const res = compareMode === "cross" ? await crossPollinate(a, b) : await generateComparison(a, b)
       setCompareResult(res)
     } catch (err: any) {
       setCompareError(err.message || "Comparison failed")
@@ -530,10 +564,61 @@ export default function ConceptDetailPage() {
         )}
         </div>
 
+        {(() => {
+          const entries = catEntries["explain_further"] || []
+          if (entries.length === 0) return null
+          const idx = catPage["explain_further"] || 0
+          const entry = entries[idx]
+          if (!entry?.result) return null
+          let data: Record<string, string> = {}
+          try { data = JSON.parse(entry.result) } catch { return null }
+          const cards = [
+            { key: "real_world_example", label: "Real-World Example",
+              cls: "border-sky-400 dark:border-sky-500 bg-sky-50/60 dark:bg-sky-900/10 border-sky-100 dark:border-sky-900/20",
+              iconCls: "bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400",
+              labelCls: "text-sky-700 dark:text-sky-300",
+              icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> },
+            { key: "ceo_insight", label: "CEO Insight",
+              cls: "border-violet-400 dark:border-violet-500 bg-violet-50/60 dark:bg-violet-900/10 border-violet-100 dark:border-violet-900/20",
+              iconCls: "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400",
+              labelCls: "text-violet-700 dark:text-violet-300",
+              icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
+            { key: "common_mistake", label: "Common Mistake",
+              cls: "border-amber-400 dark:border-amber-500 bg-amber-50/60 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20",
+              iconCls: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
+              labelCls: "text-amber-700 dark:text-amber-300",
+              icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
+            { key: "related_tip", label: "Quick Tip",
+              cls: "border-emerald-400 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20",
+              iconCls: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
+              labelCls: "text-emerald-700 dark:text-emerald-300",
+              icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+          ].filter((c) => data[c.key])
+          if (cards.length === 0) return null
+          return (
+            <div className="mt-4 mb-4 space-y-3 animate-slide-up">
+              {cards.map((c) => (
+                <div key={c.key} className={`rounded-xl border-l-4 ${c.cls} p-4`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-full ${c.iconCls}`}>{c.icon}</span>
+                    <span className={`text-xs font-semibold uppercase tracking-wide ${c.labelCls}`}>{c.label}</span>
+                  </div>
+                  <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{data[c.key]}</p>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
+
         {/* ── Concept Comparison ── */}
         <div className="mb-6 mt-8 rounded-xl border border-dark-200 dark:border-dark-700 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Compare with another concept</p>
+            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">
+              {compareMode === "cross" ? "Cross-Pollinate" : "Compare"} with another concept
+            </p>
+            <button onClick={() => { setCompareMode(compareMode === "cross" ? "compare" : "cross"); setCompareResult(null) }}
+              className="ml-auto text-[10px] text-primary-600 dark:text-primary-400 hover:underline"
+            >{compareMode === "cross" ? "Switch to Compare" : "Switch to Cross-Pollinate"}</button>
           </div>
           <div className="flex gap-2">
             <select value={compareTarget} onChange={(e) => setCompareTarget(e.target.value)}
@@ -546,12 +631,12 @@ export default function ConceptDetailPage() {
             </select>
             <button onClick={handleCompare} disabled={!compareTarget || compareLoading}
               className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50 shrink-0"
-            >{compareLoading ? "..." : "Compare"}</button>
+            >{compareLoading ? "..." : compareMode === "cross" ? "Cross-Pollinate" : "Compare"}</button>
           </div>
 
           {compareError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{compareError}</p>}
 
-          {compareResult && (
+          {compareResult && compareMode === "compare" && (
             <div className="mt-4 space-y-3 animate-slide-up">
               <div className="rounded-lg bg-primary-50 dark:bg-primary-900/20 p-3">
                 <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 uppercase tracking-wide mb-1">Overview</p>
@@ -587,41 +672,240 @@ export default function ConceptDetailPage() {
               </div>
             </div>
           )}
+
+          {compareResult && compareMode === "cross" && (
+            <div className="mt-4 space-y-3 animate-slide-up">
+              <div className="rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/40 p-3">
+                <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wide mb-1">Synthetic Insight</p>
+                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.synthetic_insight}</p>
+              </div>
+              <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/40 p-3">
+                <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">Blind Spot Detected</p>
+                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.blind_spot}</p>
+              </div>
+              <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/40 p-3">
+                <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-1">Combined Framework</p>
+                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.combined_framework}</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        {aiExplanation && (
-          <div className="mt-4 space-y-4 animate-slide-up">
-            {[
-              { key: "real_world_example", label: "Real-World Example",
-                cls: "border-sky-400 dark:border-sky-500 bg-sky-50/60 dark:bg-sky-900/10 border-sky-100 dark:border-sky-900/20",
-                iconCls: "bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400",
-                labelCls: "text-sky-700 dark:text-sky-300",
-                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> },
-              { key: "ceo_insight", label: "CEO Insight",
-                cls: "border-violet-400 dark:border-violet-500 bg-violet-50/60 dark:bg-violet-900/10 border-violet-100 dark:border-violet-900/20",
-                iconCls: "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400",
-                labelCls: "text-violet-700 dark:text-violet-300",
-                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
-              { key: "common_mistake", label: "Common Mistake",
-                cls: "border-amber-400 dark:border-amber-500 bg-amber-50/60 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/20",
-                iconCls: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400",
-                labelCls: "text-amber-700 dark:text-amber-300",
-                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
-              { key: "related_tip", label: "Quick Tip",
-                cls: "border-emerald-400 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20",
-                iconCls: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
-                labelCls: "text-emerald-700 dark:text-emerald-300",
-                icon: <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
-              ].filter((c) => aiExplanation[c.key]).map((c) => (
-              <div key={c.key} className={`rounded-xl border-l-4 ${c.cls} p-4`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full ${c.iconCls}`}>{c.icon}</span>
-                  <span className={`text-xs font-semibold uppercase tracking-wide ${c.labelCls}`}>{c.label}</span>
-                </div>
-                <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{aiExplanation[c.key]}</p>
+        {/* ── Spaced Repetition ── */}
+        {!isStaticHosting && (
+          <div className="mb-6 mt-8 rounded-xl border border-dark-200 dark:border-dark-700 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Spaced Repetition</p>
+                {reviewRecord && (
+                  <p className="text-xs text-dark-500 dark:text-dark-400 mt-1">
+                    {["overdue", "due"].includes(getReviewStatus(reviewRecord.nextReviewAt)) ? (
+                      <span className="text-amber-600 dark:text-amber-400 font-medium">
+                        {getReviewStatus(reviewRecord.nextReviewAt) === "overdue" ? "Overdue for review" : "Due for review today"}
+                      </span>
+                    ) : (
+                      <span>Next review in {getDaysUntilReview(reviewRecord.nextReviewAt)} day{getDaysUntilReview(reviewRecord.nextReviewAt) === 1 ? "" : "s"}</span>
+                    )}
+                    {reviewRecord.reviewCount > 0 && <span className="ml-2 text-dark-400 dark:text-dark-500">({reviewRecord.reviewCount} reviews)</span>}
+                  </p>
+                )}
               </div>
-            ))}
+              {!showReviewRating ? (
+                <button onClick={() => setShowReviewRating(true)}
+                  className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition"
+                >Mark as Reviewed</button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {([["Again", 0], ["Hard", 3], ["Good", 4], ["Easy", 5]] as [string, ReviewRating][]).map(([label, rating]) => (
+                    <button key={label}
+                      onClick={async () => {
+                        try {
+                          setAiError("")
+                          const updated = await markConceptReviewed(slug, concept.id, concept.name, conceptSlug, rating)
+                          setReviewRecord({ nextReviewAt: updated.nextReviewAt, reviewCount: updated.reviewCount, interval: updated.interval })
+                          setShowReviewRating(false)
+                          setReviewSubmitted(true)
+                          reviewTimeoutRef.current = setTimeout(() => setReviewSubmitted(false), 3000)
+                        } catch (err: any) {
+                          setShowReviewRating(false)
+                          setAiError(err.message || "Failed to save review")
+                        }
+                      }}
+                      className="rounded-lg border border-dark-200 dark:border-dark-700 px-3 py-1.5 text-xs font-medium text-dark-600 dark:text-dark-400 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition"
+                    >{label}</button>
+                  ))}
+                  <button onClick={() => setShowReviewRating(false)}
+                    className="rounded-lg text-xs text-dark-400 hover:text-red-500 transition px-2"
+                  >Cancel</button>
+                </div>
+              )}
+            </div>
+            {reviewSubmitted && reviewRecord && (
+              <p className="text-xs text-green-600 dark:text-green-400 mt-2">Review saved! Next review in {reviewRecord.interval} day{reviewRecord.interval === 1 ? "" : "s"}.</p>
+            )}
           </div>
+        )}
+
+        {/* ── AI Learning Tools ── */}
+        {!isStaticHosting && (
+          <>
+            <div className="mt-8 mb-4">
+              <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">AI Learning Tools</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: "ask" as const, label: "Ask AI" },
+                  { id: "socratic" as const, label: "Socratic Tutor" },
+                  { id: "teachback" as const, label: "Teach Back" },
+                  { id: "analogy" as const, label: "Analogy" },
+                ].map((m) => (
+                  <button key={m.id} onClick={() => { setLearningMode(m.id); setLearningError("") }}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                      learningMode === m.id
+                        ? "bg-primary-600 text-white shadow-sm"
+                        : "border border-dark-200 dark:border-dark-700 text-dark-600 dark:text-dark-400 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/10"
+                    }`}
+                  >{m.label}</button>
+                ))}
+              </div>
+            </div>
+
+            {learningError && (
+              <p className="mb-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{learningError}</p>
+            )}
+
+            {learningMode === "ask" && (
+              <ChatPanel
+                title="Concept Tutor"
+                subtitle="Ask follow-up questions about this concept"
+                storageKey={`tutor:${slug}/${conceptSlug}`}
+                sendMessage={async (messages, userMessage) => {
+                  const allMessages = [...messages, { role: "user" as const, content: userMessage }]
+                    .map(m => ({ role: m.role, content: m.content }))
+                  return await chatWithConcept({ ...concept, framework: framework.title }, allMessages)
+                }}
+                disabled={!db}
+                placeholder="Ask about this concept..."
+              />
+            )}
+
+            {learningMode === "socratic" && (
+              <ChatPanel
+                title="Socratic Tutor"
+                subtitle="AI asks questions to test your understanding"
+                storageKey={`socratic:${slug}/${conceptSlug}`}
+                sendMessage={async (messages, userMessage) => {
+                  const allMessages = [...messages, { role: "user" as const, content: userMessage }]
+                    .map(m => ({ role: m.role, content: m.content }))
+                  return await socraticTutor({ ...concept, framework: framework.title }, allMessages)
+                }}
+                disabled={!db}
+                placeholder="Type your answer..."
+              />
+            )}
+
+            {learningMode === "teachback" && (
+              <div className="rounded-xl border border-dark-200 dark:border-dark-700 overflow-hidden">
+                <div className="bg-primary-50 dark:bg-primary-900/20 px-4 py-2.5 border-b border-primary-200 dark:border-primary-800/40">
+                  <p className="text-sm font-semibold text-primary-700 dark:text-primary-300">Teach Back</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400">Explain this concept in your own words — AI scores your understanding</p>
+                </div>
+                <div className="p-4 bg-white dark:bg-dark-900">
+                  <textarea
+                    value={teachBackInput}
+                    onChange={(e) => setTeachBackInput(e.target.value)}
+                    placeholder={`Explain "${concept.name}" in your own words as if teaching a peer...`}
+                    rows={5}
+                    className="w-full resize-none rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800 px-3 py-2 text-sm text-dark-700 dark:text-dark-200 placeholder-dark-300 dark:placeholder-dark-500 focus:border-primary-400 dark:focus:border-primary-600 focus:outline-none"
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!teachBackInput.trim() || teachBackLoading) return
+                      setTeachBackLoading(true); setLearningError(""); setTeachBackResult(null)
+                      try {
+                        const r = await teachBackEvaluate({ ...concept, framework: framework.title }, teachBackInput)
+                        setTeachBackResult(r)
+                      } catch (err: any) {
+                        setLearningError(err.message || "Failed to evaluate")
+                      }
+                      setTeachBackLoading(false)
+                    }}
+                    disabled={!teachBackInput.trim() || teachBackLoading}
+                    className="mt-3 rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50"
+                  >{teachBackLoading ? "Evaluating..." : "Submit Explanation"}</button>
+
+                  {teachBackResult && (
+                    <div className="mt-4 space-y-3">
+                      <div className="flex gap-4">
+                        <div className="flex-1 rounded-lg bg-dark-50 dark:bg-dark-800 p-3 text-center">
+                          <p className="text-lg font-bold text-primary-600">{teachBackResult.clarity}<span className="text-xs text-dark-400">/10</span></p>
+                          <p className="text-[10px] text-dark-500 dark:text-dark-400">Clarity</p>
+                        </div>
+                        <div className="flex-1 rounded-lg bg-dark-50 dark:bg-dark-800 p-3 text-center">
+                          <p className="text-lg font-bold text-violet-600">{teachBackResult.depth}<span className="text-xs text-dark-400">/10</span></p>
+                          <p className="text-[10px] text-dark-500 dark:text-dark-400">Depth</p>
+                        </div>
+                      </div>
+                      {teachBackResult.gaps.length > 0 && (
+                        <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/40 p-3">
+                          <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">Gaps</p>
+                          <ul className="space-y-1">
+                            {teachBackResult.gaps.map((g, i) => (
+                              <li key={i} className="text-xs text-dark-600 dark:text-dark-400">• {g}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <div className="rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 p-3">
+                        <p className="text-[10px] font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1">Improved Version</p>
+                        <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{teachBackResult.improvement}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {learningMode === "analogy" && (
+              <div className="rounded-xl border border-dark-200 dark:border-dark-700 overflow-hidden">
+                <div className="bg-primary-50 dark:bg-primary-900/20 px-4 py-2.5 border-b border-primary-200 dark:border-primary-800/40">
+                  <p className="text-sm font-semibold text-primary-700 dark:text-primary-300">Analogy Engine</p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400">See the concept through a different lens</p>
+                </div>
+                <div className="p-4 bg-white dark:bg-dark-900">
+                  <div className="flex items-center gap-3 mb-3">
+                    <p className="text-xs text-dark-500 dark:text-dark-400">Explain like I&apos;m a</p>
+                    <select value={analogyDomain} onChange={(e) => setAnalogyDomain(e.target.value)}
+                      className="rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-3 py-1.5 text-xs text-dark-700 dark:text-dark-200 focus:border-primary-400 focus:outline-none"
+                    >
+                      {["chef", "military general", "jazz musician", "gardener", "architect", "sports coach", "ship captain", "parent"].map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={async () => {
+                        if (analogyLoading) return
+                        setAnalogyLoading(true); setLearningError(""); setAnalogyResult("")
+                        try {
+                          const r = await generateAnalogy({ ...concept, framework: framework.title }, analogyDomain)
+                          setAnalogyResult(r)
+                        } catch (err: any) {
+                          setLearningError(err.message || "Failed to generate")
+                        }
+                        setAnalogyLoading(false)
+                      }}
+                      disabled={analogyLoading}
+                      className="rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50"
+                    >{analogyLoading ? "..." : "Generate"}</button>
+                  </div>
+                  {analogyResult && (
+                    <div className="rounded-lg bg-dark-50 dark:bg-dark-800 p-4">
+                      <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed whitespace-pre-line">{analogyResult}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
     </div>
   )

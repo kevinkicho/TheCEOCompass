@@ -103,6 +103,8 @@ requestsRef.on("child_added", async (snapshot) => {
       await responseRef.set(responseData)
     } else if (data.type === "compare_concepts") {
       await db.ref(`comparisons/${requestId}`).set(responseData)
+    } else if (data.type === "concept_chat") {
+      await db.ref(`conceptChats/${requestId}`).set(responseData)
     } else if (category === "quote") {
       await db.ref(`quotes/generated/${requestId}`).set({
         ...responseData,

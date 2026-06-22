@@ -140,15 +140,26 @@ export async function loadCategoryEntries(
     const snap = await get(ref(database, `framework/${frameworkSlug}/${conceptSlug}/${category}`))
     if (!snap.exists()) return []
     const entries = snap.val()
-    const now = Date.now()
     const results: CacheRecord[] = []
     for (const entry of Object.values(entries) as any[]) {
-      if (entry?.result && now - (entry.created_at || 0) <= 86400000) {
+      if (entry?.result) {
         results.push({
           result: entry.result,
           prompt: entry.prompt,
           model: entry.model,
           created_at: entry.created_at,
+        })
+      } else if (entry?.real_world_example || entry?.ceo_insight || entry?.common_mistake || entry?.related_tip) {
+        results.push({
+          result: JSON.stringify({
+            real_world_example: entry.real_world_example || "",
+            ceo_insight: entry.ceo_insight || "",
+            common_mistake: entry.common_mistake || "",
+            related_tip: entry.related_tip || "",
+          }),
+          prompt: entry.prompt || "",
+          model: entry.model || "legacy",
+          created_at: entry.created_at || 0,
         })
       }
     }
@@ -564,6 +575,330 @@ Return ONLY valid JSON with these fields:
   const { data } = await waitForFirebaseResponse<any>(db!, requestId, `comparisons/${requestId}`)
   if (!data) throw new Error("Invalid comparison response")
   return data
+}
+
+export async function crossPollinate(
+  conceptA: { name: string; definition: string; framework: string },
+  conceptB: { name: string; definition: string; framework: string },
+): Promise<{ synthetic_insight: string; blind_spot: string; combined_framework: string }> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+  const prompt = `You are a CEO coach synthesizing two concepts to create a new strategic insight.
+
+Concept A: "${conceptA.name}"
+Framework: ${conceptA.framework}
+Definition: ${conceptA.definition}
+
+Concept B: "${conceptB.name}"
+Framework: ${conceptB.framework}
+Definition: ${conceptB.definition}
+
+Do NOT simply compare and contrast. Instead, find the hidden connection — what each concept reveals about the other that a CEO would miss studying them in isolation.
+
+Return ONLY valid JSON with these fields:
+{
+  "synthetic_insight": "A novel insight that emerges from combining both concepts. What do you see now that you couldn't see with either alone? (2-3 sentences)",
+  "blind_spot": "A blind spot or assumption each concept exposes in the other. What is Concept A's weakness that Concept B compensates for, and vice versa? (2-3 sentences)",
+  "combined_framework": "A single actionable heuristic or mental model that merges both concepts into something a CEO can apply immediately (2-3 sentences)"
+}`
+
+  const requestId = generateId()
+  await set(ref(db!, `requests/${requestId}`), {
+    type: "compare_concepts",
+    category: "comparison",
+    status: "pending",
+    created_at: Date.now(),
+    payload: { model, prompt },
+  })
+
+  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `comparisons/${requestId}`)
+  if (!data) throw new Error("Invalid cross-pollination response")
+  return data
+}
+
+// ── Concept Tutor Chat ──
+
+type ConceptArg = {
+  name: string
+  definition: string
+  framework: string
+  why_it_matters?: string
+  steps?: { title: string; description: string }[]
+  pitfalls?: { title: string; description: string }[]
+  related_concepts?: { name: string; relationship: string }[]
+  case_study?: { company: string; situation: string; application: string; result: string }
+  exercise?: { scenario: string; options: string[]; correct: number; explanation: string }
+  example?: string
+  tags?: string[]
+}
+
+function buildConceptContext(concept: ConceptArg): string {
+  return [
+    `Concept: ${concept.name}`,
+    `Definition: ${concept.definition}`,
+    concept.framework ? `Framework: ${concept.framework}` : "",
+    concept.why_it_matters ? `Why it matters: ${concept.why_it_matters}` : "",
+    concept.steps?.length ? `Steps: ${concept.steps.map(s => `${s.title} — ${s.description}`).join("; ")}` : "",
+    concept.pitfalls?.length ? `Pitfalls: ${concept.pitfalls.map(p => `${p.title} — ${p.description}`).join("; ")}` : "",
+    concept.related_concepts?.length ? `Related: ${concept.related_concepts.map(r => `${r.name} (${r.relationship})`).join("; ")}` : "",
+    concept.case_study ? `Case study: ${concept.case_study.company} — ${concept.case_study.situation} → ${concept.case_study.application} → ${concept.case_study.result}` : "",
+    concept.exercise ? `Exercise: ${concept.exercise.scenario}` : "",
+    concept.example ? `Examples: ${concept.example}` : "",
+    concept.tags?.length ? `Tags: ${concept.tags.join(", ")}` : "",
+  ].filter(Boolean).join("\n")
+}
+
+async function callConceptChat(prompt: string, model: string): Promise<string> {
+  if (!db) throw new Error("Firebase not configured")
+  const requestId = generateId()
+  await set(ref(db!, `requests/${requestId}`), {
+    type: "concept_chat",
+    status: "pending",
+    created_at: Date.now(),
+    payload: { model, prompt, stream: false, options: { temperature: 0.5 } },
+  })
+  const { result } = await waitForFirebaseResponse(db!, requestId, `conceptChats/${requestId}`)
+  return result
+}
+
+export async function chatWithConcept(
+  concept: ConceptArg,
+  messages: { role: string; content: string }[],
+): Promise<string> {
+  if (!db) throw new Error("Firebase not configured. Run the app locally to use AI chat.")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const context = buildConceptContext(concept)
+
+  const conversationHistory = messages
+    .map((m) => `${m.role === "user" ? "User" : "Coach"}: ${m.content}`)
+    .join("\n")
+
+  const prompt = `You are a CEO coach helping an executive deeply understand a leadership concept. Use the concept context below to answer follow-up questions with concrete examples and actionable advice. Keep responses concise (2-4 sentences). If the user asks about something unrelated to the concept, politely redirect them.
+
+CONCEPT CONTEXT:
+${context}
+
+${conversationHistory ? `PREVIOUS CONVERSATION:\n${conversationHistory}\n` : ""}
+Answer the user's latest question. Do NOT repeat the concept context. Respond in plain text (no JSON, no markdown headers).`
+
+  return callConceptChat(prompt, model)
+}
+
+export async function socraticTutor(
+  concept: ConceptArg,
+  messages: { role: string; content: string }[],
+): Promise<string> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const context = buildConceptContext(concept)
+
+  const conversationHistory = messages
+    .map((m) => `${m.role === "user" ? "User" : "Tutor"}: ${m.content}`)
+    .join("\n")
+
+  const isFirst = messages.length === 0
+  const prompt = isFirst
+    ? `You are a Socratic tutor. You must ask the user one question at a time about the concept below. Your goal is to probe the depth of their understanding — start easy, then get harder based on their answers. Do NOT explain the concept yourself. Do NOT answer your own questions. Ask only one question per turn. Wait for the user to answer before asking the next.
+
+CONCEPT CONTEXT:
+${context}
+
+Your first question:`
+    : `You are a Socratic tutor. The concept context is below. Based on the user's previous answers, decide whether to probe deeper or move to the next question. Ask only ONE question per turn. Never answer your own questions. If the user shows deep understanding, move to a harder aspect. If they struggle, simplify.
+
+CONCEPT CONTEXT:
+${context}
+
+${conversationHistory ? `PREVIOUS CONVERSATION:\n${conversationHistory}\n` : ""}
+User just answered. Respond with your next question only.`
+
+  return callConceptChat(prompt, model)
+}
+
+export async function teachBackEvaluate(
+  concept: ConceptArg,
+  userExplanation: string,
+): Promise<{ clarity: number; depth: number; gaps: string[]; improvement: string }> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const context = buildConceptContext(concept)
+
+  const prompt = `You are a CEO coach evaluating a student's explanation of a concept. Score the explanation below against the concept context. Be honest and specific.
+
+CONCEPT CONTEXT:
+${context}
+
+STUDENT'S EXPLANATION:
+"${userExplanation}"
+
+Return ONLY valid JSON with these fields:
+{
+  "clarity": <number 1-10: how clear and understandable the explanation is>,
+  "depth": <number 1-10: does it go beyond definition to strategic implications>,
+  "gaps": ["specific thing they missed 1", "specific thing they missed 2"],
+  "improvement": "A 2-3 sentence improved version at CEO level"
+}`
+
+  const raw = await callConceptChat(prompt, model)
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return { clarity: 0, depth: 0, gaps: ["Could not parse evaluation"], improvement: raw }
+  }
+}
+
+export async function generateAnalogy(
+  concept: ConceptArg,
+  domain: string,
+): Promise<string> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const context = buildConceptContext(concept)
+
+  const prompt = `You are a CEO coach who explains concepts through creative analogies. Explain "${concept.name}" as if the user is a ${domain}. Generate 3 distinct analogies from different angles. Each analogy should illuminate a different aspect of the concept. Keep each analogy to 2-3 sentences. Do not use JSON — respond in plain text.
+
+CONCEPT CONTEXT:
+${context}
+
+Explain ${concept.name} like I'm a ${domain}.`
+
+  return callConceptChat(prompt, model)
+}
+
+// ── Decision Simulator ──
+
+export async function runDecisionSimulator(
+  challenge: string,
+  messages: { role: string; content: string }[],
+): Promise<string> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const conversationHistory = messages
+    .map((m) => `${m.role === "user" ? "CEO" : "Coach"}: ${m.content}`)
+    .join("\n")
+
+  const isFirst = messages.length === 0
+  const prompt = isFirst
+    ? `You are a CEO coach with deep knowledge of all 57 leadership frameworks. The user describes a real business challenge. Your job:
+
+1. Identify which 1-2 frameworks are most relevant to this challenge
+2. Walk through each framework's key diagnostic questions applied to THEIR specific situation
+3. Produce a structured action memo with: recommended action, risk to watch for, success metric, next check-in timeframe
+
+Keep each section concise (2-3 sentences). Use plain text with these exact headers:
+**Relevant Frameworks**
+**Diagnostic Questions**
+**Action Memo**
+  - Recommended Action
+  - Risk to Watch
+  - Success Metric
+  - Next Check-in
+
+CEO's challenge: "${challenge}"`
+    : `Continue assisting the CEO with their business challenge. Reference the previous conversation and frameworks discussed.
+
+${conversationHistory ? `PREVIOUS CONVERSATION:\n${conversationHistory}\n` : ""}
+Respond with additional analysis, refinements, or next steps. Use headers like **Framework Analysis**, **Refined Action Memo**, or **Follow-up Questions**. Be concise.`
+
+  return callConceptChat(prompt, model)
+}
+
+// ── Blind Spot Detector ──
+
+export type BlindSpotReport = {
+  summary: string
+  gaps: { area: string; severity: "high" | "medium" | "low"; recommendation: string }[]
+  strengths: string[]
+  next_focus: string
+}
+
+export async function analyzeBlindSpots(
+  data: {
+    viewedFrameworks: string[]
+    reviewedConcepts: string[]
+    quizResults: { framework: string; pct: number }[]
+    journalEntries: number
+    completedPathways: string[]
+  },
+): Promise<BlindSpotReport> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const prompt = `You are a CEO coach analyzing an executive's learning patterns to identify blind spots. Below is their learning data.
+
+VIEWED FRAMEWORKS: ${data.viewedFrameworks.join(", ") || "none recorded"}
+REVIEWED CONCEPTS (spaced repetition): ${data.reviewedConcepts.join(", ") || "none recorded"}
+QUIZ RESULTS (framework → score): ${data.quizResults.map(q => `${q.framework} ${q.pct}%`).join("; ") || "none recorded"}
+JOURNAL ENTRIES: ${data.journalEntries}
+COMPLETED PATHWAY STEPS: ${data.completedPathways.join(", ") || "none recorded"}
+
+Identify:
+1. Which frameworks/concepts they systematically avoid or underperform in
+2. Which domains they're strong in
+3. One specific next focus area that fills their biggest gap
+
+Return ONLY valid JSON:
+{
+  "summary": "1-2 sentence overview of their learning pattern and the key blind spot",
+  "gaps": [
+    { "area": "Name of gap area (e.g. 'Risk Management', 'Financial Analysis')", "severity": "high"|"medium"|"low", "recommendation": "1 sentence actionable recommendation" }
+  ],
+  "strengths": ["Strength area 1", "Strength area 2"],
+  "next_focus": "Single recommended next concept or framework to study, with rationale (2-3 sentences)"
+}`
+
+  const raw = await callConceptChat(prompt, model)
+  try { return JSON.parse(raw) as BlindSpotReport }
+  catch { return { summary: "Could not parse analysis", gaps: [], strengths: [], next_focus: raw } }
+}
+
+// ── Weekly Learning Brief ──
+
+export async function generateLearningBrief(
+  data: {
+    viewedCount: number
+    frameworksViewed: string[]
+    quizScores: { framework: string; pct: number }[]
+    avgQuizPct: number
+    overdueJournals: number
+    dueReviewsCount: number
+    pathwayPct: number
+  },
+): Promise<string> {
+  if (!db) throw new Error("Firebase not configured")
+  const settings = loadSettings()
+  const model = settings.ollamaModel || "gemma4:latest"
+
+  const prompt = `You are a CEO coach writing a personalized weekly learning brief for an executive. Below is their week's data.
+
+Concepts viewed: ${data.viewedCount} (frameworks: ${data.frameworksViewed.join(", ") || "none"})
+Quizzes taken: ${data.quizScores.length} (avg ${data.avgQuizPct}%)
+Quiz breakdown: ${data.quizScores.map(q => `${q.framework} ${q.pct}%`).join("; ") || "none"}
+Journal decisions overdue: ${data.overdueJournals}
+Due reviews: ${data.dueReviewsCount}
+Pathway progress: ${data.pathwayPct}%
+
+Write a brief (2-4 sentences) that:
+1. Acknowledges their effort this week
+2. Highlights their strongest area
+3. Gently flags one area needing attention
+4. Recommends one specific next action
+
+Use warm, direct language. No JSON. Respond in plain text.`
+
+  return callConceptChat(prompt, model)
 }
 
 export { slugify }

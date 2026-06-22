@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/calibration", label: "Calibration" },
   { href: "/quotes", label: "Quotes" },
   { href: "/scenarios", label: "Scenarios" },
+  { href: "/simulator", label: "Simulator" },
   { href: "/quiz", label: "Quiz" },
   { href: "/journal", label: "Journal" },
   { href: "/pathway", label: "Pathway" },

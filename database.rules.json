@@ -8,6 +8,7 @@
       }
     },
     "framework": {
+      ".read": true,
       "$slug": {
         "$concept": {
           "$category": {
@@ -37,6 +38,20 @@
       "$comparisonId": {
         ".read": true,
         ".write": "auth != null || true"
+      }
+    },
+    "conceptChats": {
+      "$chatId": {
+        ".read": true,
+        ".write": "auth != null || true"
+      }
+    },
+    "reviews": {
+      "$deviceId": {
+        "$conceptId": {
+          ".read": true,
+          ".write": true
+        }
       }
     },
     "journal": {

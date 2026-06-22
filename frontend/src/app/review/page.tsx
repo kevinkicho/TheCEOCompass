@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
-import { loadPathwayProgress, buildPathway, getDeviceId } from "@/lib/firebase-crud"
+import { loadPathwayProgress, buildPathway, getDeviceId, loadDueReviews } from "@/lib/firebase-crud"
+import { getReviewStatus, getDaysUntilReview, type ReviewRecord } from "@/lib/spaced-repetition"
 import { getFrameworks } from "@/lib/api"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import { SkeletonCard } from "@/components/SkeletonCard"
+import { generateLearningBrief } from "@/lib/ollama"
 import type { FrameworkListItem } from "@/lib/types"
 
 export default function WeeklyReviewPage() {
@@ -16,6 +18,9 @@ export default function WeeklyReviewPage() {
   const [quizScores, setQuizScores] = useState<{ pct: number; framework: string; date: string }[]>([])
   const [overdueReviews, setOverdueReviews] = useState(0)
   const [pathwayPct, setPathwayPct] = useState(0)
+  const [dueReviews, setDueReviews] = useState<ReviewRecord[]>([])
+  const [learningBrief, setLearningBrief] = useState("")
+  const [briefLoading, setBriefLoading] = useState(false)
 
   useEffect(() => {
     if (isStaticHosting) { setLoading(false); return }
@@ -70,11 +75,15 @@ export default function WeeklyReviewPage() {
           return steps.length > 0 ? Math.round((p.completedIds.length / steps.length) * 100) : 0
         })
       }),
-    ]).then(([viewed, quizRes, overdue, pathway]) => {
+
+      // Spaced repetition due reviews
+      loadDueReviews(),
+    ]).then(([viewed, quizRes, overdue, pathway, dueRev]) => {
       setViewedThisWeek(viewed as number)
       setQuizScores(quizRes as { pct: number; framework: string; date: string }[])
       setOverdueReviews(overdue as number)
       setPathwayPct(pathway as number)
+      setDueReviews((dueRev as ReviewRecord[]) || [])
 
       // Generate summary
       const total = quizRes.length > 0
@@ -84,7 +93,8 @@ export default function WeeklyReviewPage() {
       if (quizRes.length > 0) summaryParts.push(`Completed ${quizRes.length} quiz with average score ${total}%.`)
       if (overdue > 0) summaryParts.push(`${overdue} decision${overdue === 1 ? " is" : "s are"} overdue for review in your journal.`)
       summaryParts.push(`Learning pathway: ${pathway}% complete.`)
-      if (viewed === 0 && quizRes.length === 0 && overdue === 0) {
+      if ((dueRev as ReviewRecord[]).length > 0) summaryParts.push(`${(dueRev as ReviewRecord[]).length} concept${(dueRev as ReviewRecord[]).length === 1 ? " is" : "s are"} due for spaced repetition review.`)
+      if (viewed === 0 && quizRes.length === 0 && overdue === 0 && (dueRev as ReviewRecord[]).length === 0) {
         summaryParts.push("No activity this week. Start by exploring a framework or taking a quiz.")
       }
       setSummary(summaryParts.join(" "))
@@ -110,6 +120,47 @@ export default function WeeklyReviewPage() {
 
       {!loading && !isStaticHosting && (
         <>
+          {/* AI Learning Brief */}
+          <div className="mb-6 rounded-xl border border-violet-200 dark:border-violet-800/40 bg-violet-50 dark:bg-violet-900/10 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wide">AI Learning Brief</p>
+              <button
+                onClick={async () => {
+                  if (briefLoading) return
+                  setBriefLoading(true)
+                  try {
+                    const frameworksViewed: string[] = []
+                    const database = db!
+                    const deviceId = getDeviceId()
+                    const viewedSnap = await get(ref(database, `viewed/${deviceId}`))
+                    if (viewedSnap.exists()) {
+                      for (const fwSlug of Object.keys(viewedSnap.val())) {
+                        frameworksViewed.push(fwSlug)
+                      }
+                    }
+                    const avg = quizScores.length > 0 ? Math.round(quizScores.reduce((s, r) => s + r.pct, 0) / quizScores.length) : 0
+                    const brief = await generateLearningBrief({
+                      viewedCount: viewedThisWeek,
+                      frameworksViewed,
+                      quizScores: quizScores.map(q => ({ framework: q.framework, pct: q.pct })),
+                      avgQuizPct: avg,
+                      overdueJournals: overdueReviews,
+                      dueReviewsCount: dueReviews.length,
+                      pathwayPct,
+                    })
+                    setLearningBrief(brief)
+                  } catch {}
+                  setBriefLoading(false)
+                }}
+                disabled={briefLoading}
+                className="rounded-lg bg-violet-600 px-3 py-1.5 text-[10px] font-medium text-white hover:bg-violet-700 transition disabled:opacity-50"
+              >{briefLoading ? "Generating..." : learningBrief ? "Regenerate" : "Generate Brief"}</button>
+            </div>
+            {learningBrief && (
+              <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{learningBrief}</p>
+            )}
+          </div>
+
           {/* Summary */}
           <div className="mb-8 rounded-xl bg-primary-50 p-6 dark:bg-primary-900/20">
             <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{summary}</p>
@@ -150,6 +201,32 @@ export default function WeeklyReviewPage() {
                       {q.pct}%
                     </span>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Concepts Due for Review (Spaced Repetition) */}
+          {dueReviews.length > 0 && (
+            <div className="mb-8">
+              <h2 className="mb-3 text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">Concepts Due for Review</h2>
+              <div className="space-y-2">
+                {dueReviews.map((r, i) => (
+                  <a key={i} href={`/frameworks/${r.frameworkSlug}/${r.conceptSlug}`}
+                    className="flex items-center justify-between rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-900/10 p-3 hover:border-amber-300 dark:hover:border-amber-700 transition cursor-pointer"
+                  >
+                    <div>
+                      <p className="text-xs font-medium text-dark-700 dark:text-dark-300">{r.conceptName}</p>
+                      <p className="text-[10px] text-dark-400 dark:text-dark-500">
+                        {r.reviewCount} review{r.reviewCount === 1 ? "" : "s"} | interval: {r.interval}d
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                      {getReviewStatus(r.nextReviewAt) === "overdue"
+                        ? `${Math.abs(getDaysUntilReview(r.nextReviewAt))}d overdue`
+                        : "Due today"}
+                    </span>
+                  </a>
                 ))}
               </div>
             </div>
