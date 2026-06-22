@@ -2,21 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
-import { loadPathwayProgress, buildPathway } from "@/lib/firebase-crud"
+import { loadPathwayProgress, buildPathway, getDeviceId } from "@/lib/firebase-crud"
 import { getFrameworks } from "@/lib/api"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import type { FrameworkListItem } from "@/lib/types"
-
-function getDeviceId(): string {
-  if (typeof window === "undefined") return ""
-  let id = localStorage.getItem("ceocompass_device_id")
-  if (!id) {
-    id = crypto.randomUUID()
-    localStorage.setItem("ceocompass_device_id", id)
-  }
-  return id
-}
 
 export default function WeeklyReviewPage() {
   const [loading, setLoading] = useState(true)

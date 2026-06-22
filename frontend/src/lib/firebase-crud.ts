@@ -1,9 +1,14 @@
-import { db, ref, set, update, get, push, query, orderByChild, remove, onValue, off } from "./firebase"
+import { db, ref, set, update, get, remove } from "./firebase"
 import type { JournalEntry, JournalOutcome, FrameworkListItem } from "./types"
 
 const DEVICE_ID_KEY = "ceocompass_device_id"
 
-function getDeviceId(): string {
+function getDb() {
+  if (!db) throw new Error("Firebase not configured")
+  return db!
+}
+
+export function getDeviceId(): string {
   if (typeof window === "undefined") return "server"
   let id = localStorage.getItem(DEVICE_ID_KEY)
   if (!id) {
@@ -24,8 +29,7 @@ function outcomePath(deviceId: string, entryId: string, outcomeId?: string): str
 }
 
 export async function loadJournalEntries(): Promise<JournalEntry[]> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   const snap = await get(ref(database, journalPath(deviceId)))
   if (!snap.exists()) return []
@@ -73,8 +77,7 @@ export async function createJournalEntry(data: {
   key_assumptions: { assumption: string; test: string }[]
   success_metrics: { metric: string; target: string }[]
 }): Promise<JournalEntry> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   const entryId = crypto.randomUUID()
   const entry: JournalEntry = {
@@ -114,8 +117,7 @@ export async function updateJournalEntry(
     success_metrics: { metric: string; target: string }[]
   },
 ): Promise<void> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   await update(ref(database, journalPath(deviceId, entryId)), {
     title: data.title,
@@ -131,8 +133,7 @@ export async function updateJournalEntry(
 }
 
 export async function deleteJournalEntry(entryId: string): Promise<void> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   await remove(ref(database, journalPath(deviceId, entryId)))
 }
@@ -146,8 +147,7 @@ export async function recordOutcome(
     lesson: string
   },
 ): Promise<void> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   const outcomeId = crypto.randomUUID()
   const outcome: JournalOutcome = {
@@ -164,8 +164,7 @@ export async function recordOutcome(
 // ── Pathway Progress ──
 
 export async function loadPathwayProgress(): Promise<{ completedIds: string[]; inProgressId: string | null }> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   const snap = await get(ref(database, `progress/${deviceId}`))
   if (!snap.exists()) return { completedIds: [], inProgressId: null }
@@ -177,8 +176,7 @@ export async function loadPathwayProgress(): Promise<{ completedIds: string[]; i
 }
 
 export async function markPathwayComplete(slug: string): Promise<void> {
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
+  const database = getDb()
   const deviceId = getDeviceId()
   const snap = await get(ref(database, `progress/${deviceId}`))
   const current = snap.exists() ? snap.val() : {}

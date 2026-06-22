@@ -3,10 +3,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, generateExplainFurther, buildExplainPrompt, checkCache, loadCategoryEntries, slugify } from "@/lib/ollama"
-import { db, ref, set, get, onChildAdded, off } from "@/lib/firebase"
+import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, slugify, generateComparison } from "@/lib/ollama"
+import { db, ref, set, get, onChildAdded } from "@/lib/firebase"
 import { markConceptViewed } from "@/lib/firebase-crud"
-import { generateComparison } from "@/lib/ollama"
 import { useAuth } from "@/lib/useAuth"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
