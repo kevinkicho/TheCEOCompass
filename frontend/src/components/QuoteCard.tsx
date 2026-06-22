@@ -84,7 +84,7 @@ export function QuoteCard({
     <div className="rounded-xl cursor-pointer" style={{ perspective: "1000px" }} onClick={handleClick}>
       <div className="relative min-h-[220px]">
         {/* Front face */}
-        <div className={`absolute inset-0 rounded-xl bg-white dark:bg-dark-900 border-l-4 ${borderCls} p-6 flex flex-col transition-all duration-500 ease-in-out ${flipped ? "opacity-0 pointer-events-none rotateY-180" : "opacity-100 rotateY-0"} ${q.generated ? "ring-1 ring-primary-300/30 dark:ring-primary-700/30" : ""}`}>
+        <div className={`absolute inset-0 rounded-xl bg-white dark:bg-dark-900 border-l-4 ${borderCls} p-6 flex flex-col transition-all duration-500 ease-in-out will-change-transform ${flipped ? "opacity-0 pointer-events-none rotateY-180" : "opacity-100 rotateY-0"} ${q.generated ? "ring-1 ring-primary-300/30 dark:ring-primary-700/30" : ""}`}>
           <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
             <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(q.id) }}
               className="text-sm transition hover:scale-110"

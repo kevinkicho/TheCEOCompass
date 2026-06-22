@@ -489,7 +489,12 @@ export default function ConceptDetailPage() {
 
       <div className="mb-4 mt-6">
           {aiError && (
-          <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400">{aiError}</div>
+          <div className="mb-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 px-4 py-2 text-xs text-red-600 dark:text-red-400 flex items-center justify-between">
+            <span>{aiError}</span>
+            <button onClick={handleExplain}
+              className="ml-3 shrink-0 rounded bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60 transition"
+            >Retry</button>
+          </div>
         )}
         <div className="flex items-center mb-1">
           <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Explain Further</p>
