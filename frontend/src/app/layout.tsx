@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider"
 import { Navbar } from "@/components/Navbar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { DemoFooter } from "@/components/DemoFooter"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,14 +27,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
+          <ErrorBoundary>
           <Navbar />
           <div className="flex pt-14">
             <AppSidebar />
             <main className="flex-1 min-w-0">
-              {children}
+              <ErrorBoundary>{children}</ErrorBoundary>
             </main>
           </div>
           <DemoFooter />
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

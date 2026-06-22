@@ -236,7 +236,7 @@ export default function ConceptDetailPage() {
   }, [slug, conceptSlug])
 
   useEffect(() => {
-    checkConceptCache()
+    checkConceptCache().catch((err) => console.error("Cache load failed:", err))
     if (slug && result?.concept?.id) markConceptViewed(slug, result.concept.id)
   }, [checkConceptCache, slug, result?.concept?.id])
 
