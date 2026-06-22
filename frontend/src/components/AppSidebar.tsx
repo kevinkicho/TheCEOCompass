@@ -1,29 +1,14 @@
 "use client"
 
 import Image from "next/image"
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { staticFrameworks } from "@/lib/staticData"
-import { slugify } from "@/lib/ollama"
+import { loadFrameworks, getCachedFrameworks, slugify } from "@/lib/rtdb-cache"
 import { useAuth } from "@/lib/useAuth"
 
 type ConceptItem = { slug: string; name: string }
 type FrameworkItem = { slug: string; title: string; concepts: ConceptItem[] }
-
-const treeData: FrameworkItem[] = (staticFrameworks as any[]).map((fw) => ({
-  slug: fw.slug,
-  title: fw.title,
-  concepts: (() => {
-    const seen = new Set<string>()
-    return (fw.concepts || []).filter((c: any) => {
-      const cs = slugify(c.name)
-      if (seen.has(cs)) return false
-      seen.add(cs)
-      return true
-    }).map((c: any) => ({ slug: slugify(c.name), name: c.name }))
-  })(),
-}))
 
 export function AppSidebar() {
   const pathname = usePathname()
@@ -31,6 +16,28 @@ export function AppSidebar() {
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState("")
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [frameworksList, setFrameworksList] = useState<any[]>(getCachedFrameworks() || [])
+
+  useEffect(() => {
+    if (getCachedFrameworks()) return
+    loadFrameworks().then(setFrameworksList).catch(() => {})
+  }, [])
+
+  const treeData: FrameworkItem[] = useMemo(() =>
+    (frameworksList || []).map((fw: any) => ({
+      slug: fw.slug,
+      title: fw.title,
+      concepts: (() => {
+        const seen = new Set<string>()
+        return (fw.concepts || []).filter((c: any) => {
+          const cs = slugify(c.name)
+          if (seen.has(cs)) return false
+          seen.add(cs)
+          return true
+        }).map((c: any) => ({ slug: slugify(c.name), name: c.name }))
+      })(),
+    })),
+  [frameworksList])
 
   const pathParts = pathname.split("/").filter(Boolean)
   const currentSlug = pathParts[0] === "frameworks" ? pathParts[1] || "" : ""

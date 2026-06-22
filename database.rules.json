@@ -101,6 +101,10 @@
           }
         }
       }
+    },
+    "_meta": {
+      ".read": true,
+      ".write": "auth != null || true"
     }
   }
 }

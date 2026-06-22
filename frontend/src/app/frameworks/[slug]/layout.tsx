@@ -1,13 +1,13 @@
 import type { Metadata } from "next"
+import frameworkMeta from "@/data/framework-meta.json"
 import slugs from "@/data/slugs.json"
-import { staticFrameworks } from "@/lib/staticData"
 
 export function generateStaticParams() {
   return (slugs as any).frameworks.map((slug: string) => ({ slug }))
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const fw = (staticFrameworks as any[]).find((f: any) => f.slug === params.slug)
+  const fw = (frameworkMeta as any[]).find((f: any) => f.slug === params.slug)
   if (!fw) return { title: "Framework - CEO Compass" }
   return {
     title: `${fw.title} - CEO Compass`,

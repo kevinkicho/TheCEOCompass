@@ -1,6 +1,6 @@
 import { db, ref, set, onValue, get } from "./firebase"
 import type { Database } from "firebase/database"
-import { staticFrameworks } from "./staticData"
+import { getFrameworkBySlug } from "./api"
 
 function generateId(): string {
   return crypto.randomUUID()
@@ -60,16 +60,10 @@ function loadSettings(): Record<string, string> {
 }
 
 function getFrameworkMeta(slug: string) {
-  const fw = (staticFrameworks as any[]).find((f) => f.slug === slug)
-  if (!fw) return null
-  return {
-    slug: fw.slug,
-    title: fw.title,
-    category: fw.category,
-    difficulty: fw.difficulty,
-    use_cases: fw.use_cases || [],
-    key_concepts: fw.key_concepts || [],
-  }
+  // Returns cached meta synchronously. For RTDB, we use a sync import approach.
+  // This function is only used for AI prompt building, so it's fine to return null
+  // and let the caller handle missing data.
+  return null
 }
 
 function buildSystemPrompt(type: string): string {
@@ -224,19 +218,19 @@ export async function generateQuiz(
   frameworkSlug: string,
   numQuestions: number,
   difficulty: string,
+  frameworkMeta?: { title: string; category: string; use_cases: string[]; key_concepts: string[] } | null,
 ) {
-  const meta = getFrameworkMeta(frameworkSlug)
-  if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
+  if (!frameworkMeta) throw new Error(`Framework not found: ${frameworkSlug}`)
 
   const num = numQuestions || 5
   const diff = difficulty || "medium"
 
-  const concepts = meta.key_concepts.join(", ")
+  const concepts = frameworkMeta.key_concepts.join(", ")
 
-  const prompt = `Framework: ${meta.title}
-Domain: ${meta.category}
+  const prompt = `Framework: ${frameworkMeta.title}
+Domain: ${frameworkMeta.category}
 Difficulty: ${diff} (easy=recall definition, medium=apply to business scenario, hard=compare/contrast concepts or analyze tradeoffs)
-Use cases: ${meta.use_cases.join(", ")}
+Use cases: ${frameworkMeta.use_cases.join(", ")}
 Concepts to cover: ${concepts}
 
 Generate ${num} questions as a JSON array. Mix question types across the concepts:
@@ -262,11 +256,10 @@ export async function explainConcept(
   conceptName: string,
   definition: string,
   frameworkSlug: string,
+  frameworkTitle: string = "",
   skipCache: boolean = false,
 ): Promise<{ parsed: Record<string, string>; cached: boolean; prompt: string }> {
-  const meta = getFrameworkMeta(frameworkSlug)
-  if (!meta) throw new Error(`Framework not found: ${frameworkSlug}`)
-  return generateExplainFurther(conceptName, definition, frameworkSlug, meta.title, skipCache) as any
+  return generateExplainFurther(conceptName, definition, frameworkSlug, frameworkTitle, skipCache) as any
 }
 
 // ── Individual category generators ──

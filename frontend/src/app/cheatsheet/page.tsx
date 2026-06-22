@@ -1,14 +1,23 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import type { Framework, FrameworkConcept } from "@/lib/types"
-import { staticFrameworks } from "@/lib/staticData"
+import { loadFrameworks, getCachedFrameworks } from "@/lib/rtdb-cache"
 
 export default function CheatsheetPage() {
   const [activeTab, setActiveTab] = useState("all")
   const [modalConcept, setModalConcept] = useState<FrameworkConcept | null>(null)
+  const [frameworksList, setFrameworksList] = useState<Framework[]>(getCachedFrameworks() || [])
+  const [loading, setLoading] = useState(!getCachedFrameworks())
 
-  const frameworks = staticFrameworks as unknown as Framework[]
+  useEffect(() => {
+    if (getCachedFrameworks()) { setLoading(false); return }
+    loadFrameworks()
+      .then((fw) => { setFrameworksList(fw); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const frameworks = frameworksList as Framework[]
 
   const tabs = useMemo(() => [
     { key: "all", label: "All" },

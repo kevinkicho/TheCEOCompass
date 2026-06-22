@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { getFrameworks } from "@/lib/api"
+import { getFrameworks, getFrameworkBySlug } from "@/lib/api"
 import { generateQuiz } from "@/lib/ollama"
 import { saveQuizResult } from "@/lib/firebase-crud"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
@@ -62,7 +62,9 @@ export default function QuizPage() {
     try {
       const fw = frameworks.find((f) => f.id === selectedFramework)
       if (!fw) throw new Error("Selected framework not found")
-      const data = await generateQuiz(fw.slug, 5, "medium")
+      const fullFw = await getFrameworkBySlug(fw.slug)
+      if (!fullFw) throw new Error("Framework details not found")
+      const data = await generateQuiz(fullFw.slug, 5, "medium", { title: fullFw.title, category: fullFw.category, use_cases: fullFw.use_cases || [], key_concepts: fullFw.key_concepts || [] })
       setQuestions(data)
       setCurrentQ(0)
       setCorrectAnswers([])

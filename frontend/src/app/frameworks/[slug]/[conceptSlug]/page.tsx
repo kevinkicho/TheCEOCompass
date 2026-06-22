@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { staticFrameworks } from "@/lib/staticData"
-import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, slugify, generateComparison, crossPollinate, chatWithConcept, socraticTutor, teachBackEvaluate, generateAnalogy } from "@/lib/ollama"
+import { loadFrameworks, getCachedFrameworks, slugify } from "@/lib/rtdb-cache"
+import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, generateComparison, crossPollinate, chatWithConcept, socraticTutor, teachBackEvaluate, generateAnalogy } from "@/lib/ollama"
 import { db, ref, set, get, onChildAdded } from "@/lib/firebase"
 import { markConceptViewed, markConceptReviewed, loadReviewRecord } from "@/lib/firebase-crud"
 import { getReviewStatus, getDaysUntilReview, type ReviewRating } from "@/lib/spaced-repetition"
@@ -13,10 +13,13 @@ import { CatPageNav } from "@/components/CatPageNav"
 import { PromptTooltip } from "@/components/PromptTooltip"
 import { SparkleBtn } from "@/components/SparkleBtn"
 import { ChatPanel, type ChatMessage } from "@/components/ChatPanel"
+import { SkeletonCard } from "@/components/SkeletonCard"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
 function findConcept(slug: string, conceptSlug: string): { framework: Framework; concept: FrameworkConcept } | null {
-  const fw = (staticFrameworks as any).find((f: any) => f.slug === slug) as Framework | undefined
+  const frameworks = getCachedFrameworks()
+  if (!frameworks) return null
+  const fw = frameworks.find((f: any) => f.slug === slug) as Framework | undefined
   if (!fw) return null
   const concept = fw.concepts?.find((c) => slugify(c.name) === conceptSlug)
   if (!concept) return null
@@ -27,6 +30,15 @@ export default function ConceptDetailPage() {
   const { slug, conceptSlug } = useParams<{ slug: string; conceptSlug: string }>()
   const router = useRouter()
   const { isAdmin } = useAuth()
+  const [frameworksReady, setFrameworksReady] = useState(!!getCachedFrameworks())
+  const [pageError, setPageError] = useState("")
+
+  useEffect(() => {
+    if (getCachedFrameworks()) { setFrameworksReady(true); return }
+    loadFrameworks()
+      .then(() => setFrameworksReady(true))
+      .catch((err) => { setPageError(err.message || "Failed to load frameworks"); setFrameworksReady(true) })
+  }, [])
   const [aiExplanation, setAiExplanation] = useState<Record<string, string> | null>(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiCached, setAiCached] = useState(false)
@@ -211,7 +223,7 @@ export default function ConceptDetailPage() {
     return () => { unsubs.forEach((u) => u()) }
   }, [slug, conceptSlug, handleNewEntry])
 
-  const allConceptsForCompare = result ? (staticFrameworks as any[]).flatMap((fw: any) =>
+  const allConceptsForCompare = result ? (getCachedFrameworks() || []).flatMap((fw: any) =>
     (fw.concepts || []).map((c: any) => ({
       id: `${fw.slug}/${slugify(c.name)}`,
       name: c.name,
@@ -283,7 +295,7 @@ export default function ConceptDetailPage() {
     setLoading(false)
   }
 
-  const handleExplain = mkHandler(explainConcept, (p: any) => { setAiExplanation(p); setAiCached(true); setEditingPrompt(false) }, () => {}, (v: boolean) => setAiLoading(v), (e: string) => setAiError(e), concept.name, concept.definition, slug, true)
+  const handleExplain = mkHandler(explainConcept, (p: any) => { setAiExplanation(p); setAiCached(true); setEditingPrompt(false) }, () => {}, (v: boolean) => setAiLoading(v), (e: string) => setAiError(e), concept.name, concept.definition, slug, framework.title, true)
 
   const handleWhyItMatters = mkHandler(generateWhyItMatters, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, true, concept.tags)
   const handleHowToApply = mkHandler(generateHowToApply, (p: any) => setAiEnrichment((prev: any) => ({ ...prev, ...p })), () => setAiEnrichmentCached(true), (v: any) => {}, undefined, concept.name, concept.definition, slug, framework.title, true)
@@ -316,6 +328,11 @@ export default function ConceptDetailPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16">
+      {!frameworksReady && <div className="py-16"><SkeletonCard lines={4} /></div>}
+      {(pageError || !result) && frameworksReady && (
+        <p className="text-red-600 dark:text-red-400">Concept not found: {pageError || "Check that Firebase is configured and frameworks are seeded to RTDB"}</p>
+      )}
+      {result && frameworksReady && (<>
       <button onClick={() => router.push(`/frameworks/${slug}`)}
         className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
       ><span className="text-lg leading-none">&larr;</span> Back to {framework.title}</button>
@@ -907,6 +924,7 @@ export default function ConceptDetailPage() {
             )}
           </>
         )}
+      </>)}
     </div>
   )
 }
