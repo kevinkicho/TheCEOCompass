@@ -1,8 +1,49 @@
-import { db, ref, set, onValue, off, get, update } from "./firebase"
+import { db, ref, set, onValue, get } from "./firebase"
+import type { Database } from "firebase/database"
 import { staticFrameworks } from "./staticData"
 
 function generateId(): string {
   return crypto.randomUUID()
+}
+
+function waitForFirebaseResponse<T = any>(
+  database: Database,
+  requestId: string,
+  responsePath: string,
+  timeoutMs = 120000,
+): Promise<{ result: string; data: T | null }> {
+  return new Promise((resolve, reject) => {
+    const responseRef = ref(database, responsePath)
+    const statusRef = ref(database, `requests/${requestId}/status`)
+    let done = false
+
+    const timeout = setTimeout(() => {
+      if (done) return
+      done = true; unsubStatus(); unsubResp()
+      reject(new Error("Request timed out after " + (timeoutMs / 1000) + "s — agent may not be running"))
+    }, timeoutMs)
+
+    const unsubStatus = onValue(statusRef, (snap) => {
+      if (done) return
+      if (snap.val() === "error") {
+        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+        get(responseRef).then((s) => {
+          const d = s.val()
+          reject(new Error(d?.error || "Request failed"))
+        })
+      }
+    })
+
+    const unsubResp = onValue(responseRef, (snap) => {
+      if (done) return
+      const data = snap.val()
+      if (!data?.result) return
+      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+      let parsed: T | null = null
+      try { parsed = JSON.parse(data.result) } catch {}
+      resolve({ result: data.result, data: parsed })
+    })
+  })
 }
 
 function slugify(name: string): string {
@@ -163,52 +204,9 @@ async function callOllamaViaFirebase(
   })
 
   const responsePath = `framework/${frameworkSlug}/${conceptSlug}/${category}/${requestId}`
-
-  return new Promise((resolve, reject) => {
-    const responseRef = ref(database, responsePath)
-    const statusRef = ref(database, `requests/${requestId}/status`)
-    let done = false
-    const timeout = setTimeout(() => {
-      if (done) return
-      done = true
-      unsubStatus()
-      unsubResp()
-      reject(new Error("AI request timed out after 120s — agent may not be running"))
-    }, 120000)
-
-    const unsubStatus = onValue(statusRef, (snap) => {
-      if (done) return
-      const s = snap.val()
-      if (s === "processing") {
-        console.log(`[AI] Request ${requestId} picked up by agent`)
-      }
-      if (s === "error") {
-        done = true
-        clearTimeout(timeout)
-        unsubStatus()
-        unsubResp()
-        get(responseRef).then((s) => {
-          const d = s.val()
-          console.log(`[AI] Request ${requestId} failed: ${d?.error || "unknown"}`)
-          reject(new Error(d?.error || "Ollama returned an error"))
-        })
-      }
-    })
-
-    const unsubResp = onValue(responseRef, (snap) => {
-      if (done) return
-      const data = snap.val()
-      if (!data) return
-      if (data.result) {
-        done = true
-        clearTimeout(timeout)
-        unsubStatus()
-        unsubResp()
-        console.log(`[AI] Response ${requestId} received (${data.result.length} chars) for ${category}`)
-        resolve({ result: data.result, cached: false, prompt: fullPrompt })
-      }
-    })
-  })
+  const { result } = await waitForFirebaseResponse(database, requestId, responsePath)
+  console.log(`[AI] Response ${requestId} received (${result.length} chars) for ${category}`)
+  return { result, cached: false, prompt: fullPrompt }
 }
 
 export async function generateQuiz(
@@ -446,31 +444,8 @@ Return ONLY valid JSON:
     created_at: Date.now(),
   })
 
-  return new Promise((resolve, reject) => {
-    const responseRef = ref(database, `quotes/generated/${requestId}`)
-    const statusRef = ref(database, `requests/${requestId}/status`)
-    let done = false
-    const timeout = setTimeout(() => {
-      if (done) return; done = true; unsubStatus(); unsubResp()
-      reject(new Error("Quote request timed out after 120s — agent may not be running"))
-    }, 120000)
-
-    const unsubStatus = onValue(statusRef, (snap) => {
-      if (done) return
-      if (snap.val() === "error") {
-        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
-        get(responseRef).then((s) => reject(new Error(s.val()?.error || "Quote generation failed")))
-      }
-    })
-
-    const unsubResp = onValue(responseRef, (snap) => {
-      if (done) return
-      const data = snap.val()
-      if (!data?.result) return
-      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
-      resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
-    })
-  })
+  const { data } = await waitForFirebaseResponse<QuoteGenResult>(database, requestId, `quotes/generated/${requestId}`)
+  return { parsed: data!, prompt: fullPrompt }
 }
 
 type QuoteGenResult = {
@@ -544,31 +519,10 @@ Return ONLY valid JSON:
     created_at: Date.now(),
   })
 
-  return new Promise((resolve, reject) => {
-    const responseRef = ref(database, `scenario-evaluations/${requestId}`)
-    const statusRef = ref(database, `requests/${requestId}/status`)
-    let done = false
-    const timeout = setTimeout(() => {
-      if (done) return; done = true; unsubStatus(); unsubResp()
-      reject(new Error("Scenario request timed out after 120s — agent may not be running"))
-    }, 120000)
-
-    const unsubStatus = onValue(statusRef, (snap) => {
-      if (done) return
-      if (snap.val() === "error") {
-        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
-        get(responseRef).then((s) => reject(new Error(s.val()?.error || "Scenario evaluation failed")))
-      }
-    })
-
-    const unsubResp = onValue(responseRef, (snap) => {
-      if (done) return
-      const data = snap.val()
-      if (!data?.result) return
-      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
-      resolve({ parsed: JSON.parse(data.result), prompt: fullPrompt })
-    })
-  })
+  const { data } = await waitForFirebaseResponse<{
+    feedback: string; score: number; key_insights: string[]; next_framework_suggestion?: string
+  }>(database, requestId, `scenario-evaluations/${requestId}`)
+  return { parsed: data!, prompt: fullPrompt }
 }
 
 // ── Concept Comparison ──
@@ -599,8 +553,7 @@ Return ONLY valid JSON with these fields:
 }`
 
   const requestId = generateId()
-  const dbRef = ref(db!, `requests/${requestId}`)
-  await set(dbRef, {
+  await set(ref(db!, `requests/${requestId}`), {
     type: "compare_concepts",
     category: "comparison",
     status: "pending",
@@ -608,31 +561,9 @@ Return ONLY valid JSON with these fields:
     payload: { model, prompt },
   })
 
-  const responseRef = ref(db!, `comparisons/${requestId}`)
-
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      reject(new Error("Comparison request timed out after 120s. Is the agent running?"))
-    }, 120000)
-
-    let done = false
-    const unsubStatus = onValue(dbRef, (snap) => {
-      const s = snap.val()
-      if (!s) return
-      if (s.status === "error" && !done) {
-        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
-        reject(new Error(s.error || "Comparison failed"))
-      }
-    })
-
-    const unsubResp = onValue(responseRef, (snap) => {
-      if (done) return
-      const data = snap.val()
-      if (!data?.result) return
-      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
-      try { resolve(JSON.parse(data.result)) } catch { reject(new Error("Invalid comparison response")) }
-    })
-  })
+  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `comparisons/${requestId}`)
+  if (!data) throw new Error("Invalid comparison response")
+  return data
 }
 
 export { slugify }

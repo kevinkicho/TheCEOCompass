@@ -7,6 +7,9 @@ import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generate
 import { db, ref, set, get, onChildAdded } from "@/lib/firebase"
 import { markConceptViewed } from "@/lib/firebase-crud"
 import { useAuth } from "@/lib/useAuth"
+import { CatPageNav } from "@/components/CatPageNav"
+import { PromptTooltip } from "@/components/PromptTooltip"
+import { SparkleBtn } from "@/components/SparkleBtn"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
 function findConcept(slug: string, conceptSlug: string): { framework: Framework; concept: FrameworkConcept } | null {
@@ -15,86 +18,6 @@ function findConcept(slug: string, conceptSlug: string): { framework: Framework;
   const concept = fw.concepts?.find((c) => slugify(c.name) === conceptSlug)
   if (!concept) return null
   return { framework: fw, concept }
-}
-
-function PromptTooltip({ children, prompt }: { children: React.ReactNode; prompt: string }) {
-  const [visible, setVisible] = useState(false)
-  const ref = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    if (!visible || !ref.current) return
-    const el = ref.current.nextElementSibling as HTMLElement | null
-    if (!el) return
-    const handleClickOutside = (e: MouseEvent) => {
-      if (!el.contains(e.target as Node) && !ref.current?.contains(e.target as Node)) {
-        setVisible(false)
-      }
-    }
-    setTimeout(() => document.addEventListener("click", handleClickOutside), 0)
-    return () => document.removeEventListener("click", handleClickOutside)
-  }, [visible])
-
-  return (
-    <span className="relative inline-flex">
-      <span ref={ref} onClick={() => setVisible(!visible)}
-        className="text-[10px] text-dark-400/50 dark:text-dark-500/50 hover:text-dark-400 dark:hover:text-dark-400 cursor-pointer transition"
-      >{children}</span>
-      {visible && (
-        <pre className="absolute z-50 mt-5 left-0 rounded-lg bg-dark-800 p-3 text-[10px] text-green-300 font-mono whitespace-pre-wrap overflow-x-auto max-h-48 overflow-y-auto shadow-xl border border-dark-700 min-w-[280px]"
-        >{prompt}</pre>
-      )}
-    </span>
-  )
-}
-
-function CatPageNav({ cat, catEntries, catPage, goToCatPage }: {
-  cat: string; catEntries: Record<string, any[]>; catPage: Record<string, number>; goToCatPage: (c: string, i: number) => void
-}) {
-  const entries = catEntries[cat]
-  if (!entries || entries.length <= 1) return null
-  const cur = catPage[cat] || 0
-  return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] text-dark-400 dark:text-dark-500">
-      <button onClick={() => goToCatPage(cat, cur - 1)} disabled={cur === 0}
-        className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&lt;</button>
-      <span className="tabular-nums">{cur + 1}/{entries.length}</span>
-      <button onClick={() => goToCatPage(cat, cur + 1)} disabled={cur >= entries.length - 1}
-        className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&gt;</button>
-    </span>
-  )
-}
-
-function SparkleBtn({ loading, confirm, onSparkle, onConfirm, onCancel }: {
-  loading: boolean; confirm: boolean;
-  onSparkle: () => void; onConfirm: () => void; onCancel: () => void;
-}) {
-  if (loading) return (
-    <svg className="animate-spin h-3.5 w-3.5 text-dark-400" viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-    </svg>
-  )
-  if (confirm) return (
-    <span className="inline-flex items-center gap-1">
-      <button onClick={onConfirm}
-        className="rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 transition animate-pulse"
-      >Regenerate?</button>
-      <button onClick={onCancel}
-        className="text-[10px] text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 transition"
-      >&times;</button>
-    </span>
-  )
-  return (
-    <button onClick={onSparkle}
-      className="inline-flex items-center justify-center rounded-full p-0.5 text-dark-400/60 hover:text-dark-600 dark:hover:text-dark-300 hover:bg-dark-100 dark:hover:bg-dark-800 transition"
-      title="Generate with AI"
-    >
-      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/>
-        <path d="M18 14l1 2.5L21.5 18l-2.5 1-1 2.5-1-2.5L14.5 18l2.5-1z"/>
-      </svg>
-    </button>
-  )
 }
 
 export default function ConceptDetailPage() {
