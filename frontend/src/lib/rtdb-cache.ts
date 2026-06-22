@@ -10,24 +10,27 @@ export async function loadFrameworks(): Promise<Framework[]> {
 
   loadPromise = (async () => {
     if (!db) throw new Error("Firebase not configured")
-    const slugsSnap = await get(ref(db!, "_meta/framework_slugs"))
-    if (!slugsSnap.exists()) throw new Error("No frameworks found in RTDB")
-    const slugs: string[] = slugsSnap.val()
+
+    // Single read — fetch all frameworks + concepts at once
+    const snap = await get(ref(db!, "frameworks"))
+    if (!snap.exists()) throw new Error("No frameworks found in RTDB")
+
+    const all = snap.val() as Record<string, any>
+    const slugs = Object.keys(all)
     const frameworks: Framework[] = []
+
     for (const slug of slugs) {
-      const fwSnap = await get(ref(db!, `frameworks/${slug}`))
-      if (!fwSnap.exists()) continue
-      const fw = fwSnap.val() as Framework
-      const conceptsSnap = await get(ref(db!, `frameworks/${slug}/concepts`))
-      if (conceptsSnap.exists()) {
-        fw.concepts = Object.values(conceptsSnap.val() || {})
-        // Restore order_index from static ordering via slug position
-        if (fw.concepts) {
-          fw.concepts.forEach((c, i) => { if (c.order_index === undefined) c.order_index = i })
-        }
+      const fwData = all[slug]
+      if (!fwData || typeof fwData !== "object" || fwData.error) continue
+      const { concepts: conceptsRaw, ...fwRest } = fwData as any
+      const fw = fwRest as Framework
+      if (conceptsRaw && typeof conceptsRaw === "object") {
+        fw.concepts = Object.values(conceptsRaw)
+        fw.concepts.forEach((c: any, i: number) => { if (c.order_index === undefined) c.order_index = i })
       }
       frameworks.push(fw)
     }
+
     cachedFrameworks = frameworks
     return frameworks
   })()

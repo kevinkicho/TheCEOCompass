@@ -1,5 +1,5 @@
 import axios from "axios"
-import { db, ref, get } from "./firebase"
+import { loadFrameworks, getCachedFrameworks } from "./rtdb-cache"
 import type {
   Framework, FrameworkListItem, Scenario, ScenarioAttempt, ScenarioListItem,
   StageResult, JournalEntry, Progress, CalibrationSummary,
@@ -14,56 +14,24 @@ const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "applic
 // Cast static scenarios to match expected types
 const staticScenarios = staticScenarioData as any[]
 
-async function rtdbGet<T>(path: string): Promise<T | null> {
-  if (!db) return null
-  try {
-    const snap = await get(ref(db!, path))
-    return snap.exists() ? (snap.val() as T) : null
-  } catch { return null }
-}
-
 export async function getFrameworks(category?: string): Promise<FrameworkListItem[]> {
-  if (!db) return []
-  const slugs = await rtdbGet<string[]>("_meta/framework_slugs")
-  if (!slugs) return []
-  const frameworks: FrameworkListItem[] = []
-  for (const slug of slugs) {
-    const fw = await rtdbGet<FrameworkListItem>(`frameworks/${slug}`)
-    if (fw) frameworks.push(fw)
-  }
-  if (category) return frameworks.filter((f) => f.category === category)
-  return frameworks
+  const fws = getCachedFrameworks()
+  if (!fws) return []
+  let list = fws as FrameworkListItem[]
+  if (category) list = list.filter((f) => f.category === category)
+  return list
 }
 
 export async function getFramework(id: string): Promise<Framework | null> {
-  if (!db) return null
-  let fw = await rtdbGet<Framework>(`frameworks/${id}`)
-  if (fw) {
-    const concepts = await rtdbGet<Record<string, any>>(`frameworks/${id}/concepts`)
-    if (concepts) fw.concepts = Object.values(concepts)
-    return fw
-  }
-  const slugs = await rtdbGet<string[]>("_meta/framework_slugs")
-  if (!slugs) return null
-  for (const slug of slugs) {
-    const fwData = await rtdbGet<Framework>(`frameworks/${slug}`)
-    if (fwData && (fwData.id === id || fwData.slug === id)) {
-      const concepts = await rtdbGet<Record<string, any>>(`frameworks/${slug}/concepts`)
-      if (concepts) fwData.concepts = Object.values(concepts)
-      return fwData
-    }
-  }
-  return null
+  const fws = getCachedFrameworks()
+  if (!fws) return null
+  return fws.find((f: any) => f.id === id || f.slug === id) || null
 }
 
 export async function getFrameworkBySlug(slug: string): Promise<Framework | null> {
-  if (!db) return null
-  const fw = await rtdbGet<Framework>(`frameworks/${slug}`)
-  if (fw) {
-    const concepts = await rtdbGet<Record<string, any>>(`frameworks/${slug}/concepts`)
-    if (concepts) fw.concepts = Object.values(concepts)
-  }
-  return fw
+  const fws = getCachedFrameworks()
+  if (!fws) return null
+  return fws.find((f: any) => f.slug === slug) || null
 }
 
 export async function getScenarios(frameworkId?: string): Promise<ScenarioListItem[]> {

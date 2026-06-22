@@ -19,8 +19,8 @@ export function AppSidebar() {
   const [frameworksList, setFrameworksList] = useState<any[]>(getCachedFrameworks() || [])
 
   useEffect(() => {
-    if (getCachedFrameworks()) return
-    loadFrameworks().then(setFrameworksList).catch(() => {})
+    if (getCachedFrameworks()) { setFrameworksList(getCachedFrameworks()!); return }
+    loadFrameworks().then((fw) => setFrameworksList(fw)).catch(() => {})
   }, [])
 
   const treeData: FrameworkItem[] = useMemo(() =>

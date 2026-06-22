@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 
 type Theme = "light" | "dark"
 
@@ -36,6 +37,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
     localStorage.setItem("theme", theme)
   }, [theme])
+
+  // Eager-load frameworks into cache as soon as the app mounts
+  useEffect(() => { loadFrameworks().catch(() => {}) }, [])
 
   const toggle = useCallback(() => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"))
