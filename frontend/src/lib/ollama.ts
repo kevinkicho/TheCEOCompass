@@ -10,23 +10,31 @@ function waitForFirebaseResponse<T = any>(
   database: Database,
   requestId: string,
   responsePath: string,
-  timeoutMs = 120000,
+  timeoutMs = 60000,
+  onProgress?: (elapsed: number) => void,
 ): Promise<{ result: string; data: T | null }> {
   return new Promise((resolve, reject) => {
     const responseRef = ref(database, responsePath)
     const statusRef = ref(database, `requests/${requestId}/status`)
     let done = false
+    const start = Date.now()
+
+    const progressInterval = setInterval(() => {
+      if (done) return
+      const elapsed = Math.floor((Date.now() - start) / 1000)
+      onProgress?.(elapsed)
+    }, 1000)
 
     const timeout = setTimeout(() => {
       if (done) return
-      done = true; unsubStatus(); unsubResp()
+      done = true; clearInterval(progressInterval); unsubStatus(); unsubResp()
       reject(new Error("Request timed out after " + (timeoutMs / 1000) + "s — agent may not be running"))
     }, timeoutMs)
 
     const unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
       if (snap.val() === "error") {
-        done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+        done = true; clearTimeout(timeout); clearInterval(progressInterval); unsubStatus(); unsubResp()
         get(responseRef).then((s) => {
           const d = s.val()
           reject(new Error(d?.error || "Request failed"))
@@ -38,7 +46,7 @@ function waitForFirebaseResponse<T = any>(
       if (done) return
       const data = snap.val()
       if (!data?.result) return
-      done = true; clearTimeout(timeout); unsubStatus(); unsubResp()
+      done = true; clearTimeout(timeout); clearInterval(progressInterval); unsubStatus(); unsubResp()
       let parsed: T | null = null
       try { parsed = JSON.parse(data.result) } catch {}
       resolve({ result: data.result, data: parsed })
@@ -532,8 +540,10 @@ Return ONLY valid JSON:
 // ── Concept Comparison ──
 
 export async function generateComparison(
-  conceptA: { name: string; definition: string; framework: string },
-  conceptB: { name: string; definition: string; framework: string },
+  conceptA: { name: string; definition: string; framework: string; slug: string },
+  conceptB: { name: string; definition: string; framework: string; slug: string },
+  frameworkSlug: string,
+  onProgress?: (elapsed: number) => void,
 ): Promise<{ comparison: string; similarities: string; differences: string; when_to_use_each: string }> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
@@ -557,22 +567,31 @@ Return ONLY valid JSON with these fields:
 }`
 
   const requestId = generateId()
+  const mode = "compare"
+  const responsePath = `comparisons/${frameworkSlug}/${conceptA.slug}/${conceptB.slug}/${mode}`
   await set(ref(db!, `requests/${requestId}`), {
     type: "compare_concepts",
     category: "comparison",
     status: "pending",
     created_at: Date.now(),
     payload: { model, prompt },
+    framework_slug: frameworkSlug,
+    concept_slug: conceptA.slug,
+    compare_target_slug: conceptB.slug,
+    compare_mode: mode,
+    compare_response_path: responsePath,
   })
 
-  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `comparisons/${requestId}`)
+  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `${responsePath}/${requestId}`, 60000, onProgress)
   if (!data) throw new Error("Invalid comparison response")
   return data
 }
 
 export async function crossPollinate(
-  conceptA: { name: string; definition: string; framework: string },
-  conceptB: { name: string; definition: string; framework: string },
+  conceptA: { name: string; definition: string; framework: string; slug: string },
+  conceptB: { name: string; definition: string; framework: string; slug: string },
+  frameworkSlug: string,
+  onProgress?: (elapsed: number) => void,
 ): Promise<{ synthetic_insight: string; blind_spot: string; combined_framework: string }> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
@@ -597,15 +616,22 @@ Return ONLY valid JSON with these fields:
 }`
 
   const requestId = generateId()
+  const mode = "cross"
+  const responsePath = `comparisons/${frameworkSlug}/${conceptA.slug}/${conceptB.slug}/${mode}`
   await set(ref(db!, `requests/${requestId}`), {
     type: "compare_concepts",
     category: "comparison",
     status: "pending",
     created_at: Date.now(),
     payload: { model, prompt },
+    framework_slug: frameworkSlug,
+    concept_slug: conceptA.slug,
+    compare_target_slug: conceptB.slug,
+    compare_mode: mode,
+    compare_response_path: responsePath,
   })
 
-  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `comparisons/${requestId}`)
+  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `${responsePath}/${requestId}`, 60000, onProgress)
   if (!data) throw new Error("Invalid cross-pollination response")
   return data
 }

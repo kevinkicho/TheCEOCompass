@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { loadFrameworks, getCachedFrameworks, slugify } from "@/lib/rtdb-cache"
 import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, generateComparison, crossPollinate, chatWithConcept, socraticTutor, teachBackEvaluate, generateAnalogy } from "@/lib/ollama"
@@ -77,6 +77,9 @@ export default function ConceptDetailPage() {
   const [compareResult, setCompareResult] = useState<any>(null)
   const [compareLoading, setCompareLoading] = useState(false)
   const [compareError, setCompareError] = useState("")
+  const [compareElapsed, setCompareElapsed] = useState(0)
+  const [compareEntries, setCompareEntries] = useState<any[]>([])
+  const [comparePage, setComparePage] = useState(0)
 
   // AI Learning Tools
   const [learningMode, setLearningMode] = useState<"ask" | "socratic" | "teachback" | "analogy">("ask")
@@ -233,17 +236,52 @@ export default function ConceptDetailPage() {
     }))
   ).filter((c: any) => c.slug !== conceptSlug) : []
 
+  const compareStorageKey = useMemo(() => {
+    if (!compareTarget || !result) return null
+    const target = allConceptsForCompare.find((c: any) => c.id === compareTarget)
+    if (!target) return null
+    const slugs = [conceptSlug, target.slug].sort()
+    return `comparisons/${slug}/${slugs[0]}/${slugs[1]}/${compareMode}`
+  }, [compareTarget, compareMode, slug, conceptSlug, result, allConceptsForCompare])
+
+  const loadCompareEntries = useCallback(async () => {
+    if (!db || !compareStorageKey) return
+    try {
+      const snap = await get(ref(db!, compareStorageKey))
+      if (!snap.exists()) return
+      const entries = Object.values(snap.val() || {}) as any[]
+      const valid = entries.filter((e) => e?.result).sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
+      setCompareEntries(valid)
+      if (valid.length > 0) {
+        setComparePage(0)
+        try { setCompareResult(JSON.parse(valid[0].result)) } catch {}
+      }
+    } catch {}
+  }, [compareStorageKey])
+
+  useEffect(() => {
+    loadCompareEntries()
+  }, [loadCompareEntries])
+
+  const goToComparePage = (idx: number) => {
+    if (idx < 0 || idx >= compareEntries.length) return
+    setComparePage(idx)
+    try { setCompareResult(JSON.parse(compareEntries[idx].result)) } catch {}
+  }
+
   const handleCompare = async () => {
     if (!compareTarget || !result) return
     setCompareError("")
     setCompareLoading(true)
+    setCompareElapsed(0)
     try {
       const target = allConceptsForCompare.find((c: any) => c.id === compareTarget)
       if (!target) throw new Error("Target concept not found")
-      const a = { name: result.concept.name, definition: result.concept.definition, framework: result.framework.title }
-      const b = { name: target.name, definition: target.definition, framework: target.framework }
-      const res = compareMode === "cross" ? await crossPollinate(a, b) : await generateComparison(a, b)
+      const a = { name: result.concept.name, definition: result.concept.definition, framework: result.framework.title, slug: conceptSlug }
+      const b = { name: target.name, definition: target.definition, framework: target.framework, slug: target.slug }
+      const res = compareMode === "cross" ? await crossPollinate(a, b, slug, (elapsed) => setCompareElapsed(elapsed)) : await generateComparison(a, b, slug, (elapsed) => setCompareElapsed(elapsed))
       setCompareResult(res)
+      await loadCompareEntries()
     } catch (err: any) {
       setCompareError(err.message || "Comparison failed")
     }
@@ -633,7 +671,16 @@ export default function ConceptDetailPage() {
             <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">
               {compareMode === "cross" ? "Cross-Pollinate" : "Compare"} with another concept
             </p>
-            <button onClick={() => { setCompareMode(compareMode === "cross" ? "compare" : "cross"); setCompareResult(null) }}
+            {compareEntries.length > 1 && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] text-dark-400 dark:text-dark-500 ml-2">
+                <button onClick={() => goToComparePage(comparePage - 1)} disabled={comparePage === 0}
+                  className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&lt;</button>
+                <span className="tabular-nums">{comparePage + 1}/{compareEntries.length}</span>
+                <button onClick={() => goToComparePage(comparePage + 1)} disabled={comparePage >= compareEntries.length - 1}
+                  className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&gt;</button>
+              </span>
+            )}
+            <button onClick={() => { setCompareMode(compareMode === "cross" ? "compare" : "cross"); setCompareResult(null); setComparePage(0) }}
               className="ml-auto text-[10px] text-primary-600 dark:text-primary-400 hover:underline"
             >{compareMode === "cross" ? "Switch to Compare" : "Switch to Cross-Pollinate"}</button>
           </div>
@@ -648,7 +695,7 @@ export default function ConceptDetailPage() {
             </select>
             <button onClick={handleCompare} disabled={!compareTarget || compareLoading}
               className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50 shrink-0"
-            >{compareLoading ? "..." : compareMode === "cross" ? "Cross-Pollinate" : "Compare"}</button>
+            >{compareLoading ? (compareElapsed >= 30 ? "Still working..." : compareElapsed + "s") : compareMode === "cross" ? "Cross-Pollinate" : "Compare"}</button>
           </div>
 
           {compareError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{compareError}</p>}

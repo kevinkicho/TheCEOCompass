@@ -45,9 +45,18 @@
       }
     },
     "comparisons": {
-      "$comparisonId": {
-        ".read": true,
-        ".write": "auth != null || true"
+      ".read": true,
+      "$frameworkSlug": {
+        "$conceptA": {
+          "$conceptB": {
+            "$mode": {
+              "$entryId": {
+                ".read": true,
+                ".write": "auth != null || true"
+              }
+            }
+          }
+        }
       }
     },
     "conceptChats": {

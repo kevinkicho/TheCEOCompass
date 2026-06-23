@@ -1,5 +1,5 @@
 // CEO Compass Ollama Agent
-// Bridges Firebase RTDB → local Ollama → Firebase RTDB
+// Bridges Firebase RTDB → local Ollama (streaming) → Firebase RTDB
 // Run: node index.js
 // Requires: service account JSON from Firebase Console in this directory
 
@@ -34,7 +34,7 @@ const requestsRef = db.ref("requests")
 const ollamaUrl = "http://localhost:11434/api/generate"
 
 console.log("✓ Agent connected to Firebase RTDB")
-console.log(`  Watching /requests → ${ollamaUrl}`)
+console.log(`  Watching /requests → ${ollamaUrl} (streaming)`)
 
 // Stale request sweep on startup
 async function sweepStaleRequests() {
@@ -52,6 +52,27 @@ async function sweepStaleRequests() {
 }
 sweepStaleRequests()
 
+function getResponseRef(requestId, data) {
+  const { framework_slug, concept_slug, category } = data
+  const responsePath = category && framework_slug && concept_slug
+    ? `framework/${framework_slug}/${concept_slug}/${category}/${requestId}`
+    : null
+  if (responsePath) return db.ref(responsePath)
+  if (data.compare_response_path) return db.ref(`${data.compare_response_path}/${requestId}`)
+  if (data.type === "compare_concepts") return db.ref(`comparisons/${requestId}`)
+  if (data.type === "concept_chat") return db.ref(`conceptChats/${requestId}`)
+  if (category === "quote") return db.ref(`quotes/generated/${requestId}`)
+  if (category === "scenario") return db.ref(`scenario-evaluations/${requestId}`)
+  return null
+}
+
+async function writeError(requestId, data, errorMessage) {
+  const errorData = { error: errorMessage, created_at: Date.now() }
+  const ref = getResponseRef(requestId, data)
+  if (ref) await ref.set(errorData)
+  await db.ref(`requests/${requestId}`).update({ status: "error" })
+}
+
 requestsRef.on("child_added", async (snapshot) => {
   const requestId = snapshot.key
   const data = snapshot.val()
@@ -59,18 +80,14 @@ requestsRef.on("child_added", async (snapshot) => {
   if (!data || data.status !== "pending") return
 
   const requestRef = db.ref(`requests/${requestId}`)
+  const responseRef = getResponseRef(requestId, data)
 
   console.log(`\n→ [${requestId}] Processing: ${data.type || "generate"}`)
-
-  const { framework_slug, concept_slug, category } = data
-  const responsePath = category && framework_slug && concept_slug
-    ? `framework/${framework_slug}/${concept_slug}/${category}/${requestId}`
-    : null
-  const responseRef = responsePath ? db.ref(responsePath) : null
 
   try {
     await requestRef.update({ status: "processing", started_at: Date.now() })
 
+    // Stream from Ollama (ndjson) — no stream:false, let Ollama stream naturally
     const ollamaRes = await fetch(ollamaUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -82,9 +99,42 @@ requestsRef.on("child_added", async (snapshot) => {
       throw new Error(`Ollama error (${ollamaRes.status}): ${text.substring(0, 200)}`)
     }
 
-    const ollamaData = await ollamaRes.json()
-    let result = (ollamaData.response || "").trim()
+    // Read streaming ndjson response
+    const reader = ollamaRes.body.getReader()
+    const decoder = new TextDecoder()
+    let fullResponse = ""
+    let buffer = ""
 
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split("\n")
+      buffer = lines.pop() || ""
+
+      for (const line of lines) {
+        if (!line.trim()) continue
+        try {
+          const chunk = JSON.parse(line)
+          if (chunk.response) fullResponse += chunk.response
+        } catch {
+          // skip malformed lines
+        }
+      }
+    }
+
+    // Process remaining buffer
+    if (buffer.trim()) {
+      try {
+        const chunk = JSON.parse(buffer)
+        if (chunk.response) fullResponse += chunk.response
+      } catch {}
+    }
+
+    let result = fullResponse.trim()
+
+    // Strip markdown code fences if present
     if (result.startsWith("```")) {
       result = result.split("\n").slice(1).join("\n")
     }
@@ -100,30 +150,19 @@ requestsRef.on("child_added", async (snapshot) => {
     }
 
     if (responseRef) {
-      await responseRef.set(responseData)
-    } else if (data.type === "compare_concepts") {
-      await db.ref(`comparisons/${requestId}`).set(responseData)
-    } else if (data.type === "concept_chat") {
-      await db.ref(`conceptChats/${requestId}`).set(responseData)
-    } else if (category === "quote") {
-      await db.ref(`quotes/generated/${requestId}`).set({
-        ...responseData,
-        category: data.category || "",
-      })
-    } else if (category === "scenario") {
-      await db.ref(`scenario-evaluations/${requestId}`).set({
-        ...responseData,
-        stage_id: data.stage_id || "",
-      })
+      if (data.category === "quote") {
+        await responseRef.set({ ...responseData, category: data.category || "" })
+      } else if (data.category === "scenario") {
+        await responseRef.set({ ...responseData, stage_id: data.stage_id || "" })
+      } else {
+        await responseRef.set(responseData)
+      }
     }
 
     await requestRef.update({ status: "done" })
-    console.log(`  ✓ [${requestId}] Done (${(result || "").length} chars)`)
+    console.log(`  ✓ [${requestId}] Done (${result.length} chars)`)
   } catch (err) {
     console.error(`  ✗ [${requestId}] ${err.message}`)
-    if (responseRef) {
-      await responseRef.set({ error: err.message, created_at: Date.now() })
-    }
-    await requestRef.update({ status: "error" })
+    await writeError(requestId, data, err.message)
   }
 })
