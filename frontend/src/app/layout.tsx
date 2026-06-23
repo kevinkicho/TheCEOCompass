@@ -1,5 +1,6 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import { Navbar } from "@/components/Navbar"
@@ -8,14 +9,23 @@ import { DemoFooter } from "@/components/DemoFooter"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 
 const inter = Inter({ subsets: ["latin"] })
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
 
 export const metadata: Metadata = {
   title: "CEO Compass",
   description: "Navigate every leadership decision with 57 frameworks, interactive scenarios, and AI-powered coaching",
-  icons: { 
-    icon: (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/favicon.svg",
-    shortcut: (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/favicon.ico",
+  icons: {
+    icon: basePath + "/favicon.svg",
+    shortcut: basePath + "/favicon.ico",
+    apple: basePath + "/icon-192.svg",
   },
+  manifest: basePath + "/manifest.json",
+}
+
+export const viewport: Viewport = {
+  themeColor: "#0ea5e9",
+  width: "device-width",
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -38,6 +48,7 @@ export default function RootLayout({
           <DemoFooter />
           </ErrorBoundary>
         </ThemeProvider>
+        <Script src={basePath + "/sw-register.js"} strategy="afterInteractive" />
       </body>
     </html>
   )
