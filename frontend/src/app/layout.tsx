@@ -14,6 +14,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
 export const metadata: Metadata = {
   title: "CEO Compass",
   description: "Navigate every leadership decision with 57 frameworks, interactive scenarios, and AI-powered coaching",
+  metadataBase: new URL("https://kevinkicho.github.io/TheCEOCompass"),
   icons: {
     icon: basePath + "/favicon.svg",
     shortcut: basePath + "/favicon.ico",

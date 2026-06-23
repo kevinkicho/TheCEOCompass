@@ -1,72 +1,55 @@
 # CEO Compass
 
-**[Live Demo →](https://kevinkicho.github.io/TheCEOCompass/)**
+**[Live Site →](https://kevinkicho.github.io/TheCEOCompass/)**
 
-57 leadership frameworks, 282 concepts. AI-powered explanations, quiz, scenarios, quotes, decision journal, and learning pathway. Static GitHub Pages site with Firebase RTDB bridging to local Ollama.
-
-<div align="center">
-  <table>
-    <tr>
-      <td><img src="screenshots/01_main_menu.png" width="100%" alt="Main menu"/></td>
-      <td><img src="screenshots/02_framework1.png" width="100%" alt="Framework concept detail"/></td>
-    </tr>
-    <tr>
-      <td><img src="screenshots/02_framework2.png" width="100%" alt="Concept AI sections"/></td>
-      <td><img src="screenshots/03_quotes.png" width="100%" alt="Quotes page"/></td>
-    </tr>
-  </table>
-</div>
+57 leadership frameworks, 282 concepts. AI-powered concept enrichment, Socratic tutor, spaced repetition, decision simulator, and interactive scenarios. Static GitHub Pages site with Firebase RTDB bridging to local Ollama, plus PWA service worker for offline support.
 
 ---
 
 ## Architecture
 
 ```
-Browser (GitHub Pages)         Firebase RTDB          Local Agent (WSL)        Ollama
-       │                           │                        │                    │
-       ├── push /requests/ ──────► │                        │                    │
-       │                           ├── onChildAdded ──────► │                    │
-       │                           │                        ├── POST ──────────► │
-       │                           │◄─── write result ──────┤                    │
-       │◄─── onValue on                                            │
-       │    framework/{s}/{c}/{category}/{id}                       │
-```
-
-8 content categories per concept, each stored at its own RTDB path:
-
-```
-framework/{slug}/{concept}/why_it_matters_for_ceos/{id}
-framework/{slug}/{concept}/how_to_apply/{id}
-framework/{slug}/{concept}/common_pitfalls/{id}
-framework/{slug}/{concept}/connected_concepts/{id}
-framework/{slug}/{concept}/case_study/{id}
-framework/{slug}/{concept}/test_yourself/{id}
-framework/{slug}/{concept}/real_world_examples/{id}
-framework/{slug}/{concept}/explain_further/{id}
+Browser (GitHub Pages / Local)    Firebase RTDB           Local Agent (WSL)         Ollama
+        │                              │                        │                      │
+        ├── push /requests/ ─────────► │                        │                      │
+        │                              ├── onChildAdded ──────► │                      │
+        │                              │                        ├── POST ────────────► │
+        │                              │◄─── write result ──────┤                      │
+        │◄─── onValue on               │                        │                      │
+        │    framework/{s}/{c}/{cat}/{id}                       │                      │
+        │                              │                        │                      │
+        ├── SW cache (static + Firebase reads)                  │                      │
+        └── Real-time WebSocket (onChildAdded) ─────────────────┘                      │
 ```
 
 | Layer | Tech | Purpose |
 |-------|------|---------|
-| Frontend | Next.js 14 (static export) + TypeScript + Tailwind | 357 SSG pages, no backend |
-| AI bridge | Firebase RTDB | Browser → Firebase → local agent → Ollama |
+| Frontend | Next.js 14.2 (static export) + TypeScript + Tailwind | 360 SSG pages |
+| PWA | Service Worker (`sw.js`) | Cache-first static, SWR Firebase, offline fallback |
+| Data | Firebase RTDB | All framework/concept data + AI response message bus |
+| AI bridge | Firebase RTDB → local agent → Ollama | Browser → Firebase → agent → Ollama → Firebase → browser |
 | Local agent | Node.js + firebase-admin | Watches `/requests`, calls `localhost:11434` |
-| Auth | Firebase Auth (Google) | Admin for `kevinkicho@gmail.com` |
-| Cache | Per-category RTDB paths | 24h TTL, loaded on mount via `onChildAdded` |
+| Auth | Firebase Auth (Google Sign-In) | Admin for `kevinkicho@gmail.com`, popup + redirect fallback |
+| Cache | `rtdb-cache.ts` (single-read, in-memory) | All 57 frameworks loaded in 1 RTDB read, cached for session |
+
+### No hardcoded data
+
+All framework and concept data lives in Firebase RTDB at `frameworks/{slug}`. A minimal `framework-meta.json` exists only for SSG build-time `generateStaticParams()`. When Firebase is unavailable, the app shows clear error messages — no silent fallback to mock data.
 
 ---
 
 ## Run Locally (Full Experience)
 
-The live GitHub Pages demo serves the static UI, but AI-powered features (quiz generation, scenario coaching, concept enrichment, quotes) require the local Node.js agent + Ollama.
+The live GitHub Pages site serves the static UI with Firebase data, but AI-powered features require the local Node.js agent + Ollama.
 
 ### Prerequisites
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| [Node.js](https://nodejs.org/) | ≥ 18 | Frontend + agent |
+| [Node.js](https://nodejs.org/) | ≥ 18 (≤ 22 recommended) | Frontend + agent |
 | [Ollama](https://ollama.ai/) | Latest | Local LLM |
 | Ollama model | `gemma4:latest` (or any chat model) | AI inference |
-| Firebase service account | From [Firebase Console](https://console.firebase.google.com/) | RTDB write access |
+| Firebase service account | From [Firebase Console](https://console.firebase.google.com/) | RTDB access |
 | `.env` file | `frontend/.env` | Firebase config vars |
 
 ### Step-by-step
@@ -90,7 +73,7 @@ node index.js
 # 4. Start the frontend (Terminal 3)
 cd frontend
 cp .env.example .env   # fill in NEXT_PUBLIC_FIREBASE_* values
-npm install
+npm install --legacy-peer-deps
 npm run dev            # → http://localhost:33221
 ```
 
@@ -102,100 +85,173 @@ curl http://localhost:11434/api/tags
 # → {"models": [{"name": "gemma4:latest", ...}]}
 
 # Agent is listening (logs show)
-# → Listening for requests at /requests
+# → ✓ Agent connected to Firebase RTDB
 
 # Frontend loads
 # → Open http://localhost:33221 in browser
 ```
 
-### Firebase RTDB Security Rules
+### Pre-commit validation
 
-Features that persist data per-device (journal, pathway progress) need the following RTDB rules:
+Before pushing, run the full validation suite:
 
-```json
-{
-  "rules": {
-    "journal": {
-      "$deviceId": { ".read": true, ".write": true }
-    },
-    "progress": {
-      "$deviceId": { ".read": true, ".write": true }
-    }
-  }
-}
+```bash
+bash scripts/pre-commit-check.sh
 ```
 
-Without these rules, journal and pathway show a "run locally" banner instead. All AI features (quiz, scenarios, concept generation, quotes) work once the agent is running.
+This runs 4 checks: TypeScript, ESLint, vitest (88 tests), Next.js build. All must pass.
 
----
+### Seeding data to RTDB
+
+If RTDB needs framework/concept data:
+
+```bash
+# 1. Export static data to JSON (requires tsx)
+cd frontend && npx tsx -e "import { staticFrameworks } from './src/lib/staticData'; import { writeFileSync } from 'fs'; writeFileSync('/tmp/frameworks.json', JSON.stringify(staticFrameworks)); console.log('Exported', staticFrameworks.length, 'frameworks')"
+
+# 2. Push to RTDB
+cd ../agent && node seed-rtdb.mjs
+# → Done! 57 frameworks with concepts pushed to RTDB.
+```
+
+### Deploying RTDB security rules
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json" node scripts/update-rtdb-rules.cjs
+```
 
 ---
 
 ## Routes
 
-| Route | Content | Static |
-|-------|---------|--------|
-| `/` | Landing | ○ |
-| `/frameworks` | Browse 57 frameworks | ○ |
-| `/frameworks/[slug]` | Framework overview | ● 57 |
-| `/frameworks/[slug]/[conceptSlug]` | Concept detail + AI | ● 282 |
-| `/scenarios` | Browse 6 scenarios | ○ |
-| `/scenarios/[slug]` | Scenario engine (AI coaching) | ● 6 |
-| `/quiz` | AI-generated quiz | ○ |
-| `/journal` | Decision journal (Firebase CRUD) | ○ |
-| `/pathway` | Learning pathway (Firebase progress) | ○ |
-| `/quotes` | Flip-card quotes + AI generation | ○ |
-| `/profile` | Settings + Google Sign-In | ○ |
-| `/cheatsheet` | Quick reference modal | ○ |
+| Route | Content | Type |
+|-------|---------|------|
+| `/` | Landing page | Static |
+| `/frameworks` | Browse 57 frameworks | Static |
+| `/frameworks/[slug]` | Framework overview | SSG (57 pages) |
+| `/frameworks/[slug]/[conceptSlug]` | Concept detail + 8 AI enrichment sections | SSG (282 pages) |
+| `/scenarios` | Browse 6 scenarios | Static |
+| `/scenarios/[slug]` | Scenario engine (AI coaching) | SSG (6 pages) |
+| `/simulator` | AI Decision Simulator | Static |
+| `/quiz` | AI-generated quiz | Static |
+| `/journal` | Decision journal (Firebase CRUD) | Static |
+| `/pathway` | Learning pathway (Firebase progress) | Static |
+| `/quotes` | Flip-card quotes + AI generation | Static |
+| `/review` | Weekly review + AI Learning Brief + spaced repetition due | Static |
+| `/calibration` | Confidence-vs-accuracy chart | Static |
+| `/profile` | Settings + Google Sign-In + Blind Spot Analysis | Static |
+| `/cheatsheet` | Quick reference modal | Static |
 
-All 357 framework/concept/scenario pages statically generated at build time.
+360 pages statically generated at build time.
 
 ---
 
 ## Key Features
 
-- **File-tree sidebar**: 57 frameworks with collapsible concept lists, pathname-based routing, mobile drawer
-- **Per-category sparkle buttons**: Each content section has its own ✨ AI generation button with 2-click confirmation
-- **Per-category pagination**: `< >` controls to flip through multiple cached AI responses for the same category
-- **Real-time updates**: `onChildAdded` listeners pick up new AI responses without page refresh
-- **Prompt tooltip**: Click the `prompt` link to see the exact prompt sent to Ollama (click-outside to close)
-- **Concept enrichment**: All 282 concepts have CEO-focused `why_it_matters`, `steps`, `pitfalls`, `related_concepts`
-- **Explain further**: 4-field AI explanation cards (real-world example, CEO insight, common mistake, quick tip)
-- **Test yourself**: Interactive exercise with strategic explanation displayed after answering
-- **Quiz generation**: Per-framework, AI-generated multiple-choice questions
-- **Scenario engine**: Multi-stage branching scenarios with AI coaching feedback
-- **Decision journal**: Full CRUD via Firebase RTDB with alternatives, assumptions, success metrics
-- **Learning pathway**: Data-driven ordering, Firebase progress tracking, mark-done
-- **Quotes page**: Flip cards with 20 static quotes + AI-generated quotes (admin edit/delete)
-- **Error handling**: All AI features show visible red error banners with agent/timeout messages
-- **120s timeout**: AI requests that don't get processed show a clear timeout error
-- **Cooldown-free**: Immediate re-generation via 2-click confirmation (no timer lock)
-- **Styled AI cards**: Color-coded by type with icons, dark mode
-- **Show/hide prompt + admin edit**: View raw prompt text, admin can edit cached prompts
-- **Google Sign-In**: Admin prompt editing on profile page
+### AI Learning Tools (7 modes)
+
+| Feature | Location | Input | Output |
+|---------|----------|-------|--------|
+| **Concept Tutor** | Concept page → "Ask AI" tab | Chat | Plain text |
+| **Socratic Tutor** | Concept page → "Socratic Tutor" tab | Chat (AI asks you) | Plain text |
+| **Teach Back** | Concept page → "Teach Back" tab | Textarea explanation | JSON (clarity/depth/gaps/improvement) |
+| **Analogy Engine** | Concept page → "Analogy" tab | Domain picker (chef/general/musician...) | 3 creative analogies |
+| **Cross-Pollination** | Concept page → Compare toggle | Concept selector | Synthetic insight + blind spots + combined heuristic |
+| **Decision Simulator** | `/simulator` | Business challenge description | Framework analysis + action memo |
+| **Blind Spot Detector** | `/profile` → "Run Analysis" | Firebase learning data | Gaps (by severity) + strengths + next focus |
+| **Weekly Learning Brief** | `/review` → "Generate Brief" | Week's learning data | Personalized coaching brief |
+
+### Spaced Repetition (SM-2)
+
+- "Mark as Reviewed" button on each concept page
+- 4-button rating: Again / Hard / Good / Easy
+- SM-2 algorithm computes next review interval
+- "Concepts Due for Review" section on `/review` page
+
+### Per-Category AI Enrichment (8 sections)
+
+Each concept has 8 independently-generated AI content sections with sparkle buttons, pagination, and real-time updates:
+
+- **Explain Further** — 4-field cards (Real-World Example, CEO Insight, Common Mistake, Quick Tip) with pagination
+- **Why It Matters** — Strategic relevance to CEOs
+- **How To Apply** — 3 actionable steps
+- **Common Pitfalls** — 2 mistakes to avoid
+- **Connected Concepts** — 2 related concepts with relationships
+- **Case Study** — Real company application
+- **Test Yourself** — Interactive exercise with explanation
+- **Real-World Examples** — 3 company-specific examples
+
+### Other Features
+
+- **PWA Service Worker** — Cache-first static assets, stale-while-revalidate Firebase data, offline fallback
+- **File-tree sidebar** — 57 frameworks with collapsible concept lists, mobile drawer
+- **Per-category pagination** — `< 1/4 >` controls to flip through multiple AI responses
+- **Real-time updates** — `onChildAdded` listeners pick up new AI responses without refresh
+- **Prompt tooltip** — View exact prompt sent to Ollama (admin can edit)
+- **Concept comparison** — Compare any 2 concepts side-by-side
+- **Decision journal** — Full CRUD via Firebase RTDB with outcomes and calibration
+- **Learning pathway** — Data-driven ordering, Firebase progress tracking
+- **Quotes** — 20 static + AI-generated, favorites, admin edit/delete
+- **Quiz** — Per-framework, AI-generated multiple-choice
+- **Scenario engine** — Multi-stage branching with AI coaching feedback
+- **Calibration dashboard** — Confidence-vs-accuracy chart from journal outcomes
+- **Google Sign-In** — Popup with redirect fallback, admin prompt editing
+- **Dark mode** — Class-based with localStorage persistence
+- **Error handling** — All AI features show visible red error banners
 
 ---
 
 ## RTDB Structure
 
 ```
-requests/{requestId}          → { type, category, framework_slug, concept_slug, payload, status, created_at }
+# Framework seed data
+frameworks/{slug}                    → { id, title, description, category, difficulty, ... }
+frameworks/{slug}/concepts/{id}      → { id, name, definition, tags, example, ... }
+_meta/framework_slugs                → ["strategic-decision-making", "financial-mastery", ...]
+
+# AI enrichment (per concept, per category)
 framework/{slug}/{concept}/
-  why_it_matters_for_ceos/{id}  → { result, model, prompt, created_at }
+  explain_further/{id}               → { result, model, prompt, created_at }
+  why_it_matters_for_ceos/{id}
   how_to_apply/{id}
   common_pitfalls/{id}
   connected_concepts/{id}
   case_study/{id}
   test_yourself/{id}
   real_world_examples/{id}
-  explain_further/{id}
+
+# AI request/response
+requests/{requestId}                 → { type, category, payload, status, created_at }
+conceptChats/{requestId}             → { result, model, prompt, created_at }
+comparisons/{requestId}              → { result, model, prompt, created_at }
+scenario-evaluations/{requestId}
 quotes/generated/{id}
-scenario-evaluations/{id}
+
+# Per-device data
 journal/{deviceId}/entries/{id}
 progress/{deviceId}
+viewed/{deviceId}/{frameworkSlug}/{conceptId}
+quizResults/{deviceId}/{resultId}
+reviews/{deviceId}/{conceptId}       → { nextReviewAt, reviewCount, interval, easeFactor, ... }
+favoriteQuotes/{deviceId}/{quoteId}
+scenarioHistory/{deviceId}/{slug}/{attemptId}
 ```
 
-No flat `/responses/{id}` path — agent writes directly to the category-specific path.
+Note: `framework/` (no 's') holds AI enrichment data. `frameworks/` (with 's') holds seed data. Both need separate RTDB rules.
+
+---
+
+## PWA Service Worker
+
+| Request type | Strategy | Effect |
+|---|---|---|
+| Static assets (`_next/static/*`) | Cache-first | Instant load on repeat visits |
+| HTML pages | Network-first | Fresh HTML, cache fallback for offline |
+| Firebase RTDB reads | Stale-while-revalidate | Cached data instantly, fresh in background |
+| Firebase Auth | Network-only | Never cache auth tokens |
+| Real-time (`onChildAdded`) | SW can't intercept (WebSocket) | Works as-is |
+
+The SW registers only on production (skips localhost). Auto-updates every 60 seconds.
 
 ---
 
@@ -203,12 +259,12 @@ No flat `/responses/{id}` path — agent writes directly to the category-specifi
 
 | Script | Purpose |
 |--------|---------|
+| `scripts/pre-commit-check.sh` | Full validation: tsc + lint + vitest + build |
+| `scripts/update-rtdb-rules.cjs` | Deploy `database.rules.json` to Firebase RTDB |
+| `agent/seed-rtdb.mjs` | Push framework/concept data to RTDB from `/tmp/frameworks.json` |
 | `scripts/enrich-concepts.mjs` | Batch-generate enrichment fields via Ollama (282 concepts) |
 | `scripts/enrich-explain.mjs` | Batch-generate explain_further content via Ollama |
-| `scripts/sync-backend-seed.mjs` | Merge enriched data from backend seed into staticData.ts |
-| `scripts/migrate-rtdb.mjs` | Migrate legacy RTDB paths to per-category paths |
-| `scripts/push-enrichments-to-rtdb.mjs` | Push static enrichment data into RTDB |
-| `scripts/generate-concept-ids.mjs` | Generate UUIDs for all concepts |
+| `scripts/push-enrichments-to-rtdb.mjs` | Push enrichment JSON to RTDB |
 
 ---
 
@@ -216,45 +272,49 @@ No flat `/responses/{id}` path — agent writes directly to the category-specifi
 
 ```
 ceo-platform/
-├── frontend/src/
-│   ├── app/
-│   │   ├── frameworks/[slug]/
-│   │   │   ├── page.tsx              # Framework overview
-│   │   │   └── [conceptSlug]/
-│   │   │       └── page.tsx          # Concept detail + AI (8 category sections)
-│   │   ├── quotes/page.tsx           # Flip-card quotes + AI generation
-│   │   ├── journal/page.tsx          # Decision journal CRUD
-│   │   ├── pathway/page.tsx          # Learning pathway
-│   │   ├── quiz/page.tsx             # AI-generated quiz
-│   │   ├── scenarios/[slug]/page.tsx # Scenario engine
-│   │   └── profile/page.tsx          # Settings + auth
-│   ├── components/
-│   │   ├── AppSidebar.tsx            # File-tree sidebar
-│   │   ├── Navbar.tsx                # Top nav (home, quotes, scenarios, etc.)
-│   │   ├── ScenarioEngine.tsx        # Multi-stage branching + AI feedback
-│   │   └── __tests__/                # Vitest test suites
-│   └── lib/
-│       ├── ollama.ts                 # AI: Firebase push/subscribe, cache, 8 generators
-│       ├── firebase.ts               # Firebase init (RTDB + Auth)
-│       ├── firebase-crud.ts          # Journal + pathway CRUD
-│       ├── useAuth.ts                # Google Sign-In hook
-│       ├── api.ts                    # Static framework data
-│       ├── staticData.ts             # 57 frameworks, 282 concepts (enriched)
-│       ├── types.ts                  # TypeScript interfaces
-│       └── data/quotes.json          # 20 static quotes
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── frameworks/[slug]/[conceptSlug]/page.tsx   # Concept detail + 8 AI sections + 4 learning modes
+│   │   │   ├── simulator/page.tsx                          # AI Decision Simulator
+│   │   │   ├── review/page.tsx                             # Weekly review + spaced repetition + AI brief
+│   │   │   ├── profile/page.tsx                            # Settings + auth + blind spot analysis
+│   │   │   └── ...
+│   │   ├── components/
+│   │   │   ├── ChatPanel.tsx                               # Shared chat UI (tutor, socratic, simulator)
+│   │   │   ├── AppSidebar.tsx                              # File-tree sidebar
+│   │   │   ├── sw.js / sw-register.js (in public/)         # PWA service worker
+│   │   │   └── __tests__/                                  # Vitest test suites (88 tests)
+│   │   ├── lib/
+│   │   │   ├── rtdb-cache.ts                               # Single-read framework cache
+│   │   │   ├── ollama.ts                                   # AI: 8 generators + 7 learning tools + quiz
+│   │   │   ├── spaced-repetition.ts                        # SM-2 algorithm
+│   │   │   ├── firebase-crud.ts                            # Journal, reviews, pathway, quiz CRUD
+│   │   │   ├── firebase.ts                                 # Firebase init (RTDB + Auth)
+│   │   │   ├── useAuth.ts                                  # Google Sign-In (popup + redirect fallback)
+│   │   │   └── api.ts                                      # Framework list/detail (from cache)
+│   │   └── data/
+│   │       ├── framework-meta.json                         # Minimal slugs for SSG build-time only
+│   │       └── quotes.json                                 # 20 static quotes
+│   ├── public/
+│   │   ├── sw.js                                           # Service worker
+│   │   ├── sw-register.js                                  # SW registration
+│   │   ├── manifest.json                                   # PWA manifest
+│   │   └── icon-*.svg                                      # PWA icons
+│   └── vitest.config.ts                                    # Vitest + esbuild JSX config
 ├── agent/
-│   ├── index.js                      # Firebase watcher → Ollama → per-category write
-│   └── package.json
-├── scripts/                          # Enrichment, migration, sync scripts
-├── docs/
-│   ├── DESIGN.md
-│   ├── ENGINEERING.md
-│   ├── MAINTENANCE.md
-│   └── possible_directions.md        # Architecture alternatives (Firebase Functions, tunnel)
+│   ├── index.js                                            # Firebase watcher → Ollama → per-category write
+│   ├── seed-rtdb.mjs                                       # Push framework data to RTDB
+│   └── theceocompass-*.json                                # Service account key (gitignored)
+├── database.rules.json                                     # RTDB security rules (15 paths)
+├── scripts/
+│   ├── pre-commit-check.sh                                 # CI validation script
+│   ├── update-rtdb-rules.cjs                               # Deploy rules via admin SDK
+│   └── ...
 ├── .github/workflows/
-│   ├── ci.yml                        # Vitest + Next.js build
-│   └── deploy.yml                    # Static export to GitHub Pages
-└── AGENTS.md                         # AI agent dev instructions
+│   ├── ci.yml                                              # tsc + vitest + build
+│   └── deploy.yml                                          # Static export to GitHub Pages
+└── AGENTS.md                                               # AI agent dev instructions
 ```
 
 ---
@@ -273,4 +333,21 @@ ceo-platform/
 
 ---
 
-Built by **DeepSeek V4 Pro** via **OpenCode Go**.
+## CI Pipeline
+
+The CI runs 3 jobs:
+
+1. **frontend-tests** — `tsc --noEmit` (type check) + `vitest run` (88 tests)
+2. **backend-tests** — Python pytest
+3. **frontend-build** — `next build` (360 SSG pages, only runs if tests pass)
+
+The deploy workflow runs on push to master:
+1. Builds static export with `next.config.export.js` (basePath, trailingSlash, output: export)
+2. Uploads `out/` as GitHub Pages artifact
+3. Deploys to GitHub Pages
+
+Pre-commit script (`scripts/pre-commit-check.sh`) runs the same checks locally before pushing.
+
+---
+
+Built with **OpenCode Go** + **GLM-5.2**.
