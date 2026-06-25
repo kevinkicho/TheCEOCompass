@@ -67,8 +67,9 @@ ollama run gemma4:latest
 cd agent
 npm install
 # Place serviceAccountKey.json (from Firebase Console → Project Settings → Service Accounts) in agent/
-node index.js
+setsid node index.js
 # Watches Firebase RTDB /requests, calls Ollama, writes results back
+# Use setsid to fully detach from shell (survives timeout)
 
 # 4. Start the frontend (Terminal 3)
 cd frontend
@@ -99,15 +100,15 @@ Before pushing, run the full validation suite:
 bash scripts/pre-commit-check.sh
 ```
 
-This runs 4 checks: TypeScript, ESLint, vitest (88 tests), Next.js build. All must pass.
+This runs 4 checks: TypeScript, ESLint, vitest (101 tests), Next.js build. All must pass.
 
 ### Seeding data to RTDB
 
 If RTDB needs framework/concept data:
 
 ```bash
-# 1. Export static data to JSON (requires tsx)
-cd frontend && npx tsx -e "import { staticFrameworks } from './src/lib/staticData'; import { writeFileSync } from 'fs'; writeFileSync('/tmp/frameworks.json', JSON.stringify(staticFrameworks)); console.log('Exported', staticFrameworks.length, 'frameworks')"
+# 1. Export framework data to JSON
+cd frontend && npx tsx -e "import { getCachedFrameworks } from './src/lib/rtdb-cache'; import { writeFileSync } from 'fs'; ..."
 
 # 2. Push to RTDB
 cd ../agent && node seed-rtdb.mjs
@@ -188,7 +189,8 @@ Each concept has 8 independently-generated AI content sections with sparkle butt
 - **Per-category pagination** — `< 1/4 >` controls to flip through multiple AI responses
 - **Real-time updates** — `onChildAdded` listeners pick up new AI responses without refresh
 - **Prompt tooltip** — View exact prompt sent to Ollama (admin can edit)
-- **Concept comparison** — Compare any 2 concepts side-by-side
+- **Concept comparison** — Compare any 2 concepts side-by-side with saved history and pagination
+- **Cross-Pollination** — Find hidden connections between concepts from different frameworks
 - **Decision journal** — Full CRUD via Firebase RTDB with outcomes and calibration
 - **Learning pathway** — Data-driven ordering, Firebase progress tracking
 - **Quotes** — 20 static + AI-generated, favorites, admin edit/delete
@@ -223,9 +225,12 @@ framework/{slug}/{concept}/
 # AI request/response
 requests/{requestId}                 → { type, category, payload, status, created_at }
 conceptChats/{requestId}             → { result, model, prompt, created_at }
-comparisons/{requestId}              → { result, model, prompt, created_at }
 scenario-evaluations/{requestId}
 quotes/generated/{id}
+
+# Concept comparison (saved with pagination)
+comparisons/{frameworkSlug}/{conceptA}/{conceptB}/{mode}/{requestId}
+  → { result, model, prompt, created_at }
 
 # Per-device data
 journal/{deviceId}/entries/{id}
@@ -284,7 +289,7 @@ ceo-platform/
 │   │   │   ├── ChatPanel.tsx                               # Shared chat UI (tutor, socratic, simulator)
 │   │   │   ├── AppSidebar.tsx                              # File-tree sidebar
 │   │   │   ├── sw.js / sw-register.js (in public/)         # PWA service worker
-│   │   │   └── __tests__/                                  # Vitest test suites (88 tests)
+│   │   │   └── __tests__/                                  # Vitest test suites (101 tests)
 │   │   ├── lib/
 │   │   │   ├── rtdb-cache.ts                               # Single-read framework cache
 │   │   │   ├── ollama.ts                                   # AI: 8 generators + 7 learning tools + quiz
@@ -306,7 +311,7 @@ ceo-platform/
 │   ├── index.js                                            # Firebase watcher → Ollama → per-category write
 │   ├── seed-rtdb.mjs                                       # Push framework data to RTDB
 │   └── theceocompass-*.json                                # Service account key (gitignored)
-├── database.rules.json                                     # RTDB security rules (15 paths)
+├── database.rules.json                                     # RTDB security rules (16+ paths)
 ├── scripts/
 │   ├── pre-commit-check.sh                                 # CI validation script
 │   ├── update-rtdb-rules.cjs                               # Deploy rules via admin SDK
@@ -337,7 +342,7 @@ ceo-platform/
 
 The CI runs 3 jobs:
 
-1. **frontend-tests** — `tsc --noEmit` (type check) + `vitest run` (88 tests)
+1. **frontend-tests** — `tsc --noEmit` (type check) + `vitest run` (101 tests)
 2. **backend-tests** — Python pytest
 3. **frontend-build** — `next build` (360 SSG pages, only runs if tests pass)
 
@@ -347,6 +352,14 @@ The deploy workflow runs on push to master:
 3. Deploys to GitHub Pages
 
 Pre-commit script (`scripts/pre-commit-check.sh`) runs the same checks locally before pushing.
+
+---
+
+## Known Issues
+
+- **Node.js v25** — `next dev` hangs on Node v25 due to compatibility issues. Use `next build && next start` or CI (Node 20).
+- **npm install hangs on WSL** — Network issues can cause `npm install` to hang. Use a stable network connection.
+- **Dev server vs production** — The dev server (`next dev`) and production build (`next build && next start`) may behave differently. Always run pre-commit checks before pushing.
 
 ---
 
