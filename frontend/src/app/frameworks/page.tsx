@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { getFrameworks } from "@/lib/api"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 import type { FrameworkListItem } from "@/lib/types"
 
 export default function FrameworksPage() {
@@ -10,7 +10,9 @@ export default function FrameworksPage() {
   const [category, setCategory] = useState<string>("all")
 
   useEffect(() => {
-    getFrameworks().then(setFrameworks).catch(console.error)
+    loadFrameworks()
+      .then((fws) => setFrameworks(fws as FrameworkListItem[]))
+      .catch(console.error)
   }, [])
 
   const filtered = category === "all"

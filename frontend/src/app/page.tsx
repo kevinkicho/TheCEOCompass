@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { getFrameworks, getScenarios } from "@/lib/api"
+import { loadFrameworks } from "@/lib/rtdb-cache"
+import { getScenarios } from "@/lib/api"
 import type { FrameworkListItem, ScenarioListItem } from "@/lib/types"
 
 export default function Home() {
@@ -13,7 +14,9 @@ export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
   useEffect(() => {
-    getFrameworks().then(setFrameworks).catch(console.error)
+    loadFrameworks()
+      .then((fws) => setFrameworks(fws as FrameworkListItem[]))
+      .catch(console.error)
     getScenarios().then((s) => setScenarioCount(s.length)).catch(console.error)
   }, [])
 

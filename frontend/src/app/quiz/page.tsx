@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { getFrameworks, getFrameworkBySlug } from "@/lib/api"
+import { loadFrameworks, getCachedFrameworks } from "@/lib/rtdb-cache"
 import { generateQuiz } from "@/lib/ollama"
 import { saveQuizResult } from "@/lib/firebase-crud"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
@@ -40,7 +40,7 @@ export default function QuizPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    getFrameworks().then(setFrameworks).catch((err) => setQuizError("Failed to load frameworks"))
+    loadFrameworks().then((fws) => setFrameworks(fws as FrameworkListItem[])).catch((err) => setQuizError("Failed to load frameworks"))
   }, [])
 
   useEffect(() => {
@@ -62,7 +62,8 @@ export default function QuizPage() {
     try {
       const fw = frameworks.find((f) => f.id === selectedFramework)
       if (!fw) throw new Error("Selected framework not found")
-      const fullFw = await getFrameworkBySlug(fw.slug)
+      const allFws = getCachedFrameworks() || []
+      const fullFw = allFws.find((f: any) => f.slug === fw.slug)
       if (!fullFw) throw new Error("Framework details not found")
       const data = await generateQuiz(fullFw.slug, 5, "medium", { title: fullFw.title, category: fullFw.category, use_cases: fullFw.use_cases || [], key_concepts: fullFw.key_concepts || [] })
       setQuestions(data)

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { getFrameworks } from "@/lib/api"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 import { loadPathwayProgress, markPathwayComplete, buildPathway } from "@/lib/firebase-crud"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
@@ -15,9 +15,9 @@ export default function PathwayPage() {
   const [pathwayError, setPathwayError] = useState("")
 
   useEffect(() => {
-    getFrameworks()
+    loadFrameworks()
       .then((fw) => {
-        if (fw.length > 0) setPathwaySteps(buildPathway(fw))
+        if (fw.length > 0) setPathwaySteps(buildPathway(fw as FrameworkListItem[]))
       })
       .catch(() => setPathwayError("Failed to load frameworks"))
 

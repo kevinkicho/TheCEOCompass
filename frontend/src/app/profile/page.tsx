@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { getProgress, getCalibration, getJournalEntries, getFrameworks } from "@/lib/api"
+import { getProgress, getCalibration, getJournalEntries } from "@/lib/api"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 import type { Progress, CalibrationSummary, JournalEntry, FrameworkListItem } from "@/lib/types"
 import { useSettings } from "@/lib/settings"
 import { useAuth } from "@/lib/useAuth"
@@ -33,7 +34,7 @@ export default function ProfilePage() {
       getProgress(),
       getCalibration(),
       getJournalEntries(),
-      getFrameworks(),
+      loadFrameworks() as Promise<FrameworkListItem[]>,
     ])
       .then(([p, c, entries, f]) => {
         setProgress(p)

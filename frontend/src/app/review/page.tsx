@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
 import { loadPathwayProgress, buildPathway, getDeviceId, loadDueReviews } from "@/lib/firebase-crud"
 import { getReviewStatus, getDaysUntilReview, type ReviewRecord } from "@/lib/spaced-repetition"
-import { getFrameworks } from "@/lib/api"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import { generateLearningBrief } from "@/lib/ollama"
@@ -70,8 +70,8 @@ export default function WeeklyReviewPage() {
 
       // Pathway progress
       loadPathwayProgress().then((p) => {
-        return getFrameworks().then((fw) => {
-          const steps = buildPathway(fw)
+        return loadFrameworks().then((fw) => {
+          const steps = buildPathway(fw as FrameworkListItem[])
           return steps.length > 0 ? Math.round((p.completedIds.length / steps.length) * 100) : 0
         })
       }),
