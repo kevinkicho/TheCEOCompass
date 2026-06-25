@@ -36,7 +36,7 @@ const ollamaUrl = "http://localhost:11434/api/generate"
 console.log("✓ Agent connected to Firebase RTDB")
 console.log(`  Watching /requests → ${ollamaUrl} (streaming)`)
 
-// Stale request sweep on startup
+// Stale request sweep on startup, then start listening
 async function sweepStaleRequests() {
   const snap = await requestsRef.orderByChild("status").equalTo("processing").once("value")
   let count = 0
@@ -49,6 +49,8 @@ async function sweepStaleRequests() {
     }
   })
   if (count > 0) console.log(`  Swept ${count} stale requests`)
+  // Start listening AFTER sweep so stale requests reset to "pending" are picked up
+  requestsRef.on("child_added", handleRequest)
 }
 sweepStaleRequests()
 
@@ -73,7 +75,7 @@ async function writeError(requestId, data, errorMessage) {
   await db.ref(`requests/${requestId}`).update({ status: "error" })
 }
 
-requestsRef.on("child_added", async (snapshot) => {
+async function handleRequest(snapshot) {
   const requestId = snapshot.key
   const data = snapshot.val()
 
@@ -165,4 +167,4 @@ requestsRef.on("child_added", async (snapshot) => {
     console.error(`  ✗ [${requestId}] ${err.message}`)
     await writeError(requestId, data, err.message)
   }
-})
+}

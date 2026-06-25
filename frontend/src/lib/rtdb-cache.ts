@@ -33,7 +33,10 @@ export async function loadFrameworks(): Promise<Framework[]> {
 
     cachedFrameworks = frameworks
     return frameworks
-  })()
+  })().catch((err) => {
+    loadPromise = null
+    throw err
+  })
 
   return loadPromise
 }

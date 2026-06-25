@@ -48,7 +48,6 @@ export default function ConceptDetailPage() {
   const [editingPrompt, setEditingPrompt] = useState(false)
   const [editPromptValue, setEditPromptValue] = useState("")
   const [savingPrompt, setSavingPrompt] = useState(false)
-  const [currentResponseId, setCurrentResponseId] = useState<string | null>(null)
   const aiTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [aiEnrichment, setAiEnrichment] = useState<any>(null)
@@ -144,6 +143,7 @@ export default function ConceptDetailPage() {
   const handleNewEntry = useCallback((cat: string, id: string, data: any) => {
     if (!data?.result && !data?.real_world_example) return
     const entry = {
+      id,
       result: data.result || JSON.stringify({
         real_world_example: data.real_world_example || "",
         ceo_insight: data.ceo_insight || "",
@@ -155,7 +155,7 @@ export default function ConceptDetailPage() {
     }
     setCatEntries((d) => {
       const prev = d[cat] || []
-      const exists = prev.some((e: any) => e.created_at === entry.created_at)
+      const exists = prev.some((e: any) => e.id === id)
       if (exists) return d
       const updated = [entry, ...prev].sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
       return { ...d, [cat]: updated }
@@ -226,7 +226,7 @@ export default function ConceptDetailPage() {
     return () => { unsubs.forEach((u) => u()) }
   }, [slug, conceptSlug, handleNewEntry])
 
-  const allConceptsForCompare = result ? (getCachedFrameworks() || []).flatMap((fw: any) =>
+  const allConceptsForCompare = useMemo(() => result ? (getCachedFrameworks() || []).flatMap((fw: any) =>
     (fw.concepts || []).map((c: any) => ({
       id: `${fw.slug}/${slugify(c.name)}`,
       name: c.name,
@@ -234,7 +234,7 @@ export default function ConceptDetailPage() {
       slug: slugify(c.name),
       definition: c.definition || "",
     }))
-  ).filter((c: any) => c.slug !== conceptSlug) : []
+  ).filter((c: any) => c.slug !== conceptSlug) : [], [result, conceptSlug])
 
   const compareStorageKey = useMemo(() => {
     if (!compareTarget || !result) return null

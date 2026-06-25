@@ -6,7 +6,7 @@ function generateId(): string {
   return crypto.randomUUID()
 }
 
-function waitForFirebaseResponse<T = any>(
+export function waitForFirebaseResponse<T = any>(
   database: Database,
   requestId: string,
   responsePath: string,
@@ -31,7 +31,10 @@ function waitForFirebaseResponse<T = any>(
       reject(new Error("Request timed out after " + (timeoutMs / 1000) + "s — agent may not be running"))
     }, timeoutMs)
 
-    const unsubStatus = onValue(statusRef, (snap) => {
+    let unsubStatus = () => {}
+    let unsubResp = () => {}
+
+    unsubStatus = onValue(statusRef, (snap) => {
       if (done) return
       if (snap.val() === "error") {
         done = true; clearTimeout(timeout); clearInterval(progressInterval); unsubStatus(); unsubResp()
@@ -42,7 +45,7 @@ function waitForFirebaseResponse<T = any>(
       }
     })
 
-    const unsubResp = onValue(responseRef, (snap) => {
+    unsubResp = onValue(responseRef, (snap) => {
       if (done) return
       const data = snap.val()
       if (!data?.result) return
