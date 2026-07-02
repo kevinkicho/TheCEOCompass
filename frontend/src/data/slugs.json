@@ -56,7 +56,20 @@
     "insurance-risk-transfer",
     "cyber-risk-framework",
     "geopolitical-risk-analysis",
-    "financial-risk-management"
+    "financial-risk-management",
+    "first-90-days-onboarding",
+    "crisis-communication",
+    "board-governance",
+    "succession-planning",
+    "turnaround-restructuring",
+    "change-management",
+    "scenario-planning-wargaming",
+    "platform-strategy",
+    "stakeholder-capitalism-esg",
+    "executive-presence-branding",
+    "organizational-culture-design",
+    "remote-hybrid-leadership",
+    "conflict-resolution-mediation"
   ],
   "scenarios": [
     "pricing-war-response",
@@ -462,6 +475,110 @@
       "fx-hedging-strategies",
       "counterparty-credit-risk",
       "treasury-policy-design"
+    ],
+    "first-90-days-onboarding": [
+      "promotion-trap",
+      "secure-early-wins",
+      "diagnose-before-prescribing",
+      "manage-up-board-alignment",
+      "onboarding-stakeholder-mapping",
+      "operating-rhythm-design"
+    ],
+    "crisis-communication": [
+      "scct-framework",
+      "30-minute-rule",
+      "message-box",
+      "spokesperson-protocol",
+      "social-media-war-room",
+      "post-crisis-reputation-audit"
+    ],
+    "board-governance": [
+      "carver-policy-governance",
+      "board-composition-matrix",
+      "information-asymmetry-management",
+      "board-meeting-architecture",
+      "chair-ceo-relationship",
+      "shareholder-activism-defense"
+    ],
+    "succession-planning": [
+      "9-box-grid",
+      "ready-now-ready-future",
+      "emergency-succession-protocol",
+      "knowledge-transfer-codification",
+      "external-vs-internal-hire",
+      "new-leader-integration"
+    ],
+    "turnaround-restructuring": [
+      "triage-assessment",
+      "13-week-cash-flow",
+      "zero-based-restructuring",
+      "turnaround-stakeholder-negotiation",
+      "bridge-plan",
+      "turnaround-cultural-reset"
+    ],
+    "change-management": [
+      "kotter-8-step-model",
+      "adkar-model",
+      "resistance-mapping",
+      "change-force-field-analysis",
+      "change-champion-network",
+      "reinforcement-mechanism-design"
+    ],
+    "scenario-planning-wargaming": [
+      "shell-4-scenario-method",
+      "war-gaming-simulation",
+      "pre-mortem-red-team",
+      "signpost-tracking",
+      "monte-carlo-for-strategy",
+      "reverse-stress-test"
+    ],
+    "platform-strategy": [
+      "network-effects-mechanics",
+      "chicken-and-egg-solution",
+      "winner-take-all-dynamics",
+      "platform-governance",
+      "api-ecosystem-strategy",
+      "multi-homing-cost-analysis"
+    ],
+    "stakeholder-capitalism-esg": [
+      "materiality-matrix",
+      "double-materiality",
+      "science-based-targets",
+      "stakeholder-engagement-protocol",
+      "esg-integration-decision-making",
+      "impact-measurement-framework"
+    ],
+    "executive-presence-branding": [
+      "presence-triangle",
+      "thought-leadership-ladder",
+      "media-training-protocol",
+      "personal-board-of-advisors",
+      "executive-communication-cadence",
+      "reputation-risk-monitoring"
+    ],
+    "organizational-culture-design": [
+      "culture-design-canvas",
+      "values-to-behaviors-translation",
+      "ritual-engineering",
+      "cultural-artifacts-audit",
+      "hiring-for-culture-fit-protocol",
+      "culture-debt-tracker"
+    ],
+    "remote-hybrid-leadership": [
+      "async-first-communication",
+      "virtual-trust-metrics",
+      "hybrid-meeting-equity",
+      "outcome-based-performance",
+      "digital-watercooler-design",
+      "global-time-zone-protocol"
+    ],
+    "conflict-resolution-mediation": [
+      "thomas-kilmann-model",
+      "interest-based-relational-approach",
+      "mediation-protocol",
+      "conflict-de-escalation-framework",
+      "co-founder-conflict-resolution",
+      "difficult-conversation-framework"
     ]
   }
 }

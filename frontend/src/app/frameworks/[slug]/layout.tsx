@@ -11,10 +11,10 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   if (!fw) return { title: "Framework - CEO Compass" }
   return {
     title: `${fw.title} - CEO Compass`,
-    description: fw.description || `${fw.title}: ${fw.category} framework for CEOs`,
+    description: `${fw.title}: leadership framework for CEOs`,
     openGraph: {
       title: `${fw.title} - CEO Compass`,
-      description: fw.description,
+      description: `${fw.title}: leadership framework for CEOs`,
     },
   }
 }

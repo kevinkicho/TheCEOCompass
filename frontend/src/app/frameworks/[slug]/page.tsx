@@ -63,10 +63,10 @@ export default function FrameworkDetailPage() {
       <div className="mb-10">
         <div className="mb-3 flex items-center gap-2 flex-wrap">
           <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
-            {framework.category.replace(/-/g, " ")}
+            {(framework.category || "General").replace(/-/g, " ")}
           </span>
           <span className="text-sm text-dark-400 dark:text-dark-300">
-            {framework.estimated_time_minutes} min &middot; Difficulty {framework.difficulty}/5
+            {framework.estimated_time_minutes ? `${framework.estimated_time_minutes} min · Difficulty ${framework.difficulty}/5` : `${(framework.concepts?.length || 6)} concepts`}
           </span>
           {totalConcepts > 0 && (
             <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">
