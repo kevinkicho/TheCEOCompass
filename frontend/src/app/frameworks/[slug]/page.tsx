@@ -37,16 +37,19 @@ export default function FrameworkDetailPage() {
     )
   }
 
-  const totalConcepts = framework.concepts?.length || framework.key_concepts?.length || 0
+  // Derive key_concepts from concepts if not explicitly set
+  const keyConceptNames = framework.key_concepts?.length
+    ? framework.key_concepts
+    : (framework.concepts || []).map((c: any) => c.name)
+
+  const totalConcepts = keyConceptNames.length || framework.concepts?.length || 0
   const completedConcepts = viewedIds.length
   const pct = totalConcepts > 0 ? Math.round((completedConcepts / totalConcepts) * 100) : 0
 
   const conceptMap = new Map<string, { name: string }>()
-  if (framework.key_concepts) {
-    for (const name of framework.key_concepts) {
-      const normalized = name.toLowerCase().replace(/[ /-]+/g, "")
-      conceptMap.set(normalized, { name })
-    }
+  for (const name of keyConceptNames) {
+    const normalized = name.toLowerCase().replace(/[ /-]+/g, "")
+    conceptMap.set(normalized, { name })
   }
 
   return (
@@ -88,7 +91,7 @@ export default function FrameworkDetailPage() {
       <div className="mb-8">
         <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Key Concepts</h2>
         <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          {framework.key_concepts?.map((name) => {
+          {keyConceptNames.map((name) => {
             const cs = slugify(name)
             const hasConcept = conceptMap.has(name.toLowerCase().replace(/[ /-]+/g, ""))
             const matchedConcept = framework.concepts?.find((c) => slugify(c.name) === cs)
