@@ -5,6 +5,11 @@
   if (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1")) return
 
   var basePath = window.__NEXT_DATA__?.basePath || ""
+  // Fallback: detect basePath from page URL (e.g. /TheCEOCompass/frameworks/ → /TheCEOCompass)
+  if (!basePath) {
+    var m = location.pathname.match(/^\/[^/]+\//)
+    if (m && m[0] !== "/_next/") basePath = m[0].replace(/\/$/, "")
+  }
   var swPath = basePath + "/sw.js"
 
   window.addEventListener("load", function () {
