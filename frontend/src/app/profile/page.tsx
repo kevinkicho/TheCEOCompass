@@ -301,11 +301,19 @@ export default function ProfilePage() {
           </div>
 
           {settings.localAiMode && (
-            <div className="rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 p-3">
+            <div className="rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 p-3 space-y-2">
               <p className="text-xs text-green-700 dark:text-green-300">
-                <strong>Local AI Mode:</strong> Browser calls Ollama at <code className="font-mono bg-green-100 dark:bg-green-900/30 px-1 rounded">{settings.ollamaUrl || "http://localhost:11434"}</code> directly.
-                Start Ollama with: <code className="font-mono bg-green-100 dark:bg-green-900/30 px-1 rounded">OLLAMA_ORIGINS=* ollama serve</code>
+                <strong>Local AI Mode:</strong> Browser calls Ollama directly. No Firebase or agent needed.
               </p>
+              <p className="text-xs text-green-700 dark:text-green-300">
+                <strong>Requires running the app locally</strong> (not GitHub Pages) to avoid CORS:
+              </p>
+              <pre className="text-[10px] font-mono bg-green-100 dark:bg-green-900/30 rounded p-2 overflow-x-auto">{`# Terminal 1 — Start Ollama
+OLLAMA_ORIGINS=* ollama serve
+
+# Terminal 2 — Start the app
+cd frontend && npm run dev
+# Open http://localhost:3000`}</pre>
             </div>
           )}
 
