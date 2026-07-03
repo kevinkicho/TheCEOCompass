@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { getFrameworkBySlug, getScenarios } from "@/lib/api"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 import { slugify } from "@/lib/ollama"
 import { loadFrameworkProgress } from "@/lib/firebase-crud"
 import { isStaticHosting } from "@/components/RequiresBackend"
@@ -17,7 +18,7 @@ export default function FrameworkDetailPage() {
   const [viewedIds, setViewedIds] = useState<string[]>([])
 
   useEffect(() => {
-    getFrameworkBySlug(slug).then((fw) => {
+    loadFrameworks().then(() => getFrameworkBySlug(slug)).then((fw) => {
       if (!fw) return
       setFramework(fw)
       getScenarios(fw.id).then(setScenarios).catch(console.error)
