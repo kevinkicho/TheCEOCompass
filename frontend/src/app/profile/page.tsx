@@ -282,6 +282,57 @@ export default function ProfilePage() {
       <div className="mb-8">
         <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">AI Settings</h2>
         <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-5 space-y-4">
+          {/* Local AI Mode Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="text-sm font-medium text-dark-700 dark:text-dark-300">Local AI Mode</label>
+              <p className="text-xs text-dark-500 dark:text-dark-400">Call Ollama directly from your browser (no Firebase/agent needed)</p>
+            </div>
+            <button
+              onClick={() => setSettings({ ...settings, localAiMode: !settings.localAiMode })}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                settings.localAiMode ? "bg-primary-600" : "bg-dark-300 dark:bg-dark-600"
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings.localAiMode ? "translate-x-6" : "translate-x-1"
+              }`} />
+            </button>
+          </div>
+
+          {settings.localAiMode && (
+            <div className="rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 p-3">
+              <p className="text-xs text-green-700 dark:text-green-300">
+                <strong>Local AI Mode:</strong> Browser calls Ollama at <code className="font-mono bg-green-100 dark:bg-green-900/30 px-1 rounded">{settings.ollamaUrl || "http://localhost:11434"}</code> directly.
+                Start Ollama with: <code className="font-mono bg-green-100 dark:bg-green-900/30 px-1 rounded">OLLAMA_ORIGINS=* ollama serve</code>
+              </p>
+            </div>
+          )}
+
+          {!settings.localAiMode && (
+            <div className="rounded-lg bg-primary-50 dark:bg-primary-900/10 p-3">
+              <p className="text-xs text-primary-700 dark:text-primary-300">
+                AI requests go through Firebase RTDB. Run the local agent: <code className="font-mono bg-primary-100 dark:bg-primary-900/30 px-1 rounded">cd agent && node index.js</code>
+              </p>
+            </div>
+          )}
+
+          {/* Ollama URL (local mode only) */}
+          {settings.localAiMode && (
+            <div>
+              <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Ollama URL</label>
+              <input
+                type="text"
+                value={settings.ollamaUrl}
+                onChange={(e) => setSettings({ ...settings, ollamaUrl: e.target.value })}
+                className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
+                placeholder="http://localhost:11434"
+              />
+              <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Ollama server URL. Default: http://localhost:11434</p>
+            </div>
+          )}
+
+          {/* Model Name */}
           <div>
             <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Ollama Model</label>
             <input
@@ -289,14 +340,9 @@ export default function ProfilePage() {
               value={settings.ollamaModel}
               onChange={(e) => setSettings({ ...settings, ollamaModel: e.target.value })}
               className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-2 text-sm text-dark-900 dark:text-dark-100 focus:border-primary-400 focus:outline-none"
-              placeholder="gemma4:latest"
+              placeholder="gemma4:31b-cloud"
             />
-            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model name to use with Ollama (e.g. gemma4:latest, llama3, mistral).</p>
-          </div>
-          <div className="rounded-lg bg-primary-50 dark:bg-primary-900/10 p-3">
-            <p className="text-xs text-primary-700 dark:text-primary-300">
-              AI requests go through Firebase RTDB. Run the local agent in WSL: <code className="font-mono bg-primary-100 dark:bg-primary-900/30 px-1 rounded">cd agent && node index.js</code>
-            </p>
+            <p className="mt-1 text-xs text-dark-500 dark:text-dark-400">Model to pull with <code className="font-mono bg-dark-100 dark:bg-dark-800 px-1 rounded">ollama pull {settings.ollamaModel || "gemma4:31b-cloud"}</code></p>
           </div>
         </div>
       </div>

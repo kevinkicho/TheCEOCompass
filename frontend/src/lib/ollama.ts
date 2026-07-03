@@ -61,13 +61,46 @@ function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 }
 
-function loadSettings(): Record<string, string> {
+function loadSettings(): Record<string, any> {
   try {
     const raw = localStorage.getItem("ceocompass_settings")
     return raw ? JSON.parse(raw) : {}
   } catch {
     return {}
   }
+}
+
+function isLocalAiMode(): boolean {
+  const settings = loadSettings()
+  return settings.localAiMode === true
+}
+
+async function callOllamaDirect(
+  prompt: string,
+  temperature: number,
+  systemType: string = "explain_further",
+): Promise<string> {
+  const settings = loadSettings()
+  const ollamaUrl = settings.ollamaUrl || "http://localhost:11434"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
+  const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${prompt}`
+
+  const res = await fetch(`${ollamaUrl}/api/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, prompt: fullPrompt, stream: false, options: { temperature } }),
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Ollama error (${res.status}): ${text.substring(0, 200)}`)
+  }
+
+  const data = await res.json()
+  let result = data.response?.trim() || ""
+  if (result.startsWith("```")) result = result.split("\n").slice(1).join("\n")
+  if (result.endsWith("```")) result = result.slice(0, -3).trim()
+  return result
 }
 
 function getFrameworkMeta(slug: string) {
@@ -185,14 +218,26 @@ async function callOllamaViaFirebase(
   systemType: string = "explain_further",
   skipCache: boolean = false,
 ): Promise<{ result: string; cached: boolean; prompt: string }> {
+  const settings = loadSettings()
+  const actualModel = model || settings.ollamaModel || "gemma4:31b-cloud"
+  const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${prompt}`
+
+  // Local AI Mode — call Ollama directly from browser
+  if (isLocalAiMode()) {
+    console.log(`[AI] Local mode: calling Ollama directly for ${category}`)
+    if (!skipCache) {
+      const cached = await checkCache(frameworkSlug, conceptSlug, category)
+      if (cached) return { result: cached.result, cached: true, prompt: fullPrompt }
+    }
+    const result = await callOllamaDirect(prompt, temperature, systemType)
+    return { result, cached: false, prompt: fullPrompt }
+  }
+
+  // Firebase mode — route through agent
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
-
   const database = db!
-  const settings = loadSettings()
-  const actualModel = model || settings.ollamaModel || "gemma4:latest"
-  const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${prompt}`
 
   if (!skipCache) {
     const cached = await checkCache(frameworkSlug, conceptSlug, category)
@@ -436,7 +481,7 @@ Return ONLY valid JSON:
 }`
 
   const settings = loadSettings()
-  const actualModel = settings.ollamaModel || "gemma4:latest"
+  const actualModel = settings.ollamaModel || "gemma4:31b-cloud"
   const fullPrompt = `${buildSystemPrompt("explain")}\n\n${prompt}`
 
   if (!db) throw new Error("Firebase not configured")
@@ -512,7 +557,7 @@ Return ONLY valid JSON:
 }`
 
   const settings = loadSettings()
-  const actualModel = settings.ollamaModel || "gemma4:latest"
+  const actualModel = settings.ollamaModel || "gemma4:31b-cloud"
   const fullPrompt = `${buildSystemPrompt("explain")}\n\n${prompt}`
 
   if (!db) throw new Error("Firebase not configured")
@@ -550,7 +595,7 @@ export async function generateComparison(
 ): Promise<{ comparison: string; similarities: string; differences: string; when_to_use_each: string }> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
   const prompt = `Compare two leadership concepts for a CEO audience.
 
 Concept A: "${conceptA.name}"
@@ -598,7 +643,7 @@ export async function crossPollinate(
 ): Promise<{ synthetic_insight: string; blind_spot: string; combined_framework: string }> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
   const prompt = `You are a CEO coach synthesizing two concepts to create a new strategic insight.
 
 Concept A: "${conceptA.name}"
@@ -672,6 +717,10 @@ function buildConceptContext(concept: ConceptArg): string {
 }
 
 async function callConceptChat(prompt: string, model: string): Promise<string> {
+  // Local AI Mode — call Ollama directly
+  if (isLocalAiMode()) {
+    return callOllamaDirect(prompt, 0.5, "concept_chat")
+  }
   if (!db) throw new Error("Firebase not configured")
   const requestId = generateId()
   await set(ref(db!, `requests/${requestId}`), {
@@ -690,7 +739,7 @@ export async function chatWithConcept(
 ): Promise<string> {
   if (!db) throw new Error("Firebase not configured. Run the app locally to use AI chat.")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const context = buildConceptContext(concept)
 
@@ -715,7 +764,7 @@ export async function socraticTutor(
 ): Promise<string> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const context = buildConceptContext(concept)
 
@@ -748,7 +797,7 @@ export async function teachBackEvaluate(
 ): Promise<{ clarity: number; depth: number; gaps: string[]; improvement: string }> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const context = buildConceptContext(concept)
 
@@ -782,7 +831,7 @@ export async function generateAnalogy(
 ): Promise<string> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const context = buildConceptContext(concept)
 
@@ -804,7 +853,7 @@ export async function runDecisionSimulator(
 ): Promise<string> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const conversationHistory = messages
     .map((m) => `${m.role === "user" ? "CEO" : "Coach"}: ${m.content}`)
@@ -856,7 +905,7 @@ export async function analyzeBlindSpots(
 ): Promise<BlindSpotReport> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const prompt = `You are a CEO coach analyzing an executive's learning patterns to identify blind spots. Below is their learning data.
 
@@ -901,7 +950,7 @@ export async function generateLearningBrief(
 ): Promise<string> {
   if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
-  const model = settings.ollamaModel || "gemma4:latest"
+  const model = settings.ollamaModel || "gemma4:31b-cloud"
 
   const prompt = `You are a CEO coach writing a personalized weekly learning brief for an executive. Below is their week's data.
 

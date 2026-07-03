@@ -4,10 +4,14 @@ import { useState, useEffect, useCallback } from "react"
 
 export interface AppSettings {
   ollamaModel: string
+  localAiMode: boolean
+  ollamaUrl: string
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  ollamaModel: "gemma4:latest",
+  ollamaModel: "gemma4:31b-cloud",
+  localAiMode: false,
+  ollamaUrl: "http://localhost:11434",
 }
 
 const STORAGE_KEY = "ceocompass_settings"
