@@ -124,6 +124,14 @@ export interface Scenario {
   outcome_branches: Record<string, OutcomeBranch>
 }
 
+/** Resolved concept used when seeding SM-2 reviews from a weak scenario attempt */
+export interface ConceptReviewTarget {
+  conceptId: string
+  frameworkSlug: string
+  conceptName: string
+  conceptSlug: string
+}
+
 export interface ScenarioAttempt {
   id: string
   user_id: string
