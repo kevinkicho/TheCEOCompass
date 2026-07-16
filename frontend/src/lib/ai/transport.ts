@@ -9,6 +9,33 @@ export function generateId(): string {
   return crypto.randomUUID()
 }
 
+/**
+ * Canonical cloud AI rate-limit error text.
+ * Keep in sync with `functions/src/rate-limit.ts` `RATE_LIMIT_ERROR_MESSAGE`.
+ */
+export const AI_RATE_LIMIT_ERROR_MESSAGE =
+  "AI rate limit exceeded: maximum 20 cloud requests per 10 minutes. Please wait and try again."
+
+/** True when an error message indicates the server-side per-uid rate limit. */
+export function isRateLimitError(message: string | null | undefined): boolean {
+  if (!message) return false
+  return /rate limit exceeded/i.test(message)
+}
+
+/**
+ * Prefer response-path error, then request.error (Functions write both on failure).
+ */
+export function resolveAiRequestError(
+  responseData: { error?: string } | null | undefined,
+  requestData: { error?: string; status?: string } | null | undefined,
+): string {
+  return (
+    responseData?.error ||
+    requestData?.error ||
+    "Request failed"
+  )
+}
+
 /** Push an AI request with auth.uid for RTDB create-only owner rules. */
 export async function pushAiRequest(
   database: Database,
@@ -37,6 +64,7 @@ export function waitForFirebaseResponse<T = any>(
   return new Promise((resolve, reject) => {
     const responseRef = ref(database, responsePath)
     const statusRef = ref(database, `requests/${requestId}/status`)
+    const requestRef = ref(database, `requests/${requestId}`)
     let done = false
     const start = Date.now()
 
@@ -59,10 +87,12 @@ export function waitForFirebaseResponse<T = any>(
       if (done) return
       if (snap.val() === "error") {
         done = true; clearTimeout(timeout); clearInterval(progressInterval); unsubStatus(); unsubResp()
-        get(responseRef).then((s) => {
-          const d = s.val()
-          reject(new Error(d?.error || "Request failed"))
-        })
+        Promise.all([get(responseRef), get(requestRef)])
+          .then(([respSnap, reqSnap]) => {
+            const message = resolveAiRequestError(respSnap.val(), reqSnap.val())
+            reject(new Error(message))
+          })
+          .catch(() => reject(new Error("Request failed")))
       }
     })
 

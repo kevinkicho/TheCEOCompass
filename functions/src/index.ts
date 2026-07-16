@@ -3,9 +3,10 @@
  *
  * On create of /requests/{requestId}, if provider === "cloud":
  *   1. Claim pending → processing (transaction; retry-safe)
- *   2. Call OpenAI-compatible chat API (server-side secrets)
- *   3. Write result to the same response path the local agent uses
- *   4. Mark request done | error
+ *   2. Per-uid rate limit via Admin SDK `_rate/{uid}` (20 / 10 min sliding window)
+ *   3. Call OpenAI-compatible chat API (server-side secrets)
+ *   4. Write result to the same response path the local agent uses
+ *   5. Mark request done | error (rate-limit errors surface a clear message)
  *
  * Agent-mode requests (no provider / provider === "agent") are ignored.
  */

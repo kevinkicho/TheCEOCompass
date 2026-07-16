@@ -68,6 +68,13 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules._config.feature_flags[".write"]).toContain("admins")
   })
 
+  it("denies all client access to _rate (Admin SDK only for rate limits)", () => {
+    expect(rules._rate[".read"]).toBe(false)
+    expect(rules._rate[".write"]).toBe(false)
+    expect(rules._rate.$uid[".read"]).toBe(false)
+    expect(rules._rate.$uid[".write"]).toBe(false)
+  })
+
   it("does not use fictional legacy_devices root", () => {
     expect(rules.legacy_devices).toBeUndefined()
   })

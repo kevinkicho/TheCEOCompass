@@ -154,6 +154,15 @@
         ".read": true,
         ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
       }
+    },
+
+    "_rate": {
+      ".read": false,
+      ".write": false,
+      "$uid": {
+        ".read": false,
+        ".write": false
+      }
     }
   }
 }

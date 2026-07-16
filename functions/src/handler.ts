@@ -1,7 +1,7 @@
 /**
  * Cloud AI request orchestration (testable, no Firebase Functions imports).
  *
- * Claim → generate → write response → status done|error
+ * Claim → rate-limit → generate → write response → status done|error
  */
 
 import type { LlmConfig, GenerateResult } from "./llm"
@@ -10,6 +10,7 @@ import {
   isCloudProviderRequest,
   type AiRequestData,
 } from "./response-path"
+import { consumeRateLimit } from "./rate-limit"
 
 /** Minimal RTDB surface used by the handler (injectable for unit tests). */
 export type DbRef = {
@@ -75,6 +76,8 @@ export async function claimCloudRequest(
 
 /**
  * Prefer status=error first so clients fail fast even if response path write fails.
+ * Also stores `error` on the request so the frontend can surface the message when
+ * the response path is missing or not yet written.
  */
 export async function writeError(
   db: DbLike,
@@ -85,7 +88,10 @@ export async function writeError(
 ): Promise<void> {
   const errorData = { error: errorMessage, created_at: now }
   try {
-    await db.ref(`requests/${requestId}`).update({ status: "error" })
+    await db.ref(`requests/${requestId}`).update({
+      status: "error",
+      error: errorMessage,
+    })
   } finally {
     const path = getResponsePath(requestId, data)
     if (path) {
@@ -127,6 +133,16 @@ export async function handleCloudRequest(
   // Prefer live claimed row (post-transaction) over create-event snapshot
   const data = claimed
   log(`[processAIRequest] ${requestId} type=${data.type || "generate"}`)
+
+  // Per-uid sliding window (Admin SDK `_rate/{uid}`) — before any LLM call
+  const uid = typeof data.uid === "string" ? data.uid : null
+  const rate = await consumeRateLimit(deps.db as import("./rate-limit").RateDbLike, uid, now())
+  if (!rate.allowed) {
+    const message = rate.message || "AI rate limit exceeded"
+    log(`[processAIRequest] ${requestId} rate_limited uid=${uid || "?"} remaining=0`)
+    await writeError(deps.db, requestId, data, message, now())
+    return { outcome: "error", message }
+  }
 
   try {
     const responsePath = getResponsePath(requestId, data)

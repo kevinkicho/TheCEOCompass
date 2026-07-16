@@ -57,6 +57,7 @@ function cloudPending(overrides: Partial<AiRequestData> = {}): AiRequestData {
   return {
     provider: "cloud",
     status: "pending",
+    uid: "test-uid",
     type: "concept_chat",
     payload: { prompt: "hello", model: "gpt-test", options: { temperature: 0.1 } },
     ...overrides,
@@ -136,6 +137,7 @@ describe("writeError", () => {
       "set:conceptChats/r1",
     ])
     assert.equal(updates[0].data.status, "error")
+    assert.equal(updates[0].data.error, "boom")
     assert.equal(sets[0].data.error, "boom")
     assert.equal(sets[0].data.created_at, 42)
   })
@@ -157,6 +159,7 @@ describe("writeError", () => {
     await writeError(db, "r1", { type: "concept_chat" }, "llm failed")
     assert.equal(updates.length, 1)
     assert.equal(updates[0].status, "error")
+    assert.equal(updates[0].error, "llm failed")
   })
 })
 
@@ -306,5 +309,76 @@ describe("handleCloudRequest", () => {
       assert.equal(result.reason, "claim_failed")
     }
     assert.equal(genCalls, 0)
+  })
+
+  it("rate-limits without calling LLM and sets clear error", async () => {
+    const { RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_ERROR_MESSAGE } = await import(
+      "./rate-limit"
+    )
+    const now = 50_000
+    const timestamps = Array.from(
+      { length: RATE_LIMIT_MAX_REQUESTS },
+      (_, i) => now - i * 100,
+    )
+    const data = cloudPending({ uid: "rate-user" })
+    const { db, updates, sets } = createMockDb(
+      new Map([
+        ["requests/r1", data as Record<string, unknown>],
+        ["_rate/rate-user", { timestamps } as Record<string, unknown>],
+      ]),
+    )
+    let genCalls = 0
+    const result = await handleCloudRequest("r1", data, {
+      db,
+      llmConfig: { apiKey: "k" },
+      generateText: async () => {
+        genCalls++
+        return { text: "x", model: "m" }
+      },
+      now: () => now,
+    })
+    assert.equal(result.outcome, "error")
+    if (result.outcome === "error") {
+      assert.equal(result.message, RATE_LIMIT_ERROR_MESSAGE)
+    }
+    assert.equal(genCalls, 0)
+    assert.ok(updates.some((u) => u.data.status === "error"))
+    assert.ok(
+      updates.some(
+        (u) =>
+          u.path === "requests/r1" &&
+          u.data.error === RATE_LIMIT_ERROR_MESSAGE,
+      ),
+    )
+    assert.ok(
+      sets.some(
+        (s) =>
+          s.path === "conceptChats/r1" &&
+          s.data.error === RATE_LIMIT_ERROR_MESSAGE,
+      ),
+    )
+  })
+
+  it("errors when cloud request has no uid (rate-limit fail-closed)", async () => {
+    const data = cloudPending({ uid: undefined })
+    delete data.uid
+    const { db, updates } = createMockDb(
+      new Map([["requests/r1", data as Record<string, unknown>]]),
+    )
+    let genCalls = 0
+    const result = await handleCloudRequest("r1", data, {
+      db,
+      llmConfig: { apiKey: "k" },
+      generateText: async () => {
+        genCalls++
+        return { text: "x", model: "m" }
+      },
+    })
+    assert.equal(result.outcome, "error")
+    if (result.outcome === "error") {
+      assert.match(result.message, /Missing uid|rate limit/i)
+    }
+    assert.equal(genCalls, 0)
+    assert.ok(updates.some((u) => u.data.status === "error"))
   })
 })

@@ -40,6 +40,34 @@ Next.js 14 generates 360 pages at build time:
 
 `generateStaticParams` reads from `slugs.json` which contains all framework slugs and their concept slugs. Build time ~20s.
 
+## Cloud AI rate limiting
+
+Per-uid sliding window enforced in the Cloud Function **before** the LLM call:
+
+| Setting | Value |
+|---------|--------|
+| Limit | **20** cloud AI requests per uid |
+| Window | **10 minutes** (sliding) |
+| RTDB path | `_rate/{uid}` → `{ timestamps: number[] }` |
+| Access | **Admin SDK only** — client rules deny all read/write on `_rate` |
+| Scope | `provider === "cloud"` requests only (agent / local are not rate-limited here) |
+
+**Behavior on limit:**
+1. Function claims the request (`pending` → `processing`)
+2. Transaction on `_rate/{uid}` rejects the new timestamp
+3. Request set to `status: "error"` with `error` message on the request **and** response path
+4. Frontend `waitForFirebaseResponse` rejects with that message (surfaces in UI)
+
+Canonical message (keep Functions + frontend in sync):
+
+> AI rate limit exceeded: maximum 20 cloud requests per 10 minutes. Please wait and try again.
+
+Implementation: `functions/src/rate-limit.ts`, wired in `functions/src/handler.ts`. Frontend helpers: `AI_RATE_LIMIT_ERROR_MESSAGE`, `isRateLimitError` in `frontend/src/lib/ai/transport.ts`.
+
+Client-side pre-check is intentionally **not** used: clients cannot read `_rate`. Debounce / max-concurrent UI controls remain a separate soft layer.
+
+Redeploy RTDB rules after pulling this change (`scripts/update-rtdb-rules.cjs` or `firebase deploy --only database`).
+
 ## Remote feature flags
 
 Path: `_config/feature_flags` (public read, admin write). Parent `_config` is deny-read so future siblings are not world-readable by default.
@@ -84,6 +112,10 @@ _meta/framework_slugs
 # Runtime config (public read, admin write)
 _config/feature_flags
   → { ai_provider_default, cloud_ai_enabled, app_check_enforced, mastery_graph_enabled, sr_session_enabled }
+
+# Per-uid cloud AI rate limit (Admin SDK only; clients denied)
+_rate/{uid}
+  → { timestamps: number[] }  # sliding window (20 / 10 min)
 
 # AI enrichment (per concept, per category)
 framework/{slug}/{concept}/{category}/{requestId}
