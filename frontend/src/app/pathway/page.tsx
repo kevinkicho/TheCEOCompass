@@ -1,17 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { loadFrameworks } from "@/lib/rtdb-cache"
 import { loadPathwayProgress, markPathwayComplete, buildPathway } from "@/lib/firebase-crud"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { useAuthSession } from "@/lib/AuthSessionProvider"
+import { useMasteryRecommendations, nextActionHref, nextActionKindLabel } from "@/lib/mastery"
 import type { FrameworkListItem } from "@/lib/types"
 
 export default function PathwayPage() {
   const router = useRouter()
   const { ready: authReady } = useAuthSession()
+  const masteryRecs = useMasteryRecommendations(3)
   const [pathwaySteps, setPathwaySteps] = useState<FrameworkListItem[]>([])
   const [completedIds, setCompletedIds] = useState<string[]>([])
   const [inProgressId, setInProgressId] = useState<string | null>(null)
@@ -41,7 +44,7 @@ export default function PathwayPage() {
     setPathwayError("")
     try {
       await markPathwayComplete(slug)
-      setCompletedIds((prev) => prev.includes(slug) ? prev : [...prev, slug])
+      setCompletedIds((prev) => (prev.includes(slug) ? prev : [...prev, slug]))
     } catch (err) {
       setPathwayError(err instanceof Error ? err.message : "Failed to update progress")
     }
@@ -57,6 +60,9 @@ export default function PathwayPage() {
     return "locked"
   }
 
+  const showSuggested =
+    masteryRecs.status === "ready" && masteryRecs.actions.length > 0
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
       <div className="mb-8">
@@ -69,7 +75,11 @@ export default function PathwayPage() {
         description="Track completed modules and save your learning progress across sessions"
       />
 
-      {pathwayError && canUseFirebasePersistence() && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{pathwayError}</p>}
+      {pathwayError && canUseFirebasePersistence() && (
+        <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">
+          {pathwayError}
+        </p>
+      )}
 
       {/* Progress Summary */}
       <div className="mb-8 rounded-xl bg-primary-50 p-6 dark:bg-primary-900/20">
@@ -92,7 +102,39 @@ export default function PathwayPage() {
         </div>
       </div>
 
-      {/* Pathway Steps */}
+      {/* Mastery graph suggestions (only when mastery_graph_enabled) */}
+      {showSuggested && (
+        <div className="mb-8" data-testid="pathway-suggested-next">
+          <h2 className="text-lg font-semibold text-dark-900 dark:text-dark-100 mb-1">Suggested next</h2>
+          <p className="text-sm text-dark-500 dark:text-dark-400 mb-3">
+            Personalized from your mastery graph — due reviews, prerequisites, and high-value concepts.
+          </p>
+          <div className="space-y-2">
+            {masteryRecs.actions.map((action) => (
+              <Link
+                key={`${action.kind}-${action.conceptId}`}
+                href={nextActionHref(action)}
+                className="flex items-center justify-between gap-3 rounded-xl border border-sky-200 dark:border-sky-800/40 bg-sky-50/50 dark:bg-sky-900/10 p-4 transition hover:shadow-md"
+              >
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-sky-700 dark:text-sky-300">
+                    {nextActionKindLabel(action.kind)}
+                  </p>
+                  <p className="font-semibold text-dark-900 dark:text-dark-100 truncate">
+                    {formatConceptTitle(action.conceptSlug)}
+                  </p>
+                  <p className="text-xs text-dark-500 dark:text-dark-400 line-clamp-2">{action.reason}</p>
+                </div>
+                <span className="shrink-0 text-sm font-medium text-primary-600 dark:text-primary-400">
+                  Open →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pathway Steps — always shown (legacy ordered list) */}
       <div className="space-y-4">
         {pathwaySteps.map((step, index) => {
           const status = getStepStatus(step.slug)
@@ -110,7 +152,9 @@ export default function PathwayPage() {
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                  ) : (index + 1)}
+                  ) : (
+                    index + 1
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -147,4 +191,12 @@ export default function PathwayPage() {
       </div>
     </div>
   )
+}
+
+function formatConceptTitle(conceptSlug: string): string {
+  return conceptSlug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
 }

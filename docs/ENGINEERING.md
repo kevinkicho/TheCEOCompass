@@ -159,6 +159,19 @@ requests/{requestId}
 comparisons/{frameworkSlug}/{conceptA}/{conceptB}/{mode}/{requestId}
   → { result, model, prompt, created_at }
 
+# Mastery graph (Phase 3 — public read, admin write)
+mastery/edges/{fromConceptId}/{toConceptId}
+  → { type: "requires"|"reinforces"|"applied_in", weight: number ∈ [0,1] }
+  # requires: from depends on to (learn `to` before `from`) — directed
+  # reinforces: soft mutual link — seed stores BOTH directions (same weight)
+  # applied_in: from is practiced when learning to (often cross-framework)
+  # Edges are curated pedagogical heuristics, not strict curriculum order
+mastery/concepts/{conceptId}
+  → { frameworkSlug, conceptSlug, difficulty?, tags? }
+  # conceptId = slugify(concept name), same as URL conceptSlug
+_meta/mastery_graph
+  → { version, edgeCount, conceptCount, frameworks[], seededAt, policy: "replace" }
+
 # Per-device data
 journal/{deviceId}/entries/{id}
 progress/{deviceId}
@@ -171,6 +184,33 @@ scenarioHistory/{deviceId}/{slug}/{attemptId}
 ```
 
 Note: `framework/` (no 's') holds AI enrichment data. `frameworks/` (with 's') holds seed data. Both need separate RTDB rules.
+
+### Seeding the mastery graph
+
+Source of truth for the minimal seed is `frontend/src/data/mastery-edges.json` (types in `frontend/src/lib/mastery/types.ts`). Covers at least two frameworks (~15–30 edges).
+
+**Replace policy (not merge):** re-seeding nulls out RTDB edges/concepts that are no longer in the seed JSON, then writes the current graph in one atomic `update()`. `_meta/mastery_graph.edgeCount` / `conceptCount` always match live graph size after a successful seed.
+
+Prefer an explicit service-account path:
+
+```bash
+# Validate only (no credentials needed)
+node scripts/seed-mastery-graph.mjs --dry-run
+
+# Push to RTDB (Admin SDK)
+# Preferred: explicit key path
+GOOGLE_APPLICATION_CREDENTIALS=path/to/serviceAccount.json node scripts/seed-mastery-graph.mjs
+
+# Fallback: single *firebase*adminsdk*.json or serviceAccount*.json in agent/
+# (fails if multiple candidates — set GOOGLE_APPLICATION_CREDENTIALS instead)
+node scripts/seed-mastery-graph.mjs
+```
+
+After changing `database.rules.json`, redeploy rules:
+
+```bash
+node scripts/update-rtdb-rules.cjs
+```
 
 ## Cache Strategy
 

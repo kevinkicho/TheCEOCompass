@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { useAuthSession } from "@/lib/AuthSessionProvider"
+import { useFeatureFlags } from "@/components/FeatureFlagsProvider"
 import {
   loadDueReviews,
   loadPathwayProgress,
@@ -15,6 +16,15 @@ import { loadFrameworks } from "@/lib/rtdb-cache"
 import { db, ref, get } from "@/lib/firebase"
 import type { ReviewRecord } from "@/lib/spaced-repetition"
 import type { FrameworkListItem } from "@/lib/types"
+import {
+  loadMasteryRecommendations,
+  type NextAction,
+} from "@/lib/mastery"
+
+export type RecommendedConcept = Pick<
+  NextAction,
+  "kind" | "conceptId" | "frameworkSlug" | "conceptSlug" | "reason" | "score"
+>
 
 export type NextActionsState =
   | { status: "loading" }
@@ -28,18 +38,37 @@ export type NextActionsState =
       journalOutcomesDue: number
       lastViewed: { frameworkSlug: string; conceptId: string } | null
       isAnonymous: boolean
+      /** Graph-driven recommendations; empty when mastery_graph_enabled is false. */
+      recommendedConcepts: RecommendedConcept[]
     }
+
+function mapRecommended(actions: NextAction[]): RecommendedConcept[] {
+  return actions.map((a) => ({
+    kind: a.kind,
+    conceptId: a.conceptId,
+    frameworkSlug: a.frameworkSlug,
+    conceptSlug: a.conceptSlug,
+    reason: a.reason,
+    score: a.score,
+  }))
+}
 
 export function useNextActions(): NextActionsState & { retry: () => void } {
   const { ready: authReady, isAnonymous } = useAuthSession()
+  const { flags, ready: flagsReady } = useFeatureFlags()
   const [tick, setTick] = useState(0)
   const [state, setState] = useState<NextActionsState>({ status: "loading" })
+
+  // Only true when flags have loaded AND mastery is on — does not block base path
+  // while flagsReady is still false (effective false until flags arrive).
+  const masteryActive = flagsReady && flags.mastery_graph_enabled
 
   useEffect(() => {
     if (!canUseFirebasePersistence()) {
       setState({ status: "no_firebase" })
       return
     }
+    // Flag-off / pre-flags: do not wait on flagsReady — only auth.
     if (!authReady) {
       setState({ status: "loading" })
       return
@@ -50,12 +79,23 @@ export function useNextActions(): NextActionsState & { retry: () => void } {
 
     ;(async () => {
       try {
-        const [dueReviews, pathwayProgress, journal, frameworks] = await Promise.all([
+        const basePromise = Promise.all([
           loadDueReviews().catch(() => [] as ReviewRecord[]),
-          loadPathwayProgress().catch(() => ({ completedIds: [] as string[], inProgressId: null as string | null })),
+          loadPathwayProgress().catch(() => ({
+            completedIds: [] as string[],
+            inProgressId: null as string | null,
+          })),
           loadJournalEntries().catch(() => []),
           loadFrameworks().catch(() => [] as FrameworkListItem[]),
         ])
+
+        // Gate mastery I/O only — never block due/pathway/journal on feature flags.
+        const masteryPromise: Promise<NextAction[]> = masteryActive
+          ? loadMasteryRecommendations(4).catch(() => [] as NextAction[])
+          : Promise.resolve([] as NextAction[])
+
+        const [[dueReviews, pathwayProgress, journal, frameworks], recommendedConcepts] =
+          await Promise.all([basePromise, masteryPromise])
 
         const steps = buildPathway(frameworks as FrameworkListItem[])
         const pct =
@@ -106,6 +146,7 @@ export function useNextActions(): NextActionsState & { retry: () => void } {
           journalOutcomesDue,
           lastViewed,
           isAnonymous,
+          recommendedConcepts: mapRecommended(recommendedConcepts),
         })
       } catch (err) {
         if (!cancelled) {
@@ -120,7 +161,7 @@ export function useNextActions(): NextActionsState & { retry: () => void } {
     return () => {
       cancelled = true
     }
-  }, [authReady, isAnonymous, tick])
+  }, [authReady, isAnonymous, masteryActive, tick])
 
   return { ...state, retry: () => setTick((t) => t + 1) }
 }
