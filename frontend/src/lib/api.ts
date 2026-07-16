@@ -40,6 +40,10 @@ export async function getScenarios(frameworkId?: string): Promise<ScenarioListIt
     return list.map((s) => ({
       id: s.id, slug: s.slug, title: s.title,
       description: s.description, framework_id: s.framework_id, difficulty: s.difficulty,
+      pack_id: s.pack_id ?? "core",
+      pack_title: s.pack_title ?? "Core",
+      concept_ids: s.concept_ids,
+      framework_slugs: s.framework_slugs,
     }))
   }
   try {

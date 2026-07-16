@@ -50,8 +50,8 @@
         "prompt": "Estimate the quarterly revenue impact if you lose 15% of Enterprise customers and 25% of SMB customers to the free tier. Show your work.",
         "options": [],
         "free_response": true,
-        "feedback_prompt_template": "User estimated {response}. Correct: Enterprise $5M\u00d760%\u00d715%=$450k/qtr, SMB $5M\u00d740%\u00d725%=$500k/qtr. Total $950k/qtr ($3.8M ARR at risk). Evaluate their reasoning.",
-        "sample_answer": "Enterprise $5M\u00d760%\u00d715%=$450k/qtr, SMB $5M\u00d740%\u00d725%=$500k/qtr. Total $950k/qtr ($3.8M ARR at risk)."
+        "feedback_prompt_template": "User estimated {response}. Correct: Enterprise $5M×60%×15%=$450k/qtr, SMB $5M×40%×25%=$500k/qtr. Total $950k/qtr ($3.8M ARR at risk). Evaluate their reasoning.",
+        "sample_answer": "Enterprise $5M×60%×15%=$450k/qtr, SMB $5M×40%×25%=$500k/qtr. Total $950k/qtr ($3.8M ARR at risk)."
       },
       {
         "id": "stage-3",
@@ -86,7 +86,7 @@
         "options": [],
         "free_response": true,
         "feedback_prompt_template": "User drafted {response}. Evaluate clarity, data-driven argument, and board-ready framing.",
-        "sample_answer": "A good board update includes: 1) Situation summary with key data points, 2) Financial impact analysis with numbers, 3) Proposed response with rationale, 4) Specific ask from the board (approval, guidance, resources). Keep it concise \u2014 2 slides maximum."
+        "sample_answer": "A good board update includes: 1) Situation summary with key data points, 2) Financial impact analysis with numbers, 3) Proposed response with rationale, 4) Specific ask from the board (approval, guidance, resources). Keep it concise — 2 slides maximum."
       }
     ],
     "outcome_branches": {
@@ -102,7 +102,20 @@
         "title": "Value Destruction",
         "description": "Panicked price cuts or free tier launch. Gross margin dropped to 25%. Burn rate unsustainable. Down round or shutdown within 18 months."
       }
-    }
+    },
+    "pack_id": "core",
+    "pack_title": "Core",
+    "concept_ids": [
+      "porter-s-five-forces",
+      "unit-economics",
+      "blue-ocean",
+      "second-order-thinking"
+    ],
+    "framework_slugs": [
+      "competitive-market-analysis",
+      "financial-mastery",
+      "strategic-decision-making"
+    ]
   },
   {
     "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -199,7 +212,19 @@
         "title": "Failed Integration",
         "description": "Both PhDs left at 12 months. Tech debt unmaintainable. $15M write-down. Enterprise deals lost due to distraction. Cash crisis."
       }
-    }
+    },
+    "pack_id": "core",
+    "pack_title": "Core",
+    "concept_ids": [
+      "dcf-valuation",
+      "lbo-modeling",
+      "m-a-deal-structure",
+      "free-cash-flow"
+    ],
+    "framework_slugs": [
+      "financial-mastery",
+      "negotiation-deal-making"
+    ]
   },
   {
     "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
@@ -213,11 +238,11 @@
       "situation": "Unauthorized access to customer PII database discovered 4 hours ago. ~10,000 records exposed (names, emails, company info - no passwords/financials). Attack vector: compromised contractor credentials. Contained 1 hour ago. Legal says 72-hour notification clock started.",
       "time_pressure": "72 hours for regulatory notification. Customers expecting update NOW. Board emergency call in 2 hours.",
       "data_provided": [
-        "Incident timeline: Detection \u2192 Containment \u2192 Investigation status",
+        "Incident timeline: Detection → Containment → Investigation status",
         "Data scope: 10,000 records, PII categories, no auth/financial data",
         "Root cause (preliminary): Contractor MFA bypass via session hijacking",
         "Regulatory: GDPR (EU customers), CCPA (CA), industry-specific",
-        "Customer impact: 3 Enterprise accounts (\u20ac2M ARR) in affected set"
+        "Customer impact: 3 Enterprise accounts (€2M ARR) in affected set"
       ]
     },
     "stages": [
@@ -285,9 +310,20 @@
       },
       "failure": {
         "title": "Existential Crisis",
-        "description": "Delayed/partial notification. GDPR fine \u20ac4M. Class action lawsuit. 3 Enterprise accounts churn. Board loses confidence. CEO replaced."
+        "description": "Delayed/partial notification. GDPR fine €4M. Class action lawsuit. 3 Enterprise accounts churn. Board loses confidence. CEO replaced."
       }
-    }
+    },
+    "pack_id": "core",
+    "pack_title": "Core",
+    "concept_ids": [
+      "crisis-first-hour",
+      "crisis-communication",
+      "fiduciary-duties",
+      "fmea"
+    ],
+    "framework_slugs": [
+      "risk-governance-crisis"
+    ]
   },
   {
     "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
@@ -401,7 +437,18 @@
         "title": "Culture Collapse",
         "description": "Both managers left. VP Sales still empty. 35% attrition. eNPS dropped to 35. Series B runway wasted on recruiting churn."
       }
-    }
+    },
+    "pack_id": "core",
+    "pack_title": "Core",
+    "concept_ids": [
+      "span-of-control",
+      "okrs",
+      "adkar-change-management",
+      "talent-density"
+    ],
+    "framework_slugs": [
+      "organizational-people"
+    ]
   },
   {
     "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
@@ -515,7 +562,18 @@
         "title": "Engineer Exodus",
         "description": "Crunch mode burned out 12 engineers. Platform stalled. Features buggy (CFR 25%). 3 enterprise deals lost. Rebuild from smaller team."
       }
-    }
+    },
+    "pack_id": "core",
+    "pack_title": "Core",
+    "concept_ids": [
+      "rice-prioritization",
+      "tech-debt-quadrant",
+      "build-vs-buy",
+      "dora-metrics"
+    ],
+    "framework_slugs": [
+      "engineering-product-leadership"
+    ]
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
@@ -611,6 +669,725 @@
       "failure": {
         "title": "Spiral Continues",
         "description": "Discounted churning customers. They left anyway after discount period. CS team burned out (2 quit). Churn hit 8%. ARR declining."
+      }
+    },
+    "pack_id": "core",
+    "pack_title": "Core",
+    "concept_ids": [
+      "5-whys",
+      "fishbone-ishikawa",
+      "root-cause-analysis",
+      "leading-churn-indicators"
+    ],
+    "framework_slugs": [
+      "cause-analysis-methods",
+      "cohort-analysis"
+    ]
+  },
+  {
+    "id": "10101010-1010-1010-1010-101010101010",
+    "slug": "runway-unit-economics-crisis",
+    "title": "Runway & Unit Economics Crisis",
+    "description": "Burn is $400k/mo with 8 months runway. CAC spiked and payback blew past 18 months. Board wants a 90-day plan.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0001",
+    "difficulty": 4,
+    "pack_id": "finance",
+    "pack_title": "Finance",
+    "concept_ids": [
+      "unit-economics",
+      "free-cash-flow",
+      "ebitda",
+      "roic"
+    ],
+    "framework_slugs": [
+      "financial-mastery",
+      "value-driver-tree"
+    ],
+    "context": {
+      "company": "B2B SaaS, $4.8M ARR, 55 employees, Series A, $3.2M cash",
+      "situation": "Monthly burn hit $400k (was $280k six months ago). Net new ARR slowed from $250k to $80k/mo. CAC rose from $8k to $14k; LTV/CAC fell from 4.2x to 2.1x. Payback now 19 months. Two enterprise deals slipped. Board meeting in 10 days demands a cash and growth plan.",
+      "time_pressure": "8 months runway at current burn. Board wants 90-day plan with kill/keep decisions.",
+      "data_provided": [
+        "P&L: ARR $4.8M, GM 68%, S&M $2.1M annualized, R&D $1.4M, G&A $0.9M",
+        "Unit economics: CAC $14k, avg ACV $22k, gross retention 88%, NRR 102%",
+        "Funnel: SQL +12% QoQ but win rate -8pts; sales cycle 72 days (was 55)",
+        "Cohorts: last 2 cohorts LTV -25% vs prior year; expansion lagging",
+        "Headcount: 12 AE/SDR, 8 CS, 18 eng, 17 other; open reqs: 4 eng, 2 AE"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What should you diagnose FIRST before cutting or fundraising?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Unit economics by segment + contribution margin by channel + 13-week cash forecast",
+            "score": 0.95,
+            "rationale": "Separates structural unit-econ problems from temporary funnel noise and quantifies cash options."
+          },
+          {
+            "id": "b",
+            "label": "Immediately cut 20% headcount across all departments",
+            "score": 0.15,
+            "rationale": "Blind cuts destroy growth capacity and morale without fixing CAC or payback root causes."
+          },
+          {
+            "id": "c",
+            "label": "Raise a bridge round at any valuation to buy 18 months",
+            "score": 0.25,
+            "rationale": "May be necessary later, but without a plan and cleaned unit economics you dilute into a worse story."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate whether diagnosis precedes capital structure decisions."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Estimate months of runway if you cut burn by $120k/mo starting next month (one-time severance $180k). Show remaining cash path.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User estimated {response}. Correct path: start cash $3.2M; month 1 burn $400k + severance $180k = out $580k → $2.62M; then burn $280k/mo → $2.62M / $280k ≈ 9.4 months additional after month 1 (≈10 months total from now vs 8). Evaluate arithmetic and framing.",
+        "sample_answer": "Start $3.2M. Month 1: burn $400k + severance $180k → cash $2.62M. Ongoing burn $280k → ~9.4 months after month 1 (~10 months total runway vs 8 at status quo)."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Choose the 90-day operating plan:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Pause open reqs; freeze non-quota S&M spend; reallocate 2 AEs to best segments; raise prices 8% on new logos; target CAC <$10k and payback <14 mo; weekly cash + unit-econ dashboard",
+            "score": 0.9,
+            "rationale": "Attacks CAC/payback levers, protects core capacity, and installs leading cash metrics."
+          },
+          {
+            "id": "b",
+            "label": "Double paid ads and hire 4 more AEs to grow out of the burn",
+            "score": 0.1,
+            "rationale": "Accelerates cash burn while unit economics are broken — classic death spiral."
+          },
+          {
+            "id": "c",
+            "label": "Cut R&D by 40% and keep S&M intact",
+            "score": 0.35,
+            "rationale": "May extend runway short-term but risks product stagnation and NRR; does not fix CAC quality."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate impact on unit economics, runway, and growth quality."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Draft the 5-bullet board narrative: situation, root cause, 90-day actions, cash path, ask.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate clarity, numbers, accountability, and whether the ask matches the plan.",
+        "sample_answer": "1) 8 mo runway, CAC 14k, LTV/CAC 2.1x. 2) Root: CAC inflation + win-rate drop, not pure opex bloat. 3) 90-day: freeze non-quota S&M, segment focus, +8% price new logos, weekly unit-econ. 4) Cut $120k/mo burn → ~10 mo runway. 5) Ask: approve plan; revisit bridge only if payback >16 mo at day 90."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Unit Economics Recovered",
+        "description": "CAC back under $10k, payback 13 months, burn $275k. Board green-lights efficient growth; optional clean bridge avoided."
+      },
+      "acceptable": {
+        "title": "Cash Stabilized, Growth Flat",
+        "description": "Runway extended to 12 months but NRR stuck near 100%. Need product-led expansion next quarter."
+      },
+      "failure": {
+        "title": "Bridge on Weak Terms",
+        "description": "Burn unaddressed; raised down-round bridge with heavy preference. Morale crash and 18-month path to another crisis."
+      }
+    }
+  },
+  {
+    "id": "20202020-2020-2020-2020-202020202020",
+    "slug": "series-b-fundraising-terms",
+    "title": "Series B Fundraising Terms",
+    "description": "You have a term sheet at $80M post with 1x non-participating pref. A second investor offers higher valuation with ratchets. Choose and negotiate.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0002",
+    "difficulty": 4,
+    "pack_id": "finance",
+    "pack_title": "Finance",
+    "concept_ids": [
+      "cap-table",
+      "dcf-valuation",
+      "roic",
+      "m-a-deal-structure"
+    ],
+    "framework_slugs": [
+      "financial-mastery",
+      "negotiation-deal-making"
+    ],
+    "context": {
+      "company": "SaaS, $9M ARR, 110% NRR, 25% YoY growth accelerating to 40%, $6M cash, 14 mo runway",
+      "situation": "Raising $20M Series B. Lead A: $80M post, 1x non-participating, pro-rata, standard protective provisions, 4-year employee option pool top-up to 12%. Lead B: $100M post, 1x participating preferred, full-ratchet anti-dilution, two board seats, 15% pool.",
+      "time_pressure": "Exclusivity with Lead A expires in 5 days. Lead B wants answer in 72 hours.",
+      "data_provided": [
+        "Current cap: founder 42%, seed 18%, Series A 28%, pool 8%, other 4%",
+        "Comps: growth-stage SaaS at 8-12x ARR; your growth supports ~9-10x if clean terms",
+        "Use of proceeds: 50% S&M, 30% product, 20% GTM infrastructure",
+        "Legal note: participating pref + full ratchet heavily favor investor on mediocre exits",
+        "Relationship: Lead A is existing Series A major; Lead B is new brand-name fund"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What frameworks matter most when comparing these term sheets?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Cap table waterfall modeling + liquidation preference economics + control rights analysis (not headline valuation alone)",
+            "score": 0.95,
+            "rationale": "Post-money is incomplete without prefs, participation, anti-dilution, and board control."
+          },
+          {
+            "id": "b",
+            "label": "Always take the higher valuation — signals strength to the market",
+            "score": 0.15,
+            "rationale": "Toxic terms can destroy founder/common outcomes even at higher paper valuation."
+          },
+          {
+            "id": "c",
+            "label": "Only compare dilution percentage to founders",
+            "score": 0.35,
+            "rationale": "Dilution matters but ignores liquidation waterfalls and governance risk."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain term sheet economics beyond headline price."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "At a $60M exit (below post), roughly compare common proceeds under Lead A (1x non-participating) vs Lead B (1x participating). Assume $20M new money is senior preferred. Explain qualitatively with rough math.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User analyzed {response}. Key point: at a down/ mediocre exit, participating pref lets Lead B take 1x then share remaining pro-rata, crushing common vs non-participating which converts or takes 1x. Full ratchet worsens future downs. Evaluate.",
+        "sample_answer": "At $60M exit with $20M senior pref: non-participating investor chooses max(1x=$20M, as-converted share). Participating takes $20M preference then also shares residual — common receives less. Full ratchet further dilutes common if future down rounds."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "What do you do?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Accept Lead A economics; use Lead B as leverage to improve A only on minor points (pool, pro-rata). Decline participating + full ratchet.",
+            "score": 0.9,
+            "rationale": "Clean terms + relationship continuity; avoids structural value transfer and control loss."
+          },
+          {
+            "id": "b",
+            "label": "Take Lead B at $100M post to maximize paper valuation",
+            "score": 0.2,
+            "rationale": "Headline win, long-term misalignment and adverse waterfalls."
+          },
+          {
+            "id": "c",
+            "label": "Run a process for 6 more weeks to create a bidding war",
+            "score": 0.4,
+            "rationale": "May work with long runway; here 14 mo and exclusivity clocks make delay risky without clear superior options."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate governance, economics, and timing tradeoffs."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Write the founder email to the board recommending a path (5-8 sentences).",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate whether recommendation is clear, numbers-backed, and addresses control + liquidation risk.",
+        "sample_answer": "Recommend Lead A: clean 1x non-participating at fair 9x ARR, existing relationship, standard control. Decline Lead B despite higher post due to participating pref, full ratchet, and dual board seats. Use B only as leverage on pool sizing. Request board approval to sign A exclusivity extension if needed for counsel redlines."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Clean Round Closed",
+        "description": "Closed Lead A with minor pool tweak. Cap table remains founder-friendly. Hired GTM leads; hit plan within 2 quarters."
+      },
+      "acceptable": {
+        "title": "Slightly Compromised Terms",
+        "description": "Took hybrid: higher valuation but stripped participation. Slightly more complexity; still workable."
+      },
+      "failure": {
+        "title": "Toxic Paper",
+        "description": "Accepted participating + full ratchet. Later flat round triggered ratchet; founder ownership crushed; painful secondary politics."
+      }
+    }
+  },
+  {
+    "id": "30303030-3030-3030-3030-303030303030",
+    "slug": "enterprise-contract-negotiation",
+    "title": "Enterprise Contract Negotiation",
+    "description": "A Fortune 500 prospect wants 40% discount, unlimited liability, and annual termination for convenience. Worth 18% of next-year ARR target.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0003",
+    "difficulty": 3,
+    "pack_id": "negotiation",
+    "pack_title": "Negotiation",
+    "concept_ids": [
+      "batna",
+      "zopa",
+      "anchoring",
+      "principled-negotiation-getting-to-yes"
+    ],
+    "framework_slugs": [
+      "negotiation-deal-making"
+    ],
+    "context": {
+      "company": "B2B SaaS, $15M ARR, average deal $40k, this opportunity $450k ACV (3-year proposed)",
+      "situation": "Procurement opened at 40% off list, unlimited liability, security addenda, most-favored-nation, and termination for convenience on 30 days. Champion is strong; economic buyer is CFO-driven. Your list is $750k/3yr; you need this logo for enterprise reference.",
+      "time_pressure": "Their fiscal year ends in 3 weeks. If missed, delay 6+ months.",
+      "data_provided": [
+        "Your floor historically: 20% off multi-year with liability capped at 12 mo fees",
+        "BATNA: two mid-market deals totaling $180k ACV in pipeline this quarter",
+        "Competitor in deal: weaker product, known to discount 50%+",
+        "Legal red lines: unlimited liability and MFN are company policy blocks without CRO+GC",
+        "Expansion potential: 3 more divisions (~$1.2M ACV) if land successful"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "How do you frame this negotiation before the next call?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Map BATNA/ZOPA, separate price from risk terms, list trades (term length, prepay, liability cap, reference rights)",
+            "score": 0.95,
+            "rationale": "Principled, multi-variable negotiation beats single-issue discounting."
+          },
+          {
+            "id": "b",
+            "label": "Accept 40% off to win the logo; fix legal later",
+            "score": 0.1,
+            "rationale": "Sets deadly precedent; unlimited liability is existential, not cosmetic."
+          },
+          {
+            "id": "c",
+            "label": "Walk immediately — any pushback means bad customer",
+            "score": 0.25,
+            "rationale": "Ignores expansion value and normal enterprise procurement theater."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate negotiation preparation quality."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Estimate a defensible ZOPA on price for a 3-year deal. State your reservation price and a package anchor.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User estimated {response}. Strong answers cite ~20% floor ($600k/3yr), package with multi-year + liability cap + case study, and avoid matching 40% without trades. Evaluate.",
+        "sample_answer": "Reservation ~$600k/3yr (20% off) with liability capped at 12 months fees. Anchor package: $675k/3yr, 2-year minimum, Q1 prepay discount 5%, mutual liability cap, reference rights after go-live. 40% only if impossible without killing deal — then require longer term + expansion commitment."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Procurement rejects and re-anchors at 35% off + unlimited liability. Your move:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Hold liability red line; offer 22% off for 3-year + annual prepay + phased liability (higher for data breach only with insurance); trade MFN for logo rights",
+            "score": 0.9,
+            "rationale": "Protects existential risk, uses trades, stays inside ZOPA."
+          },
+          {
+            "id": "b",
+            "label": "Match 35% and accept unlimited liability to close before fiscal year-end",
+            "score": 0.05,
+            "rationale": "Catastrophic risk and margin destruction for one logo."
+          },
+          {
+            "id": "c",
+            "label": "Escalate with a hard walk-away email to the CFO",
+            "score": 0.35,
+            "rationale": "May work as BATNA signal but burns champion path; better as calibrated consequence after a final package."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate risk management and deal craft."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Write the short note to your champion summarizing the mutual-gain package (not a legal redline dump).",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate clarity, multi-issue framing, and champion enablement.",
+        "sample_answer": "We can land this before FYE with a 3-year agreement near 20-22% off list, annual prepay for extra savings, and security terms that meet your audit needs. We cannot accept unlimited liability (insurer + board policy) but will offer industry-standard breach caps backed by insurance. If you can move procurement off unlimited liability and MFN, we will prioritize implementation resources for a 45-day go-live."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Logo Won Cleanly",
+        "description": "Closed at 21% off, 3-year, capped liability. Reference secured. Two divisions entered pipeline within 6 months."
+      },
+      "acceptable": {
+        "title": "Deal Closed with Scars",
+        "description": "25% discount and heavy security process; liability capped. Margin thin but precedent contained with deal desk approval."
+      },
+      "failure": {
+        "title": "Bad Precedent",
+        "description": "Accepted deep discount + toxic liability. Three other enterprises demanded MFN. One incident claim threatened the company."
+      }
+    }
+  },
+  {
+    "id": "40404040-4040-4040-4040-404040404040",
+    "slug": "strategic-partnership-negotiation",
+    "title": "Strategic Partnership Negotiation",
+    "description": "A platform giant offers distribution that could 3x pipeline — in exchange for exclusivity and rev-share that may cap your upside.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0004",
+    "difficulty": 4,
+    "pack_id": "negotiation",
+    "pack_title": "Negotiation",
+    "concept_ids": [
+      "integrative-negotiation",
+      "batna",
+      "zopa",
+      "game-theory-prisoner-s-dilemma"
+    ],
+    "framework_slugs": [
+      "negotiation-deal-making",
+      "business-model-strategy"
+    ],
+    "context": {
+      "company": "Vertical SaaS, $7M ARR, strong niche, limited enterprise distribution",
+      "situation": "MegaPlatform wants 3-year partnership: feature them as preferred solution in-app, co-sell motion, 25% rev-share on influenced ARR, category exclusivity (no rival platforms), and 180-day termination only for cause. Your alternative is building your own channel (18-month payback).",
+      "time_pressure": "Partnership team changes in 6 weeks; next sponsor unknown.",
+      "data_provided": [
+        "Modeled influenced ARR: $2M Y1, $5M Y2, $9M Y3 if exclusive placement holds",
+        "Rev-share cost at 25%: large COGS-like hit; GM impact ~8-12pts on influenced revenue",
+        "Exclusivity blocks two smaller partners that could deliver $1.5M combined by Y2",
+        "Legal: data processing + brand guidelines heavy but manageable",
+        "BATNA: hire 3 partner managers + integrations budget $1.2M over 18 months"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What is the core negotiation problem?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Integrative deal design: expand pie (placement SLAs, co-marketing, non-exclusive tiers) rather than only arguing rev-share %",
+            "score": 0.9,
+            "rationale": "Interests differ: they want category control and monetization; you want distribution without strategic lock-in."
+          },
+          {
+            "id": "b",
+            "label": "Pure distributive fight: minimize rev-share only",
+            "score": 0.35,
+            "rationale": "Important but incomplete — exclusivity and termination may matter more long-term."
+          },
+          {
+            "id": "c",
+            "label": "Accept quickly before the sponsor leaves",
+            "score": 0.15,
+            "rationale": "Time pressure is real but rushing lock-in is how platforms capture all surplus."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate integrative vs distributive framing."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Compare 3-year NPV-style qualitative value: exclusive 25% rev-share path vs non-exclusive multi-partner path. Call key risks.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User analyzed {response}. Strong answers weigh influenced ARR minus rev-share, exclusivity opportunity cost, platform dependency risk, and BATNA channel build cost. Evaluate.",
+        "sample_answer": "Exclusive path: higher top-line influenced ARR but 25% tax + concentration risk if placement deprioritized. Multi-partner: slower ramp, lower fees, diversified dependency, preserves options. Key risk: exclusivity without placement SLAs or opt-out is asymmetric."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Choose your negotiation package to table:",
+        "options": [
+          {
+            "id": "a",
+            "label": "15% rev-share, 18-month limited exclusivity with performance gates (pipeline + sourced ARR), 90-day exit if gates miss, co-marketing fund, no MFN on future partners",
+            "score": 0.92,
+            "rationale": "Creates mutual gain, time-boxes exclusivity, ties value to performance."
+          },
+          {
+            "id": "b",
+            "label": "Accept 25% and full 3-year exclusivity as written",
+            "score": 0.15,
+            "rationale": "Transfers too much value and strategic optionality."
+          },
+          {
+            "id": "c",
+            "label": "Reject partnership entirely and only build direct channel",
+            "score": 0.4,
+            "rationale": "Valid BATNA but leaves distribution value on the table if terms can be fixed."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate strategic optionality and partnership economics."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Draft the 1-page internal decision memo recommendation for the exec team.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate structure: context, options, recommendation, risks, metrics.",
+        "sample_answer": "Recommend counter with performance-gated exclusivity and lower rev-share. Proceed only if gates + exit rights accepted. Metrics: sourced pipeline, win rate, GM after rev-share, dependency %. Fallback: walk to multi-partner BATNA."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Performance-Gated Partnership",
+        "description": "Closed 15% rev-share with 18-month exclusivity gates. Hit Y1 influenced ARR; retained right to add partners later."
+      },
+      "acceptable": {
+        "title": "Narrower Distribution Win",
+        "description": "Non-exclusive listing at 12% rev-share. Slower growth but strategic freedom preserved."
+      },
+      "failure": {
+        "title": "Platform Lock-In",
+        "description": "3-year exclusivity at 25%. Placement deprioritized after reorg; growth stalled and rivals took other channels."
+      }
+    }
+  },
+  {
+    "id": "50505050-5050-5050-5050-505050505050",
+    "slug": "ops-bottleneck-theory-of-constraints",
+    "title": "Ops Bottleneck: Theory of Constraints",
+    "description": "Order-to-cash cycle doubled. Customers complain. Every department asks for more headcount. Find and elevate the constraint.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0005",
+    "difficulty": 3,
+    "pack_id": "operations",
+    "pack_title": "Operations",
+    "concept_ids": [
+      "theory-of-constraints",
+      "six-sigma-dmaic",
+      "pareto-principle-80-20",
+      "statistical-process-control"
+    ],
+    "framework_slugs": [
+      "operations-quality-management"
+    ],
+    "context": {
+      "company": "Hardware-enabled SaaS, $25M ARR, ships kits + cloud subscription, 200 employees",
+      "situation": "Median order-to-cash time rose from 14 to 28 days. NPS ops score down 18pts. Inventory up, rush freight up 3x. Sales blames warehouse; warehouse blames incomplete orders; finance blames credit checks; engineering blames custom configs.",
+      "time_pressure": "Peak season in 6 weeks. Board ops review in 2 weeks.",
+      "data_provided": [
+        "Process stages avg days: Quote 2, Config 9 (was 3), Credit 2, Pick/Pack 4, Ship 2, Invoice 3, Collect 6",
+        "WIP: 120 orders stuck in Config queue; Config team = 4 specialists, utilization 96%",
+        "Defects: 22% of orders return to Config for rework after sales handoff",
+        "Pareto: 80% delay hours from Config + rework loops; freight overage $180k/quarter",
+        "Proposed asks: +3 warehouse, +2 AR, +1 salesperson, overtime budget"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "Using Theory of Constraints, where do you focus first?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Identify the system constraint: Config queue (highest WIP, 96% util, drives rework). Do not hire non-constraints yet.",
+            "score": 0.95,
+            "rationale": "TOC: throughput is gated by the bottleneck; improving non-constraints increases WIP and cost."
+          },
+          {
+            "id": "b",
+            "label": "Approve all headcount requests to reduce every queue",
+            "score": 0.15,
+            "rationale": "Local optimization; misses constraint and burns cash."
+          },
+          {
+            "id": "c",
+            "label": "Cut SKUs by 50% immediately without process data",
+            "score": 0.35,
+            "rationale": "May help later but skips constraint analysis; sales impact unmodeled."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Explain TOC five focusing steps vs local efficiency."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Apply DMAIC briefly: what metric defines success in 6 weeks, and what is the vital few (Pareto) to attack in Config?",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User answered {response}. Strong: primary metric order-to-cash median or Config cycle time; vital few = rework from incomplete sales handoffs + specialist capacity. Evaluate.",
+        "sample_answer": "Success metric: median order-to-cash ≤18 days and Config queue <40 orders before peak. Vital few: (1) sales handoff completeness checklist to cut 22% rework (2) protect Config capacity from non-urgent custom work (3) standard configs for top 20% SKUs covering 80% volume."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Choose the 30-day action plan:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Exploit constraint: freeze non-critical custom configs; introduce sales config checklist; daily WIP board; cross-train 2 adjacent staff into Config; only then consider +1 Config specialist",
+            "score": 0.92,
+            "rationale": "TOC: exploit then subordinate then elevate — checklist and WIP control before throwing bodies."
+          },
+          {
+            "id": "b",
+            "label": "Add 3 warehouse staff and expand overtime",
+            "score": 0.15,
+            "rationale": "Non-constraint; inventory and freight symptoms persist."
+          },
+          {
+            "id": "c",
+            "label": "Replace ERP in 90 days",
+            "score": 0.2,
+            "rationale": "Too slow for peak season; high risk distraction."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate TOC discipline and time-to-impact."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Write the all-hands ops note explaining why we are not hiring warehouse yet.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate clarity of constraint logic, empathy, and concrete asks of sales/config.",
+        "sample_answer": "Our bottleneck is Config, not the warehouse. Hiring warehouse first would pile more WIP behind Config. For 30 days we protect Config capacity, require complete handoffs, and standardize top SKUs. Warehouse overtime is temporary only. We will reassess staffing after Config queue halves."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Constraint Elevated",
+        "description": "Config cycle to 4 days, order-to-cash 16 days, freight overages down 40%. Peak season cleared without panic hiring."
+      },
+      "acceptable": {
+        "title": "Partial Flow Recovery",
+        "description": "Order-to-cash 21 days. Still some rework; need productized configs next quarter."
+      },
+      "failure": {
+        "title": "Local Optimization Trap",
+        "description": "Hired warehouse/AR; Config still stuck. Inventory ballooned; peak season missed SLAs; NPS fell further."
+      }
+    }
+  },
+  {
+    "id": "60606060-6060-6060-6060-606060606060",
+    "slug": "turnaround-cash-operations",
+    "title": "Turnaround: Cash & Operations",
+    "description": "New CEO of a distressed division: negative cash, slipping quality, and a parent company mandate to stabilize in 13 weeks or divest.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaa0006",
+    "difficulty": 5,
+    "pack_id": "operations",
+    "pack_title": "Operations",
+    "concept_ids": [
+      "turnaround-playbook",
+      "free-cash-flow",
+      "theory-of-constraints",
+      "okrs"
+    ],
+    "framework_slugs": [
+      "risk-governance-crisis",
+      "operations-quality-management",
+      "financial-mastery"
+    ],
+    "context": {
+      "company": "Industrial software + services division, $40M revenue, -$6M FCF trailing twelve, 320 employees",
+      "situation": "Parent appointed you CEO to stop the bleed. Receivables at 78 DSO, delivery projects 30% over budget, top customer (12% revenue) threatening churn over quality, and a union negotiation in 60 days. Parent: 13-week cash plan or strategic alternatives.",
+      "time_pressure": "13-week cash plan due in 10 days; weekly parent reviews thereafter.",
+      "data_provided": [
+        "Cash: $2.1M division cash, weekly burn ~$400k including project overruns",
+        "AR: $9M outstanding; $3.2M >90 days; disputes tied to delivery acceptance",
+        "Backlog: $18M but margin dilute — average project GM 22% vs bid 35%",
+        "Quality: escaped defects up 2x; rework labor $1.1M/quarter",
+        "People: critical architects flight risk; open leadership roles in CS and Delivery"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What is the correct turnaround sequence?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Stabilize cash (13-week forecast, AR blitz, spend freeze) → fix operations/quality on the constraint → then growth. Transparent parent cadence.",
+            "score": 0.95,
+            "rationale": "Classic turnaround playbook: cash first, then ops, then strategy."
+          },
+          {
+            "id": "b",
+            "label": "Launch a bold new product vision to inspire the team",
+            "score": 0.15,
+            "rationale": "Vision without cash and delivery control accelerates failure."
+          },
+          {
+            "id": "c",
+            "label": "Immediate 25% layoff day one without cash diagnostics",
+            "score": 0.3,
+            "rationale": "May be needed later but blind cuts can remove revenue-critical delivery capacity and worsen AR disputes."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate turnaround sequencing."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Build a 13-week cash focus list: top 3 cash in levers and top 3 cash out levers with rough weekly impact.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User listed {response}. Strong answers include AR collections on >90 day, acceptance unblocking, vendor payment terms, hiring freeze, discretionary cut, project scope control. Evaluate realism.",
+        "sample_answer": "In: (1) AR tiger team on $3.2M >90d (2) acceptance milestones with top accounts (3) require deposits on new projects. Out: (1) hiring freeze + contractor cut (2) discretionary/marketing pause (3) stop non-profitable project scope creep. Target +$200-300k weekly swing vs status quo."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Parent offers a $5M inject if you commit to a plan. Choose:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Take inject only with 13-week plan: AR war room, delivery stage-gates, quality containment on top customer, weekly FCF OKRs; no new logo hunting until GM recovery",
+            "score": 0.9,
+            "rationale": "Capital with operational discipline; avoids using inject to fund denial."
+          },
+          {
+            "id": "b",
+            "label": "Take inject and invest entirely in a new sales surge",
+            "score": 0.15,
+            "rationale": "Sells more unprofitable work into a broken delivery system."
+          },
+          {
+            "id": "c",
+            "label": "Refuse inject and threaten resignation to get a better deal",
+            "score": 0.25,
+            "rationale": "Theatrics over plan; parent will choose divestment."
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate capital discipline in turnarounds."
+      },
+      {
+        "id": "stage-4",
+        "type": "communication",
+        "prompt": "Draft the week-1 message to employees: honesty + priorities + what will not change yet.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User drafted {response}. Evaluate candor, cash/ops focus, and psychological safety without false certainty.",
+        "sample_answer": "We are in a cash and delivery crisis, not a mystery. Week 1-4 priorities: collect cash, stop defective releases to our top accounts, and freeze non-essential spend. We will not announce a vision reset or mass reorganization this week. Leaders will publish a 13-week scoreboard. Need your help unblocking acceptances and quality — not heroics on new features."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Stabilized Division",
+        "description": "13-week plan hit: DSO to 55, FCF breakeven by week 12, top customer retained. Parent continues investment."
+      },
+      "acceptable": {
+        "title": "Controlled Distressed Sale Prep",
+        "description": "Cash stabilized enough to run an orderly strategic process with better terms than a fire sale."
+      },
+      "failure": {
+        "title": "Value Destruction",
+        "description": "Inject spent on growth theater. AR worsened, quality incident with top customer, parent divests at distressed multiple."
       }
     }
   }

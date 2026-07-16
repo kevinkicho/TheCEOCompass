@@ -68,6 +68,11 @@ export interface ScenarioListItem {
   description: string
   framework_id: string
   difficulty: number
+  /** Optional scenario pack for filtering / grouping */
+  pack_id?: string
+  pack_title?: string
+  concept_ids?: string[]
+  framework_slugs?: string[]
 }
 
 export interface ScenarioOption {
@@ -106,6 +111,13 @@ export interface Scenario {
   description: string
   framework_id: string
   difficulty: number
+  /** Optional scenario pack for filtering / grouping */
+  pack_id?: string
+  pack_title?: string
+  /** Related concept slugs for SM-2 / mastery linking */
+  concept_ids?: string[]
+  /** Related framework slugs for browse / pathway linking */
+  framework_slugs?: string[]
   context: ScenarioContext
   stages: ScenarioStage[]
   outcome_branches: Record<string, OutcomeBranch>
