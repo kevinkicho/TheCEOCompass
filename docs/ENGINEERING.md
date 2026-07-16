@@ -33,6 +33,24 @@ The original FastAPI backend handled scenarios, journal, progress, and quiz endp
 - Legacy device trees remain readable for migration, then purge (`scripts/purge-legacy-device-data.mjs`)
 - Design: `docs/DESIGN_PHASE_0_1.md`
 
+## Testing
+
+| Suite | Command | CI |
+|-------|---------|-----|
+| Unit / component (Vitest) | `cd frontend && npx vitest run` | **Yes** — required green |
+| Typecheck | `cd frontend && npx tsc --noEmit` | **Yes** |
+| E2E smoke (Playwright) | `cd frontend && npm run test:e2e` | **No** (optional; does not block merge) |
+
+### Playwright e2e
+
+- Config: `frontend/playwright.config.ts` (dev server on port **33221**)
+- Specs: `frontend/e2e/` — includes `learning-loop.spec.ts` (home next-actions / review / session entry)
+- Specs tolerate missing Firebase env (assert hero/review shells and optional `data-testid` regions)
+- With `NEXT_PUBLIC_FIREBASE_*` set (e.g. `.env.local`), next-actions and SR panels appear when RTDB is reachable
+- First run may need: `npx playwright install chromium`
+
+Do **not** add Playwright to the default GitHub Actions job unless a dedicated optional workflow is added later — keep vitest CI stable and fast.
+
 ## Static Generation
 
 Next.js 14 generates 360 pages at build time:

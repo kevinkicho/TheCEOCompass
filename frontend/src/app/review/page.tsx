@@ -283,7 +283,7 @@ export default function WeeklyReviewPage() {
 
           {/* Concepts Due for Review (Spaced Repetition) */}
           {dueReviews.length > 0 && (
-            <div className="mb-8">
+            <div className="mb-8" data-testid="due-reviews-section">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">
                   Concepts Due for Review
