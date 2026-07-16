@@ -76,7 +76,7 @@ Path: `_config/feature_flags` (public read, admin write). Parent `_config` is de
 |-----|------|---------|---------|
 | `ai_provider_default` | `"agent"` \| `"local"` \| `"cloud"` | `"agent"` | Default AI provider when no Profile override |
 | `cloud_ai_enabled` | boolean | `false` | Allow selecting / routing to cloud AI |
-| `app_check_enforced` | boolean | `false` | Enforce Firebase App Check when scaffold lands |
+| `app_check_enforced` | boolean | `false` | Signal that App Check should be treated as enforced (see App Check below) |
 | `mastery_graph_enabled` | boolean | `false` | Gate mastery graph / next-action engine (Phase 3) |
 | `sr_session_enabled` | boolean | `false` | Gate spaced-repetition session UX (Phase 3) |
 
@@ -97,6 +97,30 @@ Example seed (admin / console):
   "sr_session_enabled": false
 }
 ```
+
+## Firebase App Check (scaffold)
+
+Client scaffold lives in `frontend/src/lib/app-check.ts`.
+
+**Init order (important for Console enforce):** `firebase.ts` calls `initAppCheckIfConfigured(app)` immediately after creating the Firebase app on the client, **before** `getAuth` / RTDB consumers run their effects. That way Auth and feature-flag listeners start after App Check is registered. `FeatureFlagsProvider` re-calls the same function only so the missing-key + `app_check_enforced` warning can fire after remote flags load (idempotent; no second SDK init).
+
+| Piece | Behavior |
+|-------|----------|
+| `NEXT_PUBLIC_APPCHECK_SITE_KEY` | reCAPTCHA v3 **site** key. When set, client initializes App Check and auto-refreshes tokens. When **unset**, init is a no-op — local dev keeps working. |
+| `NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN` | Optional. `true` (browser prompt) or a Console-registered **UUID** debug token for localhost. Other values are ignored with a console warn. Set only for dev when Console enforce is on. |
+| RTDB flag `app_check_enforced` | Ops/UX signal that enforcement is intended. Default `false`. Does **not** by itself block traffic or gate client init. |
+| Firebase Console → App Check → **Enforce** | **Actual blocking** for RTDB / Functions. Console Enforce alone is sufficient to reject token-less clients; enable only after clients ship tokens and debug tokens cover local/CI. |
+| Failed init retry | After a failed `initializeAppCheck`, the client does **not** retry until full page reload (avoids thrash). |
+
+**Safe rollout**
+
+1. Register reCAPTCHA v3 in Firebase Console App Check; put the site key in `frontend/.env` (see `.env.example`).
+2. Deploy the app so browsers attach tokens (eager init in `firebase.ts`).
+3. Keep Console **enforce off** and `app_check_enforced: false` until traffic looks healthy (no token-less failure spike).
+4. Register debug tokens for localhost / automation if needed (`true` or UUID only).
+5. Turn on Console enforce for RTDB (and Functions when present), then set `_config/feature_flags.app_check_enforced` to `true` as the ops signal.
+
+`firebase.ts` exports `app` (`FirebaseApp | null`) for App Check and other SDK init. Without Firebase env config or without the site key, nothing App Check-related runs.
 
 ## Firebase RTDB Structure
 

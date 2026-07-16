@@ -1,0 +1,142 @@
+/**
+ * Firebase App Check scaffold (reCAPTCHA v3).
+ *
+ * - Initializes only when `NEXT_PUBLIC_APPCHECK_SITE_KEY` is set.
+ * - No-ops safely when the key is missing (local dev without keys).
+ * - Client token attachment is independent of backend enforcement.
+ * - **Blocking** requires Firebase Console → App Check → Enforce on RTDB / Functions.
+ *   RTDB flag `app_check_enforced` is an ops/UX signal only (does not gate init or requests).
+ *
+ * Eager init runs from `firebase.ts` as soon as the Firebase app exists on the client,
+ * so Auth / RTDB consumers start after App Check is registered. FeatureFlagsProvider
+ * re-calls only for the missing-key + enforced warning path (idempotent).
+ *
+ * Debug tokens (localhost while console enforcement is on):
+ *   NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN=true   // interactive prompt
+ *   NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN=<uuid> // fixed debug token from console
+ */
+
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider,
+  type AppCheck,
+} from "firebase/app-check"
+import type { FirebaseApp } from "firebase/app"
+import { getFlag } from "@/lib/feature-flags"
+
+let appCheckInstance: AppCheck | null = null
+/**
+ * True after a successful or failed `initializeAppCheck` attempt with a site key.
+ * Failures are not retried until full page reload (avoids thrash on bad site key / HMR).
+ */
+let initAttempted = false
+let missingKeyWarned = false
+
+/** Firebase Console debug tokens are UUID-shaped. */
+const DEBUG_TOKEN_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+export function getAppCheckSiteKey(): string {
+  return (process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY || "").trim()
+}
+
+/** True when a reCAPTCHA v3 site key is present in env. */
+export function isAppCheckConfigured(): boolean {
+  return getAppCheckSiteKey().length > 0
+}
+
+/**
+ * Whether ops intend App Check enforcement.
+ * Full blocking still requires Firebase Console enforce switches.
+ */
+export function isAppCheckEnforced(): boolean {
+  return getFlag("app_check_enforced") === true
+}
+
+export function getAppCheckInstance(): AppCheck | null {
+  return appCheckInstance
+}
+
+function attachDebugTokenIfConfigured(): void {
+  if (typeof window === "undefined") return
+  const raw = (process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN || "").trim()
+  if (!raw) return
+
+  // Must be set before initializeAppCheck (Firebase web SDK contract).
+  if (raw === "true") {
+    ;(
+      globalThis as typeof globalThis & {
+        FIREBASE_APPCHECK_DEBUG_TOKEN?: string | boolean
+      }
+    ).FIREBASE_APPCHECK_DEBUG_TOKEN = true
+    return
+  }
+
+  if (DEBUG_TOKEN_UUID_RE.test(raw)) {
+    ;(
+      globalThis as typeof globalThis & {
+        FIREBASE_APPCHECK_DEBUG_TOKEN?: string | boolean
+      }
+    ).FIREBASE_APPCHECK_DEBUG_TOKEN = raw
+    return
+  }
+
+  console.warn(
+    '[app-check] Ignoring invalid NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN; use "true" or a Console debug UUID.',
+  )
+}
+
+/**
+ * Initialize App Check when `NEXT_PUBLIC_APPCHECK_SITE_KEY` is set.
+ * Safe no-op when missing key, SSR, no app, or already initialized / failed once.
+ * Never throws — local dev without keys must keep working.
+ *
+ * **Retry policy:** After a failed `initializeAppCheck` call, subsequent calls no-op
+ * until full page reload (`initAttempted` stays true). This avoids thrashing on a bad
+ * site key or permanent provider error. Transient failures require reload.
+ */
+export function initAppCheckIfConfigured(
+  app: FirebaseApp | null | undefined,
+): AppCheck | null {
+  if (typeof window === "undefined") return null
+  if (!app) return null
+  if (appCheckInstance) return appCheckInstance
+
+  const siteKey = getAppCheckSiteKey()
+  if (!siteKey) {
+    // Re-check after feature flags load so the warn can fire once when enforced.
+    if (isAppCheckEnforced() && !missingKeyWarned) {
+      missingKeyWarned = true
+      console.warn(
+        "[app-check] app_check_enforced is true but NEXT_PUBLIC_APPCHECK_SITE_KEY is unset; " +
+          "App Check will not attach tokens. Local dev is fine only while Console enforce is off.",
+      )
+    }
+    return null
+  }
+
+  if (initAttempted) return appCheckInstance
+  initAttempted = true
+
+  try {
+    attachDebugTokenIfConfigured()
+    appCheckInstance = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(siteKey),
+      isTokenAutoRefreshEnabled: true,
+    })
+    return appCheckInstance
+  } catch (err) {
+    // Duplicate init / network / reCAPTCHA load failures must not brick the app.
+    // initAttempted stays true — no automatic retry (see JSDoc).
+    console.warn("[app-check] initializeAppCheck failed:", err)
+    appCheckInstance = null
+    return null
+  }
+}
+
+/** Test helper — reset module state between tests. */
+export function resetAppCheckForTests(): void {
+  appCheckInstance = null
+  initAttempted = false
+  missingKeyWarned = false
+}
