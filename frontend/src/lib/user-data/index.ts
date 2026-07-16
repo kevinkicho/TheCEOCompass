@@ -25,3 +25,9 @@ export {
   markConceptViewed,
   loadFrameworkProgress,
 } from "./reviews"
+export {
+  exportUserData,
+  downloadUserDataExport,
+  importUserData,
+  type UserDataExport,
+} from "./export-import"

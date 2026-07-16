@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/useAuth"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import { db, ref, get } from "@/lib/firebase"
 import { getDeviceId } from "@/lib/firebase-crud"
+import { downloadUserDataExport, importUserData } from "@/lib/user-data"
 import { analyzeBlindSpots, type BlindSpotReport } from "@/lib/ollama"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 
@@ -23,6 +24,9 @@ export default function ProfilePage() {
   const [frameworks, setFrameworks] = useState<FrameworkListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { settings, setSettings, loaded } = useSettings()
+  const [exportBusy, setExportBusy] = useState(false)
+  const [importMsg, setImportMsg] = useState("")
+  const [importError, setImportError] = useState("")
 
   // Blind spot analysis
   const [blindSpotReport, setBlindSpotReport] = useState<BlindSpotReport | null>(null)
@@ -57,6 +61,83 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-16">
       <h1 className="mb-8 text-4xl font-bold text-dark-900 dark:text-dark-100">Your Progress</h1>
+
+      {canUseFirebasePersistence() && (
+        <div className="mb-8 rounded-xl border border-dark-200 dark:border-dark-700 p-4">
+          <p className="text-sm font-semibold text-dark-900 dark:text-dark-100 mb-1">Export / import learning data</p>
+          <p className="text-xs text-dark-500 dark:text-dark-400 mb-3">
+            Download a JSON backup of journal, reviews, pathway, and favorites. Import can merge or replace.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              disabled={exportBusy}
+              onClick={async () => {
+                setExportBusy(true)
+                setImportError("")
+                try {
+                  await downloadUserDataExport()
+                } catch (e) {
+                  setImportError(e instanceof Error ? e.message : "Export failed")
+                }
+                setExportBusy(false)
+              }}
+              className="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+            >
+              {exportBusy ? "Exporting…" : "Export JSON"}
+            </button>
+            <label className="rounded-lg border border-dark-200 dark:border-dark-700 px-3 py-1.5 text-xs font-medium text-dark-700 dark:text-dark-300 hover:bg-dark-50 dark:hover:bg-dark-800 cursor-pointer">
+              Import (merge)
+              <input
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ""
+                  if (!file) return
+                  setImportError("")
+                  setImportMsg("")
+                  try {
+                    const text = await file.text()
+                    const raw = JSON.parse(text)
+                    const r = await importUserData(raw, "merge")
+                    setImportMsg(`Merged ${r.journal} journal entries, ${r.reviews} reviews.`)
+                  } catch (err) {
+                    setImportError(err instanceof Error ? err.message : "Import failed")
+                  }
+                }}
+              />
+            </label>
+            <label className="rounded-lg border border-amber-300 dark:border-amber-700 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 cursor-pointer">
+              Import (replace)
+              <input
+                type="file"
+                accept="application/json,.json"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ""
+                  if (!file) return
+                  if (!window.confirm("Replace will wipe journal/reviews/progress/favorites after auto-export. Continue?")) return
+                  setImportError("")
+                  setImportMsg("")
+                  try {
+                    await downloadUserDataExport()
+                    const text = await file.text()
+                    const raw = JSON.parse(text)
+                    const r = await importUserData(raw, "replace")
+                    setImportMsg(`Replaced with ${r.journal} journal entries, ${r.reviews} reviews.`)
+                  } catch (err) {
+                    setImportError(err instanceof Error ? err.message : "Import failed")
+                  }
+                }}
+              />
+            </label>
+          </div>
+          {importMsg && <p className="mt-2 text-xs text-green-600 dark:text-green-400">{importMsg}</p>}
+          {importError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{importError}</p>}
+        </div>
+      )}
 
       {/* Key Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
