@@ -87,7 +87,8 @@ export interface ScenarioStage {
   type: "diagnosis" | "analysis" | "decision" | "communication" | "outcome"
   prompt: string
   options: ScenarioOption[]
-  free_response: boolean
+  /** Omitted on multiple-choice stages (treated as false). */
+  free_response?: boolean
   feedback_prompt_template: string
   sample_answer?: string
 }

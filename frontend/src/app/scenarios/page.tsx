@@ -38,9 +38,22 @@ export default function ScenariosPage() {
   }, [scenarios, activePack])
 
   const difficultyLabel = (d: number) => {
-    if (d <= 2) return { text: "Beginner", color: "bg-green-100 text-green-700" }
-    if (d <= 3) return { text: "Intermediate", color: "bg-amber-100 text-amber-700" }
-    return { text: "Advanced", color: "bg-red-100 text-red-700" }
+    if (d <= 2) {
+      return {
+        text: "Beginner",
+        color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+      }
+    }
+    if (d <= 3) {
+      return {
+        text: "Intermediate",
+        color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+      }
+    }
+    return {
+      text: "Advanced",
+      color: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300",
+    }
   }
 
   return (

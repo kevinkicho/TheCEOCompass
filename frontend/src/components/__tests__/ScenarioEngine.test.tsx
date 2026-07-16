@@ -1,7 +1,7 @@
 import React from "react"
 import { describe, it, expect, vi } from "vitest"
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { ScenarioEngine } from "../ScenarioEngine"
+import { ScenarioEngine, resolveOutcomeBranch } from "../ScenarioEngine"
 import type { Scenario } from "@/lib/types"
 
 vi.mock("next/navigation", () => ({
@@ -61,6 +61,29 @@ const mockScenario: Scenario = {
   },
 }
 
+describe("resolveOutcomeBranch", () => {
+  it("maps 0–1 catalog option scores to optimal/acceptable/failure", () => {
+    expect(resolveOutcomeBranch(0.95, 0)).toBe("optimal")
+    expect(resolveOutcomeBranch(0.8, 0)).toBe("optimal")
+    expect(resolveOutcomeBranch(0.5, 0)).toBe("acceptable")
+    expect(resolveOutcomeBranch(0.49, 0)).toBe("failure")
+    expect(resolveOutcomeBranch(0.1, 9)).toBe("failure")
+  })
+
+  it("accepts legacy 0–10 option scores", () => {
+    expect(resolveOutcomeBranch(9, 0)).toBe("optimal")
+    expect(resolveOutcomeBranch(5, 0)).toBe("acceptable")
+    expect(resolveOutcomeBranch(3, 0)).toBe("failure")
+  })
+
+  it("uses AI 0–10 score for free-response finals (no option)", () => {
+    expect(resolveOutcomeBranch(undefined, 9)).toBe("optimal")
+    expect(resolveOutcomeBranch(undefined, 8)).toBe("optimal")
+    expect(resolveOutcomeBranch(undefined, 5)).toBe("acceptable")
+    expect(resolveOutcomeBranch(undefined, 4)).toBe("failure")
+  })
+})
+
 describe("ScenarioEngine", () => {
   it("shows progress bar and stage info", () => {
     render(<ScenarioEngine scenario={mockScenario} />)
@@ -91,5 +114,30 @@ describe("ScenarioEngine", () => {
     expect(screen.getByText("90%")).toBeInTheDocument()
     expect(screen.getByText("Systematic approach")).toBeInTheDocument()
     expect(screen.getByText("Financial Mastery")).toBeInTheDocument()
+  })
+
+  it("shows optimal outcome_branches when free-response final scores high", async () => {
+    const freeFinal: Scenario = {
+      ...mockScenario,
+      stages: [
+        {
+          id: "stage-1",
+          type: "communication",
+          prompt: "Write the board note:",
+          options: [],
+          free_response: true,
+          feedback_prompt_template: "User: {response}",
+        },
+      ],
+    }
+    render(<ScenarioEngine scenario={freeFinal} />)
+    fireEvent.change(screen.getByPlaceholderText(/Type your analysis/), {
+      target: { value: "Cash first, then ops, then growth." },
+    })
+    fireEvent.click(screen.getByText("Submit for Feedback"))
+    await waitFor(() => {
+      expect(screen.getByText("Success")).toBeInTheDocument()
+    })
+    expect(screen.getByText("Won")).toBeInTheDocument()
   })
 })

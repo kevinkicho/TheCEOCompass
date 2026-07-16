@@ -50,7 +50,6 @@ export function ScenarioDecisionPrompt({ stage, onSubmit, isLoading }: {
               </span>
               <div>
                 <span className="text-sm text-dark-700 dark:text-dark-300">{option.label}</span>
-                <span className="ml-2 text-[10px] text-dark-400 dark:text-dark-500">Score: {option.score}/10</span>
               </div>
             </div>
           </button>

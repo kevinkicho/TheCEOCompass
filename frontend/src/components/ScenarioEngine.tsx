@@ -14,6 +14,25 @@ interface Props {
   scenario: Scenario
 }
 
+/** Map final-stage quality to outcome_branches keys (optimal | acceptable | failure).
+ *  - MC option scores in catalog are 0–1 (also accept legacy 0–10).
+ *  - AI free-response scores are 0–10.
+ */
+export function resolveOutcomeBranch(
+  optionScore: number | undefined,
+  aiScore0to10: number,
+): "optimal" | "acceptable" | "failure" {
+  if (optionScore !== undefined && !Number.isNaN(optionScore)) {
+    const normalized = optionScore > 1 ? optionScore / 10 : optionScore
+    if (normalized >= 0.8) return "optimal"
+    if (normalized >= 0.5) return "acceptable"
+    return "failure"
+  }
+  if (aiScore0to10 >= 8) return "optimal"
+  if (aiScore0to10 >= 5) return "acceptable"
+  return "failure"
+}
+
 export function ScenarioEngine({ scenario }: Props) {
   const router = useRouter()
   const [attempt, setAttempt] = useState(true)
@@ -59,11 +78,12 @@ export function ScenarioEngine({ scenario }: Props) {
       if (currentStageIdx >= scenario.stages.length - 1) {
         const allStages = [...stageHistory, { stageId: currentStage.id, choice: thisChoice, score: thisScore }]
         setIsComplete(true)
-        const option = scenario.stages[currentStageIdx].options.find((o) => o.id === choiceId)
-        let branch = "poor"
-        if (option && option.score >= 8) branch = "optimal"
-        else if (option && option.score >= 5) branch = "acceptable"
-        setFinalOutcomeBranch(branch)
+        const option = choiceId
+          ? currentStage.options.find((o) => o.id === choiceId)
+          : undefined
+        // Catalog option scores are 0–1; AI free-response scores are 0–10.
+        // outcome_branches keys: optimal | acceptable | failure
+        setFinalOutcomeBranch(resolveOutcomeBranch(option?.score, thisScore))
         if (canUseFirebasePersistence()) {
           saveScenarioAttempt(scenario.slug, allStages)
           loadScenarioHistory(scenario.slug).then(setPastAttempts)
