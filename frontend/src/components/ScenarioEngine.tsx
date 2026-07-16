@@ -7,7 +7,7 @@ import {
   saveScenarioAttempt,
   loadScenarioHistory,
   shouldOfferConceptReview,
-  ratingForWeakStages,
+  humanizeConceptSlug,
   resolveConceptsForReview,
   seedConceptsToReview,
 } from "@/lib/firebase-crud"
@@ -16,7 +16,7 @@ import { getCachedFrameworks, loadFrameworks } from "@/lib/rtdb-cache"
 import { ScenarioDecisionPrompt } from "@/components/ScenarioDecisionPrompt"
 import { ScenarioFeedbackPanel } from "@/components/ScenarioFeedbackPanel"
 import { ScenarioPastAttempts } from "@/components/ScenarioPastAttempts"
-import type { Scenario, FeedbackResponse } from "@/lib/types"
+import type { Scenario, FeedbackResponse, ConceptReviewTarget } from "@/lib/types"
 
 interface Props {
   scenario: Scenario
@@ -53,17 +53,48 @@ export function ScenarioEngine({ scenario }: Props) {
   const [finalOutcomeBranch, setFinalOutcomeBranch] = useState<string | null>(null)
   const [error, setError] = useState("")
   const [stageHistory, setStageHistory] = useState<StageHistoryEntry[]>([])
-  const [completedStages, setCompletedStages] = useState<StageHistoryEntry[]>([])
   const [pastAttempts, setPastAttempts] = useState<{ attemptId: string; stages: StageHistoryEntry[]; completed_at: string }[]>([])
   const [showReviewOffer, setShowReviewOffer] = useState(false)
   const [reviewStatus, setReviewStatus] = useState<"idle" | "saving" | "done" | "failed">("idle")
   const [reviewSeededCount, setReviewSeededCount] = useState(0)
+  const [reviewFailedCount, setReviewFailedCount] = useState(0)
+  const [reviewTargets, setReviewTargets] = useState<ConceptReviewTarget[]>([])
 
   useEffect(() => {
     if (canUseFirebasePersistence()) {
       loadScenarioHistory(scenario.slug).then(setPastAttempts)
     }
   }, [scenario.slug])
+
+  // Resolve concept names/ids for chips + seed once the offer is shown
+  useEffect(() => {
+    if (!showReviewOffer || !scenario.concept_ids?.length) {
+      setReviewTargets([])
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      let frameworks = getCachedFrameworks()
+      if (!frameworks) {
+        try {
+          frameworks = await loadFrameworks()
+        } catch {
+          frameworks = null
+        }
+      }
+      if (cancelled) return
+      setReviewTargets(
+        resolveConceptsForReview(
+          scenario.concept_ids!,
+          scenario.framework_slugs,
+          frameworks,
+        ),
+      )
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [showReviewOffer, scenario.concept_ids, scenario.framework_slugs])
 
   const currentStage = scenario.stages[currentStageIdx]
 
@@ -92,7 +123,6 @@ export function ScenarioEngine({ scenario }: Props) {
       if (currentStageIdx >= scenario.stages.length - 1) {
         const allStages = [...stageHistory, { stageId: currentStage.id, choice: thisChoice, score: thisScore }]
         setStageHistory(allStages)
-        setCompletedStages(allStages)
         setIsComplete(true)
         const option = choiceId
           ? currentStage.options.find((o) => o.id === choiceId)
@@ -107,6 +137,7 @@ export function ScenarioEngine({ scenario }: Props) {
           setShowReviewOffer(true)
           setReviewStatus("idle")
           setReviewSeededCount(0)
+          setReviewFailedCount(0)
         } else {
           setShowReviewOffer(false)
         }
@@ -137,23 +168,36 @@ export function ScenarioEngine({ scenario }: Props) {
 
     setReviewStatus("saving")
     try {
-      let frameworks = getCachedFrameworks()
-      if (!frameworks) {
-        try {
-          frameworks = await loadFrameworks()
-        } catch {
-          frameworks = null
+      let targets = reviewTargets
+      if (!targets.length) {
+        let frameworks = getCachedFrameworks()
+        if (!frameworks) {
+          try {
+            frameworks = await loadFrameworks()
+          } catch {
+            frameworks = null
+          }
         }
+        targets = resolveConceptsForReview(
+          conceptIds,
+          scenario.framework_slugs,
+          frameworks,
+        )
+        setReviewTargets(targets)
       }
-      const targets = resolveConceptsForReview(
-        conceptIds,
-        scenario.framework_slugs,
-        frameworks,
-      )
-      const rating = ratingForWeakStages(completedStages) ?? 3
-      const { seeded } = await seedConceptsToReview(targets, rating)
+
+      const writeable = targets.filter((t) => t.resolved)
+      if (writeable.length === 0) {
+        // All slug-only fallbacks — refuse permanent orphan review keys
+        setReviewStatus("failed")
+        return
+      }
+
+      // Pull-forward / seed-due-now only — never grades mature SM-2 schedules
+      const { seeded, failed } = await seedConceptsToReview(writeable)
       if (seeded > 0) {
         setReviewSeededCount(seeded)
+        setReviewFailedCount(failed)
         setReviewStatus("done")
       } else {
         setReviewStatus("failed")
@@ -170,10 +214,11 @@ export function ScenarioEngine({ scenario }: Props) {
     setIsComplete(false)
     setFinalOutcomeBranch(null)
     setStageHistory([])
-    setCompletedStages([])
     setShowReviewOffer(false)
     setReviewStatus("idle")
     setReviewSeededCount(0)
+    setReviewFailedCount(0)
+    setReviewTargets([])
     setError("")
   }
 
@@ -207,9 +252,18 @@ export function ScenarioEngine({ scenario }: Props) {
 
   if (isComplete) {
     const outcomeBranch = scenario.outcome_branches[finalOutcomeBranch || "acceptable"]
-    const relatedLabels = (scenario.concept_ids ?? []).map((id) =>
-      id.split("-").filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
-    )
+    const chipTargets: ConceptReviewTarget[] =
+      reviewTargets.length > 0
+        ? reviewTargets
+        : (scenario.concept_ids ?? []).map((slug) => ({
+            conceptId: slug,
+            frameworkSlug: scenario.framework_slugs?.[0] ?? "unknown",
+            conceptName: humanizeConceptSlug(slug),
+            conceptSlug: slug,
+            resolved: false,
+          }))
+    const totalAttempted = reviewSeededCount + reviewFailedCount
+
     return (
       <div>
       <div className="animate-fade-in rounded-xl border border-dark-200 p-8 dark:border-dark-700">
@@ -232,46 +286,55 @@ export function ScenarioEngine({ scenario }: Props) {
             <p className="mb-3 text-xs text-amber-800 dark:text-amber-300">
               Some stages scored low. Add related concepts to your spaced-repetition queue to practice them soon.
             </p>
-            {relatedLabels.length > 0 && (
+            {chipTargets.length > 0 && (
               <ul className="mb-3 flex flex-wrap gap-1.5">
-                {relatedLabels.map((label) => (
+                {chipTargets.map((t) => (
                   <li
-                    key={label}
+                    key={t.conceptId || t.conceptSlug}
                     className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-900/40 dark:text-amber-200"
                   >
-                    {label}
+                    {t.conceptName}
                   </li>
                 ))}
               </ul>
             )}
             {reviewStatus === "done" ? (
               <p className="text-xs font-medium text-green-700 dark:text-green-400" data-testid="scenario-review-done">
-                Added {reviewSeededCount} concept{reviewSeededCount === 1 ? "" : "s"} to review.
-              </p>
-            ) : reviewStatus === "failed" ? (
-              <p className="text-xs text-dark-500 dark:text-dark-400" data-testid="scenario-review-failed">
-                Could not add reviews right now. You can still continue.
+                {reviewFailedCount > 0 && totalAttempted > 0
+                  ? `Added ${reviewSeededCount} of ${totalAttempted} concepts to review.`
+                  : `Added ${reviewSeededCount} concept${reviewSeededCount === 1 ? "" : "s"} to review.`}
               </p>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleAddConceptsToReview}
-                  disabled={reviewStatus === "saving"}
-                  className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
-                  data-testid="add-concepts-to-review"
-                >
-                  {reviewStatus === "saving" ? "Adding…" : "Add related concepts to review"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowReviewOffer(false)}
-                  disabled={reviewStatus === "saving"}
-                  className="rounded-lg border border-amber-300 px-4 py-2 text-xs font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40"
-                >
-                  Skip
-                </button>
-              </div>
+              <>
+                {reviewStatus === "failed" && (
+                  <p className="mb-2 text-xs text-dark-500 dark:text-dark-400" data-testid="scenario-review-failed">
+                    Could not add reviews right now. You can try again or continue.
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handleAddConceptsToReview}
+                    disabled={reviewStatus === "saving"}
+                    className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                    data-testid="add-concepts-to-review"
+                  >
+                    {reviewStatus === "saving"
+                      ? "Adding…"
+                      : reviewStatus === "failed"
+                        ? "Try again"
+                        : "Add related concepts to review"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewOffer(false)}
+                    disabled={reviewStatus === "saving"}
+                    className="rounded-lg border border-amber-300 px-4 py-2 text-xs font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-200 dark:hover:bg-amber-900/40"
+                  >
+                    Skip
+                  </button>
+                </div>
+              </>
             )}
           </div>
         )}

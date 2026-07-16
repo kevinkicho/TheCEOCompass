@@ -6,7 +6,7 @@ import { getDb, requireUid, userPath, dbOptional } from "./scope-helpers"
 
 /** AI evaluate scores are 0–10. Below this is treated as a weak stage. */
 export const WEAK_STAGE_SCORE_THRESHOLD = 5
-/** Weak stages scoring below this seed as Again (0); otherwise Hard (3). */
+/** Weak stages scoring below this map to Again intensity for messaging / future use. */
 export const AGAIN_STAGE_SCORE_THRESHOLD = 3
 
 export function isWeakStageScore(
@@ -32,7 +32,8 @@ export function shouldOfferConceptReview(
 }
 
 /**
- * SM-2 rating for seeding weak scenario concepts:
+ * Suggested SM-2 intensity for weak scenario concepts (display / analytics only).
+ * Seeding uses pull-forward due-now and does **not** apply this as a grade on existing cards.
  * - null when no weak stages
  * - 0 (Again) when the weakest stage is very low
  * - 3 (Hard) otherwise
@@ -48,7 +49,8 @@ export function ratingForWeakStages(
   return min < againThreshold ? 0 : 3
 }
 
-function humanizeSlug(slug: string): string {
+/** Title-case a concept slug for display when the real name is unavailable. */
+export function humanizeConceptSlug(slug: string): string {
   return slug
     .split("-")
     .filter(Boolean)
@@ -58,8 +60,8 @@ function humanizeSlug(slug: string): string {
 
 /**
  * Map scenario `concept_ids` (concept slugs) to review targets.
- * Prefers frameworks listed in `framework_slugs`. Falls back to slug-based
- * targets when frameworks are unavailable so seeding can still proceed.
+ * Prefers frameworks listed in `framework_slugs`.
+ * Fallback targets (`resolved: false`) are for display only — do not write them to reviews.
  */
 export function resolveConceptsForReview(
   conceptIds: string[],
@@ -78,11 +80,13 @@ export function resolveConceptsForReview(
       for (const c of fw.concepts ?? []) {
         const fromName = slugify(c.name)
         if (fromName === conceptSlug || c.id === conceptSlug) {
+          const hasRealId = typeof c.id === "string" && c.id.length > 0
           return {
-            conceptId: c.id || conceptSlug,
+            conceptId: hasRealId ? c.id : conceptSlug,
             frameworkSlug: fw.slug,
             conceptName: c.name,
             conceptSlug: fromName || conceptSlug,
+            resolved: hasRealId,
           }
         }
       }
@@ -90,10 +94,70 @@ export function resolveConceptsForReview(
     return {
       conceptId: conceptSlug,
       frameworkSlug: frameworkSlugs?.[0] ?? "unknown",
-      conceptName: humanizeSlug(conceptSlug),
+      conceptName: humanizeConceptSlug(conceptSlug),
       conceptSlug,
+      // Slug-keyed writes would orphan from concept-page SR (loads by UUID concept.id).
+      resolved: false,
     }
   })
+}
+
+/**
+ * Seed / pull-forward a single concept so it is due for review now.
+ *
+ * - **No existing record**: create a learning card due immediately (`interval: 0`, `reviewCount: 0`).
+ *   This is not a graded SM-2 step.
+ * - **Existing record**: only pull `nextReviewAt` forward to now when it is in the future.
+ *   Never lengthens interval, never raises ease, never increments reviewCount.
+ *
+ * Used for "Add related concepts to review" after weak scenario stages.
+ */
+export async function seedConceptDueNow(target: ConceptReviewTarget): Promise<ReviewRecord> {
+  if (!target.resolved) {
+    throw new Error("Cannot seed unresolved concept (slug fallback only)")
+  }
+
+  const database = getDb()
+  const uid = requireUid()
+  const path = userPath(uid, "reviews", target.conceptId)
+  const snap = await get(ref(database, path))
+  const now = new Date().toISOString()
+
+  if (!snap.exists()) {
+    const record: ReviewRecord = {
+      conceptId: target.conceptId,
+      frameworkSlug: target.frameworkSlug,
+      conceptName: target.conceptName,
+      conceptSlug: target.conceptSlug,
+      reviewCount: 0,
+      interval: 0,
+      easeFactor: 2.5,
+      lastReviewedAt: now,
+      nextReviewAt: now,
+    }
+    await set(ref(database, path), record)
+    return record
+  }
+
+  const prev = snap.val() as ReviewRecord
+  const prevNextMs = prev.nextReviewAt ? new Date(prev.nextReviewAt).getTime() : Number.POSITIVE_INFINITY
+  // Pull forward only — never push the due date later
+  const nextReviewAt = prevNextMs <= Date.now() ? prev.nextReviewAt : now
+
+  const record: ReviewRecord = {
+    conceptId: target.conceptId,
+    frameworkSlug: target.frameworkSlug || prev.frameworkSlug,
+    conceptName: target.conceptName || prev.conceptName,
+    conceptSlug: target.conceptSlug || prev.conceptSlug,
+    reviewCount: prev.reviewCount ?? 0,
+    interval: prev.interval ?? 0,
+    easeFactor: prev.easeFactor ?? 2.5,
+    lastReviewedAt: prev.lastReviewedAt ?? now,
+    nextReviewAt,
+  }
+
+  await set(ref(database, path), record)
+  return record
 }
 
 export async function markConceptReviewed(
@@ -139,30 +203,28 @@ export async function markConceptReviewed(
 }
 
 /**
- * Seed SM-2 review records for weak-scenario concepts.
- * Non-blocking: per-concept failures are counted, never thrown.
+ * Seed SM-2 review records for weak-scenario concepts (due now / pull-forward).
+ * Skips unresolved (slug-only) targets. Non-blocking: per-concept failures are counted, never thrown.
  */
 export async function seedConceptsToReview(
   targets: ConceptReviewTarget[],
-  rating: ReviewRating,
-): Promise<{ seeded: number; failed: number }> {
+): Promise<{ seeded: number; failed: number; skipped: number }> {
   let seeded = 0
   let failed = 0
+  let skipped = 0
   for (const t of targets) {
+    if (!t.resolved) {
+      skipped++
+      continue
+    }
     try {
-      await markConceptReviewed(
-        t.frameworkSlug,
-        t.conceptId,
-        t.conceptName,
-        t.conceptSlug,
-        rating,
-      )
+      await seedConceptDueNow(t)
       seeded++
     } catch {
       failed++
     }
   }
-  return { seeded, failed }
+  return { seeded, failed, skipped }
 }
 
 export async function loadDueReviews(): Promise<ReviewRecord[]> {

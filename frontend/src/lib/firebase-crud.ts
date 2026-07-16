@@ -34,6 +34,8 @@ export {
   hasWeakStages,
   shouldOfferConceptReview,
   ratingForWeakStages,
+  humanizeConceptSlug,
   resolveConceptsForReview,
+  seedConceptDueNow,
   seedConceptsToReview,
 } from "./user-data"

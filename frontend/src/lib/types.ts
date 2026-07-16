@@ -130,6 +130,12 @@ export interface ConceptReviewTarget {
   frameworkSlug: string
   conceptName: string
   conceptSlug: string
+  /**
+   * True when conceptId came from a framework concept record (RTDB UUID/id).
+   * False for slug-only fallbacks — those must not be written as permanent review keys
+   * (they would orphan from concept-page SpacedReviewBar which loads by real concept.id).
+   */
+  resolved: boolean
 }
 
 export interface ScenarioAttempt {

@@ -6,7 +6,6 @@ import type { Scenario } from "@/lib/types"
 
 const mockSeed = vi.fn()
 const mockResolve = vi.fn()
-const mockRating = vi.fn()
 const mockShouldOffer = vi.fn()
 
 vi.mock("next/navigation", () => ({
@@ -40,7 +39,8 @@ vi.mock("@/lib/firebase-crud", () => ({
   saveScenarioAttempt: vi.fn(),
   loadScenarioHistory: vi.fn().mockResolvedValue([]),
   shouldOfferConceptReview: (...args: unknown[]) => mockShouldOffer(...args),
-  ratingForWeakStages: (...args: unknown[]) => mockRating(...args),
+  humanizeConceptSlug: (slug: string) =>
+    slug.split("-").filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
   resolveConceptsForReview: (...args: unknown[]) => mockResolve(...args),
   seedConceptsToReview: (...args: unknown[]) => mockSeed(...args),
 }))
@@ -90,6 +90,23 @@ const mockScenario: Scenario = {
   },
 }
 
+const resolvedTargets = [
+  {
+    conceptId: "c-ue",
+    frameworkSlug: "financial-mastery",
+    conceptName: "Unit Economics",
+    conceptSlug: "unit-economics",
+    resolved: true,
+  },
+  {
+    conceptId: "c-fcf",
+    frameworkSlug: "financial-mastery",
+    conceptName: "Free Cash Flow",
+    conceptSlug: "free-cash-flow",
+    resolved: true,
+  },
+]
+
 describe("resolveOutcomeBranch", () => {
   it("maps 0–1 catalog option scores to optimal/acceptable/failure", () => {
     expect(resolveOutcomeBranch(0.95, 0)).toBe("optimal")
@@ -117,16 +134,8 @@ describe("ScenarioEngine", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockShouldOffer.mockReturnValue(false)
-    mockRating.mockReturnValue(3)
-    mockResolve.mockReturnValue([
-      {
-        conceptId: "c-ue",
-        frameworkSlug: "financial-mastery",
-        conceptName: "Unit Economics",
-        conceptSlug: "unit-economics",
-      },
-    ])
-    mockSeed.mockResolvedValue({ seeded: 1, failed: 0 })
+    mockResolve.mockReturnValue(resolvedTargets)
+    mockSeed.mockResolvedValue({ seeded: 1, failed: 0, skipped: 0 })
     vi.mocked(evaluateScenarioStage).mockResolvedValue({
       parsed: {
         feedback: "Good strategic thinking! Your choice of Porter's Five Forces demonstrates systematic competitive analysis.",
@@ -229,8 +238,11 @@ describe("ScenarioEngine", () => {
       expect(screen.getByTestId("scenario-review-offer")).toBeInTheDocument()
     })
     expect(screen.getByTestId("add-concepts-to-review")).toBeInTheDocument()
-    expect(screen.getByText("Unit Economics")).toBeInTheDocument()
-    expect(screen.getByText("Free Cash Flow")).toBeInTheDocument()
+    // Resolved names preferred once frameworks resolve; humanized fallback until then
+    await waitFor(() => {
+      expect(screen.getByText("Unit Economics")).toBeInTheDocument()
+      expect(screen.getByText("Free Cash Flow")).toBeInTheDocument()
+    })
   })
 
   it("does not offer review when shouldOfferConceptReview is false", async () => {
@@ -259,9 +271,8 @@ describe("ScenarioEngine", () => {
     expect(screen.queryByTestId("scenario-review-offer")).not.toBeInTheDocument()
   })
 
-  it("seeds reviews with Hard/Again rating when user accepts offer", async () => {
+  it("seeds due-now reviews when user accepts offer (no SM-2 grade arg)", async () => {
     mockShouldOffer.mockReturnValue(true)
-    mockRating.mockReturnValue(0)
     vi.mocked(evaluateScenarioStage).mockResolvedValue({
       parsed: {
         feedback: "Weak.",
@@ -298,12 +309,59 @@ describe("ScenarioEngine", () => {
     await waitFor(() => {
       expect(screen.getByTestId("scenario-review-done")).toBeInTheDocument()
     })
+    // Pull-forward seed — single targets array, no rating grade
     expect(mockSeed).toHaveBeenCalledWith(
       expect.arrayContaining([
-        expect.objectContaining({ conceptSlug: "unit-economics" }),
+        expect.objectContaining({ conceptSlug: "unit-economics", resolved: true }),
       ]),
-      0,
     )
+    expect(mockSeed.mock.calls[0]).toHaveLength(1)
     expect(screen.getByText(/Added 1 concept/)).toBeInTheDocument()
+  })
+
+  it("allows retry after soft failure", async () => {
+    mockShouldOffer.mockReturnValue(true)
+    mockSeed
+      .mockResolvedValueOnce({ seeded: 0, failed: 2, skipped: 0 })
+      .mockResolvedValueOnce({ seeded: 2, failed: 0, skipped: 0 })
+    vi.mocked(evaluateScenarioStage).mockResolvedValue({
+      parsed: { feedback: "Weak.", score: 2, key_insights: [] },
+      prompt: "...",
+    } as any)
+
+    const freeFinal: Scenario = {
+      ...mockScenario,
+      stages: [
+        {
+          id: "stage-1",
+          type: "analysis",
+          prompt: "Estimate impact:",
+          options: [],
+          free_response: true,
+          feedback_prompt_template: "User: {response}",
+        },
+      ],
+    }
+    render(<ScenarioEngine scenario={freeFinal} />)
+    fireEvent.change(screen.getByPlaceholderText(/Type your analysis/), {
+      target: { value: "guess" },
+    })
+    fireEvent.click(screen.getByText("Submit for Feedback"))
+
+    await waitFor(() => {
+      expect(screen.getByTestId("add-concepts-to-review")).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByTestId("add-concepts-to-review"))
+
+    await waitFor(() => {
+      expect(screen.getByTestId("scenario-review-failed")).toBeInTheDocument()
+    })
+    expect(screen.getByText("Try again")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByTestId("add-concepts-to-review"))
+    await waitFor(() => {
+      expect(screen.getByTestId("scenario-review-done")).toBeInTheDocument()
+    })
+    expect(mockSeed).toHaveBeenCalledTimes(2)
   })
 })
