@@ -42,6 +42,15 @@ Browser (GitHub Pages / Local)    Firebase RTDB           Local Agent (WSL)     
 - Design (done): [`docs/DESIGN_PHASE_0_1.md`](docs/DESIGN_PHASE_0_1.md)
 - Design (next): [`docs/DESIGN_PHASE_2_3.md`](docs/DESIGN_PHASE_2_3.md) — Phase 2 cloud AI + Phase 3 mastery/scenarios/SR; run with `/execute-plan docs/DESIGN_PHASE_2_3.md`
 
+### Docs & operator runbook
+
+| Doc | Purpose |
+|-----|---------|
+| [`docs/OPERATOR_RUNBOOK.md`](docs/OPERATOR_RUNBOOK.md) | **Production ops:** Anonymous auth, deploy RTDB rules, bootstrap admins, Cloud Functions + secrets, feature flags, mastery seed, legacy purge, AI status modes |
+| [`docs/AI_CLOUD_SETUP.md`](docs/AI_CLOUD_SETUP.md) | Deploy / configure cloud AI (`processAIRequest`) |
+| [`docs/AI_LOCAL_SETUP.md`](docs/AI_LOCAL_SETUP.md) | Local agent + Ollama |
+| [`docs/ENGINEERING.md`](docs/ENGINEERING.md) | Architecture decisions, RTDB map, flags, mastery seed notes |
+
 ### No hardcoded data
 
 All framework and concept data lives in Firebase RTDB at `frameworks/{slug}`. A minimal `framework-meta.json` exists only for SSG build-time `generateStaticParams()`. When Firebase is unavailable, the app shows clear error messages — no silent fallback to mock data.
@@ -127,8 +136,11 @@ cd ../agent && node seed-rtdb.mjs
 ### Deploying RTDB security rules
 
 ```bash
-GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json" node scripts/update-rtdb-rules.cjs
+# Place service account JSON in agent/ (update-rtdb-rules does not use GOOGLE_APPLICATION_CREDENTIALS)
+node scripts/update-rtdb-rules.cjs
 ```
+
+Full ops sequence (auth, rules, admins, functions, flags, mastery seed): [`docs/OPERATOR_RUNBOOK.md`](docs/OPERATOR_RUNBOOK.md) §3.
 
 ---
 

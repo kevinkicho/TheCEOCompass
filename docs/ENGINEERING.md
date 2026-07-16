@@ -1,5 +1,8 @@
 # Engineering Decisions
 
+**Ops / deploy:** [`docs/OPERATOR_RUNBOOK.md`](./OPERATOR_RUNBOOK.md) — Anonymous auth, RTDB rules, admins, Cloud Functions secrets, feature flags, mastery seed, legacy purge, AI status modes.  
+**Cloud AI:** [`docs/AI_CLOUD_SETUP.md`](./AI_CLOUD_SETUP.md) · **Local AI:** [`docs/AI_LOCAL_SETUP.md`](./AI_LOCAL_SETUP.md)
+
 ## Architecture
 
 ```
@@ -86,6 +89,8 @@ Frontend:
 - Wired in `app/layout.tsx` under `AuthSessionProvider`
 
 Missing RTDB node or offline → safe defaults above. **No product behavior changes** until consumers gate on flags and ops set values in RTDB.
+
+Ops steps to write flags in production: [`docs/OPERATOR_RUNBOOK.md`](./OPERATOR_RUNBOOK.md) §6.
 
 Example seed (admin / console):
 ```json
@@ -211,6 +216,8 @@ After changing `database.rules.json`, redeploy rules:
 ```bash
 node scripts/update-rtdb-rules.cjs
 ```
+
+Full operator sequence (rules + admins + flags + seed + purge): [`docs/OPERATOR_RUNBOOK.md`](./OPERATOR_RUNBOOK.md).
 
 ## Cache Strategy
 
