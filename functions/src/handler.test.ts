@@ -359,10 +359,10 @@ describe("handleCloudRequest", () => {
     )
   })
 
-  it("errors when cloud request has no uid (rate-limit fail-closed)", async () => {
+  it("errors when cloud request has no uid (explicit auth requirement)", async () => {
     const data = cloudPending({ uid: undefined })
     delete data.uid
-    const { db, updates } = createMockDb(
+    const { db, updates, sets } = createMockDb(
       new Map([["requests/r1", data as Record<string, unknown>]]),
     )
     let genCalls = 0
@@ -376,9 +376,34 @@ describe("handleCloudRequest", () => {
     })
     assert.equal(result.outcome, "error")
     if (result.outcome === "error") {
-      assert.match(result.message, /Missing uid|rate limit/i)
+      assert.match(result.message, /authenticated user|missing uid/i)
     }
     assert.equal(genCalls, 0)
     assert.ok(updates.some((u) => u.data.status === "error"))
+    assert.ok(
+      !sets.some((s) => s.path === "_meta/cloud_worker_heartbeat"),
+      "heartbeat should not write on auth failure",
+    )
+  })
+
+  it("writes cloud worker heartbeat after successful generation", async () => {
+    const data = cloudPending({ uid: "uid-hb" })
+    const { db, sets } = createMockDb(
+      new Map([["requests/r1", data as Record<string, unknown>]]),
+    )
+    const result = await handleCloudRequest("r1", data, {
+      db,
+      llmConfig: { apiKey: "k" },
+      generateText: async () => ({ text: "hello cloud", model: "gpt-test" }),
+      now: () => 1_700_000_000_000,
+    })
+    assert.equal(result.outcome, "done")
+    const hb = sets.find((s) => s.path === "_meta/cloud_worker_heartbeat")
+    assert.ok(hb, "expected cloud_worker_heartbeat write")
+    assert.equal(hb!.data.status, "ok")
+    assert.equal(hb!.data.last_request_id, "r1")
+    assert.equal(hb!.data.last_uid, "uid-hb")
+    assert.equal(hb!.data.last_model, "gpt-test")
+    assert.equal(typeof hb!.data.last_latency_ms, "number")
   })
 })

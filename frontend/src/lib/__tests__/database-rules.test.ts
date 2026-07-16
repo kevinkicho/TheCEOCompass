@@ -68,6 +68,11 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules._meta.agent_heartbeat[".write"]).toBe(false)
   })
 
+  it("exposes cloud worker heartbeat as public read, client write false", () => {
+    expect(rules._meta.cloud_worker_heartbeat[".read"]).toBe(true)
+    expect(rules._meta.cloud_worker_heartbeat[".write"]).toBe(false)
+  })
+
   it("scopes _config: parent deny-read, feature_flags public read, admin-only write", () => {
     expect(rules._config[".read"]).toBe(false)
     expect(rules._config[".write"]).toContain("admins")

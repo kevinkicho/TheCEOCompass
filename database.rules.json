@@ -167,6 +167,10 @@
         ".read": true,
         ".write": false
       },
+      "cloud_worker_heartbeat": {
+        ".read": true,
+        ".write": false
+      },
       "mastery_graph": {
         ".read": true,
         ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"

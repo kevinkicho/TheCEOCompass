@@ -147,18 +147,18 @@ firebase functions:log --only processAIRequest
 
 ## Frontend wiring
 
-The Cloud Function processes RTDB creates when `provider === "cloud"`. Frontend wiring that
-sets `provider: "cloud"` from the router / Profile is Phase 2 PR 4
-(`docs/DESIGN_PHASE_2_3.md`). Until that lands:
+The Cloud Function processes RTDB creates when `provider === "cloud"`. The frontend router +
+Profile (Agent / Local / Cloud) set `provider` on requests when Cloud is selected.
 
-- Smoke-test with Admin SDK or a temporary authenticated client write (payload above).
-- Selecting cloud in the client may still throw “not configured” (`CLOUD_PROVIDER_NOT_CONFIGURED`)
-  and the Navbar may show **AI cloud** (amber) — see runbook §9.
+1. Set RTDB `_config/feature_flags.cloud_ai_enabled = true` (admin write).
+2. Profile → AI provider → **Cloud**, or `NEXT_PUBLIC_AI_PROVIDER=cloud` + rebuild.
+3. Navbar shows **AI cloud** when cloud is selected and Firebase is configured.
+4. After a successful cloud completion, `_meta/cloud_worker_heartbeat` is updated (public read).
 
 ### Feature flag
 
 RTDB path: `_config/feature_flags` (public read, admin write). Key **`cloud_ai_enabled`**
-(boolean, default `false`) gates product selection of cloud once consumers exist.
+(boolean, default `false`) gates the Cloud radio on Profile and demotes cloud→agent when false.
 
 Also related: `ai_provider_default` (`"agent"` \| `"local"` \| `"cloud"`).
 

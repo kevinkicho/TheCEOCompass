@@ -132,14 +132,28 @@ export async function handleCloudRequest(
 
   // Prefer live claimed row (post-transaction) over create-event snapshot
   const data = claimed
+  const startedAt = now()
   log(`[processAIRequest] ${requestId} type=${data.type || "generate"}`)
 
+  // Security (Phase 2 design): cloud path requires request.uid (AuthSession attaches it)
+  const uid = typeof data.uid === "string" ? data.uid.trim() : ""
+  if (!uid) {
+    const message =
+      "Cloud AI requires an authenticated user (missing uid on request)"
+    log(`[processAIRequest] ${requestId} rejected: missing uid`)
+    await writeError(deps.db, requestId, data, message, now())
+    return { outcome: "error", message }
+  }
+
   // Per-uid sliding window (Admin SDK `_rate/{uid}`) — before any LLM call
-  const uid = typeof data.uid === "string" ? data.uid : null
-  const rate = await consumeRateLimit(deps.db as import("./rate-limit").RateDbLike, uid, now())
+  const rate = await consumeRateLimit(
+    deps.db as import("./rate-limit").RateDbLike,
+    uid,
+    now(),
+  )
   if (!rate.allowed) {
     const message = rate.message || "AI rate limit exceeded"
-    log(`[processAIRequest] ${requestId} rate_limited uid=${uid || "?"} remaining=0`)
+    log(`[processAIRequest] ${requestId} rate_limited uid=${uid} remaining=0`)
     await writeError(deps.db, requestId, data, message, now())
     return { outcome: "error", message }
   }
@@ -187,13 +201,32 @@ export async function handleCloudRequest(
     }
 
     await requestRef.update({ status: "done" })
+    const latencyMs = Math.max(0, now() - startedAt)
     log(
-      `[processAIRequest] ${requestId} done (${text.length} chars) → ${responsePath}`,
+      `[processAIRequest] ${requestId} done uid=${uid} latency_ms=${latencyMs} chars=${text.length} → ${responsePath}`,
     )
+    // Observability: optional cloud worker heartbeat (mirrors agent heartbeat)
+    try {
+      await deps.db.ref("_meta/cloud_worker_heartbeat").set({
+        status: "ok",
+        updated_at: now(),
+        last_request_id: requestId,
+        last_uid: uid,
+        last_latency_ms: latencyMs,
+        last_model: model,
+      })
+    } catch (hbErr) {
+      logError(
+        `[processAIRequest] heartbeat write failed: ${hbErr instanceof Error ? hbErr.message : hbErr}`,
+      )
+    }
     return { outcome: "done", responsePath, chars: text.length }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    logError(`[processAIRequest] ${requestId} error: ${message}`)
+    const latencyMs = Math.max(0, now() - startedAt)
+    logError(
+      `[processAIRequest] ${requestId} error uid=${uid} latency_ms=${latencyMs}: ${message}`,
+    )
     await writeError(deps.db, requestId, data, message, now())
     return { outcome: "error", message }
   }

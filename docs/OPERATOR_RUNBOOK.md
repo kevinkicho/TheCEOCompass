@@ -389,10 +389,10 @@ Navbar chip (`AiStatusIndicator` in `AiStatusProvider.tsx`, `data-testid="ai-sta
 |-------|-----------|------|
 | **AI online** | emerald | Provider `agent`; fresh `_meta/agent_heartbeat` with `ollama_ok` |
 | **AI local** | emerald | Local AI Mode (Profile) / provider `local` |
-| **AI cloud** | amber | Provider `cloud` selected (or availability reason `cloud_not_configured`) — cloud not fully wired in UI yet |
+| **AI cloud** | emerald | Provider `cloud` selected, Firebase configured, and Functions path available |
 | **AI degraded** | amber | Agent heartbeat present but `ollama_ok` false |
-| **AI stale** | amber | Heartbeat older than ~90s + skew buffer |
-| **AI offline** | gray | No Firebase / no heartbeat / agent down |
+| **AI stale** | amber | Agent heartbeat older than ~90s + skew buffer |
+| **AI offline** | gray | No Firebase / no agent heartbeat / agent down (agent mode) |
 
 ### How to exercise each mode
 
@@ -423,9 +423,15 @@ Navbar chip (`AiStatusIndicator` in `AiStatusProvider.tsx`, `data-testid="ai-sta
    Kill the agent after a healthy heartbeat; wait past stale window (~3+ minutes with skew). Expect **AI stale** or **AI offline**.
 
 6. **AI cloud**  
-   Set `NEXT_PUBLIC_AI_PROVIDER=cloud` in `frontend/.env` and rebuild (or restart `next dev`), **or** set `aiProvider: "cloud"` inside the `ceocompass_settings` localStorage JSON. Profile currently only exposes **Local AI Mode** — there is no cloud provider picker yet. Expect amber **AI cloud** (tooltip: not configured). AI requests still throw `CLOUD_PROVIDER_NOT_CONFIGURED` until frontend cloud wiring (Phase 2 PR 4). Function-side smoke still uses Admin write + `provider: "cloud"` per AI_CLOUD_SETUP.
+   1. Deploy Functions + secrets (`docs/AI_CLOUD_SETUP.md`).
+   2. Set RTDB `_config/feature_flags.cloud_ai_enabled = true`.
+   3. Profile → AI provider → **Cloud** (or `aiProvider: "cloud"` in `ceocompass_settings` / `NEXT_PUBLIC_AI_PROVIDER=cloud` rebuild).
+   4. Expect emerald **AI cloud**. Run a sparkle/tutor action → Function processes `provider: "cloud"` requests.
+   5. Optional: confirm `_meta/cloud_worker_heartbeat` updates after a successful cloud request (public read; Admin write).
 
-Heartbeat path: `_meta/agent_heartbeat` (public read; agent Admin write).
+Heartbeat paths:
+- `_meta/agent_heartbeat` — local agent (public read; agent Admin write)
+- `_meta/cloud_worker_heartbeat` — Cloud Function after successful AI (public read; Admin write)
 
 ---
 

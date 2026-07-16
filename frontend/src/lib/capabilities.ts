@@ -23,9 +23,13 @@ export type AiAvailability =
     }
 
 export const AGENT_HEARTBEAT_PATH = "_meta/agent_heartbeat"
+/** Written by Cloud Function after successful processAIRequest (Admin SDK). */
+export const CLOUD_WORKER_HEARTBEAT_PATH = "_meta/cloud_worker_heartbeat"
 /** Agent writes every 30s; UI treats stale after 90s. Allow ±120s clock skew buffer. */
 export const AGENT_HEARTBEAT_STALE_MS = 90_000
 export const AGENT_HEARTBEAT_SKEW_MS = 120_000
+/** Cloud worker is event-driven; treat heartbeat older than 15m as idle (not unavailable). */
+export const CLOUD_WORKER_HEARTBEAT_STALE_MS = 15 * 60_000
 
 export type AgentHeartbeat = {
   status: "ok" | "degraded"

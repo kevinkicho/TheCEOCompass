@@ -361,11 +361,12 @@ ceo-platform/
 
 ## CI Pipeline
 
-The CI runs 3 jobs:
+Main CI (`.github/workflows/ci.yml`) runs **2 jobs**:
 
-1. **frontend-tests** — `tsc --noEmit` (type check) + `vitest run` (101 tests)
-2. **backend-tests** — Python pytest
-3. **frontend-build** — `next build` (360 SSG pages, only runs if tests pass)
+1. **frontend-tests** — `tsc --noEmit` + `vitest run`
+2. **frontend-build** — `next build` (static export pages; needs Firebase secrets)
+
+Legacy FastAPI tests live in path-filtered `.github/workflows/backend-legacy.yml` (only when `backend/` changes). Optional Playwright: `cd frontend && npm run test:e2e` (not required for merge).
 
 The deploy workflow runs on push to master:
 1. Builds static export with `next.config.export.js` (basePath, trailingSlash, output: export)

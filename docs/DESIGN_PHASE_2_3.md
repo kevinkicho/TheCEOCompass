@@ -4,7 +4,7 @@
 |-------|-------|
 | **Document** | Phase 2 (Cloud AI & Platform) + Phase 3 (Learning Depth) |
 | **Date** | 2026-07-16 |
-| **Status** | Ready for `/execute-plan` |
+| **Status** | **Implemented on `master`** (PRs 1–16) |
 | **Prerequisite** | Phase 0–1 implemented (`docs/DESIGN_PHASE_0_1.md`); code on `master` |
 | **Audience** | execute-plan implementers + human reviewers |
 

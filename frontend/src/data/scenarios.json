@@ -1390,5 +1390,332 @@
         "description": "Inject spent on growth theater. AR worsened, quality incident with top customer, parent divests at distressed multiple."
       }
     }
+  },
+  {
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb0001",
+    "slug": "product-platform-vs-solutions-org",
+    "title": "Platform vs Solutions Org Design",
+    "description": "Your product org is stuck between a platform team that owns shared services and solutions teams that ship customer value. Lead time is up 40%.",
+    "framework_id": "44444444-4444-4444-4444-444444444444",
+    "difficulty": 3,
+    "pack_id": "innovation",
+    "pack_title": "Innovation & Product",
+    "concept_ids": [
+      "platform-vs-product",
+      "team-topologies",
+      "okrs",
+      "jobs-to-be-done"
+    ],
+    "framework_slugs": [
+      "team-topologies",
+      "okr",
+      "jobs-to-be-done"
+    ],
+    "context": {
+      "company": "B2B product company, 180 engineers, 3 product lines, shared data platform",
+      "situation": "Solutions squads bypass the platform for speed. Platform team measures API adoption; business measures revenue. A critical customer demo is in 6 weeks.",
+      "time_pressure": "Board wants a 90-day plan to cut cycle time without growing headcount.",
+      "data_provided": [
+        "Median feature lead time: 42 days (was 30)",
+        "Platform SLA: 99.5% but change lead time 14 days",
+        "Solutions teams reimplemented auth 3 times this year",
+        "NPS for internal platform: 18"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What is the primary structural problem?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Misaligned team boundaries and incentives between platform and solutions",
+            "score": 0.9,
+            "rationale": "Team topologies + Conway — structure drives communication and ownership"
+          },
+          {
+            "id": "b",
+            "label": "Engineers are not working hard enough",
+            "score": 0.1,
+            "rationale": "Ignores systemic design; pure effort narrative"
+          },
+          {
+            "id": "c",
+            "label": "Need a bigger PMO to approve all work",
+            "score": 0.2,
+            "rationale": "Adds coordination tax without fixing ownership"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate structural diagnosis quality."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Propose a 90-day org operating model change (2-4 bullets). Name the interaction mode between platform and solutions.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Evaluate against Team Topologies interaction modes (X-as-a-Service, Collaboration, Facilitating) and incentive alignment.",
+        "sample_answer": "Move platform to X-as-a-Service for auth/data; temporary Collaboration for the demo path; solutions own customer outcomes with platform SLOs; shared OKR on lead time."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Choose the first executive action:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Freeze new platform features for 6 weeks; staff a tiger team with platform+solutions for the demo path; publish platform SLOs and self-serve docs.",
+            "score": 0.85,
+            "rationale": "Unblocks value + clarifies platform product contract"
+          },
+          {
+            "id": "b",
+            "label": "Mandate all code go through platform review board",
+            "score": 0.2,
+            "rationale": "Central bottleneck worsens lead time"
+          },
+          {
+            "id": "c",
+            "label": "Split into three fully independent product companies immediately",
+            "score": 0.35,
+            "rationale": "May be long-term right; too disruptive for 90-day board plan"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate execution risk and learning speed."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Success",
+        "description": "You balanced platform leverage with customer delivery."
+      },
+      "acceptable": {
+        "title": "Partial",
+        "description": "Partial structure fix — revisit incentives."
+      },
+      "failure": {
+        "title": "Failure",
+        "description": "Coordination tax remains the bottleneck."
+      }
+    }
+  },
+  {
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb0002",
+    "slug": "executive-team-conflict-priorities",
+    "title": "Executive Team Conflict on Priorities",
+    "description": "CRO and CPO openly disagree in the exec meeting. The roadmap is overloaded. You are CEO and must restore decision rights without losing either leader.",
+    "framework_id": "55555555-5555-5555-5555-555555555555",
+    "difficulty": 3,
+    "pack_id": "people",
+    "pack_title": "People & Leadership",
+    "concept_ids": [
+      "rapa",
+      "crucial-conversations",
+      "okrs",
+      "stakeholder-mapping"
+    ],
+    "framework_slugs": [
+      "rapa",
+      "okr",
+      "stakeholder-mapping"
+    ],
+    "context": {
+      "company": "Series C SaaS, $40M ARR, 320 people",
+      "situation": "Sales committed enterprise custom features; product wants platform purity. NPS slipping. Two VPs have started emailing board members.",
+      "time_pressure": "All-hands in 10 days; QBR next week.",
+      "data_provided": [
+        "Pipeline: 35% of deals blocked on custom work",
+        "Engineering capacity: 60% roadmap, 25% support, 15% tech debt",
+        "Attrition of senior PMs: 3 in 6 months",
+        "Board sentiment: concerned about execution, not strategy"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What should you clarify first?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Decision rights (RAPA/RACI) for roadmap vs deal exceptions",
+            "score": 0.9,
+            "rationale": "Conflict is often unclear authority, not personality"
+          },
+          {
+            "id": "b",
+            "label": "Who is more senior politically",
+            "score": 0.15,
+            "rationale": "Escalates factionalism"
+          },
+          {
+            "id": "c",
+            "label": "Fire one of them before the all-hands",
+            "score": 0.2,
+            "rationale": "Premature; loses institutional knowledge"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate leadership diagnosis."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Select the process to run this week:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Facilitated crucial conversation with CRO+CPO; joint exception policy (threshold, capacity tax, sunset); single source-of-truth OKRs; board pre-brief with one narrative.",
+            "score": 0.9,
+            "rationale": "Rebuilds trust + decision system"
+          },
+          {
+            "id": "b",
+            "label": "Publicly back Sales in all-hands",
+            "score": 0.25,
+            "rationale": "Destroys product trust"
+          },
+          {
+            "id": "c",
+            "label": "Ignore and hope QBR numbers save the narrative",
+            "score": 0.1,
+            "rationale": "Conflict will leak to board"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate conflict resolution design."
+      },
+      {
+        "id": "stage-3",
+        "type": "analysis",
+        "prompt": "Write the exception policy in 3 rules the org can remember.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Good policies are clear, capacity-aware, and time-boxed.",
+        "sample_answer": "1) Deals > custom require CRO+CPO dual approve. 2) Custom work consumes solutions capacity with 1.5x tax. 3) All exceptions expire in 2 quarters or become product."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Success",
+        "description": "You restored decision rights and a shared narrative."
+      },
+      "acceptable": {
+        "title": "Partial",
+        "description": "Tension reduced but policy may be vague."
+      },
+      "failure": {
+        "title": "Failure",
+        "description": "Factions remain; board risk rises."
+      }
+    }
+  },
+  {
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbb0003",
+    "slug": "geopolitical-supply-shock",
+    "title": "Geopolitical Supply Shock",
+    "description": "A key manufacturing region faces export restrictions. 40% of COGS is exposed. Customers ask for assurance letters.",
+    "framework_id": "66666666-6666-6666-6666-666666666666",
+    "difficulty": 4,
+    "pack_id": "strategy",
+    "pack_title": "Strategy & Risk",
+    "concept_ids": [
+      "scenario-planning",
+      "porters-five-forces",
+      "value-chain",
+      "real-options"
+    ],
+    "framework_slugs": [
+      "scenario-planning",
+      "porters-five-forces",
+      "value-chain"
+    ],
+    "context": {
+      "company": "Hardware+software IoT, $120M revenue, 2 contract manufacturers",
+      "situation": "Export license delays hit your primary CM. Secondary CM has 30% higher unit cost and 16-week ramp. Public markets are asking about guidance.",
+      "time_pressure": "Earnings call in 3 weeks; customer SLAs at risk in 45 days.",
+      "data_provided": [
+        "Inventory: 8 weeks finished goods, 4 weeks WIP",
+        "Gross margin: 52% (was 58% last year)",
+        "Top 10 customers: 55% of revenue",
+        "Secondary CM quote: +30% unit cost, NRE .1M, 16 weeks"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "Which analytical frame first?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Scenario planning + value chain exposure (base/adverse/severe)",
+            "score": 0.9,
+            "rationale": "Uncertainty needs scenarios, not a single forecast"
+          },
+          {
+            "id": "b",
+            "label": "Only cut price to keep share",
+            "score": 0.15,
+            "rationale": "Ignores supply constraint"
+          },
+          {
+            "id": "c",
+            "label": "Wait for regulators to clarify before any action",
+            "score": 0.25,
+            "rationale": "Loses option value and customer trust"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate under deep uncertainty."
+      },
+      {
+        "id": "stage-2",
+        "type": "analysis",
+        "prompt": "Estimate quarterly gross margin if 40% of volume moves to the secondary CM at +30% unit COGS. State assumptions.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User estimated {response}. Reasonable: mix-weighted COGS up ~12% of total COGS on that volume; margin compression depends on price pass-through.",
+        "sample_answer": "If 40% volume at 1.3x COGS and 60% unchanged, blended COGS up ~12%. At 52% GM, roughly ~6pt GM hit before pricing if fully absorbed."
+      },
+      {
+        "id": "stage-3",
+        "type": "decision",
+        "prompt": "Choose the portfolio response:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Dual-source ramp with real-options staged NRE; allocate scarce units to strategic customers; transparent guidance band; temporary price/SLA matrix.",
+            "score": 0.9,
+            "rationale": "Builds optionality + trust"
+          },
+          {
+            "id": "b",
+            "label": "Promise all customers no change in price or delivery",
+            "score": 0.15,
+            "rationale": "Sets up miss"
+          },
+          {
+            "id": "c",
+            "label": "Exit the product line this quarter",
+            "score": 0.3,
+            "rationale": "May be later option; destroys value if premature"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate resilience and communications."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Success",
+        "description": "You preserved options and customer trust under uncertainty."
+      },
+      "acceptable": {
+        "title": "Partial",
+        "description": "Partial hedge — revisit communication."
+      },
+      "failure": {
+        "title": "Failure",
+        "description": "Single-threaded plan fails the shock."
+      }
+    }
   }
 ]
