@@ -1,6 +1,9 @@
 import { db, auth, ref, set, onValue, get } from "../firebase"
 import type { Database } from "firebase/database"
 import { getFrameworkBySlug } from "../api"
+import type { AiProviderId } from "./provider"
+import { CLOUD_PROVIDER_NOT_CONFIGURED } from "./provider"
+import { resolveAiProvider, getEnvAiProvider } from "./router"
 
 export function generateId(): string {
   return crypto.randomUUID()
@@ -91,6 +94,19 @@ export function loadSettings(): Record<string, any> {
 export function isLocalAiMode(): boolean {
   const settings = loadSettings()
   return settings.localAiMode === true
+}
+
+/**
+ * Resolve the active AI provider from settings + env.
+ * localAiMode always wins (preserves today's Local AI Mode behavior).
+ */
+export function getActiveAiProvider(): AiProviderId {
+  const settings = loadSettings()
+  return resolveAiProvider({
+    localAiMode: settings.localAiMode === true,
+    aiProvider: settings.aiProvider ?? null,
+    envProvider: getEnvAiProvider(),
+  })
 }
 
 export async function callOllamaDirect(
@@ -239,9 +255,10 @@ export async function callOllamaViaFirebase(
   const settings = loadSettings()
   const actualModel = model || settings.ollamaModel || "gemma4:31b-cloud"
   const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${prompt}`
+  const provider = getActiveAiProvider()
 
   // Local AI Mode — call Ollama directly from browser
-  if (isLocalAiMode()) {
+  if (provider === "local") {
     console.log(`[AI] Local mode: calling Ollama directly for ${category}`)
     if (!skipCache) {
       const cached = await checkCache(frameworkSlug, conceptSlug, category)
@@ -251,7 +268,12 @@ export async function callOllamaViaFirebase(
     return { result, cached: false, prompt: fullPrompt }
   }
 
-  // Firebase mode — route through agent
+  // Cloud path — not wired until later PR
+  if (provider === "cloud") {
+    throw new Error(CLOUD_PROVIDER_NOT_CONFIGURED)
+  }
+
+  // Agent mode — route through Firebase + local agent
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
@@ -271,12 +293,13 @@ export async function callOllamaViaFirebase(
     options: { temperature },
   }
 
-  console.log(`[AI] Pushing request ${requestId} for ${frameworkSlug}/${conceptSlug}/${category}`)
+  console.log(`[AI] Pushing request ${requestId} (provider=agent) for ${frameworkSlug}/${conceptSlug}/${category}`)
   await pushAiRequest(database, requestId, {
     type: systemType,
     category,
     framework_slug: frameworkSlug,
     concept_slug: conceptSlug,
+    provider: "agent" satisfies AiProviderId,
     payload,
   })
 

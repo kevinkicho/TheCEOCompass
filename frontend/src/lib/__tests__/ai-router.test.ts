@@ -1,0 +1,76 @@
+import { describe, it, expect } from "vitest"
+import { resolveAiProvider } from "../ai/router"
+import {
+  isAiProviderId,
+  AI_PROVIDER_IDS,
+  CLOUD_PROVIDER_NOT_CONFIGURED,
+  type AiProviderId,
+} from "../ai/provider"
+
+describe("isAiProviderId", () => {
+  it("accepts agent, local, cloud", () => {
+    for (const id of AI_PROVIDER_IDS) {
+      expect(isAiProviderId(id)).toBe(true)
+    }
+  })
+
+  it("rejects invalid values", () => {
+    expect(isAiProviderId("local-agent")).toBe(false)
+    expect(isAiProviderId("")).toBe(false)
+    expect(isAiProviderId(null)).toBe(false)
+    expect(isAiProviderId(undefined)).toBe(false)
+    expect(isAiProviderId(1)).toBe(false)
+  })
+})
+
+describe("resolveAiProvider selection matrix", () => {
+  const cases: Array<{
+    name: string
+    input: Parameters<typeof resolveAiProvider>[0]
+    expected: AiProviderId
+  }> = [
+    // Defaults
+    { name: "empty input → agent", input: {}, expected: "agent" },
+    { name: "all undefined → agent", input: { localAiMode: undefined, aiProvider: undefined, envProvider: undefined }, expected: "agent" },
+
+    // localAiMode wins over everything
+    { name: "localAiMode true → local", input: { localAiMode: true }, expected: "local" },
+    { name: "localAiMode overrides settings agent", input: { localAiMode: true, aiProvider: "agent" }, expected: "local" },
+    { name: "localAiMode overrides settings cloud", input: { localAiMode: true, aiProvider: "cloud" }, expected: "local" },
+    { name: "localAiMode overrides env cloud", input: { localAiMode: true, envProvider: "cloud" }, expected: "local" },
+    { name: "localAiMode overrides env agent", input: { localAiMode: true, envProvider: "agent" }, expected: "local" },
+    { name: "localAiMode overrides both settings and env", input: { localAiMode: true, aiProvider: "cloud", envProvider: "agent" }, expected: "local" },
+    { name: "localAiMode false does not force local", input: { localAiMode: false }, expected: "agent" },
+
+    // settings.aiProvider (when local off)
+    { name: "settings agent → agent", input: { localAiMode: false, aiProvider: "agent" }, expected: "agent" },
+    { name: "settings local → local", input: { localAiMode: false, aiProvider: "local" }, expected: "local" },
+    { name: "settings cloud → cloud", input: { localAiMode: false, aiProvider: "cloud" }, expected: "cloud" },
+    { name: "settings wins over env", input: { localAiMode: false, aiProvider: "agent", envProvider: "cloud" }, expected: "agent" },
+    { name: "settings cloud wins over env agent", input: { localAiMode: false, aiProvider: "cloud", envProvider: "agent" }, expected: "cloud" },
+
+    // env NEXT_PUBLIC_AI_PROVIDER (when local off and no settings)
+    { name: "env agent → agent", input: { envProvider: "agent" }, expected: "agent" },
+    { name: "env local → local", input: { envProvider: "local" }, expected: "local" },
+    { name: "env cloud → cloud", input: { envProvider: "cloud" }, expected: "cloud" },
+    { name: "env cloud with localAiMode false → cloud", input: { localAiMode: false, envProvider: "cloud" }, expected: "cloud" },
+
+    // Invalid preferences fall through
+    { name: "invalid settings ignored → agent", input: { aiProvider: "not-a-provider" }, expected: "agent" },
+    { name: "invalid settings + valid env → env", input: { aiProvider: "bogus", envProvider: "cloud" }, expected: "cloud" },
+    { name: "invalid env ignored → agent", input: { envProvider: "openai" }, expected: "agent" },
+    { name: "empty env string → agent", input: { envProvider: "" }, expected: "agent" },
+    { name: "null settings and env → agent", input: { aiProvider: null, envProvider: null }, expected: "agent" },
+  ]
+
+  it.each(cases)("$name", ({ input, expected }) => {
+    expect(resolveAiProvider(input)).toBe(expected)
+  })
+})
+
+describe("CLOUD_PROVIDER_NOT_CONFIGURED", () => {
+  it("is a non-empty guidance message", () => {
+    expect(CLOUD_PROVIDER_NOT_CONFIGURED.length).toBeGreaterThan(20)
+    expect(CLOUD_PROVIDER_NOT_CONFIGURED.toLowerCase()).toContain("cloud")
+  })
+})
