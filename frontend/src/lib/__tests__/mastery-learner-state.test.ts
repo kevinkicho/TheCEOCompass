@@ -8,6 +8,7 @@ import {
   scenarioScoresFromHistory,
 } from "@/lib/mastery/learner-state"
 import { nextActionHref, nextActionKindLabel } from "@/lib/mastery/recommendations"
+import { pickNextActions, type MasteryGraph } from "@/lib/mastery"
 
 function review(partial: Partial<ReviewRecord> & { conceptId: string }): ReviewRecord {
   return {
@@ -82,10 +83,12 @@ describe("scenarioScoresFromHistory", () => {
 })
 
 describe("buildLearnerState", () => {
-  it("keys reviewed by conceptSlug and maps viewed UUIDs", () => {
+  it("keys reviewed once by conceptSlug; dual-keys only viewed", () => {
     const map = new Map([
       ["uuid-abc", "first-principles-thinking"],
+      ["uuid-rev", "ebitda"],
       ["first-principles-thinking", "first-principles-thinking"],
+      ["ebitda", "ebitda"],
     ])
     const state = buildLearnerState({
       reviews: [
@@ -105,11 +108,15 @@ describe("buildLearnerState", () => {
       conceptIdToMasteryId: map,
     })
 
+    // Single reviewed key (mastery id / conceptSlug) — not dual UUID+slug
     expect(state.reviewed.has("ebitda")).toBe(true)
-    expect(state.reviewed.has("uuid-rev")).toBe(true)
+    expect(state.reviewed.has("uuid-rev")).toBe(false)
+    expect(state.reviewed.size).toBe(1)
+    // viewed still has slug + storage UUID for isKnown
+    expect(state.viewed.has("ebitda")).toBe(true)
+    expect(state.viewed.has("uuid-rev")).toBe(true)
     expect(state.viewed.has("first-principles-thinking")).toBe(true)
     expect(state.viewed.has("uuid-abc")).toBe(true)
-    expect(state.viewed.has("ebitda")).toBe(true)
     expect(state.quizPctByFramework.get("financial-mastery")).toBe(55)
     expect(state.scenarioScores.get("s1")).toBe(70)
   })
@@ -120,6 +127,42 @@ describe("buildLearnerState", () => {
     expect(state.reviewed.size).toBe(0)
     expect(state.quizPctByFramework.size).toBe(0)
     expect(state.scenarioScores.size).toBe(0)
+  })
+
+  it("one ReviewRecord with conceptId !== conceptSlug yields one due_review", () => {
+    const NOW = new Date("2026-06-01T00:00:00.000Z").getTime()
+    const graph: MasteryGraph = {
+      concepts: {
+        ebitda: {
+          id: "ebitda",
+          frameworkSlug: "financial-mastery",
+          conceptSlug: "ebitda",
+        },
+      },
+      edges: [],
+    }
+    const state = buildLearnerState({
+      reviews: [
+        review({
+          conceptId: "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+          conceptSlug: "ebitda",
+          frameworkSlug: "financial-mastery",
+          nextReviewAt: "2026-05-01T00:00:00.000Z", // due
+        }),
+      ],
+      conceptIdToMasteryId: new Map([
+        ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "ebitda"],
+        ["ebitda", "ebitda"],
+      ]),
+    })
+
+    expect(state.reviewed.size).toBe(1)
+    const actions = pickNextActions(state, graph, 10, NOW)
+    const due = actions.filter((a) => a.kind === "due_review")
+    expect(due).toHaveLength(1)
+    expect(due[0].conceptId).toBe("ebitda")
+    expect(due[0].conceptSlug).toBe("ebitda")
+    expect(due[0].frameworkSlug).toBe("financial-mastery")
   })
 })
 

@@ -116,7 +116,12 @@ export type BuildLearnerStateInput = {
 
 /**
  * Pure: assemble LearnerState aligned with mastery graph concept ids (slugs).
- * Reviews are keyed by conceptSlug (preferred) and conceptId so due_review resolveMeta works.
+ *
+ * `reviewed` is keyed **once** by the mastery graph id (prefer conceptSlug, then
+ * UUID→slug map, then raw conceptId). Dual-keying would emit duplicate due_review
+ * actions because pickNextActions dedupes only by map key / action.conceptId.
+ *
+ * `viewed` may still include both UUID and slug so isKnown works either way.
  */
 export function buildLearnerState(input: BuildLearnerStateInput = {}): LearnerState {
   const state = emptyLearnerState()
@@ -124,20 +129,22 @@ export function buildLearnerState(input: BuildLearnerStateInput = {}): LearnerSt
 
   for (const rec of input.reviews || []) {
     if (!rec) continue
-    const slugKey = rec.conceptSlug || (rec.conceptId ? resolveMasteryId(rec.conceptId, map) : "")
-    const idKey = rec.conceptId || ""
-    if (slugKey) {
-      state.reviewed.set(slugKey, rec)
-      state.viewed.add(slugKey)
+    const mappedFromId = rec.conceptId ? resolveMasteryId(rec.conceptId, map) : ""
+    // Single key: mastery/graph id first so collectDueReviews emits one action per record
+    const masteryKey =
+      (rec.conceptSlug && rec.conceptSlug.trim()) ||
+      (mappedFromId && mappedFromId !== rec.conceptId ? mappedFromId : "") ||
+      rec.conceptId ||
+      ""
+    if (!masteryKey) continue
+
+    state.reviewed.set(masteryKey, rec)
+    state.viewed.add(masteryKey)
+    if (rec.conceptId && rec.conceptId !== masteryKey) {
+      state.viewed.add(rec.conceptId)
     }
-    if (idKey && idKey !== slugKey) {
-      state.reviewed.set(idKey, rec)
-      state.viewed.add(idKey)
-      const mapped = resolveMasteryId(idKey, map)
-      if (mapped && mapped !== idKey) {
-        state.reviewed.set(mapped, rec)
-        state.viewed.add(mapped)
-      }
+    if (mappedFromId && mappedFromId !== masteryKey) {
+      state.viewed.add(mappedFromId)
     }
   }
 
