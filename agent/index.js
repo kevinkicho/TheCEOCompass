@@ -36,6 +36,33 @@ const ollamaUrl = "http://localhost:11434/api/generate"
 console.log("✓ Agent connected to Firebase RTDB")
 console.log(`  Watching /requests → ${ollamaUrl} (streaming)`)
 
+const HEARTBEAT_PATH = "_meta/agent_heartbeat"
+const HEARTBEAT_MS = 30_000
+const OLLAMA_TAGS = "http://localhost:11434/api/tags"
+
+async function writeHeartbeat() {
+  let ollamaOk = false
+  try {
+    const res = await fetch(OLLAMA_TAGS, { signal: AbortSignal.timeout(5000) })
+    ollamaOk = res.ok
+  } catch {
+    ollamaOk = false
+  }
+  await db.ref(HEARTBEAT_PATH).set({
+    status: ollamaOk ? "ok" : "degraded",
+    updated_at: Date.now(),
+    ollama_ok: ollamaOk,
+    ollama_checked_at: Date.now(),
+    model_default: "gemma4:latest",
+    agent_version: "1.1.0",
+  })
+}
+
+writeHeartbeat().catch((e) => console.warn("heartbeat failed", e.message))
+setInterval(() => {
+  writeHeartbeat().catch((e) => console.warn("heartbeat failed", e.message))
+}, HEARTBEAT_MS)
+
 // Stale request sweep on startup, then start listening
 async function sweepStaleRequests() {
   const snap = await requestsRef.orderByChild("status").equalTo("processing").once("value")

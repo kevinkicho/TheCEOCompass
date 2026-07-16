@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { getScenario } from "@/lib/api"
 import { ScenarioEngine } from "@/components/ScenarioEngine"
-import { StaticHostingBanner } from "@/components/RequiresBackend"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import type { Scenario } from "@/lib/types"
 
@@ -30,9 +30,9 @@ export default function ScenarioPage() {
         <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">{scenario.title}</h1>
         <p className="mb-4 text-lg text-dark-500 dark:text-dark-300">{scenario.description}</p>
       </div>
-      <StaticHostingBanner
+      <PersistenceUnavailableBanner
         feature="AI Feedback"
-        description="This scenario requires the backend for LLM-powered coaching and evaluation"
+        description="AI coaching needs Firebase + local agent/Ollama; history saves under your signed-in account"
       />
       <ScenarioEngine scenario={scenario} />
     </div>

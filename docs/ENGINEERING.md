@@ -20,7 +20,15 @@ The original approach used a CORS proxy (Node.js) and a second Ollama instance o
 
 ## Why no Python backend?
 
-The original FastAPI backend handled scenarios, journal, progress, and quiz endpoints. Over time, framework data moved to RTDB (static export), AI moved to direct Ollama via Firebase, and the remaining features (journal, progress) were deemed out of scope for the static demo. The result: zero backend dependencies for the deployed site.
+The original FastAPI backend handled scenarios, journal, progress, and quiz endpoints. Framework data, journal, progress, reviews, and AI now use Firebase RTDB (+ local agent for Ollama). The Python package under `backend/` is **legacy** (see `backend/LEGACY.md`); CI does not require it for the main product path.
+
+## Identity & persistence (Phase 0–1)
+
+- Capability flags: `frontend/src/lib/capabilities.ts` (`canUseFirebasePersistence` = `db != null`, not hostname)
+- Auth: anonymous session on load via `AuthSessionProvider`; Google link for cross-device
+- User data paths: `users/{uid}/journal|reviews|progress|viewed|quizResults|scenarioHistory|favoriteQuotes`
+- Legacy device trees remain readable for migration, then purge (`scripts/purge-legacy-device-data.mjs`)
+- Design: `docs/DESIGN_PHASE_0_1.md`
 
 ## Static Generation
 

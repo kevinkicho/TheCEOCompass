@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { loadJournalEntries, createJournalEntry, updateJournalEntry, deleteJournalEntry, recordOutcome } from "@/lib/firebase-crud"
-import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
+import { useAuthSession } from "@/lib/AuthSessionProvider"
 import type { JournalEntry } from "@/lib/types"
 
 const DEFAULT_ENTRY_FORM = {
@@ -25,6 +27,7 @@ const DEFAULT_OUTCOME_FORM = {
 }
 
 export default function JournalPage() {
+  const { ready: authReady } = useAuthSession()
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [showEntryModal, setShowEntryModal] = useState(false)
   const [outcomeEntryId, setOutcomeEntryId] = useState<string | null>(null)
@@ -37,10 +40,10 @@ export default function JournalPage() {
   const [journalError, setJournalError] = useState("")
 
   useEffect(() => {
-    if (!isStaticHosting) {
+    if (canUseFirebasePersistence() && authReady) {
       loadEntries()
     }
-  }, [])
+  }, [authReady])
 
   const loadEntries = async () => {
     setJournalError("")
@@ -138,14 +141,14 @@ export default function JournalPage() {
         </button>
       </div>
 
-      <StaticHostingBanner
+      <PersistenceUnavailableBanner
         feature="Decision Journal"
         description="Track decisions, record outcomes, and calibrate your judgment over time"
       />
 
-      {journalError && !isStaticHosting && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{journalError}</p>}
+      {journalError && canUseFirebasePersistence() && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{journalError}</p>}
 
-      {isStaticHosting ? (
+      {!canUseFirebasePersistence() ? (
         <div className="rounded-xl border border-dark-200 p-12 text-center dark:border-dark-700">
           <p className="text-dark-500 dark:text-dark-300">Decision journal requires the local backend. Run locally to log and track decisions.</p>
         </div>

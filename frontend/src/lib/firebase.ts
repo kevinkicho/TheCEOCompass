@@ -1,6 +1,17 @@
 import { initializeApp, getApps } from "firebase/app"
 import { getDatabase, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded } from "firebase/database"
-import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "firebase/auth"
+import {
+  getAuth,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  linkWithPopup,
+  linkWithRedirect,
+  GoogleAuthProvider,
+  signInAnonymously,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
@@ -27,5 +38,6 @@ const googleProvider = new GoogleAuthProvider()
 export {
   db, auth, googleProvider,
   ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded,
-  signInWithPopup, signInAnonymously, onAuthStateChanged, signOut,
+  signInWithPopup, signInWithRedirect, getRedirectResult, linkWithPopup, linkWithRedirect,
+  signInAnonymously, onAuthStateChanged, signOut,
 }

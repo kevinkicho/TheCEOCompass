@@ -12,7 +12,7 @@ import { SkeletonCard } from "@/components/SkeletonCard"
 import { db, ref, get } from "@/lib/firebase"
 import { getDeviceId } from "@/lib/firebase-crud"
 import { analyzeBlindSpots, type BlindSpotReport } from "@/lib/ollama"
-import { isStaticHosting } from "@/lib/constants"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -166,7 +166,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Blind Spot Analysis */}
-      {!isStaticHosting && (
+      {canUseFirebasePersistence() && (
         <div className="mb-8 rounded-xl border border-dark-200 p-6 dark:border-dark-700">
           <div className="flex items-center justify-between mb-4">
             <div>

@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { loadFrameworks, getCachedFrameworks } from "@/lib/rtdb-cache"
 import { generateQuiz } from "@/lib/ollama"
 import { saveQuizResult } from "@/lib/firebase-crud"
-import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import type { FrameworkListItem } from "@/lib/types"
 
 
@@ -133,7 +134,7 @@ export default function QuizPage() {
   const isComplete = isLastQ && evalResult !== null
 
   useEffect(() => {
-    if (isComplete && !isStaticHosting && selectedFramework) {
+    if (isComplete && canUseFirebasePersistence() && selectedFramework) {
       const fw = frameworks.find((f) => f.id === selectedFramework)
       saveQuizResult(correctAnswers.filter(Boolean).length, questions.length, fw?.slug || selectedFramework)
     }
@@ -145,7 +146,7 @@ export default function QuizPage() {
         <h1 className="mb-2 text-3xl sm:text-4xl font-bold text-dark-900 dark:text-dark-100">Quiz</h1>
         <p className="mb-4 text-dark-500 dark:text-dark-300">Test your knowledge of CEO frameworks with AI-generated questions.</p>
 
-        <StaticHostingBanner
+        <PersistenceUnavailableBanner
           feature="AI-Generated Quizzes"
           description="Real-time LLM-generated questions with answer evaluation"
         />

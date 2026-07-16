@@ -3,6 +3,7 @@ import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/components/ThemeProvider"
+import { AuthSessionProvider } from "@/lib/AuthSessionProvider"
 import { Navbar } from "@/components/Navbar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { DemoFooter } from "@/components/DemoFooter"
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider>
+          <AuthSessionProvider>
           <ErrorBoundary>
           <Navbar />
           <div className="flex pt-14">
@@ -48,6 +50,7 @@ export default function RootLayout({
           </div>
           <DemoFooter />
           </ErrorBoundary>
+          </AuthSessionProvider>
         </ThemeProvider>
         <Script src={basePath + "/sw-register.js"} strategy="afterInteractive" />
       </body>

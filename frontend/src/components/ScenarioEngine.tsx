@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { evaluateScenarioStage } from "@/lib/ollama"
 import { saveScenarioAttempt, loadScenarioHistory } from "@/lib/firebase-crud"
-import { isStaticHosting } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { ScenarioDecisionPrompt } from "@/components/ScenarioDecisionPrompt"
 import { ScenarioFeedbackPanel } from "@/components/ScenarioFeedbackPanel"
 import { ScenarioPastAttempts } from "@/components/ScenarioPastAttempts"
@@ -27,7 +27,7 @@ export function ScenarioEngine({ scenario }: Props) {
   const [pastAttempts, setPastAttempts] = useState<{ attemptId: string; stages: { stageId: string; choice: string; score: number }[]; completed_at: string }[]>([])
 
   useEffect(() => {
-    if (!isStaticHosting) {
+    if (canUseFirebasePersistence()) {
       loadScenarioHistory(scenario.slug).then(setPastAttempts)
     }
   }, [scenario.slug])
@@ -64,7 +64,7 @@ export function ScenarioEngine({ scenario }: Props) {
         if (option && option.score >= 8) branch = "optimal"
         else if (option && option.score >= 5) branch = "acceptable"
         setFinalOutcomeBranch(branch)
-        if (!isStaticHosting) {
+        if (canUseFirebasePersistence()) {
           saveScenarioAttempt(scenario.slug, allStages)
           loadScenarioHistory(scenario.slug).then(setPastAttempts)
         }

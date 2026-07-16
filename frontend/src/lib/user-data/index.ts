@@ -1,19 +1,13 @@
-/**
- * Barrel re-export for user-data modules (backward-compatible import path).
- * Prefer `@/lib/user-data` for new code.
- */
+export { getDeviceId, requireUid, tryUid, getDb, userPath } from "./scope"
+export { migrateDeviceDataToUser } from "./migrate"
 export {
-  getDeviceId,
-  requireUid,
-  tryUid,
-  getDb,
-  userPath,
-  migrateDeviceDataToUser,
   loadJournalEntries,
   createJournalEntry,
   updateJournalEntry,
   deleteJournalEntry,
   recordOutcome,
+} from "./journal"
+export {
   loadPathwayProgress,
   markPathwayComplete,
   saveQuizResult,
@@ -22,10 +16,12 @@ export {
   toggleFavoriteQuote,
   loadFavoriteQuotes,
   buildPathway,
+} from "./progress"
+export {
   markConceptReviewed,
   loadDueReviews,
   loadAllReviews,
   loadReviewRecord,
   markConceptViewed,
   loadFrameworkProgress,
-} from "./user-data"
+} from "./reviews"

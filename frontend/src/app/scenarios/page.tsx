@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { getScenarios } from "@/lib/api"
-import { StaticHostingBanner } from "@/components/RequiresBackend"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import type { ScenarioListItem } from "@/lib/types"
 
 export default function ScenariosPage() {
@@ -27,9 +27,9 @@ export default function ScenariosPage() {
         Apply frameworks to real-world CEO situations. Get AI-powered feedback on your decisions.
       </p>
 
-      <StaticHostingBanner
+      <PersistenceUnavailableBanner
         feature="AI Scenarios"
-        description="Interactive decision simulations with LLM coaching feedback"
+        description="Scenario history saves to Firebase; AI coaching needs the local agent + Ollama"
       />
 
       <div className="grid gap-6">

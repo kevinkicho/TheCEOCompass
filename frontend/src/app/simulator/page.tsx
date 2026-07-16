@@ -2,7 +2,8 @@
 
 import { db } from "@/lib/firebase"
 import { runDecisionSimulator } from "@/lib/ollama"
-import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { ChatPanel } from "@/components/ChatPanel"
 
 export default function SimulatorPage() {
@@ -15,8 +16,8 @@ export default function SimulatorPage() {
         </p>
       </div>
 
-      {isStaticHosting ? (
-        <StaticHostingBanner
+      {!canUseFirebasePersistence() ? (
+        <PersistenceUnavailableBanner
           feature="Decision Simulator"
           description="Describes a business challenge and returns framework-driven analysis and action plan"
         />

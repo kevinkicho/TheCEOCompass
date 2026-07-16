@@ -6,7 +6,7 @@ import { getFrameworkBySlug, getScenarios } from "@/lib/api"
 import { loadFrameworks } from "@/lib/rtdb-cache"
 import { slugify } from "@/lib/ollama"
 import { loadFrameworkProgress } from "@/lib/firebase-crud"
-import { isStaticHosting } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import type { Framework, ScenarioListItem } from "@/lib/types"
 
@@ -26,7 +26,7 @@ export default function FrameworkDetailPage() {
   }, [slug])
 
   useEffect(() => {
-    if (!slug || isStaticHosting) return
+    if (!slug || !canUseFirebasePersistence()) return
     loadFrameworkProgress(slug).then(setViewedIds).catch(() => {})
   }, [slug])
 

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { computeCalibration, getCalibrationAdvice, type CalibrationResult } from "@/lib/calibration"
-import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { SkeletonCard } from "@/components/SkeletonCard"
 
 export default function CalibrationPage() {
@@ -11,7 +12,7 @@ export default function CalibrationPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (isStaticHosting) { setLoading(false); return }
+    if (!canUseFirebasePersistence()) { setLoading(false); return }
     computeCalibration()
       .then(setData)
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load calibration"))
@@ -27,7 +28,7 @@ export default function CalibrationPage() {
         <p className="mt-2 text-dark-500 dark:text-dark-300">Compare your confidence against actual outcomes to detect overconfidence or underconfidence bias.</p>
       </div>
 
-      <StaticHostingBanner
+      <PersistenceUnavailableBanner
         feature="Calibration Dashboard"
         description="Analyzes your journal entries with recorded outcomes to measure decision accuracy vs confidence"
       />
@@ -36,7 +37,7 @@ export default function CalibrationPage() {
 
       {loading && <SkeletonCard lines={4} />}
 
-      {!loading && !data && !isStaticHosting && (
+      {!loading && !data && canUseFirebasePersistence() && (
         <div className="rounded-xl border border-dark-200 p-8 text-center dark:border-dark-700">
           <p className="text-dark-500 dark:text-dark-300">Not enough data. Record outcomes in the Decision Journal to see your calibration.</p>
         </div>

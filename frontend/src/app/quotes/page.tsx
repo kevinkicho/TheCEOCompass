@@ -6,7 +6,7 @@ import { db, ref, onValue, off } from "@/lib/firebase"
 import { generateQuote } from "@/lib/ollama"
 import { useAuth } from "@/lib/useAuth"
 import { toggleFavoriteQuote, loadFavoriteQuotes } from "@/lib/firebase-crud"
-import { isStaticHosting } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { QuoteCard } from "@/components/QuoteCard"
 import type { QuoteEntry } from "@/lib/types"
 
@@ -49,14 +49,14 @@ export default function QuotesPage() {
   const [showPrompt, setShowPrompt] = useState(false)
 
   useEffect(() => {
-    if (!isStaticHosting) {
+    if (canUseFirebasePersistence()) {
       loadFavoriteQuotes().then((favs) => setFavoriteIds(new Set(favs.map((f) => f.id))))
     }
   }, [])
 
   const handleToggleFavorite = async (quoteId: string) => {
     const q = allQuotes.find((x: QuoteEntry) => x.id === quoteId)
-    if (!q || isStaticHosting) return
+    if (!q || !canUseFirebasePersistence()) return
     const isFav = await toggleFavoriteQuote(quoteId, { text: q.text, person: q.person })
     setFavoriteIds((prev) => {
       const next = new Set(prev)

@@ -73,7 +73,9 @@ describe("API Client", () => {
   })
 
   it("getScenario returns a scenario with slug", async () => {
-    const result = await getScenario("test-scenario")
+    const list = await getScenarios()
+    expect(list.length).toBeGreaterThan(0)
+    const result = await getScenario(list[0].slug)
     expect(result).toHaveProperty("title")
     expect(result).toHaveProperty("slug")
   })
@@ -95,9 +97,8 @@ describe("API Client", () => {
     expect(result).toHaveProperty("id")
   })
 
-  it("getProgress returns progress object", async () => {
+  it("getProgress returns null (use firebase user-data instead)", async () => {
     const result = await getProgress()
-    expect(result).toHaveProperty("scenarios_completed")
-    expect(result).toHaveProperty("current_streak_days")
+    expect(result).toBeNull()
   })
 })

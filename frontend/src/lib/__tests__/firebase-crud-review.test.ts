@@ -9,6 +9,7 @@ const { mockRef, mockGet, mockSet } = vi.hoisted(() => {
 
 vi.mock("@/lib/firebase", () => ({
   db: { ref: mockRef, get: mockGet },
+  auth: { currentUser: { uid: "test-uid", isAnonymous: true } },
   ref: (...args: any[]) => (mockRef as any)(args[0], args[1]),
   get: (...args: any[]) => (mockGet as any)(args[0], args[1]),
   set: (...args: any[]) => (mockSet as any)(args[0], args[1]),
@@ -68,14 +69,13 @@ describe("markConceptReviewed", () => {
     expect(result).toHaveProperty("nextReviewAt")
   })
 
-  it("calls set with reviews/{deviceId}/{conceptId} path", async () => {
+  it("calls set with users/{uid}/reviews/{conceptId} path", async () => {
     mockGet.mockResolvedValueOnce({ exists: () => false, val: () => null })
 
     await markConceptReviewed("fw", "c1", "Name", "name", 5)
 
     const mockSetAny = mockSet as any
-    expect(mockSetAny.mock.calls[0][0].key).toContain("reviews/")
-    expect(mockSetAny.mock.calls[0][0].key).toContain("/c1")
+    expect(mockSetAny.mock.calls[0][0].key).toBe("users/test-uid/reviews/c1")
   })
 
   it("handles rating 0 (Again) — interval resets to 1", async () => {

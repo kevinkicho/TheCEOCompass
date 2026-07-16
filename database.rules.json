@@ -1,22 +1,22 @@
 {
   "rules": {
-    "requests": {
-      ".indexOn": "status",
-      "$requestId": {
-        ".read": "auth != null || true",
-        ".write": "auth != null || true"
-      }
-    },
+    ".read": false,
+    ".write": false,
+
     "frameworks": {
       ".read": true,
       "$slug": {
         ".read": true,
-        "$conceptId": {
-          ".read": true,
-          ".write": "auth != null || true"
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+        "concepts": {
+          "$conceptId": {
+            ".read": true,
+            ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+          }
         }
       }
     },
+
     "framework": {
       ".read": true,
       "$slug": {
@@ -24,90 +24,127 @@
           "$category": {
             "$entryId": {
               ".read": true,
-              ".write": "auth != null || true"
+              ".write": false
             }
           }
         }
       }
     },
-    "quotes": {
-      "generated": {
-        "$quoteId": {
-          ".read": true,
-          ".write": "auth != null || true"
-        }
-      }
-    },
-    "scenario-evaluations": {
-      "$evalId": {
-        ".read": true,
-        ".write": "auth != null || true"
-      }
-    },
+
     "comparisons": {
       ".read": true,
       "$frameworkSlug": {
-        "$conceptA": {
-          "$conceptB": {
+        "$a": {
+          "$b": {
             "$mode": {
               "$entryId": {
                 ".read": true,
-                ".write": "auth != null || true"
+                ".write": false
               }
             }
           }
         }
       }
     },
+
+    "quotes": {
+      "generated": {
+        "$quoteId": {
+          ".read": true,
+          ".write": false
+        }
+      }
+    },
+
+    "requests": {
+      ".indexOn": ["status", "created_at"],
+      "$requestId": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists() && newData.child('status').val() === 'pending' && newData.hasChildren(['status','payload','created_at'])",
+        ".validate": "newData.child('created_at').isNumber()"
+      }
+    },
+
     "conceptChats": {
       "$chatId": {
-        ".read": true,
-        ".write": "auth != null || true"
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists()",
+        ".validate": "!newData.child('uid').exists() || newData.child('uid').val() === auth.uid"
+      }
+    },
+
+    "scenario-evaluations": {
+      "$evalId": {
+        ".read": "auth != null",
+        ".write": "auth != null && !data.exists()",
+        ".validate": "!newData.child('uid').exists() || newData.child('uid').val() === auth.uid"
+      }
+    },
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "journal": {
+          "entries": {
+            "$entryId": {
+              ".validate": "newData.hasChildren(['title','created_at']) && newData.child('title').isString() && newData.child('title').val().length <= 500"
+            }
+          }
+        },
+        "reviews": {
+          "$conceptId": {
+            ".validate": "newData.hasChildren(['conceptId','nextReviewAt'])"
+          }
+        }
+      }
+    },
+
+    "journal": {
+      "$deviceId": {
+        ".read": "auth != null",
+        ".write": false,
+        "entries": {
+          "$entryId": {
+            ".read": "auth != null",
+            ".write": false
+          }
+        }
       }
     },
     "reviews": {
       "$deviceId": {
         "$conceptId": {
-          ".read": true,
-          ".write": true
-        }
-      }
-    },
-    "journal": {
-      "$deviceId": {
-        "entries": {
-          "$entryId": {
-            ".read": true,
-            ".write": true
-          }
+          ".read": "auth != null",
+          ".write": false
         }
       }
     },
     "progress": {
       "$deviceId": {
-        ".read": true,
-        ".write": true
+        ".read": "auth != null",
+        ".write": false
       }
     },
     "viewed": {
       "$deviceId": {
-        ".read": true,
-        ".write": true
+        ".read": "auth != null",
+        ".write": false
       }
     },
     "favoriteQuotes": {
       "$deviceId": {
         "$quoteId": {
-          ".read": true,
-          ".write": true
+          ".read": "auth != null",
+          ".write": false
         }
       }
     },
     "quizResults": {
       "$deviceId": {
         "$resultId": {
-          ".read": true,
-          ".write": true
+          ".read": "auth != null",
+          ".write": false
         }
       }
     },
@@ -115,15 +152,29 @@
       "$deviceId": {
         "$scenarioSlug": {
           "$attemptId": {
-            ".read": true,
-            ".write": true
+            ".read": "auth != null",
+            ".write": false
           }
         }
       }
     },
+
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).val() === true)",
+        ".write": false
+      }
+    },
+
     "_meta": {
-      ".read": true,
-      ".write": "auth != null || true"
+      "framework_slugs": {
+        ".read": true,
+        ".write": false
+      },
+      "agent_heartbeat": {
+        ".read": true,
+        ".write": false
+      }
     }
   }
 }

@@ -2,15 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
-import { loadPathwayProgress, buildPathway, getDeviceId, loadDueReviews } from "@/lib/firebase-crud"
+import { loadPathwayProgress, buildPathway, loadDueReviews, tryUid, userPath } from "@/lib/firebase-crud"
 import { getReviewStatus, getDaysUntilReview, type ReviewRecord } from "@/lib/spaced-repetition"
 import { loadFrameworks } from "@/lib/rtdb-cache"
-import { isStaticHosting, StaticHostingBanner } from "@/components/RequiresBackend"
+import { canUseFirebasePersistence } from "@/lib/capabilities"
+import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
+import { useAuthSession } from "@/lib/AuthSessionProvider"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import { generateLearningBrief } from "@/lib/ollama"
 import type { FrameworkListItem } from "@/lib/types"
 
 export default function WeeklyReviewPage() {
+  const { ready: authReady } = useAuthSession()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [summary, setSummary] = useState("")
@@ -23,16 +26,16 @@ export default function WeeklyReviewPage() {
   const [briefLoading, setBriefLoading] = useState(false)
 
   useEffect(() => {
-    if (isStaticHosting) { setLoading(false); return }
+    if (!canUseFirebasePersistence()) { setLoading(false); return }
+    if (!authReady) return
 
-    const deviceId = getDeviceId()
-    if (!db || !deviceId) { setLoading(false); return }
+    const uid = tryUid()
+    if (!db || !uid) { setLoading(false); return }
 
     const database = db!
 
     Promise.all([
-      // Viewed concepts this week
-      get(ref(database, `viewed/${deviceId}`)).then((snap) => {
+      get(ref(database, userPath(uid, "viewed"))).then((snap) => {
         if (!snap.exists()) return 0
         const val = snap.val()
         let count = 0
@@ -46,19 +49,17 @@ export default function WeeklyReviewPage() {
         return count
       }),
 
-      // Quiz results
-      get(ref(database, `quizResults/${deviceId}`)).then((snap) => {
+      get(ref(database, userPath(uid, "quizResults"))).then((snap) => {
         if (!snap.exists()) return []
         const val = snap.val()
         const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
         return Object.values(val)
           .filter((r: any) => new Date(r.completed_at).getTime() > oneWeekAgo)
           .map((r: any) => ({ pct: r.pct || 0, framework: r.framework_slug || "", date: r.completed_at }))
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+          .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
       }),
 
-      // Journal entries due
-      get(ref(database, `journal/${deviceId}/entries`)).then((snap) => {
+      get(ref(database, userPath(uid, "journal", "entries"))).then((snap) => {
         if (!snap.exists()) return 0
         const val = snap.val()
         const now = new Date()
@@ -68,7 +69,6 @@ export default function WeeklyReviewPage() {
         }).length
       }),
 
-      // Pathway progress
       loadPathwayProgress().then((p) => {
         return loadFrameworks().then((fw) => {
           const steps = buildPathway(fw as FrameworkListItem[])
@@ -76,7 +76,6 @@ export default function WeeklyReviewPage() {
         })
       }),
 
-      // Spaced repetition due reviews
       loadDueReviews(),
     ]).then(([viewed, quizRes, overdue, pathway, dueRev]) => {
       setViewedThisWeek(viewed as number)
@@ -85,23 +84,22 @@ export default function WeeklyReviewPage() {
       setPathwayPct(pathway as number)
       setDueReviews((dueRev as ReviewRecord[]) || [])
 
-      // Generate summary
-      const total = quizRes.length > 0
+      const total = (quizRes as any[]).length > 0
         ? Math.round((quizRes as any[]).reduce((s: number, r: any) => s + r.pct, 0) / (quizRes as any[]).length)
         : 0
       const summaryParts = [`This week you explored ${viewed} concept pages.`]
-      if (quizRes.length > 0) summaryParts.push(`Completed ${quizRes.length} quiz with average score ${total}%.`)
-      if (overdue > 0) summaryParts.push(`${overdue} decision${overdue === 1 ? " is" : "s are"} overdue for review in your journal.`)
+      if ((quizRes as any[]).length > 0) summaryParts.push(`Completed ${(quizRes as any[]).length} quiz with average score ${total}%.`)
+      if ((overdue as number) > 0) summaryParts.push(`${overdue} decision${(overdue as number) === 1 ? " is" : "s are"} overdue for review in your journal.`)
       summaryParts.push(`Learning pathway: ${pathway}% complete.`)
       if ((dueRev as ReviewRecord[]).length > 0) summaryParts.push(`${(dueRev as ReviewRecord[]).length} concept${(dueRev as ReviewRecord[]).length === 1 ? " is" : "s are"} due for spaced repetition review.`)
-      if (viewed === 0 && quizRes.length === 0 && overdue === 0 && (dueRev as ReviewRecord[]).length === 0) {
+      if (viewed === 0 && (quizRes as any[]).length === 0 && overdue === 0 && (dueRev as ReviewRecord[]).length === 0) {
         summaryParts.push("No activity this week. Start by exploring a framework or taking a quiz.")
       }
       setSummary(summaryParts.join(" "))
     }).catch((err) => {
       setError(err.message || "Failed to load review data")
     }).finally(() => setLoading(false))
-  }, [])
+  }, [authReady])
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
@@ -110,7 +108,7 @@ export default function WeeklyReviewPage() {
         <p className="mt-2 text-dark-500 dark:text-dark-300">Your learning activity and progress snapshot.</p>
       </div>
 
-      <StaticHostingBanner
+      <PersistenceUnavailableBanner
         feature="Weekly Review"
         description="Aggregates your concepts viewed, quiz scores, journal reviews, and pathway progress"
       />
@@ -118,7 +116,7 @@ export default function WeeklyReviewPage() {
       {error && <p className="mb-4 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-4 py-3">{error}</p>}
       {loading && <SkeletonCard lines={4} />}
 
-      {!loading && !isStaticHosting && (
+      {!loading && canUseFirebasePersistence() && (
         <>
           {/* AI Learning Brief */}
           <div className="mb-6 rounded-xl border border-violet-200 dark:border-violet-800/40 bg-violet-50 dark:bg-violet-900/10 p-4">
@@ -131,11 +129,13 @@ export default function WeeklyReviewPage() {
                   try {
                     const frameworksViewed: string[] = []
                     const database = db!
-                    const deviceId = getDeviceId()
-                    const viewedSnap = await get(ref(database, `viewed/${deviceId}`))
-                    if (viewedSnap.exists()) {
-                      for (const fwSlug of Object.keys(viewedSnap.val())) {
-                        frameworksViewed.push(fwSlug)
+                    const uid = tryUid()
+                    if (uid) {
+                      const viewedSnap = await get(ref(database, userPath(uid, "viewed")))
+                      if (viewedSnap.exists()) {
+                        for (const fwSlug of Object.keys(viewedSnap.val())) {
+                          frameworksViewed.push(fwSlug)
+                        }
                       }
                     }
                     const avg = quizScores.length > 0 ? Math.round(quizScores.reduce((s, r) => s + r.pct, 0) / quizScores.length) : 0
