@@ -4,6 +4,7 @@ import {
   generateText,
   loadLlmConfigFromEnv,
   stripCodeFences,
+  DEFAULT_LLM_TIMEOUT_MS,
   type LlmConfig,
 } from "./llm"
 
@@ -123,5 +124,27 @@ describe("generateText (mock HTTP)", () => {
       () => generateText(config, { prompt: "x", fetchImpl }),
       /empty completion/,
     )
+  })
+
+  it("passes AbortSignal to fetch and maps abort to timeout error", async () => {
+    let seenSignal: AbortSignal | undefined
+    const fetchImpl: typeof fetch = async (_input, init) => {
+      seenSignal = init?.signal
+      const err = new Error("aborted")
+      err.name = "AbortError"
+      throw err
+    }
+
+    await assert.rejects(
+      () =>
+        generateText(config, {
+          prompt: "x",
+          fetchImpl,
+          timeoutMs: 1234,
+        }),
+      /Cloud LLM timed out after 1234ms/,
+    )
+    assert.ok(seenSignal)
+    assert.equal(DEFAULT_LLM_TIMEOUT_MS, 100_000)
   })
 })

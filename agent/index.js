@@ -107,6 +107,8 @@ async function handleRequest(snapshot) {
   const data = snapshot.val()
 
   if (!data || data.status !== "pending") return
+  // Cloud Function processAIRequest owns provider === "cloud" requests
+  if (data.provider === "cloud") return
 
   const requestRef = db.ref(`requests/${requestId}`)
   const responseRef = getResponseRef(requestId, data)

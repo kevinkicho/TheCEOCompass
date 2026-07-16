@@ -17,6 +17,10 @@ export type GenerateOptions = {
   prompt: string
   model?: string
   temperature?: number
+  /** Abort hung provider calls so the handler can write status=error. Default 100s. */
+  timeoutMs?: number
+  /** Optional external signal (combined with timeout when both provided). */
+  signal?: AbortSignal
   /** Injected for tests; defaults to global fetch */
   fetchImpl?: typeof fetch
 }
@@ -28,6 +32,8 @@ export type GenerateResult = {
 
 const DEFAULT_API_BASE = "https://api.openai.com/v1"
 const DEFAULT_MODEL = "gpt-4o-mini"
+/** Stay under Cloud Function timeoutSeconds (120) so writeError can still run. */
+export const DEFAULT_LLM_TIMEOUT_MS = 100_000
 
 export function loadLlmConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
@@ -57,6 +63,12 @@ export function stripCodeFences(text: string): string {
   return result.trim()
 }
 
+function isAbortError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false
+  const name = (err as { name?: string }).name
+  return name === "AbortError" || name === "TimeoutError"
+}
+
 /**
  * Call an OpenAI-compatible `/chat/completions` endpoint with a single user prompt.
  * Compatible with OpenAI, Azure OpenAI (with base path), Ollama cloud, Groq, etc.
@@ -70,20 +82,35 @@ export async function generateText(
   const temperature =
     typeof options.temperature === "number" ? options.temperature : 0.7
   const fetchImpl = options.fetchImpl || fetch
+  const timeoutMs = options.timeoutMs ?? DEFAULT_LLM_TIMEOUT_MS
+
+  const timeoutSignal = AbortSignal.timeout(timeoutMs)
+  const signal = options.signal
+    ? AbortSignal.any([options.signal, timeoutSignal])
+    : timeoutSignal
 
   const url = `${apiBase}/chat/completions`
-  const res = await fetchImpl(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature,
-      messages: [{ role: "user", content: options.prompt }],
-    }),
-  })
+  let res: Response
+  try {
+    res = await fetchImpl(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        temperature,
+        messages: [{ role: "user", content: options.prompt }],
+      }),
+      signal,
+    })
+  } catch (err) {
+    if (isAbortError(err)) {
+      throw new Error(`Cloud LLM timed out after ${timeoutMs}ms`)
+    }
+    throw err
+  }
 
   if (!res.ok) {
     const body = await res.text().catch(() => "")

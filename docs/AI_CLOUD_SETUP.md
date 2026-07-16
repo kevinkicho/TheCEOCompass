@@ -158,21 +158,53 @@ Feature flag (planned): `cloud_ai_enabled` under `_config/feature_flags`.
 | `"cloud"` | `processAIRequest` Cloud Function |
 | `"local"` | Browser → Ollama (no RTDB request) |
 
-If both agent and function are running, only cloud-tagged requests are processed by the function;
-the agent should ignore `provider === "cloud"` once updated (agent currently processes all `pending`
-requests — avoid dual processing by not running agent against cloud-tagged traffic, or skip
-cloud rows in a follow-up agent change).
+The local agent **skips** `provider === "cloud"` (`agent/index.js`: early return before claim).
+The Cloud Function **skips** non-cloud rows and only claims via RTDB transaction when
+`status === "pending"` and `provider === "cloud"`. Safe to run agent + function together.
+
+## Reliability notes
+
+- **Claim transaction:** Before calling the LLM, the handler transactions the live row to
+  `status: "processing"`. Re-delivery after `done`/`error`/`processing` is a no-op (no double LLM spend).
+- **LLM timeout:** `generateText` uses `AbortSignal.timeout(100_000)` so hung providers throw
+  and `writeError` can set `status: "error"` before the function’s 120s hard timeout.
+- **Error ordering:** `status: "error"` is written first; the response-path error payload is best-effort.
+- **Missing response path:** Treated as an error (not a silent `done`).
+- **Function `retry: false`:** Avoids automatic Eventarc re-invocation after failure; operator can reset stuck rows manually if needed.
+
+## Invocation cost (billing)
+
+RTDB `onValueCreated` **cannot filter** on `provider`. Every create under `/requests/{id}`
+invokes `processAIRequest`, including pure agent traffic. Non-cloud invocations return
+immediately after reading the snapshot (no LLM call, no secret needed for the skip path —
+but cold starts and per-invocation billing still apply at scale).
+
+If agent volume is high and cloud volume is low, consider later:
+
+- A dedicated path such as `requests_cloud/{id}`, or
+- An HTTPS callable / task queue for cloud-only traffic
+
+For the skeleton phase this trade-off is accepted.
+
+## Merge / branch note
+
+Design lists PR3 dependency on PR1 (provider router). Rebase or merge this branch onto
+PR1 tip before landing so git ancestry matches the execute-plan graph. This PR does not
+change frontend behavior beyond coexistence; keep `frontend` `tsc` + vitest green on the
+combined tree.
 
 ## Troubleshooting
 
 | Symptom | Check |
 |---------|--------|
 | Function never runs | `provider` must be `"cloud"`; status must be `"pending"` on create |
+| Function runs but skips | Non-cloud provider, claim lost race, or already processing/done |
 | `OPENAI_API_KEY is not set` | Secret not bound — redeploy after `functions:secrets:set` |
 | 401/403 from LLM | Wrong key or base URL |
 | 429 | Rate limits — backoff or lower concurrency |
-| Permission denied writing RTDB | Function uses Admin SDK (bypasses rules); confirm Admin init |
-| Timeout | Raise `timeoutSeconds` or use a faster model |
+| Permission denied writing RTDB | Function uses Admin SDK (bypasses rules); confirm Admin init + `databaseURL` |
+| Timeout / stuck `processing` | LLM abort at 100s should set `error`; if runtime killed earlier, reset status manually |
+| Wrong database | Set `FIREBASE_DATABASE_URL` or rely on default `theceocompass-default-rtdb` |
 
 ## Security notes
 
