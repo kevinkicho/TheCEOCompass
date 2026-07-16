@@ -136,7 +136,7 @@ RTDB path: `_config/feature_flags`
 }
 ```
 
-Frontend: `lib/feature-flags.ts` — subscribe `onValue`, cache, fall back to env defaults.
+Frontend: `lib/feature-flags.ts` — subscribe `onValue`, cache, fall back to hardcoded safe defaults (`ai_provider_default: "agent"`, all booleans `false`).
 
 ### Phase 3 — Mastery graph
 
