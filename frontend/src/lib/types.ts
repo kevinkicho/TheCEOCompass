@@ -68,6 +68,11 @@ export interface ScenarioListItem {
   description: string
   framework_id: string
   difficulty: number
+  /** Optional scenario pack for filtering / grouping */
+  pack_id?: string
+  pack_title?: string
+  concept_ids?: string[]
+  framework_slugs?: string[]
 }
 
 export interface ScenarioOption {
@@ -82,7 +87,8 @@ export interface ScenarioStage {
   type: "diagnosis" | "analysis" | "decision" | "communication" | "outcome"
   prompt: string
   options: ScenarioOption[]
-  free_response: boolean
+  /** Omitted on multiple-choice stages (treated as false). */
+  free_response?: boolean
   feedback_prompt_template: string
   sample_answer?: string
 }
@@ -106,9 +112,30 @@ export interface Scenario {
   description: string
   framework_id: string
   difficulty: number
+  /** Optional scenario pack for filtering / grouping */
+  pack_id?: string
+  pack_title?: string
+  /** Related concept slugs for SM-2 / mastery linking */
+  concept_ids?: string[]
+  /** Related framework slugs for browse / pathway linking */
+  framework_slugs?: string[]
   context: ScenarioContext
   stages: ScenarioStage[]
   outcome_branches: Record<string, OutcomeBranch>
+}
+
+/** Resolved concept used when seeding SM-2 reviews from a weak scenario attempt */
+export interface ConceptReviewTarget {
+  conceptId: string
+  frameworkSlug: string
+  conceptName: string
+  conceptSlug: string
+  /**
+   * True when conceptId came from a framework concept record (RTDB UUID/id).
+   * False for slug-only fallbacks — those must not be written as permanent review keys
+   * (they would orphan from concept-page SpacedReviewBar which loads by real concept.id).
+   */
+  resolved: boolean
 }
 
 export interface ScenarioAttempt {

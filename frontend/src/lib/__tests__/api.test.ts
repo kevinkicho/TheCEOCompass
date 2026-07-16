@@ -72,6 +72,33 @@ describe("API Client", () => {
     expect(Array.isArray(result)).toBe(true)
   })
 
+  it("getScenarios includes pack metadata and expanded catalog", async () => {
+    const result = await getScenarios()
+    expect(result.length).toBeGreaterThanOrEqual(12)
+    expect(result.every((s) => typeof s.pack_id === "string" && s.pack_id.length > 0)).toBe(true)
+    expect(result.every((s) => typeof s.pack_title === "string" && s.pack_title.length > 0)).toBe(true)
+    expect(result.some((s) => s.pack_id === "core")).toBe(true)
+    expect(result.some((s) => s.pack_id && s.pack_id !== "core")).toBe(true)
+  })
+
+  it("getScenarios filters by framework_slugs", async () => {
+    const finance = await getScenarios("financial-mastery")
+    expect(finance.length).toBeGreaterThan(0)
+    expect(finance.every((s) => s.framework_slugs?.includes("financial-mastery") || s.framework_id === "financial-mastery")).toBe(true)
+  })
+
+  it("getScenario returns pack scenario with stages and concept_ids", async () => {
+    const result = await getScenario("runway-unit-economics-crisis")
+    expect(result).not.toBeNull()
+    expect(result!.title).toBeTruthy()
+    expect(result!.stages.length).toBeGreaterThanOrEqual(3)
+    expect(result!.concept_ids?.length).toBeGreaterThan(0)
+    expect(result!.pack_id).toBe("finance")
+    expect(result!.outcome_branches).toHaveProperty("optimal")
+    expect(result!.outcome_branches).toHaveProperty("acceptable")
+    expect(result!.outcome_branches).toHaveProperty("failure")
+  })
+
   it("getScenario returns a scenario with slug", async () => {
     const list = await getScenarios()
     expect(list.length).toBeGreaterThan(0)

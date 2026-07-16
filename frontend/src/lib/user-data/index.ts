@@ -24,6 +24,16 @@ export {
   loadReviewRecord,
   markConceptViewed,
   loadFrameworkProgress,
+  WEAK_STAGE_SCORE_THRESHOLD,
+  AGAIN_STAGE_SCORE_THRESHOLD,
+  isWeakStageScore,
+  hasWeakStages,
+  shouldOfferConceptReview,
+  ratingForWeakStages,
+  humanizeConceptSlug,
+  resolveConceptsForReview,
+  seedConceptDueNow,
+  seedConceptsToReview,
 } from "./reviews"
 export {
   exportUserData,

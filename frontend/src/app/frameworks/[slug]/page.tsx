@@ -21,7 +21,8 @@ export default function FrameworkDetailPage() {
     loadFrameworks().then(() => getFrameworkBySlug(slug)).then((fw) => {
       if (!fw) return
       setFramework(fw)
-      getScenarios(fw.id).then(setScenarios).catch(console.error)
+      // Join via framework_slugs (and legacy framework_id); slug is the real key for pack scenarios
+      getScenarios(fw.slug).then(setScenarios).catch(console.error)
     }).catch(console.error)
   }, [slug])
 

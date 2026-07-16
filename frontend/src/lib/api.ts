@@ -33,18 +33,44 @@ export async function getFrameworkBySlug(slug: string): Promise<Framework | null
   return fws.find((f) => f.slug === slug) || null
 }
 
-export async function getScenarios(frameworkId?: string): Promise<ScenarioListItem[]> {
+function toScenarioListItem(s: Scenario): ScenarioListItem {
+  return {
+    id: s.id,
+    slug: s.slug,
+    title: s.title,
+    description: s.description,
+    framework_id: s.framework_id,
+    difficulty: s.difficulty,
+    pack_id: s.pack_id ?? "core",
+    pack_title: s.pack_title ?? "Core",
+    concept_ids: s.concept_ids,
+    framework_slugs: s.framework_slugs,
+  }
+}
+
+function matchesFramework(s: Scenario, frameworkIdOrSlug: string): boolean {
+  if (s.framework_id === frameworkIdOrSlug) return true
+  if (s.framework_slugs?.includes(frameworkIdOrSlug)) return true
+  return false
+}
+
+/** frameworkIdOrSlug: RTDB/framework id or slug. Prefer slug — pack scenarios join via framework_slugs. */
+export async function getScenarios(frameworkIdOrSlug?: string): Promise<ScenarioListItem[]> {
   if (!useFastApiScenarios) {
     let list = staticScenarios
-    if (frameworkId) list = list.filter((s) => s.framework_id === frameworkId)
-    return list.map((s) => ({
-      id: s.id, slug: s.slug, title: s.title,
-      description: s.description, framework_id: s.framework_id, difficulty: s.difficulty,
-    }))
+    if (frameworkIdOrSlug) list = list.filter((s) => matchesFramework(s, frameworkIdOrSlug))
+    return list.map(toScenarioListItem)
   }
   try {
-    const { data } = await api.get("/scenarios", { params: frameworkId ? { framework_id: frameworkId } : {} })
-    return data
+    const { data } = await api.get("/scenarios", {
+      params: frameworkIdOrSlug ? { framework_id: frameworkIdOrSlug } : {},
+    })
+    const rows = (data as ScenarioListItem[]) || []
+    return rows.map((s) => ({
+      ...s,
+      pack_id: s.pack_id ?? "core",
+      pack_title: s.pack_title ?? "Core",
+    }))
   } catch {
     return []
   }
