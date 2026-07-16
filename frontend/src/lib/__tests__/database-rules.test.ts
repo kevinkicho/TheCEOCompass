@@ -63,4 +63,17 @@ describe("database.rules.json intermediate cutover", () => {
   it("does not use fictional legacy_devices root", () => {
     expect(rules.legacy_devices).toBeUndefined()
   })
+
+  it("exposes mastery graph as public read, admin write", () => {
+    expect(rules.mastery[".read"]).toBe(true)
+    expect(rules.mastery[".write"]).toContain("admins")
+    expect(rules.mastery[".write"]).toContain("auth.uid")
+    expect(rules.mastery.edges.$fromConceptId.$toConceptId[".validate"]).toContain("requires")
+    expect(rules.mastery.concepts.$conceptId[".validate"]).toContain("frameworkSlug")
+  })
+
+  it("exposes _meta/mastery_graph as public read, admin write", () => {
+    expect(rules._meta.mastery_graph[".read"]).toBe(true)
+    expect(rules._meta.mastery_graph[".write"]).toContain("admins")
+  })
 })

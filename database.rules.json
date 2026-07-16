@@ -136,6 +136,23 @@
       }
     },
 
+    "mastery": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "edges": {
+        "$fromConceptId": {
+          "$toConceptId": {
+            ".validate": "newData.hasChildren(['type', 'weight']) && newData.child('type').isString() && (newData.child('type').val() === 'requires' || newData.child('type').val() === 'reinforces' || newData.child('type').val() === 'applied_in') && newData.child('weight').isNumber()"
+          }
+        }
+      },
+      "concepts": {
+        "$conceptId": {
+          ".validate": "newData.hasChildren(['frameworkSlug', 'conceptSlug']) && newData.child('frameworkSlug').isString() && newData.child('conceptSlug').isString()"
+        }
+      }
+    },
+
     "_meta": {
       "framework_slugs": {
         ".read": true,
@@ -144,6 +161,10 @@
       "agent_heartbeat": {
         ".read": true,
         ".write": false
+      },
+      "mastery_graph": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
       }
     }
   }
