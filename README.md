@@ -26,11 +26,20 @@ Browser (GitHub Pages / Local)    Firebase RTDB           Local Agent (WSL)     
 |-------|------|---------|
 | Frontend | Next.js 14.2 (static export) + TypeScript + Tailwind | 360 SSG pages |
 | PWA | Service Worker (`sw.js`) | Cache-first static, SWR Firebase, offline fallback |
-| Data | Firebase RTDB | All framework/concept data + AI response message bus |
+| Data | Firebase RTDB | Frameworks + AI bus + **user learning data** |
 | AI bridge | Firebase RTDB → local agent → Ollama | Browser → Firebase → agent → Ollama → Firebase → browser |
-| Local agent | Node.js + firebase-admin | Watches `/requests`, calls `localhost:11434` |
-| Auth | Firebase Auth (Google Sign-In) | Admin for `kevinkicho@gmail.com`, popup + redirect fallback |
+| Local agent | Node.js + firebase-admin | Watches `/requests`, writes heartbeat + results |
+| Auth | Firebase Auth (anonymous + Google link) | Private `users/{uid}/…` trees; admin via `admins/{uid}` |
+| Nav | Learn / Practice / Reflect | Stable URLs; home “Next actions” dashboard |
 | Cache | `rtdb-cache.ts` (single-read, in-memory) | All 57 frameworks loaded in 1 RTDB read, cached for session |
+
+### Identity & persistence (production)
+
+- **Anonymous session** on first visit (enable Anonymous in Firebase Console).
+- Learning data at `users/{auth.uid}/journal|reviews|progress|viewed|…` (not device-only).
+- Link Google for cross-device continuity; export/import JSON on Profile.
+- AI requests include `uid`; RTDB rules require owner create-only on `/requests`.
+- Design: [`docs/DESIGN_PHASE_0_1.md`](docs/DESIGN_PHASE_0_1.md)
 
 ### No hardcoded data
 
@@ -57,7 +66,7 @@ The live GitHub Pages site serves the static UI with Firebase data, but AI-power
 ```bash
 # 1. Clone and enter
 git clone https://github.com/kevinkicho/TheCEOCompass.git
-cd TheCEOCompass/ceo-platform
+cd TheCEOCompass
 
 # 2. Start Ollama (Terminal 1)
 ollama run gemma4:latest
@@ -67,9 +76,8 @@ ollama run gemma4:latest
 cd agent
 npm install
 # Place serviceAccountKey.json (from Firebase Console → Project Settings → Service Accounts) in agent/
-setsid node index.js
-# Watches Firebase RTDB /requests, calls Ollama, writes results back
-# Use setsid to fully detach from shell (survives timeout)
+node index.js
+# Watches Firebase RTDB /requests, calls Ollama, writes results + agent heartbeat
 
 # 4. Start the frontend (Terminal 3)
 cd frontend

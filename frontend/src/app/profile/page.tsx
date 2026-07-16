@@ -3,25 +3,39 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { getProgress, getCalibration, getJournalEntries } from "@/lib/api"
 import { loadFrameworks } from "@/lib/rtdb-cache"
-import type { Progress, CalibrationSummary, JournalEntry, FrameworkListItem } from "@/lib/types"
+import type { Framework, FrameworkListItem } from "@/lib/types"
 import { useSettings } from "@/lib/settings"
 import { useAuth } from "@/lib/useAuth"
+import { useAuthSession } from "@/lib/AuthSessionProvider"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import { db, ref, get } from "@/lib/firebase"
-import { getDeviceId } from "@/lib/firebase-crud"
-import { downloadUserDataExport, importUserData } from "@/lib/user-data"
+import {
+  downloadUserDataExport,
+  importUserData,
+  loadJournalEntries,
+  loadPathwayProgress,
+  loadAllReviews,
+  buildPathway,
+  tryUid,
+  userPath,
+} from "@/lib/user-data"
+import { computeCalibration, type CalibrationResult } from "@/lib/calibration"
 import { analyzeBlindSpots, type BlindSpotReport } from "@/lib/ollama"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 
 export default function ProfilePage() {
   const router = useRouter()
   const { user, isAdmin, loading: authLoading, signInWithGoogle, signOut } = useAuth()
-  const [progress, setProgress] = useState<Progress | null>(null)
-  const [calibration, setCalibration] = useState<CalibrationSummary | null>(null)
+  const { ready: authReady } = useAuthSession()
+  const [pathwayPct, setPathwayPct] = useState(0)
+  const [pathwayCompleted, setPathwayCompleted] = useState(0)
+  const [pathwayTotal, setPathwayTotal] = useState(0)
+  const [reviewCount, setReviewCount] = useState(0)
+  const [calibration, setCalibration] = useState<CalibrationResult | null>(null)
   const [journalCount, setJournalCount] = useState(0)
-  const [frameworks, setFrameworks] = useState<FrameworkListItem[]>([])
+  const [frameworks, setFrameworks] = useState<Framework[]>([])
+  const [viewedByFramework, setViewedByFramework] = useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = useState(true)
   const { settings, setSettings, loaded } = useSettings()
   const [exportBusy, setExportBusy] = useState(false)
@@ -34,21 +48,55 @@ export default function ProfilePage() {
   const [blindSpotError, setBlindSpotError] = useState("")
 
   useEffect(() => {
-    Promise.all([
-      getProgress(),
-      getCalibration(),
-      getJournalEntries(),
-      loadFrameworks() as Promise<FrameworkListItem[]>,
-    ])
-      .then(([p, c, entries, f]) => {
-        setProgress(p)
-        setCalibration(c)
-        setJournalCount(entries.length)
-        setFrameworks(f)
-      })
-      .catch(console.error)
-      .finally(() => setIsLoading(false))
-  }, [])
+    if (!authReady && canUseFirebasePersistence()) return
+
+    const load = async () => {
+      setIsLoading(true)
+      try {
+        const fws = (await loadFrameworks()) as Framework[]
+        setFrameworks(fws)
+
+        if (!canUseFirebasePersistence() || !tryUid()) {
+          return
+        }
+
+        const [journal, pathway, reviews, cal] = await Promise.all([
+          loadJournalEntries().catch(() => []),
+          loadPathwayProgress().catch(() => ({ completedIds: [] as string[], inProgressId: null as string | null })),
+          loadAllReviews().catch(() => []),
+          computeCalibration().catch(() => null),
+        ])
+
+        setJournalCount(journal.length)
+        setReviewCount(reviews.length)
+        setCalibration(cal)
+
+        const steps = buildPathway(fws as FrameworkListItem[])
+        setPathwayTotal(steps.length)
+        setPathwayCompleted(pathway.completedIds.length)
+        setPathwayPct(steps.length > 0 ? Math.round((pathway.completedIds.length / steps.length) * 100) : 0)
+
+        const uid = tryUid()
+        if (uid && db) {
+          const snap = await get(ref(db, userPath(uid, "viewed")))
+          if (snap.exists()) {
+            const val = snap.val() as Record<string, Record<string, unknown>>
+            const counts: Record<string, number> = {}
+            for (const fw of Object.keys(val)) {
+              counts[fw] = Object.keys(val[fw] || {}).filter((k) => k !== "viewed_at").length
+            }
+            setViewedByFramework(counts)
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    load()
+  }, [authReady])
 
   if (isLoading) {
     return (
@@ -142,92 +190,67 @@ export default function ProfilePage() {
       {/* Key Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          label="Scenarios Done"
-          value={progress?.scenarios_completed ?? 0}
-          subtitle={progress ? `${progress.scenarios_in_progress} in progress` : ""}
+          label="Pathway"
+          value={`${pathwayPct}%`}
+          subtitle={pathwayTotal > 0 ? `${pathwayCompleted} / ${pathwayTotal} modules` : "No modules loaded"}
         />
         <StatsCard
-          label="Avg Score"
-          value={`${Math.round((progress?.average_scenario_score ?? 0) * 100)}%`}
-          subtitle={`${Math.round((progress?.total_scenario_score ?? 0) * 100)} total`}
+          label="Concepts Reviewed"
+          value={reviewCount}
+          subtitle="Spaced-repetition cards"
         />
         <StatsCard
           label="Decisions Logged"
           value={journalCount}
-          subtitle={calibration ? `${calibration.total_predictions} reviewed` : "0 reviewed"}
+          subtitle={calibration ? `${calibration.entriesUsed} with outcomes` : "0 with outcomes"}
         />
         <StatsCard
-          label="Streak"
-          value={`${progress?.current_streak_days ?? 0}d`}
-          subtitle={progress ? `Best: ${progress.longest_streak_days}d` : ""}
+          label="Calibration"
+          value={calibration && calibration.entriesUsed > 0 ? `${calibration.overall}%` : "—"}
+          subtitle={calibration && calibration.entriesUsed > 0 ? "Outcome accuracy" : "Log outcomes in Journal"}
         />
       </div>
 
       {/* Calibration Chart */}
-      {calibration && calibration.total_predictions > 0 && (
+      {calibration && calibration.entriesUsed > 0 && (
         <div className="mb-8 rounded-xl border border-dark-200 p-6 dark:border-dark-700">
           <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Calibration</h2>
-          <div className="mb-4 grid grid-cols-3 gap-4">
+          <div className="mb-4 grid grid-cols-2 gap-4">
             <div className="rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
-              <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{Math.round(calibration.accuracy * 100)}%</p>
-              <p className="text-xs text-dark-500 dark:text-dark-300">Accuracy</p>
+              <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{calibration.overall}%</p>
+              <p className="text-xs text-dark-500 dark:text-dark-300">Overall accuracy</p>
             </div>
             <div className="rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
-              <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{Math.round(calibration.average_confidence * 100)}%</p>
-              <p className="text-xs text-dark-500 dark:text-dark-300">Avg Confidence</p>
-            </div>
-            <div className="rounded-lg bg-dark-50 p-4 text-center dark:bg-dark-900">
-              <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{calibration.average_brier_score.toFixed(2)}</p>
-              <p className="text-xs text-dark-500 dark:text-dark-300">Brier Score</p>
+              <p className="text-2xl font-bold text-dark-900 dark:text-dark-100">{calibration.entriesUsed}</p>
+              <p className="text-xs text-dark-500 dark:text-dark-300">Outcomes used</p>
             </div>
           </div>
-          
-          {Object.keys(calibration.calibration_by_confidence).length > 0 && (
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-300">By Confidence Level</h3>
-              <div className="space-y-2">
-                {Object.entries(calibration.calibration_by_confidence).map(([bucket, data]) => (
-                  <div key={bucket} className="flex items-center gap-3 text-sm">
-                    <span className="w-16 text-dark-500 dark:text-dark-300">{bucket}</span>
-                    <div className="flex-1 h-5 flex rounded-full overflow-hidden bg-dark-100 dark:bg-dark-800">
-                      <div
-                        className="bg-primary-500 transition-all"
-                        style={{ width: `${data.accuracy * 100}%` }}
-                      />
-                      <div className="bg-dark-200 transition-all dark:bg-dark-700" style={{ width: `${(1 - data.accuracy) * 100}%` }} />
-                    </div>
-                    <span className="w-10 text-right text-dark-600 dark:text-dark-300">{Math.round(data.accuracy * 100)}%</span>
-                    <span className="w-8 text-right text-dark-400 dark:text-dark-300">n={data.count}</span>
-                  </div>
-                ))}
+          <div className="space-y-2">
+            {calibration.buckets.map((b) => (
+              <div key={b.label} className="flex items-center gap-3 text-sm">
+                <span className="w-28 text-dark-500 dark:text-dark-300">{b.label}</span>
+                <div className="flex-1 h-5 flex rounded-full overflow-hidden bg-dark-100 dark:bg-dark-800">
+                  <div className="bg-primary-500 transition-all" style={{ width: `${b.accuracy}%` }} />
+                </div>
+                <span className="w-10 text-right text-dark-600 dark:text-dark-300">{b.accuracy}%</span>
+                <span className="w-8 text-right text-dark-400 dark:text-dark-300">n={b.count}</span>
               </div>
-            </div>
-          )}
-
-          {calibration.trend.length > 0 && (
-            <div className="mt-4">
-              <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-300">Trend</h3>
-              <div className="flex items-end gap-2 h-24">
-                {calibration.trend.map((point) => (
-                  <div key={point.month} className="flex flex-1 flex-col items-center gap-1">
-                    <div className="w-full rounded-t bg-primary-500 transition-all" style={{ height: `${point.accuracy * 100}%` }} />
-                    <span className="text-[10px] text-dark-400 dark:text-dark-300">{point.month.slice(2)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Framework Mastery */}
+      {/* Framework engagement (viewed concepts) */}
       <div className="mb-8 rounded-xl border border-dark-200 p-6 dark:border-dark-700">
-        <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Framework Mastery</h2>
-        <div className="space-y-3">
+        <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Framework engagement</h2>
+        <p className="text-xs text-dark-500 dark:text-dark-400 mb-3">Concepts viewed per framework (from RTDB progress)</p>
+        <div className="space-y-3 max-h-80 overflow-y-auto">
           {frameworks.map((fw) => {
-            const mastery = (progress?.framework_mastery?.[fw.id] ?? 0) * 100
+            const viewed = viewedByFramework[fw.slug] || 0
+            const totalConcepts = fw.concepts?.length || 0
+            const pct = totalConcepts > 0 ? Math.min(100, Math.round((viewed / totalConcepts) * 100)) : 0
             return (
-              <div key={fw.id}>
+              <div key={fw.id || fw.slug}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <button
                     onClick={() => router.push(`/frameworks/${fw.slug}`)}
@@ -235,10 +258,12 @@ export default function ProfilePage() {
                   >
                     {fw.title}
                   </button>
-                  <span className="text-dark-500 dark:text-dark-300">{Math.round(mastery)}%</span>
+                  <span className="text-dark-500 dark:text-dark-300">
+                    {viewed}{totalConcepts > 0 ? ` / ${totalConcepts}` : ""} viewed
+                  </span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-dark-100 dark:bg-dark-800">
-                  <div className="h-full rounded-full bg-primary-500 transition-all" style={{ width: `${mastery}%` }} />
+                  <div className="h-full rounded-full bg-primary-500 transition-all" style={{ width: `${pct}%` }} />
                 </div>
               </div>
             )
@@ -259,29 +284,42 @@ export default function ProfilePage() {
                 if (blindSpotLoading) return
                 setBlindSpotLoading(true); setBlindSpotError(""); setBlindSpotReport(null)
                 try {
-                  if (!db) { throw new Error("Firebase not configured") }
-                  const deviceId = getDeviceId()
+                  if (!db) throw new Error("Firebase not configured")
+                  const uid = tryUid()
+                  if (!uid) throw new Error("Not signed in — wait for auth session")
                   const database = db!
+                  const base = userPath(uid)
                   const [viewedSnap, reviewsSnap, quizSnap, journalSnap, progressSnap] = await Promise.all([
-                    get(ref(database, `viewed/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
-                    get(ref(database, `reviews/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
-                    get(ref(database, `quizResults/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
-                    get(ref(database, `journal/${deviceId}/entries`)).catch(() => ({ exists: () => false, val: () => null })),
-                    get(ref(database, `progress/${deviceId}`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `${base}/viewed`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `${base}/reviews`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `${base}/quizResults`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `${base}/journal/entries`)).catch(() => ({ exists: () => false, val: () => null })),
+                    get(ref(database, `${base}/progress`)).catch(() => ({ exists: () => false, val: () => null })),
                   ])
 
-                  const viewedFrameworks = viewedSnap.exists() ? Object.keys(viewedSnap.val()) : []
-                  const reviewedConcepts = reviewsSnap.exists() ? Object.keys(reviewsSnap.val()) : []
+                  const viewedFrameworks = viewedSnap.exists() ? Object.keys(viewedSnap.val() as object) : []
+                  const reviewedConcepts = reviewsSnap.exists() ? Object.keys(reviewsSnap.val() as object) : []
                   const quizResults = quizSnap.exists()
-                    ? Object.values(quizSnap.val() as any).map((r: any) => ({ framework: r.framework_slug || "", pct: r.pct || 0 }))
+                    ? Object.values(quizSnap.val() as Record<string, { framework_slug?: string; pct?: number }>).map((r) => ({
+                        framework: r.framework_slug || "",
+                        pct: r.pct || 0,
+                      }))
                     : []
-                  const journalEntries = journalSnap.exists() ? Object.keys(journalSnap.val()).length : 0
-                  const completedPathways = progressSnap.exists() ? (progressSnap.val().completed_ids || []) : []
+                  const journalEntries = journalSnap.exists() ? Object.keys(journalSnap.val() as object).length : 0
+                  const completedPathways = progressSnap.exists()
+                    ? ((progressSnap.val() as { completed_ids?: string[] }).completed_ids || [])
+                    : []
 
-                  const report = await analyzeBlindSpots({ viewedFrameworks, reviewedConcepts, quizResults, journalEntries, completedPathways })
+                  const report = await analyzeBlindSpots({
+                    viewedFrameworks,
+                    reviewedConcepts,
+                    quizResults,
+                    journalEntries,
+                    completedPathways,
+                  })
                   setBlindSpotReport(report)
-                } catch (err: any) {
-                  setBlindSpotError(err.message || "Analysis failed")
+                } catch (err: unknown) {
+                  setBlindSpotError(err instanceof Error ? err.message : "Analysis failed")
                 }
                 setBlindSpotLoading(false)
               }}
