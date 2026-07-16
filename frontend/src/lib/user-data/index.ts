@@ -26,6 +26,12 @@ export {
   loadFrameworkProgress,
 } from "./reviews"
 export {
+  computeReviewStats,
+  computeReviewDayStreak,
+  MATURE_INTERVAL_DAYS,
+  type ReviewRetentionStats,
+} from "./review-stats"
+export {
   exportUserData,
   downloadUserDataExport,
   importUserData,

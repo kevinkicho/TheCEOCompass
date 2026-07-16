@@ -44,6 +44,19 @@ vi.mock("@/lib/firebase-crud", () => ({
       nextReviewAt: new Date(Date.now() - 1000).toISOString(),
     },
   ]),
+  loadAllReviews: vi.fn().mockResolvedValue([
+    {
+      conceptId: "c1",
+      frameworkSlug: "fw",
+      conceptName: "Concept",
+      conceptSlug: "concept",
+      reviewCount: 1,
+      interval: 1,
+      easeFactor: 2.5,
+      lastReviewedAt: new Date().toISOString(),
+      nextReviewAt: new Date(Date.now() - 1000).toISOString(),
+    },
+  ]),
   tryUid: vi.fn().mockReturnValue("test"),
   userPath: vi.fn((...parts: string[]) => parts.join("/")),
 }))

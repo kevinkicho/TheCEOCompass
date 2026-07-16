@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
-import { loadPathwayProgress, buildPathway, loadDueReviews, tryUid, userPath } from "@/lib/firebase-crud"
+import { loadPathwayProgress, buildPathway, loadDueReviews, loadAllReviews, tryUid, userPath } from "@/lib/firebase-crud"
 import { getReviewStatus, getDaysUntilReview, type ReviewRecord } from "@/lib/spaced-repetition"
+import { computeReviewStats, type ReviewRetentionStats } from "@/lib/user-data/review-stats"
 import { loadFrameworks } from "@/lib/rtdb-cache"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
@@ -12,6 +13,15 @@ import { useFeatureFlags } from "@/components/FeatureFlagsProvider"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import { generateLearningBrief } from "@/lib/ollama"
 import type { FrameworkListItem } from "@/lib/types"
+
+const EMPTY_SR_STATS: ReviewRetentionStats = {
+  total: 0,
+  due: 0,
+  overdue: 0,
+  learning: 0,
+  mature: 0,
+  streakDays: 0,
+}
 
 export default function WeeklyReviewPage() {
   const { ready: authReady } = useAuthSession()
@@ -24,6 +34,7 @@ export default function WeeklyReviewPage() {
   const [overdueReviews, setOverdueReviews] = useState(0)
   const [pathwayPct, setPathwayPct] = useState(0)
   const [dueReviews, setDueReviews] = useState<ReviewRecord[]>([])
+  const [srStats, setSrStats] = useState<ReviewRetentionStats>(EMPTY_SR_STATS)
   const [learningBrief, setLearningBrief] = useState("")
   const [briefLoading, setBriefLoading] = useState(false)
   const srSessionEnabled = flags.sr_session_enabled
@@ -80,12 +91,14 @@ export default function WeeklyReviewPage() {
       }),
 
       loadDueReviews(),
-    ]).then(([viewed, quizRes, overdue, pathway, dueRev]) => {
+      loadAllReviews().catch(() => [] as ReviewRecord[]),
+    ]).then(([viewed, quizRes, overdue, pathway, dueRev, allRev]) => {
       setViewedThisWeek(viewed as number)
       setQuizScores(quizRes as { pct: number; framework: string; date: string }[])
       setOverdueReviews(overdue as number)
       setPathwayPct(pathway as number)
       setDueReviews((dueRev as ReviewRecord[]) || [])
+      setSrStats(computeReviewStats((allRev as ReviewRecord[]) || []))
 
       const total = (quizRes as any[]).length > 0
         ? Math.round((quizRes as any[]).reduce((s: number, r: any) => s + r.pct, 0) / (quizRes as any[]).length)
@@ -187,6 +200,58 @@ export default function WeeklyReviewPage() {
               <p className="text-2xl font-bold text-green-600">{pathwayPct}%</p>
               <p className="text-xs text-dark-500 dark:text-dark-400">Pathway complete</p>
             </div>
+          </div>
+
+          {/* Spaced repetition retention stats */}
+          <div className="mb-8 rounded-xl border border-dark-200 dark:border-dark-700 p-5" data-testid="sr-stats-panel">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">
+                Spaced repetition
+              </h2>
+              {srStats.total > 0 && (
+                <p className="text-[11px] text-dark-400 dark:text-dark-500">
+                  {srStats.total} card{srStats.total === 1 ? "" : "s"} tracked
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-amber-600 dark:text-amber-400" data-testid="sr-stat-due">
+                  {srStats.due}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Due today</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-red-600 dark:text-red-400" data-testid="sr-stat-overdue">
+                  {srStats.overdue}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Overdue</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-primary-600 dark:text-primary-400" data-testid="sr-stat-learning">
+                  {srStats.learning}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Learning</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-green-600 dark:text-green-400" data-testid="sr-stat-mature">
+                  {srStats.mature}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Mature</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center sm:col-span-2">
+                <p className="text-xl font-bold text-violet-600 dark:text-violet-400" data-testid="sr-stat-streak">
+                  {srStats.streakDays}
+                  <span className="text-sm font-semibold ml-0.5">d</span>
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Review streak</p>
+              </div>
+            </div>
+            {srStats.total === 0 && (
+              <p className="mt-3 text-[11px] text-dark-400 dark:text-dark-500">
+                Rate concepts on framework pages to build your retention deck and streak.
+              </p>
+            )}
           </div>
 
           {/* Quiz scores */}
