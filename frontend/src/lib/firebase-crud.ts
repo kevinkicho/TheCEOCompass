@@ -26,6 +26,7 @@ export {
   loadDueReviews,
   loadAllReviews,
   loadReviewRecord,
+  loadReviewActivityDays,
   markConceptViewed,
   loadFrameworkProgress,
   WEAK_STAGE_SCORE_THRESHOLD,

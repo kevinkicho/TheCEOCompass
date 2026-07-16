@@ -96,6 +96,11 @@
           "$conceptId": {
             ".validate": "newData.hasChildren(['conceptId','nextReviewAt'])"
           }
+        },
+        "reviewActivity": {
+          "$dayKey": {
+            ".validate": "newData.isBoolean() && newData.val() === true && $dayKey.matches(/^\\d{4}-\\d{2}-\\d{2}$/)"
+          }
         }
       }
     },

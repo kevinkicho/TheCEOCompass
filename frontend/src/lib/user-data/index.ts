@@ -22,6 +22,7 @@ export {
   loadDueReviews,
   loadAllReviews,
   loadReviewRecord,
+  loadReviewActivityDays,
   markConceptViewed,
   loadFrameworkProgress,
   WEAK_STAGE_SCORE_THRESHOLD,
@@ -35,6 +36,13 @@ export {
   seedConceptDueNow,
   seedConceptsToReview,
 } from "./reviews"
+export {
+  computeReviewStats,
+  computeReviewDayStreak,
+  toLocalDayKey,
+  MATURE_INTERVAL_DAYS,
+  type ReviewRetentionStats,
+} from "./review-stats"
 export {
   exportUserData,
   downloadUserDataExport,

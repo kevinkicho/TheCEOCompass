@@ -2,18 +2,30 @@
 
 import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
-import { loadPathwayProgress, buildPathway, loadDueReviews, tryUid, userPath } from "@/lib/firebase-crud"
+import { loadPathwayProgress, buildPathway, loadDueReviews, loadAllReviews, loadReviewActivityDays, tryUid, userPath } from "@/lib/firebase-crud"
 import { getReviewStatus, getDaysUntilReview, type ReviewRecord } from "@/lib/spaced-repetition"
+import { computeReviewStats, type ReviewRetentionStats } from "@/lib/user-data/review-stats"
 import { loadFrameworks } from "@/lib/rtdb-cache"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { useAuthSession } from "@/lib/AuthSessionProvider"
+import { useFeatureFlags } from "@/components/FeatureFlagsProvider"
 import { SkeletonCard } from "@/components/SkeletonCard"
 import { generateLearningBrief } from "@/lib/ollama"
 import type { FrameworkListItem } from "@/lib/types"
 
+const EMPTY_SR_STATS: ReviewRetentionStats = {
+  total: 0,
+  due: 0,
+  overdue: 0,
+  learning: 0,
+  mature: 0,
+  streakDays: 0,
+}
+
 export default function WeeklyReviewPage() {
   const { ready: authReady } = useAuthSession()
+  const { flags } = useFeatureFlags()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [summary, setSummary] = useState("")
@@ -22,8 +34,10 @@ export default function WeeklyReviewPage() {
   const [overdueReviews, setOverdueReviews] = useState(0)
   const [pathwayPct, setPathwayPct] = useState(0)
   const [dueReviews, setDueReviews] = useState<ReviewRecord[]>([])
+  const [srStats, setSrStats] = useState<ReviewRetentionStats>(EMPTY_SR_STATS)
   const [learningBrief, setLearningBrief] = useState("")
   const [briefLoading, setBriefLoading] = useState(false)
+  const srSessionEnabled = flags.sr_session_enabled
 
   useEffect(() => {
     if (!canUseFirebasePersistence()) { setLoading(false); return }
@@ -77,12 +91,21 @@ export default function WeeklyReviewPage() {
       }),
 
       loadDueReviews(),
-    ]).then(([viewed, quizRes, overdue, pathway, dueRev]) => {
+      loadAllReviews().catch(() => [] as ReviewRecord[]),
+      loadReviewActivityDays().catch(() => [] as string[]),
+    ]).then(([viewed, quizRes, overdue, pathway, dueRev, allRev, activityDays]) => {
       setViewedThisWeek(viewed as number)
       setQuizScores(quizRes as { pct: number; framework: string; date: string }[])
       setOverdueReviews(overdue as number)
       setPathwayPct(pathway as number)
       setDueReviews((dueRev as ReviewRecord[]) || [])
+      setSrStats(
+        computeReviewStats(
+          (allRev as ReviewRecord[]) || [],
+          new Date(),
+          (activityDays as string[]) || [],
+        ),
+      )
 
       const total = (quizRes as any[]).length > 0
         ? Math.round((quizRes as any[]).reduce((s: number, r: any) => s + r.pct, 0) / (quizRes as any[]).length)
@@ -186,6 +209,58 @@ export default function WeeklyReviewPage() {
             </div>
           </div>
 
+          {/* Spaced repetition retention stats */}
+          <div className="mb-8 rounded-xl border border-dark-200 dark:border-dark-700 p-5" data-testid="sr-stats-panel">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">
+                Spaced repetition
+              </h2>
+              {srStats.total > 0 && (
+                <p className="text-[11px] text-dark-400 dark:text-dark-500">
+                  {srStats.total} card{srStats.total === 1 ? "" : "s"} tracked
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-amber-600 dark:text-amber-400" data-testid="sr-stat-due">
+                  {srStats.due}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Due today</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-red-600 dark:text-red-400" data-testid="sr-stat-overdue">
+                  {srStats.overdue}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Overdue</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-primary-600 dark:text-primary-400" data-testid="sr-stat-learning">
+                  {srStats.learning}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Learning</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center">
+                <p className="text-xl font-bold text-green-600 dark:text-green-400" data-testid="sr-stat-mature">
+                  {srStats.mature}
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Mature</p>
+              </div>
+              <div className="rounded-lg bg-dark-50 dark:bg-dark-800/50 p-3 text-center sm:col-span-2">
+                <p className="text-xl font-bold text-violet-600 dark:text-violet-400" data-testid="sr-stat-streak">
+                  {srStats.streakDays}
+                  <span className="text-sm font-semibold ml-0.5">d</span>
+                </p>
+                <p className="text-[10px] text-dark-500 dark:text-dark-400 mt-0.5">Review streak</p>
+              </div>
+            </div>
+            {srStats.total === 0 && (
+              <p className="mt-3 text-[11px] text-dark-400 dark:text-dark-500">
+                Rate concepts on framework pages to build your retention deck and streak.
+              </p>
+            )}
+          </div>
+
           {/* Quiz scores */}
           {quizScores.length > 0 && (
             <div className="mb-8">
@@ -209,7 +284,20 @@ export default function WeeklyReviewPage() {
           {/* Concepts Due for Review (Spaced Repetition) */}
           {dueReviews.length > 0 && (
             <div className="mb-8">
-              <h2 className="mb-3 text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">Concepts Due for Review</h2>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">
+                  Concepts Due for Review
+                </h2>
+                {srSessionEnabled && (
+                  <a
+                    href="/review/session"
+                    data-testid="start-review-session"
+                    className="rounded-lg bg-amber-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-amber-700 transition shrink-0"
+                  >
+                    Start review session
+                  </a>
+                )}
+              </div>
               <div className="space-y-2">
                 {dueReviews.map((r, i) => (
                   <a key={i} href={`/frameworks/${r.frameworkSlug}/${r.conceptSlug}`}
@@ -232,10 +320,37 @@ export default function WeeklyReviewPage() {
             </div>
           )}
 
+          {/* Session CTA when flag on but no due list header (0 due still can open session for empty state) */}
+          {srSessionEnabled && dueReviews.length === 0 && (
+            <div className="mb-8 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-900/10 p-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-amber-800 dark:text-amber-300">Spaced repetition session</p>
+                <p className="text-[11px] text-dark-500 dark:text-dark-400 mt-0.5">
+                  Keyboard-driven reviews (1–4) when concepts are due.
+                </p>
+              </div>
+              <a
+                href="/review/session"
+                data-testid="start-review-session"
+                className="rounded-lg bg-amber-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-amber-700 transition shrink-0"
+              >
+                Start review session
+              </a>
+            </div>
+          )}
+
           {/* Quick actions */}
           <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-5">
             <h2 className="mb-3 text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide">Quick Actions</h2>
             <div className="flex flex-wrap gap-2">
+              {srSessionEnabled && (
+                <a
+                  href="/review/session"
+                  className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-medium text-white hover:bg-amber-700 transition"
+                >
+                  Review session
+                </a>
+              )}
               <a href="/frameworks" className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition">Explore frameworks</a>
               <a href="/quiz" className="rounded-lg border border-primary-300 dark:border-primary-700 px-4 py-2 text-xs font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition">Take a quiz</a>
               <a href="/journal" className="rounded-lg border border-dark-300 dark:border-dark-600 px-4 py-2 text-xs font-medium text-dark-700 dark:text-dark-300 hover:bg-dark-50 dark:hover:bg-dark-800 transition">Review journal</a>
