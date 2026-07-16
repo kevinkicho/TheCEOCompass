@@ -27,12 +27,17 @@ export const FEATURE_FLAG_KEYS: FeatureFlagKey[] = [
   "sr_session_enabled",
 ]
 
+/**
+ * Safe product defaults when RTDB flags are missing.
+ * AI/learning surfaces are enabled so the app is usable without an ops flag flip;
+ * RTDB can still override any key.
+ */
 export const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
-  ai_provider_default: "agent",
-  cloud_ai_enabled: false,
+  ai_provider_default: "cloud",
+  cloud_ai_enabled: true,
   app_check_enforced: false,
-  mastery_graph_enabled: false,
-  sr_session_enabled: false,
+  mastery_graph_enabled: true,
+  sr_session_enabled: true,
 }
 
 const VALID_PROVIDERS = new Set<AiProviderDefault>(["agent", "local", "cloud"])

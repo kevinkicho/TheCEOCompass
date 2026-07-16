@@ -1,14 +1,40 @@
 // CEO Compass Ollama Agent
-// Bridges Firebase RTDB → local Ollama (streaming) → Firebase RTDB
+// Bridges Firebase RTDB → local Ollama (or cloud API key fallback) → Firebase RTDB
 // Run: node index.js
 // Requires: service account JSON from Firebase Console in this directory
+// Optional: agent/.env with OLLAMA_API_KEY for cloud fallback when local Ollama is down
 
 import admin from "firebase-admin"
-import { readFileSync, readdirSync } from "fs"
+import { readFileSync, readdirSync, existsSync } from "fs"
 import { join, dirname } from "path"
 import { fileURLToPath } from "url"
+import { generateWithFallback, loadOllamaEnv, probeLocalOllama } from "./ollama-client.js"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+/** Minimal .env loader (no dependency). Does not override existing process.env. */
+function loadDotEnv(filePath) {
+  if (!existsSync(filePath)) return
+  const text = readFileSync(filePath, "utf8")
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith("#")) continue
+    const eq = trimmed.indexOf("=")
+    if (eq <= 0) continue
+    const key = trimmed.slice(0, eq).trim()
+    let val = trimmed.slice(eq + 1).trim()
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1)
+    }
+    if (process.env[key] === undefined) process.env[key] = val
+  }
+}
+
+loadDotEnv(join(__dirname, ".env"))
+loadDotEnv(join(__dirname, "..", ".env"))
 
 function loadServiceAccount() {
   const fromEnv = process.env.GOOGLE_APPLICATION_CREDENTIALS
@@ -31,30 +57,30 @@ admin.initializeApp({
 
 const db = admin.database()
 const requestsRef = db.ref("requests")
-const ollamaUrl = "http://localhost:11434/api/generate"
+const ollamaEnv = loadOllamaEnv()
 
 console.log("✓ Agent connected to Firebase RTDB")
-console.log(`  Watching /requests → ${ollamaUrl} (streaming)`)
+console.log(
+  `  Watching /requests → local ${ollamaEnv.localUrl}` +
+    (ollamaEnv.apiKey ? ` + cloud fallback (${ollamaEnv.apiBase})` : " (no OLLAMA_API_KEY cloud fallback)"),
+)
 
 const HEARTBEAT_PATH = "_meta/agent_heartbeat"
 const HEARTBEAT_MS = 30_000
-const OLLAMA_TAGS = "http://localhost:11434/api/tags"
 
 async function writeHeartbeat() {
-  let ollamaOk = false
-  try {
-    const res = await fetch(OLLAMA_TAGS, { signal: AbortSignal.timeout(5000) })
-    ollamaOk = res.ok
-  } catch {
-    ollamaOk = false
-  }
+  const localOk = await probeLocalOllama(ollamaEnv.localUrl, 5000)
+  const cloudOk = Boolean(ollamaEnv.apiKey)
+  const ollamaOk = localOk || cloudOk
   await db.ref(HEARTBEAT_PATH).set({
     status: ollamaOk ? "ok" : "degraded",
     updated_at: Date.now(),
     ollama_ok: ollamaOk,
+    ollama_local_ok: localOk,
+    ollama_cloud_fallback: cloudOk,
     ollama_checked_at: Date.now(),
-    model_default: "gemma4:latest",
-    agent_version: "1.1.0",
+    model_default: ollamaEnv.model,
+    agent_version: "1.2.0",
   })
 }
 
@@ -118,66 +144,27 @@ async function handleRequest(snapshot) {
   try {
     await requestRef.update({ status: "processing", started_at: Date.now() })
 
-    // Stream from Ollama (ndjson) — no stream:false, let Ollama stream naturally
-    const ollamaRes = await fetch(ollamaUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data.payload),
+    const prompt = data.payload?.prompt
+    if (!prompt || typeof prompt !== "string") {
+      throw new Error("Request payload.prompt is required")
+    }
+    const temperature =
+      typeof data.payload?.options?.temperature === "number"
+        ? data.payload.options.temperature
+        : 0.7
+    const model = data.payload?.model || ollamaEnv.model
+
+    const { text: result, model: usedModel, source } = await generateWithFallback(prompt, {
+      model,
+      temperature,
     })
-
-    if (!ollamaRes.ok) {
-      const text = await ollamaRes.text()
-      throw new Error(`Ollama error (${ollamaRes.status}): ${text.substring(0, 200)}`)
-    }
-
-    // Read streaming ndjson response
-    const reader = ollamaRes.body.getReader()
-    const decoder = new TextDecoder()
-    let fullResponse = ""
-    let buffer = ""
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-
-      buffer += decoder.decode(value, { stream: true })
-      const lines = buffer.split("\n")
-      buffer = lines.pop() || ""
-
-      for (const line of lines) {
-        if (!line.trim()) continue
-        try {
-          const chunk = JSON.parse(line)
-          if (chunk.response) fullResponse += chunk.response
-        } catch {
-          // skip malformed lines
-        }
-      }
-    }
-
-    // Process remaining buffer
-    if (buffer.trim()) {
-      try {
-        const chunk = JSON.parse(buffer)
-        if (chunk.response) fullResponse += chunk.response
-      } catch {}
-    }
-
-    let result = fullResponse.trim()
-
-    // Strip markdown code fences if present
-    if (result.startsWith("```")) {
-      result = result.split("\n").slice(1).join("\n")
-    }
-    if (result.endsWith("```")) {
-      result = result.slice(0, -3).trim()
-    }
 
     const responseData = {
       result,
-      model: data.payload.model || "gemma4:latest",
+      model: usedModel,
       prompt: data.payload.prompt || "",
       created_at: Date.now(),
+      source,
     }
 
     if (responseRef) {
@@ -191,7 +178,7 @@ async function handleRequest(snapshot) {
     }
 
     await requestRef.update({ status: "done" })
-    console.log(`  ✓ [${requestId}] Done (${result.length} chars)`)
+    console.log(`  ✓ [${requestId}] Done via ${source} (${result.length} chars)`)
   } catch (err) {
     console.error(`  ✗ [${requestId}] ${err.message}`)
     await writeError(requestId, data, err.message)

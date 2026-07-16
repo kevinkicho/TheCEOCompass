@@ -50,8 +50,8 @@ describe("getActiveAiProvider", () => {
     vi.unstubAllGlobals()
   })
 
-  it("defaults to agent when settings empty and no env", () => {
-    expect(getActiveAiProvider()).toBe("agent")
+  it("defaults to flag ai_provider_default (cloud) when settings empty and no env", () => {
+    expect(getActiveAiProvider()).toBe(DEFAULT_FEATURE_FLAGS.ai_provider_default)
   })
 
   it("reads localAiMode from settings", () => {
@@ -159,10 +159,13 @@ describe("callOllamaViaFirebase provider branches", () => {
     ;(localStorage.getItem as any).mockReturnValue(
       JSON.stringify({ localAiMode: true, ollamaUrl: "http://localhost:11434", ollamaModel: "test-model" }),
     )
-    fetchMock.mockResolvedValue({
-      ok: true,
-      json: async () => ({ response: '{"ok":true}' }),
-    })
+    // probeLocalOllama (/api/tags) then /api/generate
+    fetchMock
+      .mockResolvedValueOnce({ ok: true })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ response: '{"ok":true}' }),
+      })
 
     const out = await callOllamaViaFirebase(
       "",
@@ -181,6 +184,8 @@ describe("callOllamaViaFirebase provider branches", () => {
   })
 
   it("agent branch tags provider: agent on the request payload", async () => {
+    ;(localStorage.getItem as any).mockReturnValue(JSON.stringify({ aiProvider: "agent" }))
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: true })
     // Deliver response immediately via onValue on response path
     mockOnValue.mockImplementation((refObj: any, cb: any) => {
       if (refObj?._path?.includes("framework/")) {

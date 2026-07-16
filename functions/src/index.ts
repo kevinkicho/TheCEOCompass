@@ -32,11 +32,12 @@ if (!admin.apps.length) {
 
 const openaiApiKey = defineSecret("OPENAI_API_KEY")
 const openaiApiBase = defineString("OPENAI_API_BASE", {
-  default: "https://api.openai.com/v1",
+  // Ollama Cloud OpenAI-compatible endpoint (override for OpenAI/Groq/etc.)
+  default: "https://ollama.com/v1",
   description: "OpenAI-compatible API base URL (no trailing slash required)",
 })
 const cloudAiModel = defineString("CLOUD_AI_MODEL", {
-  default: "gpt-4o-mini",
+  default: "gemma4:31b-cloud",
   description: "Default model when request.payload.model is absent",
 })
 

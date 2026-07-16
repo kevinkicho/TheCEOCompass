@@ -38,17 +38,23 @@ export const DEFAULT_LLM_TIMEOUT_MS = 100_000
 export function loadLlmConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): LlmConfig {
-  const apiKey = env.OPENAI_API_KEY?.trim()
+  // Prefer OPENAI_* then OLLAMA_* aliases (same key works for Ollama Cloud)
+  const apiKey =
+    env.OPENAI_API_KEY?.trim() || env.OLLAMA_API_KEY?.trim() || ""
   if (!apiKey) {
     throw new Error(
-      "OPENAI_API_KEY is not set. Configure the secret before deploying cloud AI.",
+      "OPENAI_API_KEY (or OLLAMA_API_KEY) is not set. Configure the secret before deploying cloud AI.",
     )
   }
-  return {
-    apiKey,
-    apiBase: env.OPENAI_API_BASE?.trim() || DEFAULT_API_BASE,
-    model: env.CLOUD_AI_MODEL?.trim() || DEFAULT_MODEL,
-  }
+  const apiBase =
+    env.OPENAI_API_BASE?.trim() ||
+    env.OLLAMA_API_BASE?.trim() ||
+    DEFAULT_API_BASE
+  const model =
+    env.CLOUD_AI_MODEL?.trim() ||
+    env.OLLAMA_MODEL?.trim() ||
+    DEFAULT_MODEL
+  return { apiKey, apiBase, model }
 }
 
 /** Strip markdown code fences the same way the local agent does. */

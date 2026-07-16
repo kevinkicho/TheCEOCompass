@@ -4,7 +4,7 @@ import { useState } from "react"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { useFeatureFlags } from "@/components/FeatureFlagsProvider"
 
-export function DemoFooter() {
+export function SiteFooter() {
   const [showModal, setShowModal] = useState(false)
   const persistenceOk = typeof window !== "undefined" ? canUseFirebasePersistence() : true
   const { flags } = useFeatureFlags()

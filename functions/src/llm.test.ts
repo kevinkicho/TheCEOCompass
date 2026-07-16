@@ -20,10 +20,10 @@ describe("stripCodeFences", () => {
 })
 
 describe("loadLlmConfigFromEnv", () => {
-  it("throws when OPENAI_API_KEY is missing", () => {
+  it("throws when OPENAI_API_KEY and OLLAMA_API_KEY are missing", () => {
     assert.throws(
       () => loadLlmConfigFromEnv({}),
-      /OPENAI_API_KEY/,
+      /OPENAI_API_KEY|OLLAMA_API_KEY/,
     )
   })
 
@@ -32,6 +32,17 @@ describe("loadLlmConfigFromEnv", () => {
     assert.equal(cfg.apiKey, "sk-test")
     assert.equal(cfg.apiBase, "https://api.openai.com/v1")
     assert.equal(cfg.model, "gpt-4o-mini")
+  })
+
+  it("accepts OLLAMA_API_KEY alias and Ollama base", () => {
+    const cfg = loadLlmConfigFromEnv({
+      OLLAMA_API_KEY: "ollama-key",
+      OLLAMA_API_BASE: "https://ollama.com/v1",
+      OLLAMA_MODEL: "gemma4:31b-cloud",
+    })
+    assert.equal(cfg.apiKey, "ollama-key")
+    assert.equal(cfg.apiBase, "https://ollama.com/v1")
+    assert.equal(cfg.model, "gemma4:31b-cloud")
   })
 
   it("reads custom base and model", () => {

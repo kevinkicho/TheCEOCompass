@@ -6,9 +6,10 @@ import { ThemeProvider } from "@/components/ThemeProvider"
 import { AuthSessionProvider } from "@/lib/AuthSessionProvider"
 import { AiStatusProvider } from "@/components/AiStatusProvider"
 import { FeatureFlagsProvider } from "@/components/FeatureFlagsProvider"
+import { AppInitProvider } from "@/components/AppInitProvider"
 import { Navbar } from "@/components/Navbar"
 import { AppSidebar } from "@/components/AppSidebar"
-import { DemoFooter } from "@/components/DemoFooter"
+import { SiteFooter } from "@/components/SiteFooter"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -43,6 +44,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthSessionProvider>
           <FeatureFlagsProvider>
+          <AppInitProvider>
           <AiStatusProvider>
           <ErrorBoundary>
           <Navbar />
@@ -52,9 +54,10 @@ export default function RootLayout({
               <ErrorBoundary>{children}</ErrorBoundary>
             </main>
           </div>
-          <DemoFooter />
+          <SiteFooter />
           </ErrorBoundary>
           </AiStatusProvider>
+          </AppInitProvider>
           </FeatureFlagsProvider>
           </AuthSessionProvider>
         </ThemeProvider>

@@ -22,13 +22,13 @@ describe("feature-flags defaults", () => {
     ])
   })
 
-  it("uses safe defaults (no cloud / phase-3 features on)", () => {
+  it("uses AI-ready defaults (cloud + learning features on until RTDB overrides)", () => {
     expect(DEFAULT_FEATURE_FLAGS).toEqual({
-      ai_provider_default: "agent",
-      cloud_ai_enabled: false,
+      ai_provider_default: "cloud",
+      cloud_ai_enabled: true,
       app_check_enforced: false,
-      mastery_graph_enabled: false,
-      sr_session_enabled: false,
+      mastery_graph_enabled: true,
+      sr_session_enabled: true,
     })
   })
 
@@ -63,9 +63,13 @@ describe("parseFeatureFlags", () => {
     expect(parseFeatureFlags({ ai_provider_default: "agent" }).ai_provider_default).toBe("agent")
   })
 
-  it("rejects invalid ai_provider_default", () => {
-    expect(parseFeatureFlags({ ai_provider_default: "openai" }).ai_provider_default).toBe("agent")
-    expect(parseFeatureFlags({ ai_provider_default: 1 }).ai_provider_default).toBe("agent")
+  it("rejects invalid ai_provider_default (falls back to default)", () => {
+    expect(parseFeatureFlags({ ai_provider_default: "openai" }).ai_provider_default).toBe(
+      DEFAULT_FEATURE_FLAGS.ai_provider_default,
+    )
+    expect(parseFeatureFlags({ ai_provider_default: 1 }).ai_provider_default).toBe(
+      DEFAULT_FEATURE_FLAGS.ai_provider_default,
+    )
   })
 
   it("coerces boolean-ish values (case-insensitive strings)", () => {
@@ -83,7 +87,7 @@ describe("parseFeatureFlags", () => {
     expect(cached).toEqual(DEFAULT_FEATURE_FLAGS)
     expect(cached).not.toBe(DEFAULT_FEATURE_FLAGS)
     cached.cloud_ai_enabled = true
-    expect(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled).toBe(false)
+    expect(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled).toBe(true)
     resetFeatureFlagsCache()
   })
 
@@ -100,8 +104,8 @@ describe("getFlag / cache", () => {
   })
 
   it("returns default via getFlag before any RTDB update", () => {
-    expect(getFlag("cloud_ai_enabled")).toBe(false)
-    expect(getFlag("ai_provider_default")).toBe("agent")
+    expect(getFlag("cloud_ai_enabled")).toBe(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled)
+    expect(getFlag("ai_provider_default")).toBe(DEFAULT_FEATURE_FLAGS.ai_provider_default)
   })
 
   it("reflects setCachedFeatureFlags", () => {

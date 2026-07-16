@@ -2,6 +2,7 @@ import React from "react"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import { render, screen, waitFor, act } from "@testing-library/react"
 
+
 const { mockState, mockOnValue, mockRef, unsubFn } = vi.hoisted(() => {
   const unsubFn = vi.fn()
   return {
@@ -33,6 +34,7 @@ vi.mock("@/lib/app-check", () => ({
 
 import { FeatureFlagsProvider, useFeatureFlags } from "../FeatureFlagsProvider"
 import {
+  DEFAULT_FEATURE_FLAGS,
   FEATURE_FLAGS_PATH,
   getFlag,
   resetFeatureFlagsCache,
@@ -73,10 +75,10 @@ describe("FeatureFlagsProvider", () => {
     await waitFor(() => {
       expect(screen.getByTestId("ready").textContent).toBe("true")
     })
-    expect(screen.getByTestId("cloud").textContent).toBe("false")
-    expect(screen.getByTestId("provider").textContent).toBe("agent")
+    expect(screen.getByTestId("cloud").textContent).toBe(String(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled))
+    expect(screen.getByTestId("provider").textContent).toBe(DEFAULT_FEATURE_FLAGS.ai_provider_default)
     expect(mockOnValue).not.toHaveBeenCalled()
-    expect(getFlag("cloud_ai_enabled")).toBe(false)
+    expect(getFlag("cloud_ai_enabled")).toBe(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled)
     expect(initAppCheckIfConfigured).toHaveBeenCalledWith(mockState.app)
   })
 
@@ -140,8 +142,8 @@ describe("FeatureFlagsProvider", () => {
     await waitFor(() => {
       expect(screen.getByTestId("ready").textContent).toBe("true")
     })
-    expect(screen.getByTestId("cloud").textContent).toBe("false")
-    expect(getFlag("cloud_ai_enabled")).toBe(false)
+    expect(screen.getByTestId("cloud").textContent).toBe(String(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled))
+    expect(getFlag("cloud_ai_enabled")).toBe(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled)
   })
 
   it("unsubscribes on unmount", () => {

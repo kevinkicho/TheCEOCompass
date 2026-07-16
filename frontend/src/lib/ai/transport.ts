@@ -148,33 +148,15 @@ export async function callOllamaDirect(
   systemType: string = "explain_further",
 ): Promise<string> {
   const settings = loadSettings()
-  const ollamaUrl = settings.ollamaUrl || "http://localhost:11434"
-  const model = settings.ollamaModel || "gemma4:31b-cloud"
   const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${prompt}`
-
-  const res = await fetch(`${ollamaUrl}/api/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, prompt: fullPrompt, stream: false, options: { temperature } }),
+  const { generateWithOllamaFallback } = await import("./ollama-client")
+  const result = await generateWithOllamaFallback({
+    prompt: fullPrompt,
+    temperature,
+    model: settings.ollamaModel || undefined,
+    localUrl: settings.ollamaUrl || undefined,
   })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Ollama error (${res.status}): ${text.substring(0, 200)}`)
-  }
-
-  const data = await res.json()
-  let result = data.response?.trim() || ""
-  if (result.startsWith("```")) result = result.split("\n").slice(1).join("\n")
-  if (result.endsWith("```")) result = result.slice(0, -3).trim()
-  return result
-}
-
-function getFrameworkMeta(slug: string) {
-  // Returns cached meta synchronously. For RTDB, we use a sync import approach.
-  // This function is only used for AI prompt building, so it's fine to return null
-  // and let the caller handle missing data.
-  return null
+  return result.text
 }
 
 export function buildSystemPrompt(type: string): string {
@@ -322,19 +304,37 @@ export async function callOllamaViaFirebase(
   }
 
   console.log(`[AI] Pushing request ${requestId} (provider=${provider}) for ${frameworkSlug}/${conceptSlug}/${category}`)
-  await pushAiRequest(database, requestId, {
-    type: systemType,
-    category,
-    framework_slug: frameworkSlug,
-    concept_slug: conceptSlug,
-    provider,
-    payload,
-  })
+  try {
+    await pushAiRequest(database, requestId, {
+      type: systemType,
+      category,
+      framework_slug: frameworkSlug,
+      concept_slug: conceptSlug,
+      provider,
+      payload,
+    })
 
-  const responsePath = `framework/${frameworkSlug}/${conceptSlug}/${category}/${requestId}`
-  const { result } = await waitForFirebaseResponse(database, requestId, responsePath)
-  console.log(`[AI] Response ${requestId} received (${result.length} chars) for ${category}`)
-  return { result, cached: false, prompt: fullPrompt }
+    const responsePath = `framework/${frameworkSlug}/${conceptSlug}/${category}/${requestId}`
+    const { result } = await waitForFirebaseResponse(database, requestId, responsePath)
+    console.log(`[AI] Response ${requestId} received (${result.length} chars) for ${category}`)
+    return { result, cached: false, prompt: fullPrompt }
+  } catch (err) {
+    // Agent offline / timeout: fall back to local Ollama or cloud API key
+    const { generateWithOllamaFallback, hasOllamaApiKey } = await import("./ollama-client")
+    if (provider === "agent" && hasOllamaApiKey()) {
+      console.warn(
+        `[AI] Agent path failed (${err instanceof Error ? err.message : err}); falling back to Ollama client`,
+      )
+      const r = await generateWithOllamaFallback({
+        prompt: fullPrompt,
+        temperature,
+        model: actualModel,
+        localUrl: settings.ollamaUrl || undefined,
+      })
+      return { result: r.text, cached: false, prompt: fullPrompt }
+    }
+    throw err
+  }
 }
 
 /**
@@ -395,21 +395,44 @@ export async function runWithAiProvider(args: {
           options: { temperature: args.temperature },
         }
 
-  await pushAiRequest(database, requestId, {
-    ...rest,
-    payload,
-    provider,
-  })
+  try {
+    await pushAiRequest(database, requestId, {
+      ...rest,
+      payload,
+      provider,
+    })
 
-  const path =
-    typeof args.responsePath === "function" ? args.responsePath(requestId) : args.responsePath
-  const { result, data } = await waitForFirebaseResponse(
-    database,
-    requestId,
-    path,
-    args.timeoutMs,
-    args.onProgress,
-  )
-  return { result, data, prompt: fullPrompt }
+    const path =
+      typeof args.responsePath === "function" ? args.responsePath(requestId) : args.responsePath
+    const { result, data } = await waitForFirebaseResponse(
+      database,
+      requestId,
+      path,
+      args.timeoutMs,
+      args.onProgress,
+    )
+    return { result, data, prompt: fullPrompt }
+  } catch (err) {
+    const { generateWithOllamaFallback, hasOllamaApiKey } = await import("./ollama-client")
+    if (provider === "agent" && hasOllamaApiKey()) {
+      console.warn(
+        `[AI] Agent path failed (${err instanceof Error ? err.message : err}); falling back to Ollama client`,
+      )
+      const r = await generateWithOllamaFallback({
+        prompt: fullPrompt,
+        temperature: args.temperature,
+        model,
+        localUrl: settings.ollamaUrl || undefined,
+      })
+      let data: any = null
+      try {
+        data = JSON.parse(r.text)
+      } catch {
+        /* plain text */
+      }
+      return { result: r.text, data, prompt: fullPrompt }
+    }
+    throw err
+  }
 }
 

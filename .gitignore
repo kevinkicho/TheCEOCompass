@@ -5,6 +5,13 @@ venv/
 __pycache__/
 *.pyc
 .env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+!**/.env.example
+frontend/.env.local
+agent/.env
 *.db
 test.db
 ceo_platform.db
@@ -42,3 +49,5 @@ functions/.runtimeconfig.json
 firebase-debug.log
 firebase-debug.*.log
 ui-debug.log
+
+frontend/tsconfig.tsbuildinfo
