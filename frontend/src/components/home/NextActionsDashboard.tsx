@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { useNextActions } from "@/lib/user-data/useNextActions"
 import { SkeletonCard } from "@/components/SkeletonCard"
+import { nextActionHref, nextActionKindLabel } from "@/lib/mastery"
 
 export function NextActionsDashboard() {
   const state = useNextActions()
@@ -34,11 +35,13 @@ export function NextActionsDashboard() {
     )
   }
 
+  const recommended = state.recommendedConcepts || []
   const empty =
     state.dueReviewCount === 0 &&
     state.journalOutcomesDue === 0 &&
     state.pathway.pct === 0 &&
-    !state.lastViewed
+    !state.lastViewed &&
+    recommended.length === 0
 
   return (
     <section className="mx-auto max-w-4xl px-4 pb-12" data-testid="next-actions">
@@ -78,43 +81,73 @@ export function NextActionsDashboard() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <ActionCard
-            href="/review"
-            label="Spaced reviews due"
-            value={String(state.dueReviewCount)}
-            hint={
-              state.dueReviews[0]
-                ? `Next: ${state.dueReviews[0].conceptName || state.dueReviews[0].conceptSlug}`
-                : "Nothing overdue — keep learning"
-            }
-            accent="amber"
-          />
-          <ActionCard
-            href={state.pathway.nextSlug ? `/frameworks/${state.pathway.nextSlug}` : "/pathway"}
-            label="Pathway progress"
-            value={`${state.pathway.pct}%`}
-            hint={state.pathway.nextTitle ? `Up next: ${state.pathway.nextTitle}` : "Pathway complete"}
-            accent="primary"
-          />
-          <ActionCard
-            href="/journal"
-            label="Journal outcomes due"
-            value={String(state.journalOutcomesDue)}
-            hint="Capture what happened to improve calibration"
-            accent="violet"
-          />
-          <ActionCard
-            href="/scenarios"
-            label="Practice"
-            value="Scenarios"
-            hint="Apply frameworks under pressure with AI coaching"
-            accent="emerald"
-          />
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ActionCard
+              href="/review"
+              label="Spaced reviews due"
+              value={String(state.dueReviewCount)}
+              hint={
+                state.dueReviews[0]
+                  ? `Next: ${state.dueReviews[0].conceptName || state.dueReviews[0].conceptSlug}`
+                  : "Nothing overdue — keep learning"
+              }
+              accent="amber"
+            />
+            <ActionCard
+              href={state.pathway.nextSlug ? `/frameworks/${state.pathway.nextSlug}` : "/pathway"}
+              label="Pathway progress"
+              value={`${state.pathway.pct}%`}
+              hint={state.pathway.nextTitle ? `Up next: ${state.pathway.nextTitle}` : "Pathway complete"}
+              accent="primary"
+            />
+            <ActionCard
+              href="/journal"
+              label="Journal outcomes due"
+              value={String(state.journalOutcomesDue)}
+              hint="Capture what happened to improve calibration"
+              accent="violet"
+            />
+            <ActionCard
+              href="/scenarios"
+              label="Practice"
+              value="Scenarios"
+              hint="Apply frameworks under pressure with AI coaching"
+              accent="emerald"
+            />
+          </div>
+
+          {recommended.length > 0 && (
+            <div data-testid="recommended-concepts">
+              <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-200">
+                Recommended concepts
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {recommended.map((rec) => (
+                  <ActionCard
+                    key={`${rec.kind}-${rec.conceptId}`}
+                    href={nextActionHref(rec)}
+                    label={nextActionKindLabel(rec.kind)}
+                    value={formatConceptTitle(rec.conceptSlug)}
+                    hint={rec.reason}
+                    accent="sky"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>
   )
+}
+
+function formatConceptTitle(conceptSlug: string): string {
+  return conceptSlug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
 }
 
 function ActionCard({
@@ -128,19 +161,21 @@ function ActionCard({
   label: string
   value: string
   hint: string
-  accent: "amber" | "primary" | "violet" | "emerald"
+  accent: "amber" | "primary" | "violet" | "emerald" | "sky"
 }) {
   const ring = {
     amber: "border-amber-200 dark:border-amber-800/40 bg-amber-50/50 dark:bg-amber-900/10",
     primary: "border-primary-200 dark:border-primary-800/40 bg-primary-50/50 dark:bg-primary-900/10",
     violet: "border-violet-200 dark:border-violet-800/40 bg-violet-50/50 dark:bg-violet-900/10",
     emerald: "border-emerald-200 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-900/10",
+    sky: "border-sky-200 dark:border-sky-800/40 bg-sky-50/50 dark:bg-sky-900/10",
   }[accent]
   const valueCls = {
     amber: "text-amber-700 dark:text-amber-300",
     primary: "text-primary-700 dark:text-primary-300",
     violet: "text-violet-700 dark:text-violet-300",
     emerald: "text-emerald-700 dark:text-emerald-300",
+    sky: "text-sky-700 dark:text-sky-300",
   }[accent]
 
   return (
@@ -149,7 +184,7 @@ function ActionCard({
       className={`rounded-xl border p-4 transition hover:shadow-md ${ring}`}
     >
       <p className="text-[11px] font-semibold uppercase tracking-wide text-dark-500 dark:text-dark-400">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${valueCls}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold ${valueCls} line-clamp-2`}>{value}</p>
       <p className="mt-1 text-xs text-dark-500 dark:text-dark-400 line-clamp-2">{hint}</p>
     </Link>
   )
