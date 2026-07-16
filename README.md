@@ -39,7 +39,8 @@ Browser (GitHub Pages / Local)    Firebase RTDB           Local Agent (WSL)     
 - Learning data at `users/{auth.uid}/journal|reviews|progress|viewed|…` (not device-only).
 - Link Google for cross-device continuity; export/import JSON on Profile.
 - AI requests include `uid`; RTDB rules require owner create-only on `/requests`.
-- Design: [`docs/DESIGN_PHASE_0_1.md`](docs/DESIGN_PHASE_0_1.md)
+- Design (done): [`docs/DESIGN_PHASE_0_1.md`](docs/DESIGN_PHASE_0_1.md)
+- Design (next): [`docs/DESIGN_PHASE_2_3.md`](docs/DESIGN_PHASE_2_3.md) — Phase 2 cloud AI + Phase 3 mastery/scenarios/SR; run with `/execute-plan docs/DESIGN_PHASE_2_3.md`
 
 ### No hardcoded data
 
