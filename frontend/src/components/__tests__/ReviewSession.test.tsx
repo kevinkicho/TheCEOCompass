@@ -112,6 +112,21 @@ describe("ReviewSession", () => {
     expect(screen.getByText("Card 2 of 2")).toBeInTheDocument()
   })
 
+  it("rates Hard with SM-2 rating 3", async () => {
+    render(<ReviewSession />)
+    await screen.findByText("First Principles")
+    fireEvent.click(screen.getByTestId("rate-hard"))
+    await waitFor(() => {
+      expect(markConceptReviewed).toHaveBeenCalledWith(
+        "strategic-decision-making",
+        "c1",
+        "First Principles",
+        "first-principles",
+        3,
+      )
+    })
+  })
+
   it("rates with keyboard 1–4", async () => {
     render(<ReviewSession />)
     await screen.findByText("First Principles")
@@ -139,6 +154,90 @@ describe("ReviewSession", () => {
       )
     })
     expect(await screen.findByTestId("review-session-summary")).toBeInTheDocument()
+  })
+
+  it("ignores rating keys while typing in an input", async () => {
+    render(
+      <>
+        <input data-testid="other-input" />
+        <ReviewSession />
+      </>,
+    )
+    await screen.findByText("First Principles")
+    const input = screen.getByTestId("other-input")
+    input.focus()
+    fireEvent.keyDown(input, { key: "1" })
+    await new Promise((r) => setTimeout(r, 50))
+    expect(markConceptReviewed).not.toHaveBeenCalled()
+    expect(screen.getByText("First Principles")).toBeInTheDocument()
+  })
+
+  it("ignores rating keys while a select is focused", async () => {
+    render(
+      <>
+        <select data-testid="other-select">
+          <option value="a">A</option>
+        </select>
+        <ReviewSession />
+      </>,
+    )
+    await screen.findByText("First Principles")
+    const select = screen.getByTestId("other-select")
+    select.focus()
+    fireEvent.keyDown(select, { key: "2" })
+    await new Promise((r) => setTimeout(r, 50))
+    expect(markConceptReviewed).not.toHaveBeenCalled()
+  })
+
+  it("ignores key-repeat events", async () => {
+    render(<ReviewSession />)
+    await screen.findByText("First Principles")
+    fireEvent.keyDown(window, { key: "3", repeat: true })
+    await new Promise((r) => setTimeout(r, 50))
+    expect(markConceptReviewed).not.toHaveBeenCalled()
+  })
+
+  it("double-rate is locked: only one markConceptReviewed and advances to next card", async () => {
+    let resolveFirst: (v: unknown) => void
+    const pending = new Promise((resolve) => {
+      resolveFirst = resolve
+    })
+    markConceptReviewed.mockImplementationOnce(
+      () =>
+        pending.then(() => ({
+          conceptId: "c1",
+          frameworkSlug: "strategic-decision-making",
+          conceptName: "First Principles",
+          conceptSlug: "first-principles",
+          reviewCount: 3,
+          interval: 1,
+          easeFactor: 2.5,
+          lastReviewedAt: new Date().toISOString(),
+          nextReviewAt: new Date(Date.now() + 86400000).toISOString(),
+        })),
+    )
+
+    render(<ReviewSession />)
+    await screen.findByText("First Principles")
+
+    fireEvent.click(screen.getByTestId("rate-good"))
+    fireEvent.click(screen.getByTestId("rate-easy"))
+    fireEvent.keyDown(window, { key: "1" })
+
+    expect(markConceptReviewed).toHaveBeenCalledTimes(1)
+
+    resolveFirst!(null)
+
+    expect(await screen.findByText("Unit Economics")).toBeInTheDocument()
+    expect(screen.getByText("Card 2 of 2")).toBeInTheDocument()
+    expect(markConceptReviewed).toHaveBeenCalledTimes(1)
+    expect(markConceptReviewed).toHaveBeenCalledWith(
+      "strategic-decision-making",
+      "c1",
+      "First Principles",
+      "first-principles",
+      4,
+    )
   })
 
   it("shows session summary with rating counts after last card", async () => {

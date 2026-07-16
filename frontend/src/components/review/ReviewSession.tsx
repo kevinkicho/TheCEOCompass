@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { loadDueReviews, markConceptReviewed } from "@/lib/firebase-crud"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { useAuthSession } from "@/lib/AuthSessionProvider"
@@ -34,6 +34,14 @@ function formatFrameworkSlug(slug: string): string {
     .join(" ")
 }
 
+function isEditableKeyboardTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true
+  if (target.isContentEditable) return true
+  return false
+}
+
 export function ReviewSession() {
   const { ready: authReady } = useAuthSession()
   const [phase, setPhase] = useState<Phase>("loading")
@@ -43,9 +51,26 @@ export function ReviewSession() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
 
+  /** Synchronous submit lock — React state alone cannot block same-tick double rates. */
+  const submittingRef = useRef(false)
+  const phaseRef = useRef<Phase>("loading")
+  const indexRef = useRef(0)
+  const queueRef = useRef<ReviewRecord[]>([])
+
+  useEffect(() => {
+    phaseRef.current = phase
+  }, [phase])
+  useEffect(() => {
+    indexRef.current = index
+  }, [index])
+  useEffect(() => {
+    queueRef.current = queue
+  }, [queue])
+
   useEffect(() => {
     if (!canUseFirebasePersistence()) {
       setPhase("error")
+      phaseRef.current = "error"
       setError("Firebase is unavailable. Review sessions need persistence enabled.")
       return
     }
@@ -53,23 +78,30 @@ export function ReviewSession() {
 
     let cancelled = false
     setPhase("loading")
+    phaseRef.current = "loading"
     loadDueReviews()
       .then((due) => {
         if (cancelled) return
         if (!due.length) {
           setQueue([])
+          queueRef.current = []
           setPhase("empty")
+          phaseRef.current = "empty"
           return
         }
         setQueue(due)
+        queueRef.current = due
         setIndex(0)
+        indexRef.current = 0
         setResults([])
         setPhase("active")
+        phaseRef.current = "active"
       })
       .catch((err: unknown) => {
         if (cancelled) return
         setError(err instanceof Error ? err.message : "Failed to load due reviews")
         setPhase("error")
+        phaseRef.current = "error"
       })
 
     return () => {
@@ -80,54 +112,57 @@ export function ReviewSession() {
   const current = phase === "active" ? queue[index] : undefined
   const total = queue.length
 
-  const rate = useCallback(
-    async (label: SessionRatingLabel, rating: ReviewRating) => {
-      if (phase !== "active" || !current || submitting) return
-      setSubmitting(true)
-      setError("")
-      try {
-        const updated = await markConceptReviewed(
-          current.frameworkSlug,
-          current.conceptId,
-          current.conceptName,
-          current.conceptSlug,
-          rating,
-        )
-        const entry: SessionResult = {
-          conceptId: current.conceptId,
-          conceptName: current.conceptName,
-          frameworkSlug: current.frameworkSlug,
-          label,
-          rating,
-          interval: updated.interval,
-        }
-        const nextResults = [...results, entry]
-        setResults(nextResults)
+  const rate = useCallback(async (label: SessionRatingLabel, rating: ReviewRating) => {
+    // Sync lock first — prevents double markConceptReviewed / skip / crash on rapid input
+    if (submittingRef.current) return
+    if (phaseRef.current !== "active") return
+    const card = queueRef.current[indexRef.current]
+    if (!card) return
 
-        if (index + 1 >= queue.length) {
-          setPhase("summary")
-        } else {
-          setIndex((i) => i + 1)
-        }
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to save review")
-      } finally {
-        setSubmitting(false)
+    submittingRef.current = true
+    setSubmitting(true)
+    setError("")
+    try {
+      const updated = await markConceptReviewed(
+        card.frameworkSlug,
+        card.conceptId,
+        card.conceptName,
+        card.conceptSlug,
+        rating,
+      )
+      const entry: SessionResult = {
+        conceptId: card.conceptId,
+        conceptName: card.conceptName,
+        frameworkSlug: card.frameworkSlug,
+        label,
+        rating,
+        interval: updated.interval,
       }
-    },
-    [phase, current, submitting, results, index, queue.length],
-  )
+      setResults((prev) => [...prev, entry])
+
+      const nextIndex = indexRef.current + 1
+      if (nextIndex >= queueRef.current.length) {
+        phaseRef.current = "summary"
+        setPhase("summary")
+      } else {
+        indexRef.current = nextIndex
+        setIndex(nextIndex)
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save review")
+    } finally {
+      submittingRef.current = false
+      setSubmitting(false)
+    }
+  }, [])
 
   useEffect(() => {
-    if (phase !== "active" || submitting) return
+    if (phase !== "active") return
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return
       if (e.metaKey || e.ctrlKey || e.altKey) return
-      const target = e.target as HTMLElement | null
-      if (target) {
-        const tag = target.tagName
-        if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return
-      }
+      if (isEditableKeyboardTarget(e.target)) return
       const option = SESSION_RATING_OPTIONS.find((o) => o.key === e.key)
       if (!option) return
       e.preventDefault()
@@ -136,7 +171,7 @@ export function ReviewSession() {
 
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [phase, submitting, rate])
+  }, [phase, rate])
 
   if (phase === "loading" || !authReady) {
     return (
@@ -258,7 +293,15 @@ export function ReviewSession() {
     )
   }
 
-  // active card
+  // Guard: active phase but no card (should not happen with ref-locked index advances)
+  if (!current) {
+    return (
+      <div data-testid="review-session-error" role="alert" className="text-sm text-red-600">
+        Session state error. <a href="/review/session" className="underline">Reload session</a>
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-6" data-testid="review-session-card">
       <div className="mb-4 flex items-center justify-between">
@@ -281,15 +324,15 @@ export function ReviewSession() {
       </div>
 
       <p className="text-[10px] font-medium uppercase tracking-wide text-primary-600 dark:text-primary-400 mb-1">
-        {formatFrameworkSlug(current!.frameworkSlug)}
+        {formatFrameworkSlug(current.frameworkSlug)}
       </p>
-      <h2 className="text-2xl font-bold text-dark-900 dark:text-dark-100 mb-2">{current!.conceptName}</h2>
+      <h2 className="text-2xl font-bold text-dark-900 dark:text-dark-100 mb-2">{current.conceptName}</h2>
       <p className="text-xs text-dark-500 dark:text-dark-400 mb-1">
-        {current!.reviewCount} prior review{current!.reviewCount === 1 ? "" : "s"}
-        {current!.interval > 0 ? ` · last interval ${current!.interval}d` : ""}
+        {current.reviewCount} prior review{current.reviewCount === 1 ? "" : "s"}
+        {current.interval > 0 ? ` · last interval ${current.interval}d` : ""}
       </p>
       <a
-        href={`/frameworks/${current!.frameworkSlug}/${current!.conceptSlug}`}
+        href={`/frameworks/${current.frameworkSlug}/${current.conceptSlug}`}
         className="text-xs text-primary-600 dark:text-primary-400 hover:underline"
         target="_blank"
         rel="noreferrer"
