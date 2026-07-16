@@ -1,4 +1,5 @@
 import { db } from "./firebase"
+import type { AiProviderId } from "./ai/provider"
 
 /**
  * True only when the Firebase RTDB client actually initialized.
@@ -10,7 +11,16 @@ export function canUseFirebasePersistence(): boolean {
 
 export type AiAvailability =
   | { status: "available"; mode: "agent" | "local"; ollamaOk: boolean }
-  | { status: "unavailable"; reason: "no_heartbeat" | "stale" | "ollama_down" | "no_firebase" | "unknown" }
+  | {
+      status: "unavailable"
+      reason:
+        | "no_heartbeat"
+        | "stale"
+        | "ollama_down"
+        | "no_firebase"
+        | "cloud_not_configured"
+        | "unknown"
+    }
 
 export const AGENT_HEARTBEAT_PATH = "_meta/agent_heartbeat"
 /** Agent writes every 30s; UI treats stale after 90s. Allow ±120s clock skew buffer. */
@@ -27,11 +37,23 @@ export type AgentHeartbeat = {
   hostname?: string
 }
 
+/**
+ * Resolve effective "local" flag for availability.
+ * Prefer explicit provider when given; otherwise fall back to Profile localAiMode.
+ */
+function isLocalProvider(localAiMode: boolean, provider?: AiProviderId): boolean {
+  if (provider === "local") return true
+  if (provider === "agent" || provider === "cloud") return false
+  return localAiMode
+}
+
 export function canUseAIFromHeartbeat(
   heartbeat: AgentHeartbeat | null,
   localAiMode: boolean,
+  provider?: AiProviderId,
 ): boolean {
-  if (localAiMode) return true
+  if (provider === "cloud") return false
+  if (isLocalProvider(localAiMode, provider)) return true
   if (!heartbeat) return false
   const age = Date.now() - heartbeat.updated_at
   if (age > AGENT_HEARTBEAT_STALE_MS + AGENT_HEARTBEAT_SKEW_MS) return false
@@ -41,8 +63,12 @@ export function canUseAIFromHeartbeat(
 export function getAiAvailability(
   heartbeat: AgentHeartbeat | null,
   localAiMode: boolean,
+  provider?: AiProviderId,
 ): AiAvailability {
-  if (localAiMode) {
+  if (provider === "cloud") {
+    return { status: "unavailable", reason: "cloud_not_configured" }
+  }
+  if (isLocalProvider(localAiMode, provider)) {
     return { status: "available", mode: "local", ollamaOk: true }
   }
   if (!db) {

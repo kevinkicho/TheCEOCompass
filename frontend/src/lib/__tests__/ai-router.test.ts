@@ -2,16 +2,26 @@ import { describe, it, expect } from "vitest"
 import { resolveAiProvider } from "../ai/router"
 import {
   isAiProviderId,
+  normalizeAiProviderId,
   AI_PROVIDER_IDS,
   CLOUD_PROVIDER_NOT_CONFIGURED,
   type AiProviderId,
 } from "../ai/provider"
 
-describe("isAiProviderId", () => {
+describe("isAiProviderId / normalizeAiProviderId", () => {
   it("accepts agent, local, cloud", () => {
     for (const id of AI_PROVIDER_IDS) {
       expect(isAiProviderId(id)).toBe(true)
+      expect(normalizeAiProviderId(id)).toBe(id)
     }
+  })
+
+  it("accepts case-insensitive values", () => {
+    expect(isAiProviderId("Cloud")).toBe(true)
+    expect(isAiProviderId("LOCAL")).toBe(true)
+    expect(isAiProviderId(" Agent ")).toBe(true)
+    expect(normalizeAiProviderId("Cloud")).toBe("cloud")
+    expect(normalizeAiProviderId("LOCAL")).toBe("local")
   })
 
   it("rejects invalid values", () => {
@@ -20,6 +30,7 @@ describe("isAiProviderId", () => {
     expect(isAiProviderId(null)).toBe(false)
     expect(isAiProviderId(undefined)).toBe(false)
     expect(isAiProviderId(1)).toBe(false)
+    expect(normalizeAiProviderId("bogus")).toBeNull()
   })
 })
 
@@ -54,6 +65,9 @@ describe("resolveAiProvider selection matrix", () => {
     { name: "env local → local", input: { envProvider: "local" }, expected: "local" },
     { name: "env cloud → cloud", input: { envProvider: "cloud" }, expected: "cloud" },
     { name: "env cloud with localAiMode false → cloud", input: { localAiMode: false, envProvider: "cloud" }, expected: "cloud" },
+    { name: "env Cloud (case) → cloud", input: { envProvider: "Cloud" }, expected: "cloud" },
+    { name: "env LOCAL (case) → local", input: { envProvider: "LOCAL" }, expected: "local" },
+    { name: "settings Cloud (case) → cloud", input: { localAiMode: false, aiProvider: "Cloud" }, expected: "cloud" },
 
     // Invalid preferences fall through
     { name: "invalid settings ignored → agent", input: { aiProvider: "not-a-provider" }, expected: "agent" },

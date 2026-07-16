@@ -10,17 +10,21 @@ import {
   type AgentHeartbeat,
   type AiAvailability,
 } from "@/lib/capabilities"
+import { getActiveAiProvider } from "@/lib/ai"
+import type { AiProviderId } from "@/lib/ai"
 
 type AiStatusContextValue = {
   heartbeat: AgentHeartbeat | null
   availability: AiAvailability
   localAiMode: boolean
+  provider: AiProviderId
 }
 
 const AiStatusContext = createContext<AiStatusContextValue>({
   heartbeat: null,
   availability: { status: "unavailable", reason: "no_firebase" },
   localAiMode: false,
+  provider: "agent",
 })
 
 export function useAiStatus() {
@@ -38,17 +42,32 @@ function loadLocalAiMode(): boolean {
   }
 }
 
+function loadActiveProvider(): AiProviderId {
+  if (typeof window === "undefined") return "agent"
+  try {
+    return getActiveAiProvider()
+  } catch {
+    return loadLocalAiMode() ? "local" : "agent"
+  }
+}
+
 export function AiStatusProvider({ children }: { children: React.ReactNode }) {
   const [heartbeat, setHeartbeat] = useState<AgentHeartbeat | null>(null)
   const [localAiMode, setLocalAiMode] = useState(false)
+  const [provider, setProvider] = useState<AiProviderId>("agent")
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
     setLocalAiMode(loadLocalAiMode())
-    const onStorage = () => setLocalAiMode(loadLocalAiMode())
+    setProvider(loadActiveProvider())
+    const onStorage = () => {
+      setLocalAiMode(loadLocalAiMode())
+      setProvider(loadActiveProvider())
+    }
     window.addEventListener("storage", onStorage)
     const iv = setInterval(() => {
       setLocalAiMode(loadLocalAiMode())
+      setProvider(loadActiveProvider())
       setTick((t) => t + 1)
     }, 10_000)
     return () => {
@@ -79,31 +98,43 @@ export function AiStatusProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const liveAvailability = useMemo(() => {
-    if (localAiMode) return getAiAvailability(heartbeat, true)
-    if (!heartbeat) return getAiAvailability(null, false)
+    if (provider === "local" || localAiMode) {
+      return getAiAvailability(heartbeat, true, provider)
+    }
+    if (provider === "cloud") {
+      return getAiAvailability(heartbeat, false, "cloud")
+    }
+    if (!heartbeat) return getAiAvailability(null, false, provider)
     const age = Date.now() - heartbeat.updated_at
     if (age > AGENT_HEARTBEAT_STALE_MS + AGENT_HEARTBEAT_SKEW_MS) {
       return { status: "unavailable" as const, reason: "stale" as const }
     }
-    return getAiAvailability(heartbeat, false)
-  }, [heartbeat, localAiMode, tick])
+    return getAiAvailability(heartbeat, false, provider)
+  }, [heartbeat, localAiMode, provider, tick])
 
   return (
-    <AiStatusContext.Provider value={{ heartbeat, availability: liveAvailability, localAiMode }}>
+    <AiStatusContext.Provider value={{ heartbeat, availability: liveAvailability, localAiMode, provider }}>
       {children}
     </AiStatusContext.Provider>
   )
 }
 
 export function AiStatusIndicator() {
-  const { availability, localAiMode, heartbeat } = useAiStatus()
+  const { availability, localAiMode, heartbeat, provider } = useAiStatus()
 
   let label = "AI offline"
   let color = "bg-dark-300 dark:bg-dark-600"
   let title = "Agent not detected — run agent + Ollama, or enable Local AI Mode in Profile"
 
-  if (availability.status === "available") {
-    if (localAiMode || availability.mode === "local") {
+  if (
+    provider === "cloud" ||
+    (availability.status === "unavailable" && availability.reason === "cloud_not_configured")
+  ) {
+    label = "AI cloud"
+    color = "bg-amber-500"
+    title = "Cloud AI is selected but not configured yet"
+  } else if (availability.status === "available") {
+    if (provider === "local" || localAiMode || availability.mode === "local") {
       label = "AI local"
       color = "bg-emerald-500"
       title = "Local AI Mode (browser → Ollama)"

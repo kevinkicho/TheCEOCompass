@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import type { AiProviderId } from "./ai/provider"
 
-/** Optional explicit AI provider preference (agent | local | cloud). */
-export type SettingsAiProvider = "agent" | "local" | "cloud"
+/** @deprecated Prefer AiProviderId from `@/lib/ai` */
+export type SettingsAiProvider = AiProviderId
 
 export interface AppSettings {
   ollamaModel: string
@@ -13,7 +14,7 @@ export interface AppSettings {
    * Optional provider preference. When unset, router uses env then "agent".
    * localAiMode still overrides to "local" when true.
    */
-  aiProvider?: SettingsAiProvider
+  aiProvider?: AiProviderId
 }
 
 const DEFAULT_SETTINGS: AppSettings = {

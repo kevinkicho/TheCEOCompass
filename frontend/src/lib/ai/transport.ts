@@ -293,13 +293,13 @@ export async function callOllamaViaFirebase(
     options: { temperature },
   }
 
-  console.log(`[AI] Pushing request ${requestId} (provider=agent) for ${frameworkSlug}/${conceptSlug}/${category}`)
+  console.log(`[AI] Pushing request ${requestId} (provider=${provider}) for ${frameworkSlug}/${conceptSlug}/${category}`)
   await pushAiRequest(database, requestId, {
     type: systemType,
     category,
     framework_slug: frameworkSlug,
     concept_slug: conceptSlug,
-    provider: "agent" satisfies AiProviderId,
+    provider,
     payload,
   })
 
@@ -307,5 +307,85 @@ export async function callOllamaViaFirebase(
   const { result } = await waitForFirebaseResponse(database, requestId, responsePath)
   console.log(`[AI] Response ${requestId} received (${result.length} chars) for ${category}`)
   return { result, cached: false, prompt: fullPrompt }
+}
+
+/**
+ * Shared dispatch for generators that do not use callOllamaViaFirebase
+ * (quotes, scenarios, comparisons, concept chat, etc.).
+ *
+ * - local → browser Ollama via callOllamaDirect
+ * - cloud → throws CLOUD_PROVIDER_NOT_CONFIGURED
+ * - agent → pushAiRequest with provider field + waitForFirebaseResponse
+ */
+export async function runWithAiProvider(args: {
+  /** User prompt (system preamble applied via systemType for local + default agent payload). */
+  prompt: string
+  temperature: number
+  systemType?: string
+  model?: string
+  /**
+   * Fields merged into the RTDB request (type, category, paths, optional payload).
+   * When payload is omitted, a standard { model, prompt, stream, options } is built
+   * using full system+user prompt (same as callOllamaViaFirebase agent path).
+   */
+  agentRequest: Record<string, unknown>
+  responsePath: string | ((requestId: string) => string)
+  timeoutMs?: number
+  onProgress?: (elapsed: number) => void
+}): Promise<{ result: string; data: any | null; prompt: string }> {
+  const provider = getActiveAiProvider()
+  if (provider === "cloud") {
+    throw new Error(CLOUD_PROVIDER_NOT_CONFIGURED)
+  }
+
+  const settings = loadSettings()
+  const model = args.model || settings.ollamaModel || "gemma4:31b-cloud"
+  const systemType = args.systemType ?? "explain_further"
+  const fullPrompt = `${buildSystemPrompt(systemType as any)}\n\n${args.prompt}`
+
+  if (provider === "local") {
+    const result = await callOllamaDirect(args.prompt, args.temperature, systemType)
+    let data: any = null
+    try {
+      data = JSON.parse(result)
+    } catch {
+      /* plain text */
+    }
+    return { result, data, prompt: fullPrompt }
+  }
+
+  // provider === "agent"
+  if (!db) {
+    throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
+  }
+  const database = db!
+  const requestId = generateId()
+  const { payload: customPayload, ...rest } = args.agentRequest
+  const payload =
+    customPayload && typeof customPayload === "object"
+      ? customPayload
+      : {
+          model,
+          prompt: fullPrompt,
+          stream: false,
+          options: { temperature: args.temperature },
+        }
+
+  await pushAiRequest(database, requestId, {
+    ...rest,
+    payload,
+    provider,
+  })
+
+  const path =
+    typeof args.responsePath === "function" ? args.responsePath(requestId) : args.responsePath
+  const { result, data } = await waitForFirebaseResponse(
+    database,
+    requestId,
+    path,
+    args.timeoutMs,
+    args.onProgress,
+  )
+  return { result, data, prompt: fullPrompt }
 }
 

@@ -1,14 +1,8 @@
-import { db, ref, set, get } from "../firebase"
 import {
-  generateId,
   loadSettings,
-  isLocalAiMode,
-  waitForFirebaseResponse,
   callOllamaViaFirebase,
-  callOllamaDirect,
-  pushAiRequest,
+  runWithAiProvider,
   slugify,
-  buildSystemPrompt,
 } from "./transport"
 
 export {
@@ -229,30 +223,14 @@ Return ONLY valid JSON:
   "year": "Year or approximate period (e.g. ~2005, ~500 BC, ~1980s)"
 }`
 
-  const settings = loadSettings()
-  const actualModel = settings.ollamaModel || "gemma4:31b-cloud"
-  const fullPrompt = `${buildSystemPrompt("explain")}\n\n${prompt}`
-
-  if (!db) throw new Error("Firebase not configured")
-
-  const database = db!
-  const requestId = generateId()
-
-  const payload = {
-    model: actualModel,
-    prompt: fullPrompt,
-    stream: false,
-    options: { temperature: 0.7 },
-  }
-
-  await pushAiRequest(database, requestId, {
-    type: "quote",
-    category,
-    payload,
+  const { data, prompt: fullPrompt } = await runWithAiProvider({
+    prompt,
+    temperature: 0.7,
+    systemType: "explain",
+    agentRequest: { type: "quote", category },
+    responsePath: (requestId) => `quotes/generated/${requestId}`,
   })
-
-  const { data } = await waitForFirebaseResponse<QuoteGenResult>(database, requestId, `quotes/generated/${requestId}`)
-  return { parsed: data!, prompt: fullPrompt }
+  return { parsed: data! as QuoteGenResult, prompt: fullPrompt }
 }
 
 type QuoteGenResult = {
@@ -303,32 +281,26 @@ Return ONLY valid JSON:
   "next_framework_suggestion": "Name of a related framework to study next, or empty string if none"
 }`
 
-  const settings = loadSettings()
-  const actualModel = settings.ollamaModel || "gemma4:31b-cloud"
-  const fullPrompt = `${buildSystemPrompt("explain")}\n\n${prompt}`
-
-  if (!db) throw new Error("Firebase not configured")
-  const database = db!
-  const requestId = generateId()
-
-  const payload = {
-    model: actualModel,
-    prompt: fullPrompt,
-    stream: false,
-    options: { temperature: 0.5 },
-  }
-
-  await pushAiRequest(database, requestId, {
-    type: "scenario",
-    category: "scenario",
-    stage_id: stage.id,
-    payload,
+  const { data, prompt: fullPrompt } = await runWithAiProvider({
+    prompt,
+    temperature: 0.5,
+    systemType: "explain",
+    agentRequest: {
+      type: "scenario",
+      category: "scenario",
+      stage_id: stage.id,
+    },
+    responsePath: (requestId) => `scenario-evaluations/${requestId}`,
   })
-
-  const { data } = await waitForFirebaseResponse<{
-    feedback: string; score: number; key_insights: string[]; next_framework_suggestion?: string
-  }>(database, requestId, `scenario-evaluations/${requestId}`)
-  return { parsed: data!, prompt: fullPrompt }
+  return {
+    parsed: data! as {
+      feedback: string
+      score: number
+      key_insights: string[]
+      next_framework_suggestion?: string
+    },
+    prompt: fullPrompt,
+  }
 }
 
 // ── Concept Comparison ──
@@ -339,7 +311,6 @@ export async function generateComparison(
   frameworkSlug: string,
   onProgress?: (elapsed: number) => void,
 ): Promise<{ comparison: string; similarities: string; differences: string; when_to_use_each: string }> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
   const prompt = `Compare two leadership concepts for a CEO audience.
@@ -360,21 +331,27 @@ Return ONLY valid JSON with these fields:
   "when_to_use_each": "Decision framework: when to use each (2-3 sentences)"
 }`
 
-  const requestId = generateId()
   const mode = "compare"
-  const responsePath = `comparisons/${frameworkSlug}/${conceptA.slug}/${conceptB.slug}/${mode}`
-  await pushAiRequest(db!, requestId, {
-    type: "compare_concepts",
-    category: "comparison",
-    payload: { model, prompt },
-    framework_slug: frameworkSlug,
-    concept_slug: conceptA.slug,
-    compare_target_slug: conceptB.slug,
-    compare_mode: mode,
-    compare_response_path: responsePath,
+  const basePath = `comparisons/${frameworkSlug}/${conceptA.slug}/${conceptB.slug}/${mode}`
+  const { data } = await runWithAiProvider({
+    prompt,
+    temperature: 0.5,
+    systemType: "explain",
+    model,
+    agentRequest: {
+      type: "compare_concepts",
+      category: "comparison",
+      payload: { model, prompt },
+      framework_slug: frameworkSlug,
+      concept_slug: conceptA.slug,
+      compare_target_slug: conceptB.slug,
+      compare_mode: mode,
+      compare_response_path: basePath,
+    },
+    responsePath: (requestId) => `${basePath}/${requestId}`,
+    timeoutMs: 60000,
+    onProgress,
   })
-
-  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `${responsePath}/${requestId}`, 60000, onProgress)
   if (!data) throw new Error("Invalid comparison response")
   return data
 }
@@ -385,7 +362,6 @@ export async function crossPollinate(
   frameworkSlug: string,
   onProgress?: (elapsed: number) => void,
 ): Promise<{ synthetic_insight: string; blind_spot: string; combined_framework: string }> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
   const prompt = `You are a CEO coach synthesizing two concepts to create a new strategic insight.
@@ -407,21 +383,27 @@ Return ONLY valid JSON with these fields:
   "combined_framework": "A single actionable heuristic or mental model that merges both concepts into something a CEO can apply immediately (2-3 sentences)"
 }`
 
-  const requestId = generateId()
   const mode = "cross"
-  const responsePath = `comparisons/${frameworkSlug}/${conceptA.slug}/${conceptB.slug}/${mode}`
-  await pushAiRequest(db!, requestId, {
-    type: "compare_concepts",
-    category: "comparison",
-    payload: { model, prompt },
-    framework_slug: frameworkSlug,
-    concept_slug: conceptA.slug,
-    compare_target_slug: conceptB.slug,
-    compare_mode: mode,
-    compare_response_path: responsePath,
+  const basePath = `comparisons/${frameworkSlug}/${conceptA.slug}/${conceptB.slug}/${mode}`
+  const { data } = await runWithAiProvider({
+    prompt,
+    temperature: 0.5,
+    systemType: "explain",
+    model,
+    agentRequest: {
+      type: "compare_concepts",
+      category: "comparison",
+      payload: { model, prompt },
+      framework_slug: frameworkSlug,
+      concept_slug: conceptA.slug,
+      compare_target_slug: conceptB.slug,
+      compare_mode: mode,
+      compare_response_path: basePath,
+    },
+    responsePath: (requestId) => `${basePath}/${requestId}`,
+    timeoutMs: 60000,
+    onProgress,
   })
-
-  const { data } = await waitForFirebaseResponse<any>(db!, requestId, `${responsePath}/${requestId}`, 60000, onProgress)
   if (!data) throw new Error("Invalid cross-pollination response")
   return data
 }
@@ -459,17 +441,17 @@ function buildConceptContext(concept: ConceptArg): string {
 }
 
 async function callConceptChat(prompt: string, model: string): Promise<string> {
-  // Local AI Mode — call Ollama directly
-  if (isLocalAiMode()) {
-    return callOllamaDirect(prompt, 0.5, "concept_chat")
-  }
-  if (!db) throw new Error("Firebase not configured")
-  const requestId = generateId()
-  await pushAiRequest(db!, requestId, {
-    type: "concept_chat",
-    payload: { model, prompt, stream: false, options: { temperature: 0.5 } },
+  const { result } = await runWithAiProvider({
+    prompt,
+    temperature: 0.5,
+    systemType: "concept_chat",
+    model,
+    agentRequest: {
+      type: "concept_chat",
+      payload: { model, prompt, stream: false, options: { temperature: 0.5 } },
+    },
+    responsePath: (requestId) => `conceptChats/${requestId}`,
   })
-  const { result } = await waitForFirebaseResponse(db!, requestId, `conceptChats/${requestId}`)
   return result
 }
 
@@ -477,7 +459,6 @@ export async function chatWithConcept(
   concept: ConceptArg,
   messages: { role: string; content: string }[],
 ): Promise<string> {
-  if (!db) throw new Error("Firebase not configured. Run the app locally to use AI chat.")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 
@@ -502,7 +483,6 @@ export async function socraticTutor(
   concept: ConceptArg,
   messages: { role: string; content: string }[],
 ): Promise<string> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 
@@ -535,7 +515,6 @@ export async function teachBackEvaluate(
   concept: ConceptArg,
   userExplanation: string,
 ): Promise<{ clarity: number; depth: number; gaps: string[]; improvement: string }> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 
@@ -569,7 +548,6 @@ export async function generateAnalogy(
   concept: ConceptArg,
   domain: string,
 ): Promise<string> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 
@@ -591,7 +569,6 @@ export async function runDecisionSimulator(
   challenge: string,
   messages: { role: string; content: string }[],
 ): Promise<string> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 
@@ -643,7 +620,6 @@ export async function analyzeBlindSpots(
     completedPathways: string[]
   },
 ): Promise<BlindSpotReport> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 
@@ -688,7 +664,6 @@ export async function generateLearningBrief(
     pathwayPct: number
   },
 ): Promise<string> {
-  if (!db) throw new Error("Firebase not configured")
   const settings = loadSettings()
   const model = settings.ollamaModel || "gemma4:31b-cloud"
 

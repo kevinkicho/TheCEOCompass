@@ -34,6 +34,14 @@ describe("canUseAIFromHeartbeat", () => {
     expect(canUseAIFromHeartbeat(null, true)).toBe(true)
   })
 
+  it("allows provider=local without heartbeat", () => {
+    expect(canUseAIFromHeartbeat(null, false, "local")).toBe(true)
+  })
+
+  it("rejects provider=cloud even with localAiMode false and fresh heartbeat", () => {
+    expect(canUseAIFromHeartbeat(fresh, false, "cloud")).toBe(false)
+  })
+
   it("rejects missing heartbeat when not local", () => {
     expect(canUseAIFromHeartbeat(null, false)).toBe(false)
   })
@@ -59,6 +67,16 @@ describe("getAiAvailability", () => {
   it("returns local mode when localAiMode", () => {
     const a = getAiAvailability(null, true)
     expect(a).toEqual({ status: "available", mode: "local", ollamaOk: true })
+  })
+
+  it("returns local when provider is local regardless of localAiMode flag", () => {
+    const a = getAiAvailability(null, false, "local")
+    expect(a).toEqual({ status: "available", mode: "local", ollamaOk: true })
+  })
+
+  it("returns cloud_not_configured when provider is cloud", () => {
+    const a = getAiAvailability(null, false, "cloud")
+    expect(a).toEqual({ status: "unavailable", reason: "cloud_not_configured" })
   })
 
   it("returns no_heartbeat when agent silent", () => {

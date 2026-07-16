@@ -1,5 +1,5 @@
 import type { AiProviderId } from "./provider"
-import { isAiProviderId } from "./provider"
+import { normalizeAiProviderId } from "./provider"
 
 /**
  * Inputs for pure provider selection. Keep free of React/Firebase so unit tests
@@ -22,8 +22,8 @@ export type AiRouterInput = {
  *
  * Priority (matches today's agent + local paths; cloud opt-in later):
  * 1. localAiMode === true → "local" (Profile Local AI Mode override)
- * 2. settings.aiProvider if a valid AiProviderId
- * 3. NEXT_PUBLIC_AI_PROVIDER / envProvider if valid
+ * 2. settings.aiProvider if a valid AiProviderId (case-insensitive)
+ * 3. NEXT_PUBLIC_AI_PROVIDER / envProvider if valid (case-insensitive)
  * 4. "agent" (default — Firebase request + agent)
  */
 export function resolveAiProvider(input: AiRouterInput = {}): AiProviderId {
@@ -31,13 +31,11 @@ export function resolveAiProvider(input: AiRouterInput = {}): AiProviderId {
     return "local"
   }
 
-  if (isAiProviderId(input.aiProvider)) {
-    return input.aiProvider
-  }
+  const fromSettings = normalizeAiProviderId(input.aiProvider)
+  if (fromSettings) return fromSettings
 
-  if (isAiProviderId(input.envProvider)) {
-    return input.envProvider
-  }
+  const fromEnv = normalizeAiProviderId(input.envProvider)
+  if (fromEnv) return fromEnv
 
   return "agent"
 }
