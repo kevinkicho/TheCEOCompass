@@ -29,3 +29,16 @@ agent/*.json
 scripts/enriched-concepts.json
 scripts/enrich-checkpoint.json
 theceocompass-default-rtdb-export.json
+
+# Firebase Cloud Functions secrets / local env (never commit API keys)
+functions/.env
+functions/.env.*
+!functions/.env.example
+functions/.secret.local
+functions/*.local
+functions/lib/
+functions/.runtimeconfig.json
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
