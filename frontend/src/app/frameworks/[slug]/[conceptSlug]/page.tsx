@@ -1,19 +1,20 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
-import { useParams, useRouter } from "next/navigation"
+import React, { useState, useEffect, useRef, useCallback } from "react"
+import { useParams } from "next/navigation"
 import { loadFrameworks, getCachedFrameworks, slugify } from "@/lib/rtdb-cache"
-import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries, generateComparison, crossPollinate, chatWithConcept, socraticTutor, teachBackEvaluate, generateAnalogy } from "@/lib/ollama"
+import { explainConcept, generateWhyItMatters, buildWhyItMattersPrompt, generateHowToApply, buildHowToApplyPrompt, generateCommonPitfalls, buildCommonPitfallsPrompt, generateConnectedConcepts, buildConnectedConceptsPrompt, generateCaseStudy, buildCaseStudyPrompt, generateTestYourself, buildTestYourselfPrompt, generateRealWorldExamples, buildRealWorldExamplesPrompt, buildExplainPrompt, loadCategoryEntries } from "@/lib/ollama"
 import { db, ref, set, get, onChildAdded } from "@/lib/firebase"
-import { markConceptViewed, markConceptReviewed, loadReviewRecord } from "@/lib/firebase-crud"
-import { getReviewStatus, getDaysUntilReview, type ReviewRating } from "@/lib/spaced-repetition"
-import { isStaticHosting } from "@/lib/constants"
+import { markConceptViewed } from "@/lib/firebase-crud"
 import { useAuth } from "@/lib/useAuth"
 import { CatPageNav } from "@/components/CatPageNav"
 import { PromptTooltip } from "@/components/PromptTooltip"
 import { SparkleBtn } from "@/components/SparkleBtn"
-import { ChatPanel, type ChatMessage } from "@/components/ChatPanel"
 import { SkeletonCard } from "@/components/SkeletonCard"
+import { ConceptHeader } from "@/components/concept/ConceptHeader"
+import { ConceptComparePanel } from "@/components/concept/ConceptComparePanel"
+import { SpacedReviewBar } from "@/components/concept/SpacedReviewBar"
+import { LearningToolsPanel } from "@/components/concept/LearningToolsPanel"
 import type { FrameworkConcept, Framework } from "@/lib/types"
 
 function findConcept(slug: string, conceptSlug: string): { framework: Framework; concept: FrameworkConcept } | null {
@@ -28,7 +29,6 @@ function findConcept(slug: string, conceptSlug: string): { framework: Framework;
 
 export default function ConceptDetailPage() {
   const { slug, conceptSlug } = useParams<{ slug: string; conceptSlug: string }>()
-  const router = useRouter()
   const { isAdmin } = useAuth()
   const [frameworksReady, setFrameworksReady] = useState(!!getCachedFrameworks())
   const [pageError, setPageError] = useState("")
@@ -69,32 +69,6 @@ export default function ConceptDetailPage() {
   const [aiExampleCached, setAiExampleCached] = useState(false)
   const [confirmExample, setConfirmExample] = useState(false)
   const [aiError, setAiError] = useState("")
-
-  // Concept comparison
-  const [compareTarget, setCompareTarget] = useState("")
-  const [compareMode, setCompareMode] = useState<"compare" | "cross">("compare")
-  const [compareResult, setCompareResult] = useState<any>(null)
-  const [compareLoading, setCompareLoading] = useState(false)
-  const [compareError, setCompareError] = useState("")
-  const [compareElapsed, setCompareElapsed] = useState(0)
-  const [compareEntries, setCompareEntries] = useState<any[]>([])
-  const [comparePage, setComparePage] = useState(0)
-
-  // AI Learning Tools
-  const [learningMode, setLearningMode] = useState<"ask" | "socratic" | "teachback" | "analogy">("ask")
-  const [teachBackInput, setTeachBackInput] = useState("")
-  const [teachBackResult, setTeachBackResult] = useState<{ clarity: number; depth: number; gaps: string[]; improvement: string } | null>(null)
-  const [teachBackLoading, setTeachBackLoading] = useState(false)
-  const [analogyDomain, setAnalogyDomain] = useState("chef")
-  const [analogyResult, setAnalogyResult] = useState("")
-  const [analogyLoading, setAnalogyLoading] = useState(false)
-  const [learningError, setLearningError] = useState("")
-
-  // Spaced repetition review
-  const [reviewRecord, setReviewRecord] = useState<{ nextReviewAt: string; reviewCount: number; interval: number } | null>(null)
-  const [showReviewRating, setShowReviewRating] = useState(false)
-  const [reviewSubmitted, setReviewSubmitted] = useState(false)
-  const reviewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Per-category pagination through multiple AI responses
   const [catEntries, setCatEntries] = useState<Record<string, any[]>>({})
@@ -202,15 +176,8 @@ export default function ConceptDetailPage() {
   useEffect(() => {
     checkConceptCache().catch((err) => console.error("Cache load failed:", err))
     if (slug && result?.concept?.id) markConceptViewed(slug, result.concept.id)
-    if (result?.concept?.id && !isStaticHosting) {
-      loadReviewRecord(result.concept.id).then((r) => {
-        if (r) setReviewRecord({ nextReviewAt: r.nextReviewAt, reviewCount: r.reviewCount, interval: r.interval })
-      }).catch(() => {})
-    }
   }, [checkConceptCache, slug, result?.concept?.id])
 
-  // Cleanup review timeout on unmount
-  useEffect(() => () => { if (reviewTimeoutRef.current) clearTimeout(reviewTimeoutRef.current) }, [])
 
   // Real-time listeners for new AI responses
   useEffect(() => {
@@ -225,68 +192,6 @@ export default function ConceptDetailPage() {
     })
     return () => { unsubs.forEach((u) => u()) }
   }, [slug, conceptSlug, handleNewEntry])
-
-  const allConceptsForCompare = useMemo(() => result ? (getCachedFrameworks() || []).flatMap((fw: any) =>
-    (fw.concepts || []).map((c: any) => ({
-      id: `${fw.slug}/${slugify(c.name)}`,
-      name: c.name,
-      framework: fw.title,
-      slug: slugify(c.name),
-      definition: c.definition || "",
-    }))
-  ).filter((c: any) => c.slug !== conceptSlug) : [], [result, conceptSlug])
-
-  const compareStorageKey = useMemo(() => {
-    if (!compareTarget || !result) return null
-    const target = allConceptsForCompare.find((c: any) => c.id === compareTarget)
-    if (!target) return null
-    const slugs = [conceptSlug, target.slug].sort()
-    return `comparisons/${slug}/${slugs[0]}/${slugs[1]}/${compareMode}`
-  }, [compareTarget, compareMode, slug, conceptSlug, result, allConceptsForCompare])
-
-  const loadCompareEntries = useCallback(async () => {
-    if (!db || !compareStorageKey) return
-    try {
-      const snap = await get(ref(db!, compareStorageKey))
-      if (!snap.exists()) return
-      const entries = Object.values(snap.val() || {}) as any[]
-      const valid = entries.filter((e) => e?.result).sort((a, b) => (b.created_at || 0) - (a.created_at || 0))
-      setCompareEntries(valid)
-      if (valid.length > 0) {
-        setComparePage(0)
-        try { setCompareResult(JSON.parse(valid[0].result)) } catch {}
-      }
-    } catch {}
-  }, [compareStorageKey])
-
-  useEffect(() => {
-    loadCompareEntries()
-  }, [loadCompareEntries])
-
-  const goToComparePage = (idx: number) => {
-    if (idx < 0 || idx >= compareEntries.length) return
-    setComparePage(idx)
-    try { setCompareResult(JSON.parse(compareEntries[idx].result)) } catch {}
-  }
-
-  const handleCompare = async () => {
-    if (!compareTarget || !result) return
-    setCompareError("")
-    setCompareLoading(true)
-    setCompareElapsed(0)
-    try {
-      const target = allConceptsForCompare.find((c: any) => c.id === compareTarget)
-      if (!target) throw new Error("Target concept not found")
-      const a = { name: result.concept.name, definition: result.concept.definition, framework: result.framework.title, slug: conceptSlug }
-      const b = { name: target.name, definition: target.definition, framework: target.framework, slug: target.slug }
-      const res = compareMode === "cross" ? await crossPollinate(a, b, slug, (elapsed) => setCompareElapsed(elapsed)) : await generateComparison(a, b, slug, (elapsed) => setCompareElapsed(elapsed))
-      setCompareResult(res)
-      await loadCompareEntries()
-    } catch (err: any) {
-      setCompareError(err.message || "Comparison failed")
-    }
-    setCompareLoading(false)
-  }
 
   // Eager prompts per category
   const promptWhy = result ? buildWhyItMattersPrompt(result.concept.name, result.concept.definition, result.framework.title, result.concept.tags) : ""
@@ -308,14 +213,6 @@ export default function ConceptDetailPage() {
 
   const { framework, concept } = result
 
-  // Build ordered concept list for prev/next navigation
-  const allConcepts = (framework.concepts || []).map((c: any) => ({
-    name: c.name,
-    slug: slugify(c.name),
-  }))
-  const currentIdx = allConcepts.findIndex((c) => c.slug === conceptSlug)
-  const prevConcept = currentIdx > 0 ? allConcepts[currentIdx - 1] : null
-  const nextConcept = currentIdx < allConcepts.length - 1 ? allConcepts[currentIdx + 1] : null
 
   const mkHandler = (generator: Function, setter: Function, setCached: Function, setLoading: Function, setError?: Function, ...args: any[]) => async () => {
     setLoading(true)
@@ -371,35 +268,8 @@ export default function ConceptDetailPage() {
         <p className="text-red-600 dark:text-red-400">Concept not found: {pageError || "Check that Firebase is configured and frameworks are seeded to RTDB"}</p>
       )}
       {result && frameworksReady && (<>
-      <button onClick={() => router.push(`/frameworks/${slug}`)}
-        className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
-      ><span className="text-lg leading-none">&larr;</span> Back to {framework.title}</button>
 
-      <div className="mb-6 flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2">
-          {allConcepts.length > 1 && prevConcept && (
-            <button onClick={() => router.push(`/frameworks/${slug}/${prevConcept.slug}`)}
-              className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
-            ><span>&larr;</span> {prevConcept.name}</button>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          {allConcepts.length > 1 && (
-            <span className="text-dark-400 dark:text-dark-500">{currentIdx + 1} / {allConcepts.length}</span>
-          )}
-          {allConcepts.length > 1 && nextConcept && (
-            <button onClick={() => router.push(`/frameworks/${slug}/${nextConcept.slug}`)}
-              className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
-            >{nextConcept.name} <span>&rarr;</span></button>
-          )}
-        </div>
-      </div>
-
-      <h1 className="mb-2 text-2xl sm:text-3xl font-bold text-dark-900 dark:text-dark-100">{concept.name}</h1>
-
-      <p className="mb-6 text-base leading-relaxed text-dark-800 font-medium bg-primary-50 rounded-lg p-4 border-l-4 border-primary-400 dark:text-dark-200 dark:bg-primary-900/20">{concept.definition}</p>
-
-      {concept.formula && <div className="mb-4 rounded-lg bg-dark-800 px-4 py-3 font-mono text-sm text-green-300">{concept.formula}</div>}
+      <ConceptHeader framework={framework} concept={concept} frameworkSlug={slug} conceptSlug={conceptSlug} />
 
       {/* ── Enriched sections ── */}
 
@@ -666,311 +536,17 @@ export default function ConceptDetailPage() {
         })()}
 
         {/* ── Concept Comparison ── */}
-        <div className="mb-6 mt-8 rounded-xl border border-dark-200 dark:border-dark-700 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">
-              {compareMode === "cross" ? "Cross-Pollinate" : "Compare"} with another concept
-            </p>
-            {compareEntries.length > 1 && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] text-dark-400 dark:text-dark-500 ml-2">
-                <button onClick={() => goToComparePage(comparePage - 1)} disabled={comparePage === 0}
-                  className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&lt;</button>
-                <span className="tabular-nums">{comparePage + 1}/{compareEntries.length}</span>
-                <button onClick={() => goToComparePage(comparePage + 1)} disabled={comparePage >= compareEntries.length - 1}
-                  className="hover:text-dark-600 dark:hover:text-dark-300 disabled:opacity-30 transition px-0.5">&gt;</button>
-              </span>
-            )}
-            <button onClick={() => { setCompareMode(compareMode === "cross" ? "compare" : "cross"); setCompareResult(null); setComparePage(0) }}
-              className="ml-auto text-[10px] text-primary-600 dark:text-primary-400 hover:underline"
-            >{compareMode === "cross" ? "Switch to Compare" : "Switch to Cross-Pollinate"}</button>
-          </div>
-          <div className="flex gap-2">
-            <select value={compareTarget} onChange={(e) => setCompareTarget(e.target.value)}
-              className="flex-1 rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-3 py-2 text-xs text-dark-700 dark:text-dark-200"
-            >
-              <option value="">Select a concept...</option>
-              {allConceptsForCompare.filter((c: any) => c.id !== `${slug}/${conceptSlug}`).map((c: any) => (
-                <option key={c.id} value={c.id}>{c.name} ({c.framework})</option>
-              ))}
-            </select>
-            <button onClick={handleCompare} disabled={!compareTarget || compareLoading}
-              className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50 shrink-0"
-            >{compareLoading ? (compareElapsed >= 30 ? "Still working..." : compareElapsed + "s") : compareMode === "cross" ? "Cross-Pollinate" : "Compare"}</button>
-          </div>
+        <ConceptComparePanel framework={framework} concept={concept} frameworkSlug={slug} conceptSlug={conceptSlug} />
 
-          {compareError && <p className="mt-2 text-xs text-red-600 dark:text-red-400">{compareError}</p>}
+        <SpacedReviewBar
+          frameworkSlug={slug}
+          conceptId={concept.id}
+          conceptName={concept.name}
+          conceptSlug={conceptSlug}
+          onError={(msg) => setAiError(msg)}
+        />
 
-          {compareResult && compareMode === "compare" && (
-            <div className="mt-4 space-y-3 animate-slide-up">
-              <div className="rounded-lg bg-primary-50 dark:bg-primary-900/20 p-3">
-                <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 uppercase tracking-wide mb-1">Overview</p>
-                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.comparison}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-green-200 dark:border-green-800/40 bg-green-50 dark:bg-green-900/10 p-3">
-                  <p className="text-xs font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1">Similarities</p>
-                  <ul className="space-y-1">
-                    {(compareResult.similarities || "").split("|").map((s: string, i: number) => (
-                      <li key={i} className="text-xs text-dark-600 dark:text-dark-400 flex gap-1">
-                        <span className="text-green-500 shrink-0">•</span>
-                        <span>{s.trim()}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="rounded-lg border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/10 p-3">
-                  <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">Differences</p>
-                  <ul className="space-y-1">
-                    {(compareResult.differences || "").split("|").map((d: string, i: number) => (
-                      <li key={i} className="text-xs text-dark-600 dark:text-dark-400 flex gap-1">
-                        <span className="text-amber-500 shrink-0">•</span>
-                        <span>{d.trim()}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div className="rounded-lg border border-violet-200 dark:border-violet-800/40 bg-violet-50 dark:bg-violet-900/10 p-3">
-                <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wide mb-1">When to Use Each</p>
-                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.when_to_use_each}</p>
-              </div>
-            </div>
-          )}
-
-          {compareResult && compareMode === "cross" && (
-            <div className="mt-4 space-y-3 animate-slide-up">
-              <div className="rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/40 p-3">
-                <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 uppercase tracking-wide mb-1">Synthetic Insight</p>
-                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.synthetic_insight}</p>
-              </div>
-              <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/40 p-3">
-                <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">Blind Spot Detected</p>
-                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.blind_spot}</p>
-              </div>
-              <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/40 p-3">
-                <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide mb-1">Combined Framework</p>
-                <p className="text-sm text-dark-700 dark:text-dark-300">{compareResult.combined_framework}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Spaced Repetition ── */}
-        {!isStaticHosting && (
-          <div className="mb-6 mt-8 rounded-xl border border-dark-200 dark:border-dark-700 p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide">Spaced Repetition</p>
-                {reviewRecord && (
-                  <p className="text-xs text-dark-500 dark:text-dark-400 mt-1">
-                    {["overdue", "due"].includes(getReviewStatus(reviewRecord.nextReviewAt)) ? (
-                      <span className="text-amber-600 dark:text-amber-400 font-medium">
-                        {getReviewStatus(reviewRecord.nextReviewAt) === "overdue" ? "Overdue for review" : "Due for review today"}
-                      </span>
-                    ) : (
-                      <span>Next review in {getDaysUntilReview(reviewRecord.nextReviewAt)} day{getDaysUntilReview(reviewRecord.nextReviewAt) === 1 ? "" : "s"}</span>
-                    )}
-                    {reviewRecord.reviewCount > 0 && <span className="ml-2 text-dark-400 dark:text-dark-500">({reviewRecord.reviewCount} reviews)</span>}
-                  </p>
-                )}
-              </div>
-              {!showReviewRating ? (
-                <button onClick={() => setShowReviewRating(true)}
-                  className="rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition"
-                >Mark as Reviewed</button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  {([["Again", 0], ["Hard", 3], ["Good", 4], ["Easy", 5]] as [string, ReviewRating][]).map(([label, rating]) => (
-                    <button key={label}
-                      onClick={async () => {
-                        try {
-                          setAiError("")
-                          const updated = await markConceptReviewed(slug, concept.id, concept.name, conceptSlug, rating)
-                          setReviewRecord({ nextReviewAt: updated.nextReviewAt, reviewCount: updated.reviewCount, interval: updated.interval })
-                          setShowReviewRating(false)
-                          setReviewSubmitted(true)
-                          reviewTimeoutRef.current = setTimeout(() => setReviewSubmitted(false), 3000)
-                        } catch (err: any) {
-                          setShowReviewRating(false)
-                          setAiError(err.message || "Failed to save review")
-                        }
-                      }}
-                      className="rounded-lg border border-dark-200 dark:border-dark-700 px-3 py-1.5 text-xs font-medium text-dark-600 dark:text-dark-400 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition"
-                    >{label}</button>
-                  ))}
-                  <button onClick={() => setShowReviewRating(false)}
-                    className="rounded-lg text-xs text-dark-400 hover:text-red-500 transition px-2"
-                  >Cancel</button>
-                </div>
-              )}
-            </div>
-            {reviewSubmitted && reviewRecord && (
-              <p className="text-xs text-green-600 dark:text-green-400 mt-2">Review saved! Next review in {reviewRecord.interval} day{reviewRecord.interval === 1 ? "" : "s"}.</p>
-            )}
-          </div>
-        )}
-
-        {/* ── AI Learning Tools ── */}
-        {!isStaticHosting && (
-          <>
-            <div className="mt-8 mb-4">
-              <p className="text-xs font-semibold text-dark-400 dark:text-dark-400 uppercase tracking-wide mb-3">AI Learning Tools</p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: "ask" as const, label: "Ask AI" },
-                  { id: "socratic" as const, label: "Socratic Tutor" },
-                  { id: "teachback" as const, label: "Teach Back" },
-                  { id: "analogy" as const, label: "Analogy" },
-                ].map((m) => (
-                  <button key={m.id} onClick={() => { setLearningMode(m.id); setLearningError("") }}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                      learningMode === m.id
-                        ? "bg-primary-600 text-white shadow-sm"
-                        : "border border-dark-200 dark:border-dark-700 text-dark-600 dark:text-dark-400 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50 dark:hover:bg-primary-900/10"
-                    }`}
-                  >{m.label}</button>
-                ))}
-              </div>
-            </div>
-
-            {learningError && (
-              <p className="mb-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{learningError}</p>
-            )}
-
-            {learningMode === "ask" && (
-              <ChatPanel
-                title="Concept Tutor"
-                subtitle="Ask follow-up questions about this concept"
-                storageKey={`tutor:${slug}/${conceptSlug}`}
-                sendMessage={async (messages, userMessage) => {
-                  const allMessages = [...messages, { role: "user" as const, content: userMessage }]
-                    .map(m => ({ role: m.role, content: m.content }))
-                  return await chatWithConcept({ ...concept, framework: framework.title }, allMessages)
-                }}
-                disabled={!db}
-                placeholder="Ask about this concept..."
-              />
-            )}
-
-            {learningMode === "socratic" && (
-              <ChatPanel
-                title="Socratic Tutor"
-                subtitle="AI asks questions to test your understanding"
-                storageKey={`socratic:${slug}/${conceptSlug}`}
-                sendMessage={async (messages, userMessage) => {
-                  const allMessages = [...messages, { role: "user" as const, content: userMessage }]
-                    .map(m => ({ role: m.role, content: m.content }))
-                  return await socraticTutor({ ...concept, framework: framework.title }, allMessages)
-                }}
-                disabled={!db}
-                placeholder="Type your answer..."
-              />
-            )}
-
-            {learningMode === "teachback" && (
-              <div className="rounded-xl border border-dark-200 dark:border-dark-700 overflow-hidden">
-                <div className="bg-primary-50 dark:bg-primary-900/20 px-4 py-2.5 border-b border-primary-200 dark:border-primary-800/40">
-                  <p className="text-sm font-semibold text-primary-700 dark:text-primary-300">Teach Back</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400">Explain this concept in your own words — AI scores your understanding</p>
-                </div>
-                <div className="p-4 bg-white dark:bg-dark-900">
-                  <textarea
-                    value={teachBackInput}
-                    onChange={(e) => setTeachBackInput(e.target.value)}
-                    placeholder={`Explain "${concept.name}" in your own words as if teaching a peer...`}
-                    rows={5}
-                    className="w-full resize-none rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800 px-3 py-2 text-sm text-dark-700 dark:text-dark-200 placeholder-dark-300 dark:placeholder-dark-500 focus:border-primary-400 dark:focus:border-primary-600 focus:outline-none"
-                  />
-                  <button
-                    onClick={async () => {
-                      if (!teachBackInput.trim() || teachBackLoading) return
-                      setTeachBackLoading(true); setLearningError(""); setTeachBackResult(null)
-                      try {
-                        const r = await teachBackEvaluate({ ...concept, framework: framework.title }, teachBackInput)
-                        setTeachBackResult(r)
-                      } catch (err: any) {
-                        setLearningError(err.message || "Failed to evaluate")
-                      }
-                      setTeachBackLoading(false)
-                    }}
-                    disabled={!teachBackInput.trim() || teachBackLoading}
-                    className="mt-3 rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50"
-                  >{teachBackLoading ? "Evaluating..." : "Submit Explanation"}</button>
-
-                  {teachBackResult && (
-                    <div className="mt-4 space-y-3">
-                      <div className="flex gap-4">
-                        <div className="flex-1 rounded-lg bg-dark-50 dark:bg-dark-800 p-3 text-center">
-                          <p className="text-lg font-bold text-primary-600">{teachBackResult.clarity}<span className="text-xs text-dark-400">/10</span></p>
-                          <p className="text-[10px] text-dark-500 dark:text-dark-400">Clarity</p>
-                        </div>
-                        <div className="flex-1 rounded-lg bg-dark-50 dark:bg-dark-800 p-3 text-center">
-                          <p className="text-lg font-bold text-violet-600">{teachBackResult.depth}<span className="text-xs text-dark-400">/10</span></p>
-                          <p className="text-[10px] text-dark-500 dark:text-dark-400">Depth</p>
-                        </div>
-                      </div>
-                      {teachBackResult.gaps.length > 0 && (
-                        <div className="rounded-lg bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/40 p-3">
-                          <p className="text-[10px] font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">Gaps</p>
-                          <ul className="space-y-1">
-                            {teachBackResult.gaps.map((g, i) => (
-                              <li key={i} className="text-xs text-dark-600 dark:text-dark-400">• {g}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      <div className="rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 p-3">
-                        <p className="text-[10px] font-semibold text-green-700 dark:text-green-300 uppercase tracking-wide mb-1">Improved Version</p>
-                        <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed">{teachBackResult.improvement}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {learningMode === "analogy" && (
-              <div className="rounded-xl border border-dark-200 dark:border-dark-700 overflow-hidden">
-                <div className="bg-primary-50 dark:bg-primary-900/20 px-4 py-2.5 border-b border-primary-200 dark:border-primary-800/40">
-                  <p className="text-sm font-semibold text-primary-700 dark:text-primary-300">Analogy Engine</p>
-                  <p className="text-xs text-dark-500 dark:text-dark-400">See the concept through a different lens</p>
-                </div>
-                <div className="p-4 bg-white dark:bg-dark-900">
-                  <div className="flex items-center gap-3 mb-3">
-                    <p className="text-xs text-dark-500 dark:text-dark-400">Explain like I&apos;m a</p>
-                    <select value={analogyDomain} onChange={(e) => setAnalogyDomain(e.target.value)}
-                      className="rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-3 py-1.5 text-xs text-dark-700 dark:text-dark-200 focus:border-primary-400 focus:outline-none"
-                    >
-                      {["chef", "military general", "jazz musician", "gardener", "architect", "sports coach", "ship captain", "parent"].map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={async () => {
-                        if (analogyLoading) return
-                        setAnalogyLoading(true); setLearningError(""); setAnalogyResult("")
-                        try {
-                          const r = await generateAnalogy({ ...concept, framework: framework.title }, analogyDomain)
-                          setAnalogyResult(r)
-                        } catch (err: any) {
-                          setLearningError(err.message || "Failed to generate")
-                        }
-                        setAnalogyLoading(false)
-                      }}
-                      disabled={analogyLoading}
-                      className="rounded-lg bg-primary-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-primary-700 transition disabled:opacity-50"
-                    >{analogyLoading ? "..." : "Generate"}</button>
-                  </div>
-                  {analogyResult && (
-                    <div className="rounded-lg bg-dark-50 dark:bg-dark-800 p-4">
-                      <p className="text-sm text-dark-700 dark:text-dark-300 leading-relaxed whitespace-pre-line">{analogyResult}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        <LearningToolsPanel framework={framework} concept={concept} frameworkSlug={slug} conceptSlug={conceptSlug} />
       </>)}
     </div>
   )

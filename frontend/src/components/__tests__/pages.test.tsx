@@ -129,8 +129,34 @@ vi.mock("@/lib/spaced-repetition", () => ({
 vi.mock("@/components/RequiresBackend", () => ({
   isStaticHosting: false,
   StaticHostingBanner: () => null,
+  PersistenceUnavailableBanner: () => null,
   BackendRequiredModal: () => null,
+  AiSetupModal: () => null,
   BackendGuard: ({ children }: { children: React.ReactNode }) => children,
+  AiGuard: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+vi.mock("@/lib/capabilities", () => ({
+  canUseFirebasePersistence: () => true,
+  canUseAIFromHeartbeat: () => true,
+  getAiAvailability: () => ({ status: "available", mode: "local", ollamaOk: true }),
+  AGENT_HEARTBEAT_PATH: "_meta/agent_heartbeat",
+  AGENT_HEARTBEAT_STALE_MS: 90000,
+  AGENT_HEARTBEAT_SKEW_MS: 120000,
+}))
+
+vi.mock("@/lib/AuthSessionProvider", () => ({
+  AuthSessionProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuthSession: () => ({
+    user: { uid: "test", isAnonymous: true },
+    ready: true,
+    isAdmin: false,
+    isAnonymous: true,
+    ensureAnonymous: async () => {},
+    linkGoogle: async () => {},
+    signInWithGoogle: async () => {},
+    signOut: async () => {},
+  }),
 }))
 
 // Test that imports work for all page components
@@ -258,7 +284,12 @@ describe("Component imports are valid", () => {
     QuoteCard: ["QuoteCard"],
     Navbar: ["Navbar"],
     AppSidebar: ["AppSidebar"],
-    RequiresBackend: ["StaticHostingBanner", "BackendGuard", "BackendRequiredModal", "isStaticHosting"],
+    RequiresBackend: ["StaticHostingBanner", "PersistenceUnavailableBanner", "BackendGuard", "BackendRequiredModal", "isStaticHosting"],
+    "concept/SpacedReviewBar": ["SpacedReviewBar"],
+    "concept/ConceptHeader": ["ConceptHeader"],
+    "concept/ConceptComparePanel": ["ConceptComparePanel"],
+    "concept/LearningToolsPanel": ["LearningToolsPanel"],
+    "home/NextActionsDashboard": ["NextActionsDashboard"],
   }
 
   for (const [name, exports] of Object.entries(componentMap)) {

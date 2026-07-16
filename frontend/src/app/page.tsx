@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { loadFrameworks } from "@/lib/rtdb-cache"
 import { getScenarios } from "@/lib/api"
+import { NextActionsDashboard } from "@/components/home/NextActionsDashboard"
 import type { FrameworkListItem, ScenarioListItem } from "@/lib/types"
 
 export default function Home() {
@@ -51,6 +52,8 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      <NextActionsDashboard />
 
       {/* Stats — clickable */}
       <section className="border-t border-dark-100 bg-dark-50 dark:bg-dark-900 dark:border-dark-800">
