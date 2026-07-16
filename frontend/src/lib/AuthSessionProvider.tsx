@@ -20,10 +20,8 @@ import {
 } from "./firebase"
 import {
   migrateDeviceDataToUser,
-  mergeUsersData,
-  snapshotUserTree,
-  stashPendingAnonMerge,
-  takePendingAnonMerge,
+  prepareAnonMerge,
+  runPendingAnonMerge,
   peekPendingAnonMerge,
   setLastMergeStatus,
   getLastMergeStatus,
@@ -40,6 +38,8 @@ type AuthSession = {
   /** Status of the last anon→Google credential-in-use merge (for Profile banner). */
   mergeStatus: MergeStatus | null
   clearMergeStatus: () => void
+  /** Retry a failed merge while already signed in as Google (uses stashed pending snapshot). */
+  retryPendingMerge: () => Promise<void>
   ensureAnonymous: () => Promise<void>
   linkGoogle: () => Promise<void>
   signInWithGoogle: () => Promise<void>
@@ -53,6 +53,7 @@ const AuthSessionContext = createContext<AuthSession>({
   isAnonymous: false,
   mergeStatus: null,
   clearMergeStatus: () => {},
+  retryPendingMerge: async () => {},
   ensureAnonymous: async () => {},
   linkGoogle: async () => {},
   signInWithGoogle: async () => {},
@@ -73,79 +74,26 @@ async function fetchIsAdmin(uid: string): Promise<boolean> {
   }
 }
 
-/**
- * Snapshot current anon tree + stash for post-sign-in merge.
- * Must run while still authenticated as the anonymous user (RTDB rules).
- */
-async function prepareAnonMerge(anonUid: string): Promise<void> {
-  let snapshot: Record<string, unknown> | null = null
-  try {
-    snapshot = await snapshotUserTree(anonUid)
-  } catch (err) {
-    console.warn("[auth] anon snapshot failed; merge may be empty", err)
-  }
-  stashPendingAnonMerge(anonUid, snapshot)
-}
-
-/**
- * After Google sign-in (popup or redirect), merge stashed anon data into the Google uid.
- */
-async function runPendingAnonMerge(googleUid: string): Promise<MergeStatus | null> {
-  const pending = takePendingAnonMerge()
-  if (!pending?.fromUid) return null
-  if (pending.fromUid === googleUid) return null
-
-  try {
-    const result = await mergeUsersData(pending.fromUid, googleUid, pending.snapshot)
-    const keys = result.mergedKeys
-    const status: MergeStatus =
-      keys.length === 0
-        ? {
-            state: "success",
-            message:
-              "Signed in with an existing Google account. No anonymous learning data was found to merge.",
-            fromUid: pending.fromUid,
-            toUid: googleUid,
-            mergedKeys: keys,
-            at: Date.now(),
-          }
-        : {
-            state: result.recordedOnTarget ? "success" : "partial",
-            message: result.recordedOnTarget
-              ? `Merged your anonymous progress (${keys.join(", ")}) into this Google account.`
-              : `Merged data (${keys.join(", ")}) but could not write merge provenance. Progress should still be present.`,
-            fromUid: pending.fromUid,
-            toUid: googleUid,
-            mergedKeys: keys,
-            at: Date.now(),
-          }
-    setLastMergeStatus(status)
-    return status
-  } catch (err) {
-    console.error("[auth] anon→Google merge failed", err)
-    // Re-stash so a refresh can retry? Safer to surface error and keep data in snapshot via status.
-    // Re-stash on failure so user can retry without losing snapshot.
-    stashPendingAnonMerge(pending.fromUid, pending.snapshot)
-    const status: MergeStatus = {
-      state: "error",
-      message:
-        err instanceof Error
-          ? `Could not merge anonymous data: ${err.message}. Your Google account is signed in; try again from Profile or export from another device.`
-          : "Could not merge anonymous data into this Google account.",
-      fromUid: pending.fromUid,
-      toUid: googleUid,
-      at: Date.now(),
-    }
-    setLastMergeStatus(status)
-    return status
-  }
-}
-
 const POPUP_FALLBACK_CODES = new Set([
   "auth/popup-blocked",
   "auth/popup-closed-by-user",
   "auth/cancelled-popup-request",
 ])
+
+const CREDENTIAL_IN_USE_CODES = new Set([
+  "auth/credential-already-in-use",
+  "auth/email-already-in-use",
+])
+
+function authErrorCode(err: unknown): string | undefined {
+  return (err as { code?: string })?.code
+}
+
+function credentialFromAuthError(err: unknown) {
+  return GoogleAuthProvider.credentialFromError(
+    err as Parameters<typeof GoogleAuthProvider.credentialFromError>[0],
+  )
+}
 
 export function AuthSessionProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -159,11 +107,49 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     setMergeStatus(null)
   }, [])
 
+  const applyMergeStatus = useCallback((status: MergeStatus | null) => {
+    if (!status) return
+    setMergeStatus(status)
+  }, [])
+
   const ensureAnonymous = useCallback(async () => {
     if (!auth) return
     if (auth.currentUser) return
     await signInAnonymously(auth)
   }, [])
+
+  const retryPendingMerge = useCallback(async () => {
+    if (!auth?.currentUser || auth.currentUser.isAnonymous) {
+      const status: MergeStatus = {
+        state: "error",
+        message: "Retry merge requires being signed in with Google.",
+        at: Date.now(),
+        canRetry: false,
+      }
+      setLastMergeStatus(status)
+      setMergeStatus(status)
+      return
+    }
+    if (!peekPendingAnonMerge()) {
+      const status: MergeStatus = {
+        state: "error",
+        message: "No pending anonymous data to merge. If progress is missing, import a JSON export.",
+        at: Date.now(),
+        canRetry: false,
+      }
+      setLastMergeStatus(status)
+      setMergeStatus(status)
+      return
+    }
+    if (mergeInFlight.current) return
+    mergeInFlight.current = true
+    try {
+      const status = await runPendingAnonMerge(auth.currentUser.uid)
+      if (status) applyMergeStatus(status)
+    } finally {
+      mergeInFlight.current = false
+    }
+  }, [applyMergeStatus])
 
   useEffect(() => {
     // Hydrate last merge banner for Profile
@@ -179,25 +165,96 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
 
     let cancelled = false
 
-    // Post-redirect resume: link completion keeps uid; credential-in-use sign-in needs merge
+    // Post-redirect resume: link success keeps uid; credential-in-use needs recovery + merge
     ;(async () => {
       try {
         const result = await getRedirectResult(auth!)
-        if (cancelled || !result?.user) return
-        if (result.user.isAnonymous) return
-        // If we stashed anon data before redirect, merge now
-        if (peekPendingAnonMerge()) {
+        if (cancelled) return
+        if (result?.user && !result.user.isAnonymous && peekPendingAnonMerge()) {
           if (mergeInFlight.current) return
           mergeInFlight.current = true
           try {
             const status = await runPendingAnonMerge(result.user.uid)
-            if (!cancelled && status) setMergeStatus(status)
+            if (!cancelled && status) applyMergeStatus(status)
           } finally {
             mergeInFlight.current = false
           }
         }
-      } catch {
-        /* no redirect result or error — ignore */
+      } catch (err: unknown) {
+        const code = authErrorCode(err)
+        // linkWithRedirect / signInWithRedirect can throw credential-in-use on return
+        if (code && CREDENTIAL_IN_USE_CODES.has(code)) {
+          try {
+            // Still anonymous on this error path — snapshot now if we somehow didn't pre-stash
+            // (should have prepared before linkWithRedirect; prepare again is safe if still anon)
+            if (auth!.currentUser?.isAnonymous && !peekPendingAnonMerge()) {
+              const prep = await prepareAnonMerge(auth!.currentUser.uid)
+              if (!prep.ok) {
+                const status: MergeStatus = {
+                  state: "error",
+                  message: prep.message,
+                  fromUid: prep.fromUid,
+                  at: Date.now(),
+                  canRetry: false,
+                }
+                setLastMergeStatus(status)
+                if (!cancelled) applyMergeStatus(status)
+                return
+              }
+            }
+
+            const credential = credentialFromAuthError(err)
+            if (!credential) {
+              const status: MergeStatus = {
+                state: "error",
+                message:
+                  "This Google account is already linked to another user, but the credential could not be recovered after redirect. Try Link Google again (popup), or export JSON first.",
+                at: Date.now(),
+                canRetry: Boolean(peekPendingAnonMerge()),
+              }
+              setLastMergeStatus(status)
+              if (!cancelled) applyMergeStatus(status)
+              return
+            }
+
+            if (!peekPendingAnonMerge()) {
+              const status: MergeStatus = {
+                state: "error",
+                message:
+                  "Google account is already in use, but no anonymous progress snapshot was saved before redirect. Stay anonymous if still signed out of Google, export JSON, then sign in.",
+                at: Date.now(),
+                canRetry: false,
+              }
+              setLastMergeStatus(status)
+              if (!cancelled) applyMergeStatus(status)
+              return
+            }
+
+            if (mergeInFlight.current) return
+            mergeInFlight.current = true
+            try {
+              const credResult = await signInWithCredential(auth!, credential)
+              const status = await runPendingAnonMerge(credResult.user.uid)
+              if (!cancelled && status) applyMergeStatus(status)
+            } finally {
+              mergeInFlight.current = false
+            }
+          } catch (recoveryErr) {
+            console.error("[auth] redirect credential-in-use recovery failed", recoveryErr)
+            const status: MergeStatus = {
+              state: "error",
+              message:
+                recoveryErr instanceof Error
+                  ? `Could not complete Google sign-in after redirect: ${recoveryErr.message}`
+                  : "Could not complete Google sign-in after redirect.",
+              at: Date.now(),
+              canRetry: Boolean(peekPendingAnonMerge()),
+            }
+            setLastMergeStatus(status)
+            if (!cancelled) applyMergeStatus(status)
+          }
+        }
+        // Other getRedirectResult errors (no pending redirect, etc.) — ignore
       }
     })()
 
@@ -220,13 +277,12 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
 
       setUser(u)
 
-      // If we landed on a non-anon user with a pending stash (e.g. popup path finished
-      // before this callback), run merge once.
+      // Pending stash on a non-anon user (popup recovery, remount, retry after reload)
       if (!u.isAnonymous && peekPendingAnonMerge() && !mergeInFlight.current) {
         mergeInFlight.current = true
         try {
           const status = await runPendingAnonMerge(u.uid)
-          if (!cancelled && status) setMergeStatus(status)
+          if (!cancelled && status) applyMergeStatus(status)
         } finally {
           mergeInFlight.current = false
         }
@@ -238,7 +294,6 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         console.warn("[auth] device migration skipped/failed", err)
       }
       const admin = await fetchIsAdmin(u.uid)
-      // Emergency local-only fallback while admins/{uid} is not bootstrapped yet
       const allowEmailFallback =
         process.env.NODE_ENV === "development" ||
         process.env.NEXT_PUBLIC_ADMIN_EMAIL_FALLBACK === "true"
@@ -254,25 +309,45 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       cancelled = true
       unsub()
     }
-  }, [])
+  }, [applyMergeStatus])
 
   const linkGoogle = useCallback(async () => {
     if (!auth?.currentUser) return
 
+    const abortWithStatus = (message: string, fromUid?: string) => {
+      const status: MergeStatus = {
+        state: "error",
+        message,
+        fromUid,
+        at: Date.now(),
+        canRetry: false,
+      }
+      setLastMergeStatus(status)
+      setMergeStatus(status)
+    }
+
+    /**
+     * Snapshot+stash while still anonymous, then sign into existing Google account.
+     * Never proceeds if prepare fails when we still have access to the anon uid.
+     */
     const tryCredentialInUseRecovery = async (err: unknown) => {
       const anonUid = auth!.currentUser?.isAnonymous ? auth!.currentUser.uid : null
       if (anonUid) {
-        await prepareAnonMerge(anonUid)
+        const prep = await prepareAnonMerge(anonUid)
+        if (!prep.ok) {
+          abortWithStatus(prep.message, prep.fromUid)
+          return
+        }
+      } else if (!peekPendingAnonMerge()) {
+        abortWithStatus(
+          "Google credential already in use, but no anonymous session snapshot is available to merge.",
+        )
+        return
       }
 
-      // Hold the lock so onAuthStateChanged does not double-merge while we finish sign-in
       mergeInFlight.current = true
       try {
-        // Prefer credential embedded in the link error (no second popup)
-        // Firebase types require AuthError; cast from unknown catch value
-        const credential = GoogleAuthProvider.credentialFromError(
-          err as Parameters<typeof GoogleAuthProvider.credentialFromError>[0],
-        )
+        const credential = credentialFromAuthError(err)
         if (credential) {
           const credResult = await signInWithCredential(auth!, credential)
           const status = await runPendingAnonMerge(credResult.user.uid)
@@ -280,16 +355,14 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
           return
         }
 
-        // Fallback: full Google sign-in popup / redirect
         try {
           const popupResult = await signInWithPopup(auth!, googleProvider)
           const status = await runPendingAnonMerge(popupResult.user.uid)
           if (status) setMergeStatus(status)
         } catch (e2: unknown) {
-          const c2 = (e2 as { code?: string })?.code
+          const c2 = authErrorCode(e2)
           if (c2 && POPUP_FALLBACK_CODES.has(c2)) {
-            // pending merge already stashed; redirect return will complete merge
-            // release lock so getRedirectResult / onAuth can run merge after return
+            // pending already stashed; release lock so return path can merge
             mergeInFlight.current = false
             await signInWithRedirect(auth!, googleProvider)
             return
@@ -297,7 +370,6 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
           throw e2
         }
       } finally {
-        // Keep lock false after popup/credential path (redirect path cleared above)
         if (mergeInFlight.current) mergeInFlight.current = false
       }
     }
@@ -310,14 +382,20 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         await signInWithPopup(auth, googleProvider)
       }
     } catch (err: unknown) {
-      const code = (err as { code?: string })?.code
+      const code = authErrorCode(err)
       if (code && POPUP_FALLBACK_CODES.has(code)) {
+        // First-hop redirect: MUST snapshot before leaving the page
         if (auth.currentUser?.isAnonymous) {
+          const prep = await prepareAnonMerge(auth.currentUser.uid)
+          if (!prep.ok) {
+            abortWithStatus(prep.message, prep.fromUid)
+            return
+          }
           await linkWithRedirect(auth.currentUser, googleProvider)
         } else {
           await signInWithRedirect(auth, googleProvider)
         }
-      } else if (code === "auth/credential-already-in-use" || code === "auth/email-already-in-use") {
+      } else if (code && CREDENTIAL_IN_USE_CODES.has(code)) {
         await tryCredentialInUseRecovery(err)
       } else {
         throw err
@@ -334,7 +412,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     try {
       await signInWithPopup(auth, googleProvider)
     } catch (err: unknown) {
-      const code = (err as { code?: string })?.code
+      const code = authErrorCode(err)
       if (code && POPUP_FALLBACK_CODES.has(code)) {
         await signInWithRedirect(auth, googleProvider)
       } else {
@@ -356,6 +434,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     isAnonymous: Boolean(user?.isAnonymous),
     mergeStatus,
     clearMergeStatus,
+    retryPendingMerge,
     ensureAnonymous,
     linkGoogle,
     signInWithGoogle,

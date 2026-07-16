@@ -27,7 +27,14 @@ import { canUseFirebasePersistence } from "@/lib/capabilities"
 export default function ProfilePage() {
   const router = useRouter()
   const { user, isAdmin, loading: authLoading, signInWithGoogle, signOut } = useAuth()
-  const { ready: authReady, mergeStatus, clearMergeStatus, linkGoogle } = useAuthSession()
+  const {
+    ready: authReady,
+    mergeStatus,
+    clearMergeStatus,
+    linkGoogle,
+    retryPendingMerge,
+    isAnonymous,
+  } = useAuthSession()
   const [pathwayPct, setPathwayPct] = useState(0)
   const [pathwayCompleted, setPathwayCompleted] = useState(0)
   const [pathwayTotal, setPathwayTotal] = useState(0)
@@ -43,6 +50,7 @@ export default function ProfilePage() {
   const [importError, setImportError] = useState("")
   const [linkBusy, setLinkBusy] = useState(false)
   const [linkError, setLinkError] = useState("")
+  const [retryBusy, setRetryBusy] = useState(false)
 
   // Blind spot analysis
   const [blindSpotReport, setBlindSpotReport] = useState<BlindSpotReport | null>(null)
@@ -157,6 +165,29 @@ export default function ProfilePage() {
                   Keys: {mergeStatus.mergedKeys.join(", ")}
                 </p>
               )}
+              {mergeStatus.state === "error" &&
+                (mergeStatus.canRetry || (!isAnonymous && user && !user.isAnonymous)) && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={retryBusy}
+                      onClick={async () => {
+                        setRetryBusy(true)
+                        try {
+                          await retryPendingMerge()
+                        } finally {
+                          setRetryBusy(false)
+                        }
+                      }}
+                      className="rounded-lg bg-red-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-800 disabled:opacity-50"
+                    >
+                      {retryBusy ? "Retrying…" : "Retry merge"}
+                    </button>
+                    <p className="text-[11px] text-red-700 dark:text-red-300">
+                      Uses the temporary copy saved before Google sign-in. Reload the page if Retry is unavailable.
+                    </p>
+                  </div>
+                )}
             </div>
             <button
               type="button"
