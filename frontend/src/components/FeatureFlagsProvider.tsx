@@ -59,8 +59,8 @@ export function FeatureFlagsProvider({ children }: { children: React.ReactNode }
     return () => unsub()
   }, [])
 
-  // App Check: init when site key is set. Idempotent; no-op without key (local dev).
-  // Re-run after flags are ready so `app_check_enforced` warnings can surface.
+  // Eager init already runs in firebase.ts (before Auth). This re-entry is idempotent
+  // and only needed so the missing-key + app_check_enforced warning can fire after flags load.
   useEffect(() => {
     initAppCheckIfConfigured(app)
   }, [ready, flags.app_check_enforced])

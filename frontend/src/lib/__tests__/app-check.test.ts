@@ -75,6 +75,12 @@ describe("app-check scaffold", () => {
     expect(initializeAppCheck).not.toHaveBeenCalled()
   })
 
+  it("no-ops when app is undefined", () => {
+    process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY = "site-key"
+    expect(initAppCheckIfConfigured(undefined)).toBeNull()
+    expect(initializeAppCheck).not.toHaveBeenCalled()
+  })
+
   it("initializes App Check when site key and app present", () => {
     process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY = "site-key"
     const fakeApp = { name: "test" } as FirebaseApp
@@ -113,6 +119,18 @@ describe("app-check scaffold", () => {
     expect(warn).toHaveBeenCalled()
   })
 
+  it("does not re-call initializeAppCheck after a failed init", () => {
+    process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY = "site-key"
+    initializeAppCheck.mockImplementation(() => {
+      throw new Error("recaptcha boom")
+    })
+
+    const fakeApp = { name: "test" } as FirebaseApp
+    expect(initAppCheckIfConfigured(fakeApp)).toBeNull()
+    expect(initAppCheckIfConfigured(fakeApp)).toBeNull()
+    expect(initializeAppCheck).toHaveBeenCalledTimes(1)
+  })
+
   it("sets debug token before init when env is true", () => {
     process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY = "site-key"
     process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN = "true"
@@ -123,6 +141,32 @@ describe("app-check scaffold", () => {
     expect(
       (globalThis as { FIREBASE_APPCHECK_DEBUG_TOKEN?: unknown }).FIREBASE_APPCHECK_DEBUG_TOKEN,
     ).toBe(true)
+  })
+
+  it("sets debug token when env is a UUID", () => {
+    process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY = "site-key"
+    const uuid = "550e8400-e29b-41d4-a716-446655440000"
+    process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN = uuid
+    initializeAppCheck.mockReturnValue({})
+
+    initAppCheckIfConfigured({ name: "test" } as FirebaseApp)
+
+    expect(
+      (globalThis as { FIREBASE_APPCHECK_DEBUG_TOKEN?: unknown }).FIREBASE_APPCHECK_DEBUG_TOKEN,
+    ).toBe(uuid)
+  })
+
+  it("ignores invalid debug token values like false", () => {
+    process.env.NEXT_PUBLIC_APPCHECK_SITE_KEY = "site-key"
+    process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN = "false"
+    initializeAppCheck.mockReturnValue({})
+
+    initAppCheckIfConfigured({ name: "test" } as FirebaseApp)
+
+    expect(
+      (globalThis as { FIREBASE_APPCHECK_DEBUG_TOKEN?: unknown }).FIREBASE_APPCHECK_DEBUG_TOKEN,
+    ).toBeUndefined()
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("Ignoring invalid"))
   })
 
   it("reflects app_check_enforced from feature flags", () => {

@@ -12,6 +12,7 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth"
+import { initAppCheckIfConfigured } from "@/lib/app-check"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
@@ -31,6 +32,9 @@ let auth: ReturnType<typeof getAuth> | null = null
 
 if (hasConfig) {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+  // Eager App Check on client module load — before Auth/RTDB consumers' effects.
+  // No-op on SSR and when NEXT_PUBLIC_APPCHECK_SITE_KEY is unset.
+  initAppCheckIfConfigured(app)
   db = getDatabase(app)
   auth = getAuth(app)
 }

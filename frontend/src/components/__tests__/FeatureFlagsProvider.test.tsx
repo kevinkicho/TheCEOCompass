@@ -23,8 +23,12 @@ vi.mock("@/lib/firebase", () => ({
   onValue: (...args: unknown[]) => (mockOnValue as Function)(...args),
 }))
 
-vi.mock("@/lib/app-check", () => ({
+const { initAppCheckIfConfigured } = vi.hoisted(() => ({
   initAppCheckIfConfigured: vi.fn(() => null),
+}))
+
+vi.mock("@/lib/app-check", () => ({
+  initAppCheckIfConfigured,
 }))
 
 import { FeatureFlagsProvider, useFeatureFlags } from "../FeatureFlagsProvider"
@@ -73,6 +77,19 @@ describe("FeatureFlagsProvider", () => {
     expect(screen.getByTestId("provider").textContent).toBe("agent")
     expect(mockOnValue).not.toHaveBeenCalled()
     expect(getFlag("cloud_ai_enabled")).toBe(false)
+    expect(initAppCheckIfConfigured).toHaveBeenCalledWith(mockState.app)
+  })
+
+  it("calls initAppCheckIfConfigured with app on mount", async () => {
+    render(
+      <FeatureFlagsProvider>
+        <Probe />
+      </FeatureFlagsProvider>,
+    )
+
+    await waitFor(() => {
+      expect(initAppCheckIfConfigured).toHaveBeenCalledWith(mockState.app)
+    })
   })
 
   it("subscribes to FEATURE_FLAGS_PATH and updates on snapshot", async () => {
