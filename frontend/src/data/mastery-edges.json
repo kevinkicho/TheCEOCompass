@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "description": "Minimal mastery graph seed: strategic-decision-making + financial-mastery. Concept ids are slugified concept names. Edges are curated pedagogical heuristics (not strict curriculum order)—revisit when expanding. requires: from depends on to. reinforces: stored both directions with matching weight.",
+  "concepts": [
+    {
+      "id": "first-principles-thinking",
+      "frameworkSlug": "strategic-decision-making",
+      "conceptSlug": "first-principles-thinking",
+      "difficulty": 2,
+      "tags": ["decision-making", "innovation"]
+    },
+    {
+      "id": "inversion",
+      "frameworkSlug": "strategic-decision-making",
+      "conceptSlug": "inversion",
+      "difficulty": 2,
+      "tags": ["decision-making", "risk"]
+    },
+    {
+      "id": "ooda-loop",
+      "frameworkSlug": "strategic-decision-making",
+      "conceptSlug": "ooda-loop",
+      "difficulty": 2,
+      "tags": ["decision-making", "speed"]
+    },
+    {
+      "id": "second-order-thinking",
+      "frameworkSlug": "strategic-decision-making",
+      "conceptSlug": "second-order-thinking",
+      "difficulty": 2,
+      "tags": ["decision-making", "systems"]
+    },
+    {
+      "id": "probabilistic-thinking",
+      "frameworkSlug": "strategic-decision-making",
+      "conceptSlug": "probabilistic-thinking",
+      "difficulty": 3,
+      "tags": ["decision-making", "uncertainty"]
+    },
+    {
+      "id": "pre-mortem-analysis",
+      "frameworkSlug": "strategic-decision-making",
+      "conceptSlug": "pre-mortem-analysis",
+      "difficulty": 2,
+      "tags": ["decision-making", "risk"]
+    },
+    {
+      "id": "ebitda",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "ebitda",
+      "difficulty": 2,
+      "tags": ["financial", "metrics"]
+    },
+    {
+      "id": "free-cash-flow",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "free-cash-flow",
+      "difficulty": 2,
+      "tags": ["financial", "metrics", "valuation"]
+    },
+    {
+      "id": "roic",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "roic",
+      "difficulty": 3,
+      "tags": ["financial", "metrics", "capital-allocation"]
+    },
+    {
+      "id": "dupont-analysis",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "dupont-analysis",
+      "difficulty": 3,
+      "tags": ["financial", "metrics"]
+    },
+    {
+      "id": "dcf-valuation",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "dcf-valuation",
+      "difficulty": 3,
+      "tags": ["financial", "valuation"]
+    },
+    {
+      "id": "lbo-modeling",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "lbo-modeling",
+      "difficulty": 4,
+      "tags": ["financial", "valuation", "deals"]
+    },
+    {
+      "id": "unit-economics",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "unit-economics",
+      "difficulty": 2,
+      "tags": ["financial", "metrics", "growth"]
+    },
+    {
+      "id": "cap-table",
+      "frameworkSlug": "financial-mastery",
+      "conceptSlug": "cap-table",
+      "difficulty": 3,
+      "tags": ["financial", "ownership"]
+    }
+  ],
+  "edges": [
+    {
+      "from": "pre-mortem-analysis",
+      "to": "inversion",
+      "type": "requires",
+      "weight": 0.9
+    },
+    {
+      "from": "pre-mortem-analysis",
+      "to": "second-order-thinking",
+      "type": "requires",
+      "weight": 0.7
+    },
+    {
+      "from": "first-principles-thinking",
+      "to": "inversion",
+      "type": "reinforces",
+      "weight": 0.8
+    },
+    {
+      "from": "inversion",
+      "to": "first-principles-thinking",
+      "type": "reinforces",
+      "weight": 0.8
+    },
+    {
+      "from": "first-principles-thinking",
+      "to": "second-order-thinking",
+      "type": "reinforces",
+      "weight": 0.7
+    },
+    {
+      "from": "second-order-thinking",
+      "to": "first-principles-thinking",
+      "type": "reinforces",
+      "weight": 0.7
+    },
+    {
+      "from": "second-order-thinking",
+      "to": "inversion",
+      "type": "reinforces",
+      "weight": 0.75
+    },
+    {
+      "from": "inversion",
+      "to": "second-order-thinking",
+      "type": "reinforces",
+      "weight": 0.75
+    },
+    {
+      "from": "ooda-loop",
+      "to": "probabilistic-thinking",
+      "type": "requires",
+      "weight": 0.6
+    },
+    {
+      "from": "probabilistic-thinking",
+      "to": "first-principles-thinking",
+      "type": "reinforces",
+      "weight": 0.5
+    },
+    {
+      "from": "first-principles-thinking",
+      "to": "probabilistic-thinking",
+      "type": "reinforces",
+      "weight": 0.5
+    },
+    {
+      "from": "inversion",
+      "to": "pre-mortem-analysis",
+      "type": "applied_in",
+      "weight": 0.85
+    },
+    {
+      "from": "free-cash-flow",
+      "to": "ebitda",
+      "type": "requires",
+      "weight": 0.85
+    },
+    {
+      "from": "dcf-valuation",
+      "to": "free-cash-flow",
+      "type": "requires",
+      "weight": 0.95
+    },
+    {
+      "from": "dcf-valuation",
+      "to": "ebitda",
+      "type": "requires",
+      "weight": 0.6
+    },
+    {
+      "from": "lbo-modeling",
+      "to": "free-cash-flow",
+      "type": "requires",
+      "weight": 0.9
+    },
+    {
+      "from": "lbo-modeling",
+      "to": "dcf-valuation",
+      "type": "requires",
+      "weight": 0.7
+    },
+    {
+      "from": "roic",
+      "to": "free-cash-flow",
+      "type": "requires",
+      "weight": 0.65
+    },
+    {
+      "from": "roic",
+      "to": "dupont-analysis",
+      "type": "reinforces",
+      "weight": 0.8
+    },
+    {
+      "from": "dupont-analysis",
+      "to": "roic",
+      "type": "reinforces",
+      "weight": 0.8
+    },
+    {
+      "from": "dupont-analysis",
+      "to": "ebitda",
+      "type": "reinforces",
+      "weight": 0.7
+    },
+    {
+      "from": "ebitda",
+      "to": "dupont-analysis",
+      "type": "reinforces",
+      "weight": 0.7
+    },
+    {
+      "from": "unit-economics",
+      "to": "free-cash-flow",
+      "type": "requires",
+      "weight": 0.55
+    },
+    {
+      "from": "cap-table",
+      "to": "lbo-modeling",
+      "type": "applied_in",
+      "weight": 0.5
+    },
+    {
+      "from": "dcf-valuation",
+      "to": "probabilistic-thinking",
+      "type": "requires",
+      "weight": 0.55
+    },
+    {
+      "from": "pre-mortem-analysis",
+      "to": "lbo-modeling",
+      "type": "applied_in",
+      "weight": 0.45
+    },
+    {
+      "from": "first-principles-thinking",
+      "to": "unit-economics",
+      "type": "applied_in",
+      "weight": 0.5
+    },
+    {
+      "from": "second-order-thinking",
+      "to": "dcf-valuation",
+      "type": "applied_in",
+      "weight": 0.55
+    },
+    {
+      "from": "inversion",
+      "to": "roic",
+      "type": "applied_in",
+      "weight": 0.45
+    }
+  ]
+}
