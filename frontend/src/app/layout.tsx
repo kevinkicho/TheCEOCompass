@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import { AuthSessionProvider } from "@/lib/AuthSessionProvider"
 import { AiStatusProvider } from "@/components/AiStatusProvider"
+import { FeatureFlagsProvider } from "@/components/FeatureFlagsProvider"
 import { Navbar } from "@/components/Navbar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { DemoFooter } from "@/components/DemoFooter"
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthSessionProvider>
+          <FeatureFlagsProvider>
           <AiStatusProvider>
           <ErrorBoundary>
           <Navbar />
@@ -53,6 +55,7 @@ export default function RootLayout({
           <DemoFooter />
           </ErrorBoundary>
           </AiStatusProvider>
+          </FeatureFlagsProvider>
           </AuthSessionProvider>
         </ThemeProvider>
         <Script src={basePath + "/sw-register.js"} strategy="afterInteractive" />
