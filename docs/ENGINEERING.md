@@ -40,6 +40,36 @@ Next.js 14 generates 360 pages at build time:
 
 `generateStaticParams` reads from `slugs.json` which contains all framework slugs and their concept slugs. Build time ~20s.
 
+## Remote feature flags
+
+Path: `_config/feature_flags` (public read, admin write).
+
+| Key | Type | Default | Purpose |
+|-----|------|---------|---------|
+| `ai_provider_default` | `"agent"` \| `"local"` \| `"cloud"` | `"agent"` | Default AI provider when no Profile override |
+| `cloud_ai_enabled` | boolean | `false` | Allow selecting / routing to cloud AI |
+| `app_check_enforced` | boolean | `false` | Enforce Firebase App Check when scaffold lands |
+| `mastery_graph_enabled` | boolean | `false` | Gate mastery graph / next-action engine (Phase 3) |
+| `sr_session_enabled` | boolean | `false` | Gate spaced-repetition session UX (Phase 3) |
+
+Frontend:
+- `frontend/src/lib/feature-flags.ts` — `getFlag(key)`, `getFeatureFlags()`, `parseFeatureFlags`
+- `frontend/src/components/FeatureFlagsProvider.tsx` — `useFeatureFlags()`; subscribes via `onValue`
+- Wired in `app/layout.tsx` under `AuthSessionProvider`
+
+Missing RTDB node or offline → safe defaults above. **No product behavior changes** until consumers gate on flags and ops set values in RTDB.
+
+Example seed (admin / console):
+```json
+{
+  "ai_provider_default": "agent",
+  "cloud_ai_enabled": false,
+  "app_check_enforced": false,
+  "mastery_graph_enabled": false,
+  "sr_session_enabled": false
+}
+```
+
 ## Firebase RTDB Structure
 
 ```
@@ -50,6 +80,10 @@ frameworks/{slug}/concepts/{id}
   → { id, name, definition, tags, example, ... }
 _meta/framework_slugs
   → ["strategic-decision-making", "financial-mastery", ...]
+
+# Runtime config (public read, admin write)
+_config/feature_flags
+  → { ai_provider_default, cloud_ai_enabled, app_check_enforced, mastery_graph_enabled, sr_session_enabled }
 
 # AI enrichment (per concept, per category)
 framework/{slug}/{concept}/{category}/{requestId}

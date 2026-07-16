@@ -60,6 +60,14 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules._meta.agent_heartbeat[".write"]).toBe(false)
   })
 
+  it("exposes _config as public read, admin-only write", () => {
+    expect(rules._config[".read"]).toBe(true)
+    expect(rules._config[".write"]).toContain("admins")
+    expect(rules._config[".write"]).toContain("auth.uid")
+    expect(rules._config.feature_flags[".read"]).toBe(true)
+    expect(rules._config.feature_flags[".write"]).toContain("admins")
+  })
+
   it("does not use fictional legacy_devices root", () => {
     expect(rules.legacy_devices).toBeUndefined()
   })
