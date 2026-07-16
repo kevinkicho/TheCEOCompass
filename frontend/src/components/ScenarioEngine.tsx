@@ -169,14 +169,17 @@ export function ScenarioEngine({ scenario }: Props) {
     setReviewStatus("saving")
     try {
       let targets = reviewTargets
-      if (!targets.length) {
+      // Re-resolve when empty OR all unresolved (e.g. prior loadFrameworks miss).
+      // Sticky unresolved arrays would otherwise block "Try again" from recovering.
+      const needsResolve =
+        targets.length === 0 || targets.every((t) => !t.resolved)
+      if (needsResolve) {
         let frameworks = getCachedFrameworks()
-        if (!frameworks) {
-          try {
-            frameworks = await loadFrameworks()
-          } catch {
-            frameworks = null
-          }
+        try {
+          // Prefer loadFrameworks: returns cache when warm, retries RTDB when cold/failed
+          frameworks = await loadFrameworks()
+        } catch {
+          frameworks = getCachedFrameworks()
         }
         targets = resolveConceptsForReview(
           conceptIds,

@@ -46,6 +46,7 @@ vi.mock("@/lib/firebase-crud", () => ({
 }))
 
 import { evaluateScenarioStage } from "@/lib/ollama"
+import { loadFrameworks } from "@/lib/rtdb-cache"
 
 const mockScenario: Scenario = {
   id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -363,5 +364,80 @@ describe("ScenarioEngine", () => {
       expect(screen.getByTestId("scenario-review-done")).toBeInTheDocument()
     })
     expect(mockSeed).toHaveBeenCalledTimes(2)
+  })
+
+  it("re-resolves frameworks on Try again when prior targets were all unresolved", async () => {
+    mockShouldOffer.mockReturnValue(true)
+    const unresolved = [
+      {
+        conceptId: "unit-economics",
+        frameworkSlug: "financial-mastery",
+        conceptName: "Unit Economics",
+        conceptSlug: "unit-economics",
+        resolved: false,
+      },
+      {
+        conceptId: "free-cash-flow",
+        frameworkSlug: "financial-mastery",
+        conceptName: "Free Cash Flow",
+        conceptSlug: "free-cash-flow",
+        resolved: false,
+      },
+    ]
+    // Offer effect + first Add both see unresolved; retry recovers after loadFrameworks
+    mockResolve
+      .mockReturnValueOnce(unresolved) // offer useEffect
+      .mockReturnValueOnce(unresolved) // first Add re-resolve
+      .mockReturnValueOnce(resolvedTargets) // Try again re-resolve
+    mockSeed.mockResolvedValue({ seeded: 2, failed: 0, skipped: 0 })
+    vi.mocked(loadFrameworks).mockResolvedValue([])
+    vi.mocked(evaluateScenarioStage).mockResolvedValue({
+      parsed: { feedback: "Weak.", score: 2, key_insights: [] },
+      prompt: "...",
+    } as any)
+
+    const freeFinal: Scenario = {
+      ...mockScenario,
+      stages: [
+        {
+          id: "stage-1",
+          type: "analysis",
+          prompt: "Estimate impact:",
+          options: [],
+          free_response: true,
+          feedback_prompt_template: "User: {response}",
+        },
+      ],
+    }
+    render(<ScenarioEngine scenario={freeFinal} />)
+    fireEvent.change(screen.getByPlaceholderText(/Type your analysis/), {
+      target: { value: "guess" },
+    })
+    fireEvent.click(screen.getByText("Submit for Feedback"))
+
+    await waitFor(() => {
+      expect(screen.getByTestId("add-concepts-to-review")).toBeInTheDocument()
+    })
+    // Wait for offer effect to populate unresolved targets
+    await waitFor(() => {
+      expect(mockResolve).toHaveBeenCalled()
+    })
+
+    fireEvent.click(screen.getByTestId("add-concepts-to-review"))
+    await waitFor(() => {
+      expect(screen.getByTestId("scenario-review-failed")).toBeInTheDocument()
+    })
+    expect(mockSeed).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByTestId("add-concepts-to-review"))
+    await waitFor(() => {
+      expect(screen.getByTestId("scenario-review-done")).toBeInTheDocument()
+    })
+    expect(vi.mocked(loadFrameworks).mock.calls.length).toBeGreaterThanOrEqual(2)
+    expect(mockSeed).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ conceptSlug: "unit-economics", resolved: true }),
+      ]),
+    )
   })
 })
