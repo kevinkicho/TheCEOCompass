@@ -7,11 +7,26 @@ import type {
   MasteryConceptNode,
   MasteryEdge,
   MasteryEdgeRecord,
+  MasteryEdgeType,
   MasteryGraph,
   MasterySeedFile,
 } from "./types"
 
-/** Build MasteryGraph from seed JSON shape. */
+const EDGE_TYPES = new Set<MasteryEdgeType>(["requires", "reinforces", "applied_in"])
+
+/** True when weight is finite and in [0, 1]. */
+export function isValidEdgeWeight(weight: unknown): weight is number {
+  return typeof weight === "number" && Number.isFinite(weight) && weight >= 0 && weight <= 1
+}
+
+/** Sanitize an edge list: drop non-finite / out-of-range weights. */
+function sanitizeEdges(edges: MasteryEdge[]): MasteryEdge[] {
+  return edges
+    .filter((e) => e && EDGE_TYPES.has(e.type) && isValidEdgeWeight(e.weight))
+    .map((e) => ({ from: e.from, to: e.to, type: e.type, weight: e.weight }))
+}
+
+/** Build MasteryGraph from seed JSON shape (invalid weights dropped). */
 export function graphFromSeed(seed: MasterySeedFile): MasteryGraph {
   const concepts: Record<string, MasteryConcept> = {}
   for (const c of seed.concepts) {
@@ -19,7 +34,7 @@ export function graphFromSeed(seed: MasterySeedFile): MasteryGraph {
   }
   return {
     concepts,
-    edges: seed.edges.map((e) => ({ ...e })),
+    edges: sanitizeEdges(seed.edges ?? []),
   }
 }
 
@@ -27,6 +42,8 @@ export function graphFromSeed(seed: MasterySeedFile): MasteryGraph {
  * Build MasteryGraph from RTDB snapshots.
  * edgesRaw: mastery/edges → { [from]: { [to]: { type, weight } } }
  * conceptsRaw: mastery/concepts → { [id]: { frameworkSlug, conceptSlug, ... } }
+ *
+ * Edges with non-finite or out-of-range weights are rejected (matches seed validator).
  */
 export function graphFromRtdb(
   conceptsRaw: Record<string, MasteryConceptNode> | null | undefined,
@@ -52,13 +69,19 @@ export function graphFromRtdb(
       if (!targets || typeof targets !== "object") continue
       for (const [to, rec] of Object.entries(targets)) {
         if (!rec || typeof rec !== "object") continue
-        if (!rec.type || typeof rec.weight !== "number") continue
+        if (!rec.type || !EDGE_TYPES.has(rec.type)) continue
+        if (!isValidEdgeWeight(rec.weight)) continue
         edges.push({ from, to, type: rec.type, weight: rec.weight })
       }
     }
   }
 
   return { concepts, edges }
+}
+
+/** Finite weight helper for scoring paths (0 if invalid). */
+export function safeWeight(weight: number): number {
+  return Number.isFinite(weight) ? weight : 0
 }
 
 /** Concepts that `conceptId` requires (to-side of requires edges from conceptId). */
@@ -72,7 +95,7 @@ export function getDependents(graph: MasteryGraph, conceptId: string): MasteryEd
 }
 
 /**
- * Weighted degree centrality: sum of edge weights where the concept is endpoint.
+ * Weighted degree centrality: sum of finite edge weights where the concept is endpoint.
  * Higher = more connected / pedagogically central.
  */
 export function computeCentrality(graph: MasteryGraph): Map<string, number> {
@@ -81,8 +104,10 @@ export function computeCentrality(graph: MasteryGraph): Map<string, number> {
     scores.set(id, 0)
   }
   for (const e of graph.edges) {
-    scores.set(e.from, (scores.get(e.from) ?? 0) + e.weight)
-    scores.set(e.to, (scores.get(e.to) ?? 0) + e.weight)
+    const w = safeWeight(e.weight)
+    if (w === 0 && e.weight !== 0) continue
+    scores.set(e.from, (scores.get(e.from) ?? 0) + w)
+    scores.set(e.to, (scores.get(e.to) ?? 0) + w)
   }
   return scores
 }
