@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "@/components/ThemeProvider"
 import { useAuth } from "@/lib/useAuth"
+import { AiStatusIndicator } from "@/components/AiStatusProvider"
 
 type NavGroup = {
   id: string
@@ -125,6 +126,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            <AiStatusIndicator />
             {!loading && (
               <div className="hidden sm:flex items-center gap-1.5">
                 {user && isAnonymous && (

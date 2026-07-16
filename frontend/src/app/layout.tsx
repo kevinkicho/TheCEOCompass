@@ -4,6 +4,7 @@ import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/components/ThemeProvider"
 import { AuthSessionProvider } from "@/lib/AuthSessionProvider"
+import { AiStatusProvider } from "@/components/AiStatusProvider"
 import { Navbar } from "@/components/Navbar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { DemoFooter } from "@/components/DemoFooter"
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider>
           <AuthSessionProvider>
+          <AiStatusProvider>
           <ErrorBoundary>
           <Navbar />
           <div className="flex pt-14">
@@ -50,6 +52,7 @@ export default function RootLayout({
           </div>
           <DemoFooter />
           </ErrorBoundary>
+          </AiStatusProvider>
           </AuthSessionProvider>
         </ThemeProvider>
         <Script src={basePath + "/sw-register.js"} strategy="afterInteractive" />

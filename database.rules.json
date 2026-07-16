@@ -57,17 +57,17 @@
     },
 
     "requests": {
-      ".indexOn": ["status", "created_at"],
+      ".indexOn": ["status", "uid", "created_at"],
       "$requestId": {
-        ".read": "auth != null",
-        ".write": "auth != null && !data.exists() && newData.child('status').val() === 'pending' && newData.hasChildren(['status','payload','created_at'])",
+        ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('admins').child(auth.uid).val() === true)",
+        ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid && newData.child('status').val() === 'pending' && newData.hasChildren(['uid','status','payload','created_at'])",
         ".validate": "newData.child('created_at').isNumber()"
       }
     },
 
     "conceptChats": {
       "$chatId": {
-        ".read": "auth != null",
+        ".read": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid || !data.child('uid').exists() || root.child('admins').child(auth.uid).val() === true)",
         ".write": "auth != null && !data.exists()",
         ".validate": "!newData.child('uid').exists() || newData.child('uid').val() === auth.uid"
       }
@@ -75,7 +75,7 @@
 
     "scenario-evaluations": {
       "$evalId": {
-        ".read": "auth != null",
+        ".read": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid || !data.child('uid').exists() || root.child('admins').child(auth.uid).val() === true)",
         ".write": "auth != null && !data.exists()",
         ".validate": "!newData.child('uid').exists() || newData.child('uid').val() === auth.uid"
       }
@@ -101,62 +101,32 @@
     },
 
     "journal": {
-      "$deviceId": {
-        ".read": "auth != null",
-        ".write": false,
-        "entries": {
-          "$entryId": {
-            ".read": "auth != null",
-            ".write": false
-          }
-        }
-      }
+      ".read": false,
+      ".write": false
     },
     "reviews": {
-      "$deviceId": {
-        "$conceptId": {
-          ".read": "auth != null",
-          ".write": false
-        }
-      }
+      ".read": false,
+      ".write": false
     },
     "progress": {
-      "$deviceId": {
-        ".read": "auth != null",
-        ".write": false
-      }
+      ".read": false,
+      ".write": false
     },
     "viewed": {
-      "$deviceId": {
-        ".read": "auth != null",
-        ".write": false
-      }
+      ".read": false,
+      ".write": false
     },
     "favoriteQuotes": {
-      "$deviceId": {
-        "$quoteId": {
-          ".read": "auth != null",
-          ".write": false
-        }
-      }
+      ".read": false,
+      ".write": false
     },
     "quizResults": {
-      "$deviceId": {
-        "$resultId": {
-          ".read": "auth != null",
-          ".write": false
-        }
-      }
+      ".read": false,
+      ".write": false
     },
     "scenarioHistory": {
-      "$deviceId": {
-        "$scenarioSlug": {
-          "$attemptId": {
-            ".read": "auth != null",
-            ".write": false
-          }
-        }
-      }
+      ".read": false,
+      ".write": false
     },
 
     "admins": {

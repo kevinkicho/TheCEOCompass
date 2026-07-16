@@ -100,8 +100,12 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         console.warn("[auth] device migration skipped/failed", err)
       }
       const admin = await fetchIsAdmin(u.uid)
-      // Fallback for local emergency only: known owner email while admins node empty
-      const emailAdmin = u.email === "kevinkicho@gmail.com"
+      // Emergency local-only fallback while admins/{uid} is not bootstrapped yet
+      const allowEmailFallback =
+        process.env.NODE_ENV === "development" ||
+        process.env.NEXT_PUBLIC_ADMIN_EMAIL_FALLBACK === "true"
+      const emailAdmin =
+        allowEmailFallback && u.email === "kevinkicho@gmail.com"
       if (!cancelled) {
         setIsAdmin(admin || emailAdmin)
         setReady(true)

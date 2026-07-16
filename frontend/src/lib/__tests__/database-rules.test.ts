@@ -24,11 +24,12 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules.framework.$slug.$concept.$category.$entryId[".write"]).toBe(false)
   })
 
-  it("uses create-only requests (no client status update branch)", () => {
+  it("uses create-only requests with uid ownership", () => {
     const w = rules.requests.$requestId[".write"] as string
     expect(w).toContain("!data.exists()")
     expect(w).toContain("pending")
-    // Disallow update branch: data.exists() without leading ! (create-only uses !data.exists())
+    expect(w).toContain("uid")
+    expect(w).toContain("auth.uid")
     expect(w).not.toMatch(/(?<!!)data\.exists\(\)/)
   })
 
@@ -36,12 +37,11 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules.requests.$requestId[".write"]).toContain("auth != null")
   })
 
-  it("keeps real legacy device roots read-only for migration", () => {
+  it("denies legacy device roots after migration (final rules)", () => {
     for (const root of ["journal", "reviews", "progress", "viewed", "quizResults", "scenarioHistory", "favoriteQuotes"]) {
       expect(rules[root]).toBeDefined()
-      // device trees must not be world-writable
-      const json = JSON.stringify(rules[root])
-      expect(json).not.toContain("|| true")
+      expect(rules[root][".read"]).toBe(false)
+      expect(rules[root][".write"]).toBe(false)
     }
   })
 
