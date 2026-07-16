@@ -1,9 +1,10 @@
-import { initializeApp, getApps, type FirebaseApp } from "firebase/app"
+import { initializeApp, getApps } from "firebase/app"
 import { getDatabase, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded } from "firebase/database"
 import {
   getAuth,
   signInWithPopup,
   signInWithRedirect,
+  signInWithCredential,
   getRedirectResult,
   linkWithPopup,
   linkWithRedirect,
@@ -12,7 +13,6 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth"
-import { initAppCheckIfConfigured } from "@/lib/app-check"
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
@@ -25,16 +25,11 @@ const firebaseConfig = {
 }
 
 const hasConfig = firebaseConfig.apiKey.length > 0 && firebaseConfig.projectId.length > 0
-/** Firebase app instance (null when env config is incomplete). */
-let app: FirebaseApp | null = null
 let db: ReturnType<typeof getDatabase> | null = null
 let auth: ReturnType<typeof getAuth> | null = null
 
 if (hasConfig) {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
-  // Eager App Check on client module load — before Auth/RTDB consumers' effects.
-  // No-op on SSR and when NEXT_PUBLIC_APPCHECK_SITE_KEY is unset.
-  initAppCheckIfConfigured(app)
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
   db = getDatabase(app)
   auth = getAuth(app)
 }
@@ -42,8 +37,8 @@ if (hasConfig) {
 const googleProvider = new GoogleAuthProvider()
 
 export {
-  app, db, auth, googleProvider,
+  db, auth, googleProvider, GoogleAuthProvider,
   ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded,
-  signInWithPopup, signInWithRedirect, getRedirectResult, linkWithPopup, linkWithRedirect,
+  signInWithPopup, signInWithRedirect, signInWithCredential, getRedirectResult, linkWithPopup, linkWithRedirect,
   signInAnonymously, onAuthStateChanged, signOut,
 }
