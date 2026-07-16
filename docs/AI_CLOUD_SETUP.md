@@ -6,6 +6,9 @@ when the client sets `provider: "cloud"` on the request.
 
 The local agent (`agent/index.js`) continues to handle requests without `provider: "cloud"`.
 
+**Operator end-to-end checklist** (Anonymous auth, rules, admins, flags, mastery seed, purge, AI indicator):  
+[`docs/OPERATOR_RUNBOOK.md`](./OPERATOR_RUNBOOK.md). This page is the deep dive for Functions secrets and deploy.
+
 ## Architecture
 
 ```
@@ -144,11 +147,23 @@ firebase functions:log --only processAIRequest
 
 ## Frontend wiring
 
-This PR only deploys the function skeleton. Frontend sets `provider: "cloud"` in a later PR
-(see Phase 2 PR 4 in `docs/DESIGN_PHASE_2_3.md`). Until then you can smoke-test with Admin SDK
-or a temporary client write.
+The Cloud Function processes RTDB creates when `provider === "cloud"`. Frontend wiring that
+sets `provider: "cloud"` from the router / Profile is Phase 2 PR 4
+(`docs/DESIGN_PHASE_2_3.md`). Until that lands:
 
-Feature flag (planned): `cloud_ai_enabled` under `_config/feature_flags`.
+- Smoke-test with Admin SDK or a temporary authenticated client write (payload above).
+- Selecting cloud in the client may still throw “not configured” (`CLOUD_PROVIDER_NOT_CONFIGURED`)
+  and the Navbar may show **AI cloud** (amber) — see runbook §9.
+
+### Feature flag
+
+RTDB path: `_config/feature_flags` (public read, admin write). Key **`cloud_ai_enabled`**
+(boolean, default `false`) gates product selection of cloud once consumers exist.
+
+Also related: `ai_provider_default` (`"agent"` \| `"local"` \| `"cloud"`).
+
+How to set flags (Console or Admin SDK): [`docs/OPERATOR_RUNBOOK.md`](./OPERATOR_RUNBOOK.md) §6.  
+Code: `frontend/src/lib/feature-flags.ts`.
 
 ## Local agent coexistence
 
