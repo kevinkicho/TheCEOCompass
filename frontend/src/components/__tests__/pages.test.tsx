@@ -159,6 +159,20 @@ vi.mock("@/lib/AuthSessionProvider", () => ({
   }),
 }))
 
+vi.mock("@/components/FeatureFlagsProvider", () => ({
+  FeatureFlagsProvider: ({ children }: { children: React.ReactNode }) => children,
+  useFeatureFlags: () => ({
+    flags: {
+      ai_provider_default: "agent",
+      cloud_ai_enabled: false,
+      app_check_enforced: false,
+      mastery_graph_enabled: false,
+      sr_session_enabled: true,
+    },
+    ready: true,
+  }),
+}))
+
 // Test that imports work for all page components
 describe("Page imports are valid", () => {
   it("imports home page without error", async () => {
@@ -203,6 +217,11 @@ describe("Page imports are valid", () => {
 
   it("imports review page without error", async () => {
     const mod = await import("@/app/review/page")
+    expect(mod.default).toBeDefined()
+  })
+
+  it("imports review session page without error", async () => {
+    const mod = await import("@/app/review/session/page")
     expect(mod.default).toBeDefined()
   })
 
@@ -254,6 +273,7 @@ describe("Page imports are valid", () => {
       "@/app/quiz/page",
       "@/app/journal/page",
       "@/app/review/page",
+      "@/app/review/session/page",
       "@/app/calibration/page",
       "@/app/quotes/page",
       "@/app/pathway/page",
@@ -290,6 +310,7 @@ describe("Component imports are valid", () => {
     "concept/ConceptComparePanel": ["ConceptComparePanel"],
     "concept/LearningToolsPanel": ["LearningToolsPanel"],
     "home/NextActionsDashboard": ["NextActionsDashboard"],
+    "review/ReviewSession": ["ReviewSession"],
   }
 
   for (const [name, exports] of Object.entries(componentMap)) {
