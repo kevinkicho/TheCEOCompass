@@ -136,8 +136,11 @@ cd ../agent && node seed-rtdb.mjs
 ### Deploying RTDB security rules
 
 ```bash
-GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json" node scripts/update-rtdb-rules.cjs
+# Place service account JSON in agent/ (update-rtdb-rules does not use GOOGLE_APPLICATION_CREDENTIALS)
+node scripts/update-rtdb-rules.cjs
 ```
+
+Full ops sequence (auth, rules, admins, functions, flags, mastery seed): [`docs/OPERATOR_RUNBOOK.md`](docs/OPERATOR_RUNBOOK.md) §3.
 
 ---
 

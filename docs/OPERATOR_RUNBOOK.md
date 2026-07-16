@@ -175,11 +175,14 @@ echo -n "$OPENAI_API_KEY" | firebase functions:secrets:set OPENAI_API_KEY --data
 ```
 
 ```powershell
-# PowerShell — interactive is simplest
+# PowerShell — prefer interactive (safe on all PS versions)
 firebase functions:secrets:set OPENAI_API_KEY
 
-# or pipe from env (do not Print the key)
-$env:OPENAI_API_KEY | firebase functions:secrets:set OPENAI_API_KEY --data-file=-
+# Non-interactive: temp file (do not log/print the key; avoid piping strings to native EXE)
+# PowerShell 5.x pipe → --data-file=- is unreliable (encoding/newlines).
+Set-Content -NoNewline -Path .\_openai_key.tmp -Value $env:OPENAI_API_KEY
+firebase functions:secrets:set OPENAI_API_KEY --data-file=.\_openai_key.tmp
+Remove-Item .\_openai_key.tmp -Force
 ```
 
 Optional params (defaults in code): `OPENAI_API_BASE` (`https://api.openai.com/v1`), `CLOUD_AI_MODEL` (`gpt-4o-mini`). Local template only: `functions/.env.example` → copy to gitignored `functions/.env` for emulator / deploy prompts.
@@ -420,7 +423,7 @@ Navbar chip (`AiStatusIndicator` in `AiStatusProvider.tsx`, `data-testid="ai-sta
    Kill the agent after a healthy heartbeat; wait past stale window (~3+ minutes with skew). Expect **AI stale** or **AI offline**.
 
 6. **AI cloud**  
-   Once Profile / env can select provider `cloud` (`NEXT_PUBLIC_AI_PROVIDER=cloud` or settings when wired), indicator shows **AI cloud** (amber) until full cloud availability is implemented. Function-side smoke still uses Admin write + `provider: "cloud"` per AI_CLOUD_SETUP.
+   Set `NEXT_PUBLIC_AI_PROVIDER=cloud` in `frontend/.env` and rebuild (or restart `next dev`), **or** set `aiProvider: "cloud"` inside the `ceocompass_settings` localStorage JSON. Profile currently only exposes **Local AI Mode** — there is no cloud provider picker yet. Expect amber **AI cloud** (tooltip: not configured). AI requests still throw `CLOUD_PROVIDER_NOT_CONFIGURED` until frontend cloud wiring (Phase 2 PR 4). Function-side smoke still uses Admin write + `provider: "cloud"` per AI_CLOUD_SETUP.
 
 Heartbeat path: `_meta/agent_heartbeat` (public read; agent Admin write).
 
