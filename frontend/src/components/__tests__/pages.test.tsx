@@ -152,6 +152,8 @@ vi.mock("@/lib/AuthSessionProvider", () => ({
     ready: true,
     isAdmin: false,
     isAnonymous: true,
+    mergeStatus: null,
+    clearMergeStatus: () => {},
     ensureAnonymous: async () => {},
     linkGoogle: async () => {},
     signInWithGoogle: async () => {},

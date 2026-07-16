@@ -4,6 +4,7 @@ import {
   getAuth,
   signInWithPopup,
   signInWithRedirect,
+  signInWithCredential,
   getRedirectResult,
   linkWithPopup,
   linkWithRedirect,
@@ -36,8 +37,8 @@ if (hasConfig) {
 const googleProvider = new GoogleAuthProvider()
 
 export {
-  db, auth, googleProvider,
+  db, auth, googleProvider, GoogleAuthProvider,
   ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded,
-  signInWithPopup, signInWithRedirect, getRedirectResult, linkWithPopup, linkWithRedirect,
+  signInWithPopup, signInWithRedirect, signInWithCredential, getRedirectResult, linkWithPopup, linkWithRedirect,
   signInAnonymously, onAuthStateChanged, signOut,
 }

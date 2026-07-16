@@ -1,5 +1,18 @@
 export { getDeviceId, requireUid, tryUid, getDb, userPath } from "./scope"
-export { migrateDeviceDataToUser } from "./migrate"
+export {
+  migrateDeviceDataToUser,
+  mergeUsersData,
+  snapshotUserTree,
+  stashPendingAnonMerge,
+  peekPendingAnonMerge,
+  takePendingAnonMerge,
+  setLastMergeStatus,
+  getLastMergeStatus,
+  clearLastMergeStatus,
+  type MergeUsersResult,
+  type MergeStatus,
+  type PendingAnonMerge,
+} from "./migrate"
 export {
   loadJournalEntries,
   createJournalEntry,
