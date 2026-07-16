@@ -60,8 +60,8 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules._meta.agent_heartbeat[".write"]).toBe(false)
   })
 
-  it("exposes _config as public read, admin-only write", () => {
-    expect(rules._config[".read"]).toBe(true)
+  it("scopes _config: parent deny-read, feature_flags public read, admin-only write", () => {
+    expect(rules._config[".read"]).toBe(false)
     expect(rules._config[".write"]).toContain("admins")
     expect(rules._config[".write"]).toContain("auth.uid")
     expect(rules._config.feature_flags[".read"]).toBe(true)

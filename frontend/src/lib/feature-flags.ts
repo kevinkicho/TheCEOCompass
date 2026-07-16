@@ -49,9 +49,9 @@ export function getFlag<K extends FeatureFlagKey>(key: K): FeatureFlags[K] {
   return cachedFlags[key]
 }
 
-/** Test / provider helper — update module cache. */
+/** Test / provider helper — update module cache (always shallow-copies). */
 export function setCachedFeatureFlags(flags: FeatureFlags): void {
-  cachedFlags = flags
+  cachedFlags = { ...flags }
 }
 
 /** Reset to defaults (tests). */
@@ -61,8 +61,13 @@ export function resetFeatureFlagsCache(): void {
 
 function asBoolean(value: unknown, fallback: boolean): boolean {
   if (typeof value === "boolean") return value
-  if (value === "true" || value === 1 || value === "1") return true
-  if (value === "false" || value === 0 || value === "0") return false
+  if (value === 1 || value === "1") return true
+  if (value === 0 || value === "0") return false
+  if (typeof value === "string") {
+    const lower = value.toLowerCase()
+    if (lower === "true") return true
+    if (lower === "false") return false
+  }
   return fallback
 }
 

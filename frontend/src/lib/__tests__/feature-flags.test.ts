@@ -68,11 +68,23 @@ describe("parseFeatureFlags", () => {
     expect(parseFeatureFlags({ ai_provider_default: 1 }).ai_provider_default).toBe("agent")
   })
 
-  it("coerces boolean-ish values", () => {
+  it("coerces boolean-ish values (case-insensitive strings)", () => {
     expect(parseFeatureFlags({ cloud_ai_enabled: "true" }).cloud_ai_enabled).toBe(true)
+    expect(parseFeatureFlags({ cloud_ai_enabled: "TRUE" }).cloud_ai_enabled).toBe(true)
     expect(parseFeatureFlags({ app_check_enforced: 1 }).app_check_enforced).toBe(true)
     expect(parseFeatureFlags({ mastery_graph_enabled: "false" }).mastery_graph_enabled).toBe(false)
+    expect(parseFeatureFlags({ mastery_graph_enabled: "False" }).mastery_graph_enabled).toBe(false)
     expect(parseFeatureFlags({ sr_session_enabled: 0 }).sr_session_enabled).toBe(false)
+  })
+
+  it("setCachedFeatureFlags stores a shallow copy (does not alias DEFAULT)", () => {
+    setCachedFeatureFlags(DEFAULT_FEATURE_FLAGS)
+    const cached = getFeatureFlags()
+    expect(cached).toEqual(DEFAULT_FEATURE_FLAGS)
+    expect(cached).not.toBe(DEFAULT_FEATURE_FLAGS)
+    cached.cloud_ai_enabled = true
+    expect(DEFAULT_FEATURE_FLAGS.cloud_ai_enabled).toBe(false)
+    resetFeatureFlagsCache()
   })
 
   it("ignores unknown keys", () => {

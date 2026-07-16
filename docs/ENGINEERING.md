@@ -42,7 +42,7 @@ Next.js 14 generates 360 pages at build time:
 
 ## Remote feature flags
 
-Path: `_config/feature_flags` (public read, admin write).
+Path: `_config/feature_flags` (public read, admin write). Parent `_config` is deny-read so future siblings are not world-readable by default.
 
 | Key | Type | Default | Purpose |
 |-----|------|---------|---------|
