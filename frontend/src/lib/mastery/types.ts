@@ -15,8 +15,9 @@ export type MasteryEdgeType = "requires" | "reinforces" | "applied_in"
 /**
  * Seed / API edge shape: { from, to, type, weight }.
  *
- * - requires: `from` depends on `to` (master `to` before `from`)
- * - reinforces: bidirectional soft link; learning either helps the other
+ * - requires: `from` depends on `to` (master `to` before `from`) — directed only
+ * - reinforces: soft mutual link; **seed stores both directions** (A→B and B→A)
+ *   with the same weight so directed adjacency walkers treat it as undirected
  * - applied_in: `from` is applied when learning/practicing `to` (often cross-framework)
  */
 export interface MasteryEdge {

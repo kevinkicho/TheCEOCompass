@@ -142,13 +142,13 @@
       "edges": {
         "$fromConceptId": {
           "$toConceptId": {
-            ".validate": "newData.hasChildren(['type', 'weight']) && newData.child('type').isString() && (newData.child('type').val() === 'requires' || newData.child('type').val() === 'reinforces' || newData.child('type').val() === 'applied_in') && newData.child('weight').isNumber()"
+            ".validate": "!newData.exists() || ($fromConceptId !== $toConceptId && newData.hasChildren(['type', 'weight']) && newData.child('type').isString() && (newData.child('type').val() === 'requires' || newData.child('type').val() === 'reinforces' || newData.child('type').val() === 'applied_in') && newData.child('weight').isNumber() && newData.child('weight').val() >= 0 && newData.child('weight').val() <= 1)"
           }
         }
       },
       "concepts": {
         "$conceptId": {
-          ".validate": "newData.hasChildren(['frameworkSlug', 'conceptSlug']) && newData.child('frameworkSlug').isString() && newData.child('conceptSlug').isString()"
+          ".validate": "!newData.exists() || (newData.hasChildren(['frameworkSlug', 'conceptSlug']) && newData.child('frameworkSlug').isString() && newData.child('conceptSlug').isString())"
         }
       }
     },

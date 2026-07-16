@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "Minimal mastery graph seed: strategic-decision-making + financial-mastery (~24 edges). Concept ids are slugified concept names. Edge type requires: from depends on to.",
+  "description": "Minimal mastery graph seed: strategic-decision-making + financial-mastery. Concept ids are slugified concept names. Edges are curated pedagogical heuristics (not strict curriculum order)—revisit when expanding. requires: from depends on to. reinforces: stored both directions with matching weight.",
   "concepts": [
     {
       "id": "first-principles-thinking",
@@ -121,6 +121,12 @@
       "weight": 0.8
     },
     {
+      "from": "inversion",
+      "to": "first-principles-thinking",
+      "type": "reinforces",
+      "weight": 0.8
+    },
+    {
       "from": "first-principles-thinking",
       "to": "second-order-thinking",
       "type": "reinforces",
@@ -128,7 +134,19 @@
     },
     {
       "from": "second-order-thinking",
+      "to": "first-principles-thinking",
+      "type": "reinforces",
+      "weight": 0.7
+    },
+    {
+      "from": "second-order-thinking",
       "to": "inversion",
+      "type": "reinforces",
+      "weight": 0.75
+    },
+    {
+      "from": "inversion",
+      "to": "second-order-thinking",
       "type": "reinforces",
       "weight": 0.75
     },
@@ -141,6 +159,12 @@
     {
       "from": "probabilistic-thinking",
       "to": "first-principles-thinking",
+      "type": "reinforces",
+      "weight": 0.5
+    },
+    {
+      "from": "first-principles-thinking",
+      "to": "probabilistic-thinking",
       "type": "reinforces",
       "weight": 0.5
     },
@@ -194,7 +218,19 @@
     },
     {
       "from": "dupont-analysis",
+      "to": "roic",
+      "type": "reinforces",
+      "weight": 0.8
+    },
+    {
+      "from": "dupont-analysis",
       "to": "ebitda",
+      "type": "reinforces",
+      "weight": 0.7
+    },
+    {
+      "from": "ebitda",
+      "to": "dupont-analysis",
       "type": "reinforces",
       "weight": 0.7
     },
@@ -239,12 +275,6 @@
       "to": "roic",
       "type": "applied_in",
       "weight": 0.45
-    },
-    {
-      "from": "ebitda",
-      "to": "dupont-analysis",
-      "type": "reinforces",
-      "weight": 0.6
     }
   ]
 }

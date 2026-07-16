@@ -68,8 +68,24 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules.mastery[".read"]).toBe(true)
     expect(rules.mastery[".write"]).toContain("admins")
     expect(rules.mastery[".write"]).toContain("auth.uid")
-    expect(rules.mastery.edges.$fromConceptId.$toConceptId[".validate"]).toContain("requires")
-    expect(rules.mastery.concepts.$conceptId[".validate"]).toContain("frameworkSlug")
+  })
+
+  it("mastery edge validate allows deletes, bounds weight, lists all types, rejects self-edges", () => {
+    const v = rules.mastery.edges.$fromConceptId.$toConceptId[".validate"] as string
+    expect(v).toContain("!newData.exists()")
+    expect(v).toContain("requires")
+    expect(v).toContain("reinforces")
+    expect(v).toContain("applied_in")
+    expect(v).toContain(">= 0")
+    expect(v).toContain("<= 1")
+    expect(v).toContain("$fromConceptId !== $toConceptId")
+  })
+
+  it("mastery concept validate allows deletes and requires slug fields", () => {
+    const v = rules.mastery.concepts.$conceptId[".validate"] as string
+    expect(v).toContain("!newData.exists()")
+    expect(v).toContain("frameworkSlug")
+    expect(v).toContain("conceptSlug")
   })
 
   it("exposes _meta/mastery_graph as public read, admin write", () => {
