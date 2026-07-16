@@ -50,6 +50,14 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules.users.$uid[".write"]).toContain("auth.uid === $uid")
   })
 
+  it("validates reviewActivity day keys under users/{uid}", () => {
+    const day = rules.users.$uid.reviewActivity.$dayKey
+    expect(day).toBeDefined()
+    expect(day[".validate"]).toContain("isBoolean")
+    expect(day[".validate"]).toContain("true")
+    expect(day[".validate"]).toMatch(/\\d\{4\}/)
+  })
+
   it("conceptChats and scenario-evaluations are create-only", () => {
     expect(rules.conceptChats.$chatId[".write"]).toContain("!data.exists()")
     expect(rules["scenario-evaluations"].$evalId[".write"]).toContain("!data.exists()")

@@ -45,16 +45,18 @@ import {
   loadDueReviews,
   loadAllReviews,
   loadReviewRecord,
+  loadReviewActivityDays,
 } from "../firebase-crud"
+import { toLocalDayKey } from "../user-data/review-stats"
 
 describe("markConceptReviewed", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockSet.mockResolvedValue(undefined)
   })
 
   it("writes correct review record shape", async () => {
     mockGet.mockResolvedValueOnce({ exists: () => false, val: () => null })
-    mockSet.mockResolvedValueOnce(undefined)
 
     const result = await markConceptReviewed("test-framework", "concept-123", "First Principles", "first-principles", 4)
 
@@ -76,6 +78,22 @@ describe("markConceptReviewed", () => {
 
     const mockSetAny = mockSet as any
     expect(mockSetAny.mock.calls[0][0].key).toBe("users/test-uid/reviews/c1")
+  })
+
+  it("also writes reviewActivity/{YYYY-MM-DD} = true for streak durability", async () => {
+    mockGet.mockResolvedValueOnce({ exists: () => false, val: () => null })
+
+    await markConceptReviewed("fw", "c1", "Name", "name", 4)
+
+    const dayKey = toLocalDayKey(new Date())
+    const mockSetAny = mockSet as any
+    expect(mockSetAny.mock.calls.length).toBeGreaterThanOrEqual(2)
+    const activityCall = mockSetAny.mock.calls.find(
+      (c: any[]) => String(c[0]?.key || "").includes("reviewActivity"),
+    )
+    expect(activityCall).toBeDefined()
+    expect(activityCall[0].key).toBe(`users/test-uid/reviewActivity/${dayKey}`)
+    expect(activityCall[1]).toBe(true)
   })
 
   it("handles rating 0 (Again) — interval resets to 1", async () => {
@@ -209,5 +227,30 @@ describe("loadReviewRecord", () => {
     expect(result).not.toBeNull()
     expect(result!.conceptId).toBe("c1")
     expect(result!.reviewCount).toBe(3)
+  })
+})
+
+describe("loadReviewActivityDays", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it("returns empty array when no activity exists", async () => {
+    mockGet.mockResolvedValueOnce({ exists: () => false, val: () => null })
+    const result = await loadReviewActivityDays()
+    expect(result).toEqual([])
+  })
+
+  it("returns day keys where value is true", async () => {
+    mockGet.mockResolvedValueOnce({
+      exists: () => true,
+      val: () => ({
+        "2026-07-14": true,
+        "2026-07-15": true,
+        "2026-07-16": false,
+      }),
+    })
+    const result = await loadReviewActivityDays()
+    expect(result.sort()).toEqual(["2026-07-14", "2026-07-15"])
   })
 })

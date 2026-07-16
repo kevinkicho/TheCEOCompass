@@ -1,6 +1,7 @@
 import { ref, set, get } from "../firebase"
 import { sm2, getNextReviewDate, type ReviewRating, type ReviewRecord } from "../spaced-repetition"
 import { getDb, requireUid, userPath, dbOptional } from "./scope-helpers"
+import { toLocalDayKey } from "./review-stats"
 
 export async function markConceptReviewed(
   frameworkSlug: string,
@@ -25,7 +26,8 @@ export async function markConceptReviewed(
     },
     rating,
   )
-  const now = new Date().toISOString()
+  const nowDate = new Date()
+  const now = nowDate.toISOString()
   const nextReviewAt = getNextReviewDate(now, updated.interval)
 
   const record: ReviewRecord = {
@@ -41,7 +43,27 @@ export async function markConceptReviewed(
   }
 
   await set(ref(database, path), record)
+
+  // Durable review-day activity (survives lastReviewedAt overwrite on re-review)
+  const dayKey = toLocalDayKey(nowDate)
+  if (dayKey) {
+    await set(ref(database, userPath(uid, "reviewActivity", dayKey)), true)
+  }
+
   return record
+}
+
+/**
+ * Load local calendar days the user completed at least one spaced-repetition rating.
+ * Path: `users/{uid}/reviewActivity/{YYYY-MM-DD} = true`
+ */
+export async function loadReviewActivityDays(): Promise<string[]> {
+  const database = getDb()
+  const uid = requireUid()
+  const snap = await get(ref(database, userPath(uid, "reviewActivity")))
+  if (!snap.exists()) return []
+  const val = snap.val() as Record<string, unknown>
+  return Object.keys(val).filter((k) => val[k] === true || val[k] === 1)
 }
 
 export async function loadDueReviews(): Promise<ReviewRecord[]> {

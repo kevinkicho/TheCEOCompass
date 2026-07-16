@@ -22,12 +22,14 @@ export {
   loadDueReviews,
   loadAllReviews,
   loadReviewRecord,
+  loadReviewActivityDays,
   markConceptViewed,
   loadFrameworkProgress,
 } from "./reviews"
 export {
   computeReviewStats,
   computeReviewDayStreak,
+  toLocalDayKey,
   MATURE_INTERVAL_DAYS,
   type ReviewRetentionStats,
 } from "./review-stats"

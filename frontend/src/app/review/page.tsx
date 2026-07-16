@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { db, ref, get } from "@/lib/firebase"
-import { loadPathwayProgress, buildPathway, loadDueReviews, loadAllReviews, tryUid, userPath } from "@/lib/firebase-crud"
+import { loadPathwayProgress, buildPathway, loadDueReviews, loadAllReviews, loadReviewActivityDays, tryUid, userPath } from "@/lib/firebase-crud"
 import { getReviewStatus, getDaysUntilReview, type ReviewRecord } from "@/lib/spaced-repetition"
 import { computeReviewStats, type ReviewRetentionStats } from "@/lib/user-data/review-stats"
 import { loadFrameworks } from "@/lib/rtdb-cache"
@@ -92,13 +92,20 @@ export default function WeeklyReviewPage() {
 
       loadDueReviews(),
       loadAllReviews().catch(() => [] as ReviewRecord[]),
-    ]).then(([viewed, quizRes, overdue, pathway, dueRev, allRev]) => {
+      loadReviewActivityDays().catch(() => [] as string[]),
+    ]).then(([viewed, quizRes, overdue, pathway, dueRev, allRev, activityDays]) => {
       setViewedThisWeek(viewed as number)
       setQuizScores(quizRes as { pct: number; framework: string; date: string }[])
       setOverdueReviews(overdue as number)
       setPathwayPct(pathway as number)
       setDueReviews((dueRev as ReviewRecord[]) || [])
-      setSrStats(computeReviewStats((allRev as ReviewRecord[]) || []))
+      setSrStats(
+        computeReviewStats(
+          (allRev as ReviewRecord[]) || [],
+          new Date(),
+          (activityDays as string[]) || [],
+        ),
+      )
 
       const total = (quizRes as any[]).length > 0
         ? Math.round((quizRes as any[]).reduce((s: number, r: any) => s + r.pct, 0) / (quizRes as any[]).length)

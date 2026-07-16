@@ -57,6 +57,7 @@ vi.mock("@/lib/firebase-crud", () => ({
       nextReviewAt: new Date(Date.now() - 1000).toISOString(),
     },
   ]),
+  loadReviewActivityDays: vi.fn().mockResolvedValue([]),
   tryUid: vi.fn().mockReturnValue("test"),
   userPath: vi.fn((...parts: string[]) => parts.join("/")),
 }))

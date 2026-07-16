@@ -5,25 +5,33 @@ export const MATURE_INTERVAL_DAYS = 21
 
 const MS_PER_DAY = 86400000
 
+/** YYYY-MM-DD local day keys written under `users/{uid}/reviewActivity`. */
+const DAY_KEY_RE = /^\d{4}-\d{2}-\d{2}$/
+
 export type ReviewRetentionStats = {
   /** Total review records. */
   total: number
-  /** Due today (nextReviewAt within today, not past). */
+  /**
+   * Due in the ceil-day window used by `getDaysUntilReview` (not calendar-local midnight).
+   * Matches `getReviewStatus === "due"` (daysUntil === 0).
+   */
   due: number
-  /** Past due date. */
+  /** Past due date (`daysUntil < 0`). */
   overdue: number
   /** Interval shorter than {@link MATURE_INTERVAL_DAYS}. */
   learning: number
   /** Interval ≥ {@link MATURE_INTERVAL_DAYS}. */
   mature: number
   /**
-   * Consecutive calendar days with at least one review (`lastReviewedAt`),
-   * ending today or yesterday (if no review yet today).
+   * Consecutive calendar days with review activity from durable day keys
+   * (`users/{uid}/reviewActivity/{YYYY-MM-DD}`), ending today or yesterday
+   * (if no review yet today). Not derived from per-card `lastReviewedAt`
+   * (that field is overwritten on re-review and loses history).
    */
   streakDays: number
 }
 
-/** Local calendar day key `YYYY-MM-DD` for streak math. */
+/** Local calendar day key `YYYY-MM-DD` for activity / streak math. */
 export function toLocalDayKey(input: string | Date): string {
   const d = typeof input === "string" ? new Date(input) : input
   if (Number.isNaN(d.getTime())) return ""
@@ -48,22 +56,25 @@ export function daysUntilReviewAt(nextReviewAt: string, now: Date = new Date()):
   return Math.ceil((new Date(nextReviewAt).getTime() - now.getTime()) / MS_PER_DAY)
 }
 
+function toDayKeySet(activityDays: Iterable<string>): Set<string> {
+  const days = new Set<string>()
+  for (const key of activityDays) {
+    if (typeof key === "string" && DAY_KEY_RE.test(key)) days.add(key)
+  }
+  return days
+}
+
 /**
- * Review-day streak from unique `lastReviewedAt` local calendar days.
- * - If reviewed today: count consecutive days ending today.
- * - Else if reviewed yesterday: count consecutive days ending yesterday.
+ * Review-day streak from durable activity day keys (`YYYY-MM-DD`).
+ * - If activity today: count consecutive days ending today.
+ * - Else if activity yesterday: count consecutive days ending yesterday.
  * - Else: 0.
  */
 export function computeReviewDayStreak(
-  reviews: ReviewRecord[],
+  activityDays: Iterable<string>,
   now: Date = new Date(),
 ): number {
-  const days = new Set<string>()
-  for (const r of reviews) {
-    if (!r?.lastReviewedAt) continue
-    const key = toLocalDayKey(r.lastReviewedAt)
-    if (key) days.add(key)
-  }
+  const days = toDayKeySet(activityDays)
   if (days.size === 0) return 0
 
   const todayKey = toLocalDayKey(now)
@@ -87,12 +98,27 @@ export function computeReviewDayStreak(
 }
 
 /**
- * Pure retention / queue stats from `loadAllReviews()` results.
- * Pass `now` in tests for deterministic due/overdue and streak.
+ * Legacy / incorrect approach: unique local days from current `lastReviewedAt`.
+ * Documented for tests — do not use for product streak (re-review overwrites history).
+ */
+export function dayKeysFromLastReviewedAt(reviews: ReviewRecord[]): string[] {
+  const days = new Set<string>()
+  for (const r of reviews) {
+    if (!r?.lastReviewedAt) continue
+    const key = toLocalDayKey(r.lastReviewedAt)
+    if (key) days.add(key)
+  }
+  return [...days]
+}
+
+/**
+ * Pure retention / queue stats from `loadAllReviews()` + optional activity days.
+ * Pass `now` and `activityDays` in tests for deterministic due/overdue and streak.
  */
 export function computeReviewStats(
   reviews: ReviewRecord[],
   now: Date = new Date(),
+  activityDays: Iterable<string> = [],
 ): ReviewRetentionStats {
   const list = Array.isArray(reviews) ? reviews : []
   let due = 0
@@ -117,6 +143,6 @@ export function computeReviewStats(
     overdue,
     learning,
     mature,
-    streakDays: computeReviewDayStreak(list, now),
+    streakDays: computeReviewDayStreak(activityDays, now),
   }
 }
