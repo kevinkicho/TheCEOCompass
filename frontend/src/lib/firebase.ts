@@ -1,4 +1,4 @@
-import { initializeApp, getApps } from "firebase/app"
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app"
 import { getDatabase, ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded } from "firebase/database"
 import {
   getAuth,
@@ -24,11 +24,13 @@ const firebaseConfig = {
 }
 
 const hasConfig = firebaseConfig.apiKey.length > 0 && firebaseConfig.projectId.length > 0
+/** Firebase app instance (null when env config is incomplete). */
+let app: FirebaseApp | null = null
 let db: ReturnType<typeof getDatabase> | null = null
 let auth: ReturnType<typeof getAuth> | null = null
 
 if (hasConfig) {
-  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
   db = getDatabase(app)
   auth = getAuth(app)
 }
@@ -36,7 +38,7 @@ if (hasConfig) {
 const googleProvider = new GoogleAuthProvider()
 
 export {
-  db, auth, googleProvider,
+  app, db, auth, googleProvider,
   ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded,
   signInWithPopup, signInWithRedirect, getRedirectResult, linkWithPopup, linkWithRedirect,
   signInAnonymously, onAuthStateChanged, signOut,

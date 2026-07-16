@@ -1,7 +1,8 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react"
-import { db, ref, onValue } from "@/lib/firebase"
+import { app, db, ref, onValue } from "@/lib/firebase"
+import { initAppCheckIfConfigured } from "@/lib/app-check"
 import {
   DEFAULT_FEATURE_FLAGS,
   FEATURE_FLAGS_PATH,
@@ -57,6 +58,12 @@ export function FeatureFlagsProvider({ children }: { children: React.ReactNode }
 
     return () => unsub()
   }, [])
+
+  // App Check: init when site key is set. Idempotent; no-op without key (local dev).
+  // Re-run after flags are ready so `app_check_enforced` warnings can surface.
+  useEffect(() => {
+    initAppCheckIfConfigured(app)
+  }, [ready, flags.app_check_enforced])
 
   const value = useMemo(() => ({ flags, ready }), [flags, ready])
 
