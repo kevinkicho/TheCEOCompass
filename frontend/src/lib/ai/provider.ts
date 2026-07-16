@@ -3,7 +3,7 @@
  *
  * - agent: Firebase RTDB requests + local agent (current production default)
  * - local: Browser → Ollama direct (Local AI Mode)
- * - cloud: Cloud Function path (scaffold only until later PR)
+ * - cloud: Firebase RTDB requests + Cloud Function (provider: "cloud")
  */
 export type AiProviderId = "agent" | "local" | "cloud"
 
@@ -24,6 +24,9 @@ export function isAiProviderId(value: unknown): value is AiProviderId {
   return normalizeAiProviderId(value) !== null
 }
 
-/** Clear error until cloud provider is wired (PR 3/4). */
+/**
+ * Shown when cloud was requested but the remote flag `cloud_ai_enabled` is off
+ * (and code paths choose not to silently demote). Kept for messaging/tests.
+ */
 export const CLOUD_PROVIDER_NOT_CONFIGURED =
-  "Cloud AI provider is not configured yet. Use agent mode or enable Local AI Mode in Profile."
+  "Cloud AI is not enabled. An admin must set cloud_ai_enabled in feature flags, or use Agent / Local AI Mode."

@@ -22,8 +22,13 @@ import {
   callOllamaViaFirebase,
   callOllamaDirect,
   pushAiRequest,
-  CLOUD_PROVIDER_NOT_CONFIGURED,
+  runWithAiProvider,
 } from "../ai"
+import {
+  resetFeatureFlagsCache,
+  setCachedFeatureFlags,
+  DEFAULT_FEATURE_FLAGS,
+} from "../feature-flags"
 
 describe("getActiveAiProvider", () => {
   const originalEnv = process.env.NEXT_PUBLIC_AI_PROVIDER
@@ -35,11 +40,13 @@ describe("getActiveAiProvider", () => {
       removeItem: vi.fn(),
     })
     delete process.env.NEXT_PUBLIC_AI_PROVIDER
+    resetFeatureFlagsCache()
   })
 
   afterEach(() => {
     if (originalEnv === undefined) delete process.env.NEXT_PUBLIC_AI_PROVIDER
     else process.env.NEXT_PUBLIC_AI_PROVIDER = originalEnv
+    resetFeatureFlagsCache()
     vi.unstubAllGlobals()
   })
 
@@ -52,17 +59,35 @@ describe("getActiveAiProvider", () => {
     expect(getActiveAiProvider()).toBe("local")
   })
 
-  it("reads aiProvider from settings", () => {
+  it("reads aiProvider cloud when flag enabled", () => {
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: true })
     ;(localStorage.getItem as any).mockReturnValue(JSON.stringify({ aiProvider: "cloud" }))
     expect(getActiveAiProvider()).toBe("cloud")
   })
 
-  it("reads NEXT_PUBLIC_AI_PROVIDER env", () => {
+  it("demotes settings cloud to agent when flag disabled", () => {
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: false })
+    ;(localStorage.getItem as any).mockReturnValue(JSON.stringify({ aiProvider: "cloud" }))
+    expect(getActiveAiProvider()).toBe("agent")
+  })
+
+  it("reads NEXT_PUBLIC_AI_PROVIDER env when cloud enabled", () => {
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: true })
     process.env.NEXT_PUBLIC_AI_PROVIDER = "cloud"
     expect(getActiveAiProvider()).toBe("cloud")
   })
 
+  it("uses remote ai_provider_default when no settings/env and cloud enabled", () => {
+    setCachedFeatureFlags({
+      ...DEFAULT_FEATURE_FLAGS,
+      cloud_ai_enabled: true,
+      ai_provider_default: "cloud",
+    })
+    expect(getActiveAiProvider()).toBe("cloud")
+  })
+
   it("localAiMode wins over env cloud", () => {
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: true })
     process.env.NEXT_PUBLIC_AI_PROVIDER = "cloud"
     ;(localStorage.getItem as any).mockReturnValue(JSON.stringify({ localAiMode: true }))
     expect(getActiveAiProvider()).toBe("local")
@@ -86,21 +111,48 @@ describe("callOllamaViaFirebase provider branches", () => {
     })
     // cache miss by default
     mockGet.mockResolvedValue({ exists: () => false, val: () => null })
+    resetFeatureFlagsCache()
   })
 
   afterEach(() => {
     if (originalEnv === undefined) delete process.env.NEXT_PUBLIC_AI_PROVIDER
     else process.env.NEXT_PUBLIC_AI_PROVIDER = originalEnv
+    resetFeatureFlagsCache()
     vi.unstubAllGlobals()
   })
 
-  it("throws CLOUD_PROVIDER_NOT_CONFIGURED when provider is cloud", async () => {
+  it("cloud branch tags provider: cloud on the request payload", async () => {
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: true })
     process.env.NEXT_PUBLIC_AI_PROVIDER = "cloud"
-    await expect(
-      callOllamaViaFirebase("", "hello", 0.5, "fw", "concept", "explain_further", "explain_further", true),
-    ).rejects.toThrow(CLOUD_PROVIDER_NOT_CONFIGURED)
-    expect(mockSet).not.toHaveBeenCalled()
+
+    mockOnValue.mockImplementation((refObj: any, cb: any) => {
+      if (refObj?._path?.includes("framework/")) {
+        Promise.resolve().then(() => {
+          cb({ val: () => ({ result: '{"x":1}' }) })
+        })
+      }
+      return () => {}
+    })
+
+    const out = await callOllamaViaFirebase(
+      "m1",
+      "user prompt",
+      0.3,
+      "fw",
+      "concept",
+      "explain_further",
+      "explain_further",
+      true,
+    )
+    expect(out.result).toBe('{"x":1}')
+    expect(mockSet).toHaveBeenCalled()
     expect(fetchMock).not.toHaveBeenCalled()
+    const written = mockSet.mock.calls[0][1]
+    expect(written.provider).toBe("cloud")
+    expect(written.uid).toBe("test-uid")
+    expect(written.payload).toBeDefined()
+    expect(written.framework_slug).toBe("fw")
+    expect(written.concept_slug).toBe("concept")
   })
 
   it("localAiMode calls Ollama direct and does not pushAiRequest", async () => {
@@ -156,6 +208,58 @@ describe("callOllamaViaFirebase provider branches", () => {
     expect(written.provider).toBe("agent")
     expect(written.uid).toBe("test-uid")
     expect(written.payload).toBeDefined()
+  })
+})
+
+describe("runWithAiProvider provider field", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_AI_PROVIDER
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    delete process.env.NEXT_PUBLIC_AI_PROVIDER
+    vi.stubGlobal("crypto", { randomUUID: () => "run-req-id" })
+    vi.stubGlobal("localStorage", {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    })
+    resetFeatureFlagsCache()
+  })
+
+  afterEach(() => {
+    if (originalEnv === undefined) delete process.env.NEXT_PUBLIC_AI_PROVIDER
+    else process.env.NEXT_PUBLIC_AI_PROVIDER = originalEnv
+    resetFeatureFlagsCache()
+    vi.unstubAllGlobals()
+  })
+
+  it("includes provider: cloud on RTDB push when cloud mode", async () => {
+    setCachedFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, cloud_ai_enabled: true })
+    process.env.NEXT_PUBLIC_AI_PROVIDER = "cloud"
+
+    mockOnValue.mockImplementation((refObj: any, cb: any) => {
+      if (refObj?._path?.includes("quotes/")) {
+        Promise.resolve().then(() => {
+          cb({ val: () => ({ result: '{"person":"X","role":"Y","text":"Z"}' }) })
+        })
+      }
+      return () => {}
+    })
+
+    const out = await runWithAiProvider({
+      prompt: "quote please",
+      temperature: 0.7,
+      systemType: "explain",
+      agentRequest: { type: "quote", category: "strategy" },
+      responsePath: (id) => `quotes/generated/${id}`,
+    })
+
+    expect(out.data).toMatchObject({ person: "X" })
+    expect(mockSet).toHaveBeenCalled()
+    const written = mockSet.mock.calls[0][1]
+    expect(written.provider).toBe("cloud")
+    expect(written.type).toBe("quote")
+    expect(written.uid).toBe("test-uid")
   })
 })
 

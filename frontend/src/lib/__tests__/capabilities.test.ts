@@ -38,8 +38,9 @@ describe("canUseAIFromHeartbeat", () => {
     expect(canUseAIFromHeartbeat(null, false, "local")).toBe(true)
   })
 
-  it("rejects provider=cloud even with localAiMode false and fresh heartbeat", () => {
-    expect(canUseAIFromHeartbeat(fresh, false, "cloud")).toBe(false)
+  it("allows provider=cloud without heartbeat when Firebase is configured", () => {
+    expect(canUseAIFromHeartbeat(null, false, "cloud")).toBe(true)
+    expect(canUseAIFromHeartbeat(fresh, false, "cloud")).toBe(true)
   })
 
   it("rejects missing heartbeat when not local", () => {
@@ -74,9 +75,9 @@ describe("getAiAvailability", () => {
     expect(a).toEqual({ status: "available", mode: "local", ollamaOk: true })
   })
 
-  it("returns cloud_not_configured when provider is cloud", () => {
+  it("returns available cloud mode when provider is cloud and Firebase is configured", () => {
     const a = getAiAvailability(null, false, "cloud")
-    expect(a).toEqual({ status: "unavailable", reason: "cloud_not_configured" })
+    expect(a).toEqual({ status: "available", mode: "cloud", ollamaOk: true })
   })
 
   it("returns no_heartbeat when agent silent", () => {

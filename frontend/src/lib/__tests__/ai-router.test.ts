@@ -69,6 +69,21 @@ describe("resolveAiProvider selection matrix", () => {
     { name: "env LOCAL (case) → local", input: { envProvider: "LOCAL" }, expected: "local" },
     { name: "settings Cloud (case) → cloud", input: { localAiMode: false, aiProvider: "Cloud" }, expected: "cloud" },
 
+    // flagDefault (ai_provider_default) after env
+    { name: "flagDefault cloud when no settings/env → cloud", input: { flagDefault: "cloud" }, expected: "cloud" },
+    { name: "env wins over flagDefault", input: { envProvider: "agent", flagDefault: "cloud" }, expected: "agent" },
+    { name: "settings wins over flagDefault", input: { aiProvider: "local", flagDefault: "cloud" }, expected: "local" },
+    { name: "flagDefault ignored when invalid", input: { flagDefault: "openai" }, expected: "agent" },
+
+    // cloudAiEnabled kill-switch
+    { name: "cloud demoted when cloudAiEnabled false (settings)", input: { aiProvider: "cloud", cloudAiEnabled: false }, expected: "agent" },
+    { name: "cloud demoted when cloudAiEnabled false (env)", input: { envProvider: "cloud", cloudAiEnabled: false }, expected: "agent" },
+    { name: "cloud demoted when cloudAiEnabled false (flag)", input: { flagDefault: "cloud", cloudAiEnabled: false }, expected: "agent" },
+    { name: "cloud allowed when cloudAiEnabled true", input: { aiProvider: "cloud", cloudAiEnabled: true }, expected: "cloud" },
+    { name: "cloud allowed when cloudAiEnabled omitted", input: { aiProvider: "cloud" }, expected: "cloud" },
+    { name: "agent unaffected by cloudAiEnabled false", input: { aiProvider: "agent", cloudAiEnabled: false }, expected: "agent" },
+    { name: "local unaffected by cloudAiEnabled false", input: { localAiMode: true, cloudAiEnabled: false }, expected: "local" },
+
     // Invalid preferences fall through
     { name: "invalid settings ignored → agent", input: { aiProvider: "not-a-provider" }, expected: "agent" },
     { name: "invalid settings + valid env → env", input: { aiProvider: "bogus", envProvider: "cloud" }, expected: "cloud" },

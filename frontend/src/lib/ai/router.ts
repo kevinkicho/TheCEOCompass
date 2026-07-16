@@ -15,29 +15,55 @@ export type AiRouterInput = {
    * Only used when localAiMode is false and no valid settings preference.
    */
   envProvider?: string | null
+  /**
+   * Remote default from RTDB feature flags (`ai_provider_default`).
+   * Used after env when no settings preference.
+   */
+  flagDefault?: string | null
+  /**
+   * When false, cloud is demoted to agent (ops kill-switch / pre-enable gate).
+   * When true or omitted, cloud is allowed.
+   */
+  cloudAiEnabled?: boolean
 }
 
 /**
  * Resolve which AI provider to use.
  *
- * Priority (matches today's agent + local paths; cloud opt-in later):
+ * Priority:
  * 1. localAiMode === true → "local" (Profile Local AI Mode override)
  * 2. settings.aiProvider if a valid AiProviderId (case-insensitive)
  * 3. NEXT_PUBLIC_AI_PROVIDER / envProvider if valid (case-insensitive)
- * 4. "agent" (default — Firebase request + agent)
+ * 4. remote flagDefault (ai_provider_default) if valid
+ * 5. "agent" (default — Firebase request + agent)
+ *
+ * If the resolved provider is "cloud" and cloudAiEnabled === false → "agent".
  */
 export function resolveAiProvider(input: AiRouterInput = {}): AiProviderId {
   if (input.localAiMode === true) {
     return "local"
   }
 
+  let resolved: AiProviderId = "agent"
+
   const fromSettings = normalizeAiProviderId(input.aiProvider)
-  if (fromSettings) return fromSettings
+  if (fromSettings) {
+    resolved = fromSettings
+  } else {
+    const fromEnv = normalizeAiProviderId(input.envProvider)
+    if (fromEnv) {
+      resolved = fromEnv
+    } else {
+      const fromFlag = normalizeAiProviderId(input.flagDefault)
+      if (fromFlag) resolved = fromFlag
+    }
+  }
 
-  const fromEnv = normalizeAiProviderId(input.envProvider)
-  if (fromEnv) return fromEnv
+  if (resolved === "cloud" && input.cloudAiEnabled === false) {
+    return "agent"
+  }
 
-  return "agent"
+  return resolved
 }
 
 /**

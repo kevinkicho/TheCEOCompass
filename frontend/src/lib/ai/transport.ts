@@ -2,8 +2,8 @@ import { db, auth, ref, set, onValue, get } from "../firebase"
 import type { Database } from "firebase/database"
 import { getFrameworkBySlug } from "../api"
 import type { AiProviderId } from "./provider"
-import { CLOUD_PROVIDER_NOT_CONFIGURED } from "./provider"
 import { resolveAiProvider, getEnvAiProvider } from "./router"
+import { getFlag } from "../feature-flags"
 
 export function generateId(): string {
   return crypto.randomUUID()
@@ -97,8 +97,9 @@ export function isLocalAiMode(): boolean {
 }
 
 /**
- * Resolve the active AI provider from settings + env.
+ * Resolve the active AI provider from settings + env + remote flags.
  * localAiMode always wins (preserves today's Local AI Mode behavior).
+ * Cloud requires cloud_ai_enabled; otherwise demotes to agent.
  */
 export function getActiveAiProvider(): AiProviderId {
   const settings = loadSettings()
@@ -106,6 +107,8 @@ export function getActiveAiProvider(): AiProviderId {
     localAiMode: settings.localAiMode === true,
     aiProvider: settings.aiProvider ?? null,
     envProvider: getEnvAiProvider(),
+    flagDefault: getFlag("ai_provider_default"),
+    cloudAiEnabled: getFlag("cloud_ai_enabled"),
   })
 }
 
@@ -268,12 +271,7 @@ export async function callOllamaViaFirebase(
     return { result, cached: false, prompt: fullPrompt }
   }
 
-  // Cloud path — not wired until later PR
-  if (provider === "cloud") {
-    throw new Error(CLOUD_PROVIDER_NOT_CONFIGURED)
-  }
-
-  // Agent mode — route through Firebase + local agent
+  // Agent + Cloud share the RTDB request path; Cloud Function handles provider==="cloud"
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
@@ -314,8 +312,8 @@ export async function callOllamaViaFirebase(
  * (quotes, scenarios, comparisons, concept chat, etc.).
  *
  * - local → browser Ollama via callOllamaDirect
- * - cloud → throws CLOUD_PROVIDER_NOT_CONFIGURED
- * - agent → pushAiRequest with provider field + waitForFirebaseResponse
+ * - agent | cloud → pushAiRequest with provider field + waitForFirebaseResponse
+ *   (Cloud Function processes provider === "cloud"; local agent processes agent)
  */
 export async function runWithAiProvider(args: {
   /** User prompt (system preamble applied via systemType for local + default agent payload). */
@@ -334,10 +332,6 @@ export async function runWithAiProvider(args: {
   onProgress?: (elapsed: number) => void
 }): Promise<{ result: string; data: any | null; prompt: string }> {
   const provider = getActiveAiProvider()
-  if (provider === "cloud") {
-    throw new Error(CLOUD_PROVIDER_NOT_CONFIGURED)
-  }
-
   const settings = loadSettings()
   const model = args.model || settings.ollamaModel || "gemma4:31b-cloud"
   const systemType = args.systemType ?? "explain_further"
@@ -354,7 +348,7 @@ export async function runWithAiProvider(args: {
     return { result, data, prompt: fullPrompt }
   }
 
-  // provider === "agent"
+  // provider === "agent" | "cloud" — same RTDB push; tag provider for worker selection
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }

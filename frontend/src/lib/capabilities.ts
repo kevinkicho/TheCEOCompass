@@ -10,7 +10,7 @@ export function canUseFirebasePersistence(): boolean {
 }
 
 export type AiAvailability =
-  | { status: "available"; mode: "agent" | "local"; ollamaOk: boolean }
+  | { status: "available"; mode: "agent" | "local" | "cloud"; ollamaOk: boolean }
   | {
       status: "unavailable"
       reason:
@@ -52,7 +52,8 @@ export function canUseAIFromHeartbeat(
   localAiMode: boolean,
   provider?: AiProviderId,
 ): boolean {
-  if (provider === "cloud") return false
+  // Cloud uses Cloud Functions — no local agent heartbeat required
+  if (provider === "cloud") return db != null
   if (isLocalProvider(localAiMode, provider)) return true
   if (!heartbeat) return false
   const age = Date.now() - heartbeat.updated_at
@@ -66,7 +67,10 @@ export function getAiAvailability(
   provider?: AiProviderId,
 ): AiAvailability {
   if (provider === "cloud") {
-    return { status: "unavailable", reason: "cloud_not_configured" }
+    if (!db) {
+      return { status: "unavailable", reason: "no_firebase" }
+    }
+    return { status: "available", mode: "cloud", ollamaOk: true }
   }
   if (isLocalProvider(localAiMode, provider)) {
     return { status: "available", mode: "local", ollamaOk: true }

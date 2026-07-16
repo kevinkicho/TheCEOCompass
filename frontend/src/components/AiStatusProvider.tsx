@@ -124,15 +124,21 @@ export function AiStatusIndicator() {
 
   let label = "AI offline"
   let color = "bg-dark-300 dark:bg-dark-600"
-  let title = "Agent not detected — run agent + Ollama, or enable Local AI Mode in Profile"
+  let title = "Agent not detected — run agent + Ollama, enable Cloud AI, or Local AI Mode in Profile"
 
-  if (
-    provider === "cloud" ||
-    (availability.status === "unavailable" && availability.reason === "cloud_not_configured")
-  ) {
-    label = "AI cloud"
-    color = "bg-amber-500"
-    title = "Cloud AI is selected but not configured yet"
+  if (provider === "cloud" || (availability.status === "available" && availability.mode === "cloud")) {
+    if (availability.status === "available") {
+      label = "AI cloud"
+      color = "bg-emerald-500"
+      title = "Cloud AI (Firebase Functions)"
+    } else {
+      label = "AI cloud"
+      color = "bg-amber-500"
+      title =
+        availability.status === "unavailable" && availability.reason === "no_firebase"
+          ? "Cloud AI selected but Firebase is not configured"
+          : "Cloud AI selected"
+    }
   } else if (availability.status === "available") {
     if (provider === "local" || localAiMode || availability.mode === "local") {
       label = "AI local"
