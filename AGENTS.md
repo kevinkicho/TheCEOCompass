@@ -2,39 +2,49 @@
 
 ## CI Verification (MANDATORY)
 
-Before committing/pushing, run the full pre-commit suite (same gates as GitHub Actions CI):
+**Full requirements, failure patterns, and checklists:** [`docs/CI.md`](docs/CI.md)
+
+Before every commit/push, run the same gates as GitHub Actions:
 
 ```bash
+# Cross-platform (recommended)
+npm run ci
+# or: node scripts/run-ci-local.mjs
+# skip build while iterating: node scripts/run-ci-local.mjs --skip-build
+
 # Git Bash / WSL / macOS / Linux
 bash scripts/pre-commit-check.sh
 
 # Windows PowerShell
 powershell -File scripts/pre-commit-check.ps1
-
-# Faster loop (skip Next build)
-bash scripts/pre-commit-check.sh --skip-build
 ```
 
-Checks (all must pass — lint fails on warnings):
-0. **UTF-8 encoding** — `node scripts/check-utf8.mjs` (prevents Linux CI webpack “invalid UTF-8”)
-1. **Mastery seed** — `node scripts/validate-mastery-seed.mjs`
-2. **TypeScript** — `tsc --noEmit`
-3. **ESLint** — `next lint --max-warnings 0`
-4. **Unit tests** — `vitest run`
-5. **Next.js build** — `next build` (placeholder Firebase env if secrets missing)
-6. **Functions tests** — `cd functions && npm test`
+**If `npm run ci` / pre-commit passes, GitHub CI will pass.**
 
-CI workflow (`.github/workflows/ci.yml`) runs the same gates. Deploy (`.github/workflows/deploy.yml`) also UTF-8-checks then static-exports.
+Required CI jobs (`CI` workflow only):
 
-Individual commands:
+| Job | Gates |
+|-----|--------|
+| `frontend-tests` | UTF-8, mastery seed, scenario slugs, `tsc`, eslint max-warnings 0, vitest |
+| `functions-tests` | `npm test` in `functions/` |
+| `frontend-build` | `next build` (demo Firebase env if secrets empty) |
+
+**Not required for CI green:** E2E Playwright (`continue-on-error: true`).  
+**Deploy** is separate and needs real `FIREBASE_*` GitHub secrets.
+
+### Top failure causes
+1. **TypeScript** — bad imports, implicit `any`, rename leftovers → `cd frontend && npx tsc --noEmit`
+2. **UTF-8** — Windows/PowerShell corrupted files → `node scripts/check-utf8.mjs`
+3. **ESLint warnings** — treated as failures → `npx next lint --max-warnings 0`
+4. **Scenario slugs** — edit `scenarios.json` without sync → `node scripts/sync-scenario-slugs.mjs`
+5. **Vitest mocks** — missing `vi.mock("@/lib/firebase")`
+
+### Agent CLI (workflows, not CI)
+See [`docs/AGENT_CLI.md`](docs/AGENT_CLI.md). Example:
+
 ```bash
-node scripts/check-utf8.mjs
-node scripts/validate-mastery-seed.mjs
-cd frontend && npx tsc --noEmit
-cd frontend && npx next lint --max-warnings 0
-cd frontend && npx vitest run
-cd frontend && npx next build
-cd functions && npm test
+npm run agent:cli -- help
+npm run agent:cli -- pipeline daily --uid <UID> --json
 ```
 
 ## Architecture
