@@ -32,7 +32,7 @@ export default function ScenarioPage() {
       </div>
       <PersistenceUnavailableBanner
         feature="AI Feedback"
-        description="AI coaching needs Firebase + local agent/Ollama; history saves under your signed-in account"
+        description="AI coaching uses Cloud Functions, local agent, or Local AI Mode; history saves under your signed-in account"
       />
       <ScenarioEngine scenario={scenario} />
     </div>

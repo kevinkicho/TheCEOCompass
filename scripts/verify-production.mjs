@@ -112,13 +112,32 @@ try {
   fail("functions/src/index.ts", e.message)
 }
 
-// 5) Optional live RTDB (Admin SDK)
+// 5) Optional live RTDB (Admin SDK from functions/ or agent/)
 console.log("\nLive RTDB (optional)")
 let admin
 try {
-  admin = require("firebase-admin")
+  // Prefer functions/node_modules so we don't need a root install
+  const paths = [
+    join(root, "functions", "node_modules", "firebase-admin"),
+    join(root, "agent", "node_modules", "firebase-admin"),
+    "firebase-admin",
+  ]
+  let loaded = null
+  for (const p of paths) {
+    try {
+      loaded = require(p)
+      break
+    } catch {
+      /* try next */
+    }
+  }
+  if (!loaded) throw new Error("not found")
+  admin = loaded
 } catch {
-  warn("firebase-admin", "not installed at repo root — skip live checks (use agent/ or functions/)")
+  warn(
+    "firebase-admin",
+    "not found — run: cd functions && npm install  (or place service account in agent/)",
+  )
 }
 
 function loadCred() {

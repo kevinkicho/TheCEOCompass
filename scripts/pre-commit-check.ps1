@@ -22,8 +22,10 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Host "  OK"
 Write-Host ""
 
-Write-Host ">>> [1/5] Mastery seed validate"
+Write-Host ">>> [1/6] Mastery seed + scenario slugs"
 node scripts/validate-mastery-seed.mjs
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+node scripts/sync-scenario-slugs.mjs --check
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Write-Host "  OK"
 Write-Host ""

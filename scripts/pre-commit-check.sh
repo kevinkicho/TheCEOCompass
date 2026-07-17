@@ -26,9 +26,10 @@ node scripts/check-utf8.mjs
 echo "  OK"
 echo ""
 
-# 1) Mastery seed integrity
-echo ">>> [1/5] Mastery seed validate"
+# 1) Mastery seed integrity + scenario slug sync
+echo ">>> [1/6] Mastery seed + scenario slugs"
 node scripts/validate-mastery-seed.mjs
+node scripts/sync-scenario-slugs.mjs --check
 echo "  OK"
 echo ""
 
