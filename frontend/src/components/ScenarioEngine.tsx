@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { evaluateScenarioStage } from "@/lib/ollama"
+import { evaluateScenarioStage, structureJournalFromThoughts } from "@/lib/ollama"
 import {
   saveScenarioAttempt,
   loadScenarioHistory,
@@ -10,6 +10,7 @@ import {
   humanizeConceptSlug,
   resolveConceptsForReview,
   seedConceptsToReview,
+  createJournalEntry,
 } from "@/lib/firebase-crud"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { getCachedFrameworks, loadFrameworks } from "@/lib/rtdb-cache"
@@ -59,6 +60,8 @@ export function ScenarioEngine({ scenario }: Props) {
   const [reviewSeededCount, setReviewSeededCount] = useState(0)
   const [reviewFailedCount, setReviewFailedCount] = useState(0)
   const [reviewTargets, setReviewTargets] = useState<ConceptReviewTarget[]>([])
+  const [journalSaveStatus, setJournalSaveStatus] = useState<"idle" | "saving" | "done" | "failed">("idle")
+  const [journalSaveMsg, setJournalSaveMsg] = useState("")
 
   useEffect(() => {
     if (canUseFirebasePersistence()) {
@@ -342,14 +345,84 @@ export function ScenarioEngine({ scenario }: Props) {
           </div>
         )}
 
-        <div className="flex gap-3">
-          <button onClick={resetAttempt}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            type="button"
+            onClick={resetAttempt}
             className="flex-1 rounded-lg border border-dark-300 px-6 py-3 font-medium text-dark-700 hover:bg-dark-50 dark:hover:bg-dark-800 dark:text-dark-300 dark:border-dark-600"
-          >Try Again</button>
-          <button onClick={() => router.push("/journal")}
-            className="flex-1 rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
-          >Save to Journal &rarr;</button>
+          >
+            Try Again
+          </button>
+          <button
+            type="button"
+            disabled={journalSaveStatus === "saving" || journalSaveStatus === "done" || !canUseFirebasePersistence()}
+            onClick={async () => {
+              if (!canUseFirebasePersistence()) {
+                setJournalSaveStatus("failed")
+                setJournalSaveMsg("Sign in to save journal entries.")
+                return
+              }
+              setJournalSaveStatus("saving")
+              setJournalSaveMsg("AI is writing a journal entry from this scenario...")
+              try {
+                const stageSummary = stageHistory
+                  .map((s) => `${s.stageId}: choice=${s.choice}; score=${s.score}`)
+                  .join("\n")
+                const thoughts = [
+                  `Scenario: ${scenario.title}`,
+                  scenario.description,
+                  scenario.context
+                    ? `Company: ${scenario.context.company}. Situation: ${scenario.context.situation}`
+                    : "",
+                  `Outcome: ${finalOutcomeBranch || "complete"} - ${outcomeBranch?.title || ""}`,
+                  outcomeBranch?.description || "",
+                  "My stage choices:",
+                  stageSummary,
+                ]
+                  .filter(Boolean)
+                  .join("\n")
+                const draft = await structureJournalFromThoughts(thoughts, {
+                  scenarioTitle: scenario.title,
+                  scenarioContext: scenario.description,
+                })
+                await createJournalEntry({
+                  title: draft.title,
+                  context: draft.context,
+                  decision: draft.decision,
+                  rationale: draft.rationale,
+                  confidence: draft.confidence,
+                  review_date: draft.review_date,
+                  alternatives_considered: draft.alternatives_considered,
+                  key_assumptions: draft.key_assumptions,
+                  success_metrics: draft.success_metrics,
+                })
+                setJournalSaveStatus("done")
+                setJournalSaveMsg("Saved to Decision Journal.")
+                setTimeout(() => router.push("/journal"), 900)
+              } catch (err) {
+                setJournalSaveStatus("failed")
+                setJournalSaveMsg(err instanceof Error ? err.message : "Could not save to journal")
+              }
+            }}
+            className="flex-1 rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+            data-testid="save-to-journal"
+          >
+            {journalSaveStatus === "saving"
+              ? "AI writing journal..."
+              : journalSaveStatus === "done"
+                ? "Saved"
+                : "Save to Journal with AI"}
+          </button>
         </div>
+        {journalSaveMsg && (
+          <p
+            className={`mt-2 text-center text-xs ${
+              journalSaveStatus === "failed" ? "text-red-600 dark:text-red-400" : "text-dark-500 dark:text-dark-400"
+            }`}
+          >
+            {journalSaveMsg}
+          </p>
+        )}
       </div>
       <ScenarioPastAttempts pastAttempts={pastAttempts} />
       </div>
