@@ -24,9 +24,15 @@ export async function loadFrameworks(): Promise<Framework[]> {
       if (!fwData || typeof fwData !== "object" || fwData.error) continue
       const { concepts: conceptsRaw, ...fwRest } = fwData as any
       const fw = fwRest as Framework
+      // RTDB often stores under frameworks/{slug} without an id field
+      fw.slug = fw.slug || slug
+      fw.id = fw.id || fw.slug || slug
       if (conceptsRaw && typeof conceptsRaw === "object") {
         fw.concepts = Object.values(conceptsRaw)
-        fw.concepts.forEach((c: any, i: number) => { if (c.order_index === undefined) c.order_index = i })
+        fw.concepts.forEach((c: any, i: number) => {
+          if (c.order_index === undefined) c.order_index = i
+          if (!c.id && c.slug) c.id = c.slug
+        })
       }
       frameworks.push(fw)
     }

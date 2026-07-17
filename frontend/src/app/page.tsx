@@ -136,10 +136,10 @@ export default function Home() {
 
       <section className="mx-auto max-w-6xl px-4 pb-20">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {displayedFrameworks.map((fw) => (
+          {displayedFrameworks.map((fw, index) => (
             <Link
-              key={fw.id}
-              href={`/frameworks/${fw.slug}`}
+              key={fw.slug || fw.id || `framework-${index}`}
+              href={`/frameworks/${fw.slug || fw.id}`}
               className="rounded-xl border border-dark-200 p-6 transition hover:border-primary-300 hover:shadow-md dark:border-dark-700"
             >
               <div className="mb-3 flex items-center gap-2">
