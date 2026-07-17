@@ -81,6 +81,15 @@
       }
     },
 
+    "scenario_index": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$slug": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+      }
+    },
+
     "requests": {
       ".indexOn": ["status", "uid", "created_at"],
       "$requestId": {

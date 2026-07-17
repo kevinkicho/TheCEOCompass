@@ -60,11 +60,28 @@ function buildScenarioUpdates(scenarios) {
   for (const s of scenarios) {
     if (!s?.slug) throw new Error("Scenario missing slug")
     slugs.push(s.slug)
+    const id = s.id || s.slug
+    const pack_id = s.pack_id ?? "core"
+    const pack_title = s.pack_title ?? "Core"
+    // Full detail (stages, branches) for scenario runner
     updates[`scenarios/${s.slug}`] = {
       ...s,
-      id: s.id || s.slug,
-      pack_id: s.pack_id ?? "core",
-      pack_title: s.pack_title ?? "Core",
+      id,
+      pack_id,
+      pack_title,
+    }
+    // Light index for list/home (no stages) — smaller RTDB reads
+    updates[`scenario_index/${s.slug}`] = {
+      id,
+      slug: s.slug,
+      title: s.title,
+      description: s.description || "",
+      framework_id: s.framework_id || "",
+      difficulty: s.difficulty ?? 3,
+      pack_id,
+      pack_title,
+      concept_ids: s.concept_ids || [],
+      framework_slugs: s.framework_slugs || [],
     }
   }
   updates["_meta/scenario_slugs"] = slugs

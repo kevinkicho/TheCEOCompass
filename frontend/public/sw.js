@@ -1,4 +1,5 @@
-const CACHE_VERSION = "v1"
+/** Bump on each production-relevant frontend deploy so activate() drops stale caches. */
+const CACHE_VERSION = "v2-2026-07"
 const STATIC_CACHE = `ceo-compass-static-${CACHE_VERSION}`
 const FIREBASE_CACHE = `ceo-compass-firebase-${CACHE_VERSION}`
 const PAGE_CACHE = `ceo-compass-pages-${CACHE_VERSION}`

@@ -1,101 +1,94 @@
 import { test, expect } from "@playwright/test"
 
 /**
- * Phase 2–3 learning-loop smoke (PR 16).
+ * Phase 2–3 learning-loop smoke.
  *
- * Asserts core navigation for next-actions / review / session entry.
- * Tolerates missing Firebase (no next-actions, persistence banners) so CI
- * can run without secrets. Does not require RTDB data or feature flags.
+ * App is gated behind Google flash-login. Without OAuth in CI:
+ * - Assert auth gate is healthy, OR
+ * - If a session already exists, assert next-actions / review shells.
  *
- * Run: `npm run test:e2e` from frontend/ (starts dev server on :33221).
- * Optional env: same NEXT_PUBLIC_FIREBASE_* as the app for fuller coverage.
+ * Run: `npm run test:e2e` from frontend/ (dev server :33221).
  */
 
+async function isOnFlashGate(page: import("@playwright/test").Page): Promise<boolean> {
+  const flash = page.getByTestId("flash-login")
+  const google = page.getByRole("button", { name: /Continue with Google/i })
+  return (await flash.count()) > 0 || (await google.count()) > 0
+}
+
+async function waitPastBoot(page: import("@playwright/test").Page) {
+  await page.goto("/")
+  await expect
+    .poll(
+      async () => {
+        if (await isOnFlashGate(page)) return 1
+        if ((await page.getByTestId("app-shell-status").count()) > 0) return 1
+        if ((await page.getByRole("heading", { name: /Navigate Every|Think Like/i }).count()) > 0)
+          return 1
+        if ((await page.getByTestId("todays-plan").count()) > 0) return 1
+        return 0
+      },
+      { timeout: 45_000 },
+    )
+    .toBe(1)
+}
+
 test.describe("learning loop smoke", () => {
-  test("home loads hero and next-actions or explore CTAs", async ({ page }) => {
-    await page.goto("/")
+  test("home: flash gate or hero / next-actions when signed in", async ({ page }) => {
+    await waitPastBoot(page)
 
-    await expect(
-      page.getByRole("heading", { name: /Navigate Every/i }),
-    ).toBeVisible({ timeout: 30_000 })
+    if (await isOnFlashGate(page)) {
+      await expect(page.getByTestId("flash-login").or(page.getByRole("button", { name: /Continue with Google/i }))).toBeVisible()
+      return
+    }
 
-    // Firebase available → Today's plan / next-actions; otherwise hero CTAs remain.
+    // Signed-in path (local .env with existing session cookies)
+    const hero = page.getByRole("heading", { name: /Navigate Every|Think Like/i })
     const todaysPlan = page.getByTestId("todays-plan")
     const nextActions = page.getByTestId("next-actions")
-    if ((await todaysPlan.count()) > 0) {
-      await expect(todaysPlan).toBeVisible()
-      await expect(page.getByText(/Today.?s plan/i)).toBeVisible()
-    } else if ((await nextActions.count()) > 0) {
-      await expect(nextActions).toBeVisible()
-      await expect(page.getByText(/Your next actions/i)).toBeVisible()
-    } else {
-      await expect(
-        page.getByRole("link", { name: /Start a Scenario|Explore Frameworks/i }).first(),
-      ).toBeVisible()
-    }
-  })
-
-  test("review page shows weekly review shell and due or session affordances", async ({
-    page,
-  }) => {
-    await page.goto("/review")
-
-    await expect(
-      page.getByRole("heading", { name: /Weekly Review/i }),
-    ).toBeVisible({ timeout: 30_000 })
-
-    // Either loaded content, loading skeleton, or persistence-unavailable banner.
-    const dueSection = page.getByTestId("due-reviews-section")
-    const sessionCta = page.getByTestId("start-review-session")
-    const srStats = page.getByTestId("sr-stats-panel")
-    const persistenceBanner = page.getByText(/requires Firebase|not available|persistence/i)
-    const quickActions = page.getByText(/Quick Actions/i)
+    const explore = page.getByRole("link", { name: /Start a Scenario|Explore Frameworks/i })
 
     await expect
       .poll(async () => {
         return (
-          (await dueSection.count()) +
-          (await sessionCta.count()) +
-          (await srStats.count()) +
-          (await persistenceBanner.count()) +
-          (await quickActions.count()) +
-          (await page.getByText(/Weekly Review/i).count())
+          (await hero.count()) +
+          (await todaysPlan.count()) +
+          (await nextActions.count()) +
+          (await explore.count())
         )
       }, { timeout: 30_000 })
       .toBeGreaterThan(0)
-
-    // Session route is always reachable (flag may disable UI inside).
-    await page.goto("/review/session")
-    await expect(
-      page.getByRole("heading", { name: /Review session/i }),
-    ).toBeVisible({ timeout: 30_000 })
-
-    const disabled = page.getByTestId("review-session-disabled")
-    const loading = page.getByTestId("review-session-flags-loading")
-    const sessionCard = page.getByTestId("review-session-card")
-    const sessionEmpty = page.getByTestId("review-session-empty")
-    // One of: flags loading, disabled message, active session, empty, or heading.
-    await expect
-      .poll(async () => {
-        return (
-          (await disabled.count()) +
-          (await loading.count()) +
-          (await sessionCard.count()) +
-          (await sessionEmpty.count()) +
-          (await page.getByRole("heading", { name: /Review session/i }).count())
-        )
-      })
-      .toBeGreaterThan(0)
   })
 
-  test("nav can reach frameworks and pathway from home", async ({ page }) => {
-    await page.goto("/")
-    await expect(page.getByRole("heading", { name: /Navigate Every/i })).toBeVisible({
+  test("review routes: gate or weekly review shell", async ({ page }) => {
+    await page.goto("/review")
+
+    await expect
+      .poll(
+        async () => {
+          if (await isOnFlashGate(page)) return 1
+          if ((await page.getByRole("heading", { name: /Weekly Review/i }).count()) > 0) return 1
+          if ((await page.getByTestId("app-shell-status").count()) > 0) return 1
+          return 0
+        },
+        { timeout: 45_000 },
+      )
+      .toBe(1)
+
+    if (await isOnFlashGate(page)) {
+      await expect(
+        page.getByTestId("flash-login").or(page.getByRole("button", { name: /Continue with Google/i })),
+      ).toBeVisible()
+      return
+    }
+
+    await expect(page.getByRole("heading", { name: /Weekly Review/i })).toBeVisible({
       timeout: 30_000,
     })
 
-    await page.getByRole("link", { name: /Explore Frameworks/i }).first().click()
-    await expect(page).toHaveURL(/\/frameworks/)
-    await expect(page.getByText(/Framework/i).first()).toBeVisible({ timeout: 30_000 })
+    await page.goto("/review/session")
+    await expect(
+      page.getByRole("heading", { name: /Review session/i }).or(page.getByTestId("flash-login")),
+    ).toBeVisible({ timeout: 30_000 })
   })
 })

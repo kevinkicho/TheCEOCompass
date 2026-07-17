@@ -28,10 +28,22 @@ The original FastAPI backend handled scenarios, journal, progress, and quiz endp
 ## Identity & persistence (Phase 0–1)
 
 - Capability flags: `frontend/src/lib/capabilities.ts` (`canUseFirebasePersistence` = `db != null`, not hostname)
-- Auth: anonymous session on load via `AuthSessionProvider`; Google link for cross-device
+- Auth: anonymous session on load via `AuthSessionProvider`; **Google via full-page redirect by default** (popup is opt-out only — COOP-safe)
+- Post-redirect resume: `auth-resume.ts` stashes path; `getRedirectResult` merges anon snapshot + restores deep link
+- Product shell gated by `AppShellGate` + `FlashLogin` until non-anonymous Google user
 - User data paths: `users/{uid}/journal|reviews|progress|viewed|quizResults|scenarioHistory|favoriteQuotes`
 - Legacy device trees remain readable for migration, then purge (`scripts/purge-legacy-device-data.mjs`)
-- Design: `docs/DESIGN_PHASE_0_1.md`
+- Design: `docs/DESIGN_PHASE_0_1.md` · Cornerstone summary: `docs/CORNERSTONE.md`
+
+## Scenario catalog architecture
+
+| Use case | API | RTDB |
+|----------|-----|------|
+| Browse / home / filters | `getScenarios()` → `loadScenarioList()` | `scenario_index/{slug}` (meta only) |
+| Runner detail | `getScenario(slug)` → `loadScenarioBySlug()` | `scenarios/{slug}` (stages + branches) |
+| Offline / tests | bundled seed | `frontend/src/data/scenarios.json` |
+
+Seed both trees with `node scripts/seed-catalog-rtdb.mjs`. Never download full stages for list UIs.
 
 ## Testing
 
@@ -162,6 +174,14 @@ frameworks/{slug}/concepts/{id}
   → { id, name, definition, tags, example, ... }
 _meta/framework_slugs
   → ["strategic-decision-making", "financial-mastery", ...]
+
+# Scenario catalog (dual-path)
+scenarios/{slug}
+  → full scenario including stages, outcome_branches, context
+scenario_index/{slug}
+  → light meta for lists (title, difficulty, pack_*, framework_slugs, concept_ids — no stages)
+_meta/scenario_slugs
+  → ["runway-unit-economics-crisis", ...]
 
 # Runtime config (public read, admin write)
 _config/feature_flags

@@ -28,6 +28,7 @@ import {
   clearLastMergeStatus,
   type MergeStatus,
 } from "./user-data"
+import { stashAuthResumePath, consumeAuthResumePath } from "./auth-resume"
 import type { User } from "firebase/auth"
 
 type AuthSession = {
@@ -43,10 +44,11 @@ type AuthSession = {
   ensureAnonymous: () => Promise<void>
   linkGoogle: () => Promise<void>
   /**
-   * Google sign-in. Prefer redirect for the flash page to avoid COOP popup noise.
-   * @param opts.preferRedirect - use full-page redirect instead of popup (default false)
+   * Google sign-in. **Redirect is the default** (avoids COOP / window.closed spam).
+   * @param opts.preferRedirect - default true; set false only for explicit popup experiments
+   * @param opts.resumePath - path to restore after redirect (defaults to current location)
    */
-  signInWithGoogle: (opts?: { preferRedirect?: boolean }) => Promise<void>
+  signInWithGoogle: (opts?: { preferRedirect?: boolean; resumePath?: string }) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -78,12 +80,21 @@ async function fetchIsAdmin(uid: string): Promise<boolean> {
   }
 }
 
-/** Only true hard blocks that may succeed via full-page redirect */
+/**
+ * Popup failures that should fall back to full-page redirect.
+ * Includes codes that often surface under COOP / third-party cookie restrictions.
+ */
 const POPUP_REDIRECT_CODES = new Set([
   "auth/popup-blocked",
+  "auth/popup-closed-by-user", // often COOP false-positive, not a real cancel
+  "auth/cancelled-popup-request",
 ])
 
-/** User cancelled - surface a friendly error, do not redirect */
+/**
+ * True user cancel is hard to distinguish from COOP noise.
+ * We only surface cancel when preferRedirect is false and we already fell back once —
+ * default path is redirect, so these rarely apply.
+ */
 const POPUP_USER_CANCEL_CODES = new Set([
   "auth/popup-closed-by-user",
   "auth/cancelled-popup-request",
@@ -201,7 +212,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
 
     let cancelled = false
 
-    // Post-redirect resume: link success keeps uid; credential-in-use needs recovery + merge
+    // Post-redirect resume: merge anon snapshot if needed, then restore deep-link path
     ;(async () => {
       try {
         const result = await getRedirectResult(auth!)
@@ -214,6 +225,27 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
             if (!cancelled && status) applyMergeStatus(status)
           } finally {
             mergeInFlight.current = false
+          }
+        }
+        // Restore path the user was on before Google (same tab sessionStorage)
+        if (result?.user && !result.user.isAnonymous) {
+          const resume = consumeAuthResumePath()
+          if (resume && typeof window !== "undefined") {
+            const current =
+              window.location.pathname + window.location.search + window.location.hash
+            // basePath-aware: only navigate when the relative path differs
+            if (resume !== current && !current.endsWith(resume) && !current.includes(resume)) {
+              try {
+                const base = (window as Window & { __NEXT_DATA__?: { basePath?: string } })
+                  .__NEXT_DATA__?.basePath || ""
+                const dest = resume.startsWith(base) ? resume : `${base}${resume}`
+                if (dest !== current) {
+                  window.history.replaceState(null, "", dest)
+                }
+              } catch {
+                /* ignore navigation errors */
+              }
+            }
           }
         }
       } catch (err: unknown) {
@@ -357,159 +389,110 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     }
   }, [applyMergeStatus])
 
+  /**
+   * Redirect-first Google link/sign-in (cornerstone path).
+   * Stashes resume path, prepares anon merge, then full-page redirects.
+   */
+  const redirectToGoogle = useCallback(async (resumePath?: string) => {
+    if (!auth) {
+      throw new Error("Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.")
+    }
+    stashAuthResumePath(resumePath)
+    if (auth.currentUser?.isAnonymous) {
+      const prep = await prepareAnonMerge(auth.currentUser.uid)
+      if (!prep.ok) {
+        const status: MergeStatus = {
+          state: "error",
+          message: prep.message,
+          fromUid: prep.fromUid,
+          at: Date.now(),
+          canRetry: false,
+        }
+        setLastMergeStatus(status)
+        setMergeStatus(status)
+        throw new Error(prep.message)
+      }
+      await linkWithRedirect(auth.currentUser, googleProvider)
+      return
+    }
+    await signInWithRedirect(auth, googleProvider)
+  }, [])
+
   const linkGoogle = useCallback(async () => {
     if (!auth) {
       throw new Error("Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.")
     }
     if (!auth.currentUser) {
-      // Ensure anonymous session exists before linking
       await signInAnonymously(auth)
     }
     if (!auth.currentUser) {
       throw new Error("Could not start a session before Google sign-in. Enable Anonymous auth in Firebase Console.")
     }
 
-    const abortWithStatus = (message: string, fromUid?: string): never => {
-      const status: MergeStatus = {
-        state: "error",
-        message,
-        fromUid,
-        at: Date.now(),
-        canRetry: false,
-      }
-      setLastMergeStatus(status)
-      setMergeStatus(status)
-      throw new Error(message)
-    }
+    // Cornerstone: always redirect (no popup path for production link)
+    await redirectToGoogle()
+  }, [redirectToGoogle])
 
-    /**
-     * Snapshot+stash while still anonymous, then sign into existing Google account.
-     * Never proceeds if prepare fails when we still have access to the anon uid.
-     */
-    const tryCredentialInUseRecovery = async (err: unknown) => {
-      const anonUid = auth!.currentUser?.isAnonymous ? auth!.currentUser.uid : null
-      if (anonUid) {
-        const prep = await prepareAnonMerge(anonUid)
-        if (!prep.ok) {
-          abortWithStatus(prep.message, prep.fromUid)
-        }
-      } else if (!peekPendingAnonMerge()) {
-        abortWithStatus(
-          "Google credential already in use, but no anonymous session snapshot is available to merge.",
+  const signInWithGoogle = useCallback(
+    async (opts?: { preferRedirect?: boolean; resumePath?: string }) => {
+      if (!auth) {
+        throw new Error(
+          "Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.",
         )
       }
+      if (!auth.currentUser) {
+        try {
+          await signInAnonymously(auth)
+        } catch {
+          // Anonymous may be disabled - fall through to direct Google sign-in
+        }
+      }
 
-      mergeInFlight.current = true
+      // Default true: redirect is the product-wide cornerstone path
+      const useRedirect = opts?.preferRedirect !== false
+      if (useRedirect) {
+        try {
+          await redirectToGoogle(opts?.resumePath)
+          return
+        } catch (err: unknown) {
+          throw new Error(formatAuthError(err))
+        }
+      }
+
+      // Explicit popup only when preferRedirect: false (tests / rare environments)
       try {
-        const credential = credentialFromAuthError(err)
-        if (credential) {
-          const credResult = await signInWithCredential(auth!, credential)
-          const status = await runPendingAnonMerge(credResult.user.uid)
-          if (status) setMergeStatus(status)
+        if (auth.currentUser?.isAnonymous) {
+          const prep = await prepareAnonMerge(auth.currentUser.uid)
+          if (!prep.ok) throw new Error(prep.message)
+          await linkWithPopup(auth.currentUser, googleProvider)
           return
         }
-
-        try {
-          const popupResult = await signInWithPopup(auth!, googleProvider)
-          const status = await runPendingAnonMerge(popupResult.user.uid)
-          if (status) setMergeStatus(status)
-        } catch (e2: unknown) {
-          const c2 = authErrorCode(e2)
-          if (c2 && POPUP_USER_CANCEL_CODES.has(c2)) {
-            throw new Error(formatAuthError(e2))
-          }
-          if (c2 && POPUP_REDIRECT_CODES.has(c2)) {
-            mergeInFlight.current = false
-            await signInWithRedirect(auth!, googleProvider)
+        await signInWithPopup(auth, googleProvider)
+      } catch (err: unknown) {
+        const code = authErrorCode(err)
+        if (code && POPUP_REDIRECT_CODES.has(code)) {
+          await redirectToGoogle(opts?.resumePath)
+          return
+        }
+        if (code && POPUP_USER_CANCEL_CODES.has(code)) {
+          throw new Error(formatAuthError(err))
+        }
+        if (code && CREDENTIAL_IN_USE_CODES.has(code)) {
+          const credential = credentialFromAuthError(err)
+          if (credential) {
+            const credResult = await signInWithCredential(auth!, credential)
+            if (peekPendingAnonMerge()) {
+              const status = await runPendingAnonMerge(credResult.user.uid)
+              if (status) setMergeStatus(status)
+            }
             return
           }
-          throw e2
         }
-      } finally {
-        if (mergeInFlight.current) mergeInFlight.current = false
-      }
-    }
-
-    try {
-      if (auth.currentUser.isAnonymous) {
-        await linkWithPopup(auth.currentUser, googleProvider)
-        // Link success: same uid upgraded - no cross-uid merge needed
-      } else {
-        await signInWithPopup(auth, googleProvider)
-      }
-    } catch (err: unknown) {
-      const code = authErrorCode(err)
-      if (code && POPUP_USER_CANCEL_CODES.has(code)) {
         throw new Error(formatAuthError(err))
       }
-      if (code && POPUP_REDIRECT_CODES.has(code)) {
-        // First-hop redirect: MUST snapshot before leaving the page
-        if (auth.currentUser?.isAnonymous) {
-          const prep = await prepareAnonMerge(auth.currentUser.uid)
-          if (!prep.ok) {
-            abortWithStatus(prep.message, prep.fromUid)
-          }
-          await linkWithRedirect(auth.currentUser, googleProvider)
-        } else {
-          await signInWithRedirect(auth, googleProvider)
-        }
-      } else if (code && CREDENTIAL_IN_USE_CODES.has(code)) {
-        await tryCredentialInUseRecovery(err)
-      } else {
-        throw new Error(formatAuthError(err))
-      }
-    }
-  }, [])
-
-  const signInWithGoogle = useCallback(async (opts?: { preferRedirect?: boolean }) => {
-    if (!auth) {
-      throw new Error("Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.")
-    }
-    // Prefer link path when we have (or can create) an anonymous session
-    if (!auth.currentUser) {
-      try {
-        await signInAnonymously(auth)
-      } catch {
-        // Anonymous may be disabled - fall through to direct Google sign-in
-      }
-    }
-
-    // Redirect avoids Cross-Origin-Opener-Policy / window.closed spam from popups
-    if (opts?.preferRedirect) {
-      try {
-        if (auth.currentUser?.isAnonymous) {
-          const prep = await prepareAnonMerge(auth.currentUser.uid)
-          if (!prep.ok) {
-            throw new Error(prep.message)
-          }
-          await linkWithRedirect(auth.currentUser, googleProvider)
-          return
-        }
-        await signInWithRedirect(auth, googleProvider)
-        return
-      } catch (err: unknown) {
-        throw new Error(formatAuthError(err))
-      }
-    }
-
-    if (auth.currentUser?.isAnonymous) {
-      await linkGoogle()
-      return
-    }
-    try {
-      await signInWithPopup(auth, googleProvider)
-    } catch (err: unknown) {
-      const code = authErrorCode(err)
-      if (code && POPUP_USER_CANCEL_CODES.has(code)) {
-        throw new Error(formatAuthError(err))
-      }
-      if (code && POPUP_REDIRECT_CODES.has(code)) {
-        await signInWithRedirect(auth, googleProvider)
-        return
-      }
-      throw new Error(formatAuthError(err))
-    }
-  }, [linkGoogle])
+    },
+    [redirectToGoogle],
+  )
 
   const signOut = useCallback(async () => {
     if (!auth) return

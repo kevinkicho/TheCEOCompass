@@ -7,7 +7,10 @@ import {
   deleteJournalEntry,
   recordOutcome,
 } from "@/lib/firebase-crud"
-import { loadLearnerJournalContext } from "@/lib/user-data"
+import {
+  loadLearnerJournalContext,
+  type LearnerJournalContext,
+} from "@/lib/user-data"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { useAuthSession } from "@/lib/AuthSessionProvider"
@@ -23,6 +26,7 @@ type Mode = "capture" | "outcome"
  * AI-first Decision Journal.
  * User shares rough thoughts; AI structures and saves the entry.
  * No manual multi-field modal forms.
+ * Learner context is loaded from RTDB and shown as a preview before capture.
  */
 export default function JournalPage() {
   const { ready: authReady } = useAuthSession()
@@ -35,6 +39,8 @@ export default function JournalPage() {
   const [journalError, setJournalError] = useState("")
   const [lastSavedId, setLastSavedId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const [learnerCtx, setLearnerCtx] = useState<LearnerJournalContext | null>(null)
+  const [ctxLoading, setCtxLoading] = useState(false)
 
   const loadEntries = useCallback(async () => {
     setJournalError("")
@@ -46,11 +52,27 @@ export default function JournalPage() {
     }
   }, [])
 
+  const refreshLearnerContext = useCallback(async () => {
+    if (!canUseFirebasePersistence()) {
+      setLearnerCtx(null)
+      return
+    }
+    setCtxLoading(true)
+    try {
+      const ctx = await loadLearnerJournalContext(8)
+      setLearnerCtx(ctx)
+    } catch {
+      setLearnerCtx(null)
+    }
+    setCtxLoading(false)
+  }, [])
+
   useEffect(() => {
     if (canUseFirebasePersistence() && authReady) {
       void loadEntries()
+      void refreshLearnerContext()
     }
-  }, [authReady, loadEntries])
+  }, [authReady, loadEntries, refreshLearnerContext])
 
   const handleAiCapture = async () => {
     const text = thoughts.trim()
@@ -63,15 +85,16 @@ export default function JournalPage() {
     setJournalError("")
     setStatus("Loading your recent learning activity, then writing entries...")
     try {
-      // No browser-nav CLI for agents — context comes from RTDB paths the app already writes.
-      const learnerCtx = await loadLearnerJournalContext(8)
+      // Fresh snapshot at capture time (preview may be stale)
+      const freshCtx = await loadLearnerJournalContext(8)
+      setLearnerCtx(freshCtx)
       setStatus(
-        learnerCtx.recentScenarios.length || learnerCtx.recentViewed.length
+        freshCtx.recentScenarios.length || freshCtx.recentViewed.length
           ? "AI is turning your recent activity into journal entries..."
           : "AI is structuring your notes...",
       )
       const drafts = await structureJournalFromThoughts(text, {
-        learnerContextBlock: learnerCtx.promptBlock,
+        learnerContextBlock: freshCtx.promptBlock,
       })
       if (!drafts.length) {
         throw new Error(
@@ -202,6 +225,110 @@ export default function JournalPage() {
         </p>
       )}
 
+      {/* Account context preview — cornerstone: transparent what AI will use */}
+      {mode === "capture" && canUseFirebasePersistence() && (
+        <section
+          className="mb-6 rounded-xl border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900/60 p-4 sm:p-5"
+          data-testid="journal-context-preview"
+        >
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-dark-500 dark:text-dark-400">
+                Learning context for AI
+              </p>
+              <p className="text-xs text-dark-500 dark:text-dark-400 mt-0.5">
+                Loaded from your account (scenarios, concepts, quizzes, pathway). AI uses this so
+                entries describe real activity — not meta recordkeeping.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => void refreshLearnerContext()}
+              disabled={ctxLoading || busy}
+              className="text-xs text-primary-600 dark:text-primary-400 hover:underline shrink-0 disabled:opacity-50"
+            >
+              {ctxLoading ? "Refreshing…" : "Refresh"}
+            </button>
+          </div>
+          {ctxLoading && !learnerCtx ? (
+            <p className="text-xs text-dark-400">Loading activity…</p>
+          ) : learnerCtx ? (
+            <div className="grid gap-3 sm:grid-cols-2 text-xs text-dark-600 dark:text-dark-300">
+              <div>
+                <p className="font-medium text-dark-700 dark:text-dark-200 mb-1">
+                  Recent scenarios
+                </p>
+                {learnerCtx.recentScenarios.length === 0 ? (
+                  <p className="text-dark-400">None yet — try a scenario first.</p>
+                ) : (
+                  <ul className="space-y-0.5 list-disc list-inside">
+                    {learnerCtx.recentScenarios.slice(0, 5).map((s) => (
+                      <li key={`${s.slug}-${s.completedAt}`}>
+                        <span className="font-mono text-[11px]">{s.slug}</span>
+                        {s.stageCount > 0 && (
+                          <span className="text-dark-400"> · {s.stageCount} stages</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div>
+                <p className="font-medium text-dark-700 dark:text-dark-200 mb-1">
+                  Recently viewed
+                </p>
+                {learnerCtx.recentViewed.length === 0 ? (
+                  <p className="text-dark-400">None yet — open a few concepts.</p>
+                ) : (
+                  <ul className="space-y-0.5 list-disc list-inside">
+                    {learnerCtx.recentViewed.slice(0, 5).map((v) => (
+                      <li key={`${v.frameworkSlug}-${v.conceptId}`}>
+                        <span className="font-mono text-[11px]">
+                          {v.frameworkSlug}/{v.conceptId}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="sm:col-span-2 flex flex-wrap gap-3 pt-1 border-t border-dark-100 dark:border-dark-800">
+                <span>
+                  Pathway{" "}
+                  <strong className="text-dark-800 dark:text-dark-100">
+                    {learnerCtx.pathway.pct}%
+                  </strong>
+                  {learnerCtx.pathway.nextSlug && (
+                    <span className="text-dark-400">
+                      {" "}
+                      · next {learnerCtx.pathway.nextSlug}
+                    </span>
+                  )}
+                </span>
+                <span>
+                  Due reviews{" "}
+                  <strong className="text-dark-800 dark:text-dark-100">
+                    {learnerCtx.dueReviewCount}
+                  </strong>
+                </span>
+                {learnerCtx.quizHighlights.length > 0 && (
+                  <span>
+                    Best quiz{" "}
+                    <strong className="text-dark-800 dark:text-dark-100">
+                      {learnerCtx.quizHighlights[0].framework}{" "}
+                      {learnerCtx.quizHighlights[0].pct}%
+                    </strong>
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-dark-400">
+              Context will load when your session is ready.
+            </p>
+          )}
+        </section>
+      )}
+
       {/* AI capture panel - always on page, no modal */}
       <section
         className="mb-10 rounded-2xl border border-primary-200 dark:border-primary-800/40 bg-primary-50/40 dark:bg-primary-950/20 p-5 sm:p-6"
@@ -214,7 +341,7 @@ export default function JournalPage() {
             </p>
             <p className="text-sm text-dark-600 dark:text-dark-300 mt-0.5">
               {mode === "capture"
-                ? "Optional notes + auto context from what you already viewed, scenarios, quizzes, and pathway. Say \"record my last 3 activities\" and AI uses your account history."
+                ? "Add notes if you want. Or say \"record my recent activities\" and AI uses the context above."
                 : `What actually happened for "${outcomeTarget?.title}"? AI writes the outcome review.`}
             </p>
           </div>
@@ -236,7 +363,7 @@ export default function JournalPage() {
           disabled={busy || !canUseFirebasePersistence()}
           placeholder={
             mode === "capture"
-              ? "Example: 1) Pricing war scenario — I chose to match competitor price short-term. 2) Reviewed unit economics for SaaS. 3) Pathway step on negotiation — still unsure about BATNA..."
+              ? "Example: Record my last few activities. Or: Pricing war scenario — I matched price short-term; still unsure about unit economics..."
               : "Example: We raised. Dilution was worse than expected. Market window closed for wait-and-see. Lesson: move before the window, not after."
           }
           className="w-full resize-none rounded-xl border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-3 text-sm text-dark-800 dark:text-dark-100 focus:border-primary-400 focus:outline-none disabled:opacity-60"

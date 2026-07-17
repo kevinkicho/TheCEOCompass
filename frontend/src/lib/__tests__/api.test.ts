@@ -1,63 +1,45 @@
-import { describe, it, expect, vi } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 
-vi.mock("axios", () => {
-  const mockAxios = {
-    create: vi.fn(() => ({
-      get: vi.fn((url: string) => {
-        if (url.includes("progress/calibration")) {
-          return Promise.resolve({
-            data: { total_predictions: 5, average_confidence: 0.7, accuracy: 0.6, average_brier_score: 0.18, calibration_by_confidence: {}, calibration_by_domain: {}, trend: [] },
-          })
-        }
-        if (url.includes("progress")) {
-          return Promise.resolve({
-            data: { user_id: "u1", scenarios_completed: 3, scenarios_in_progress: 1, total_scenario_score: 2.5, average_scenario_score: 0.8, framework_mastery: {}, current_streak_days: 5, longest_streak_days: 12, modules_completed: [], current_module_id: null },
-          })
-        }
-        if (url.includes("journal")) {
-          return Promise.resolve({ data: [] })
-        }
-        if (url.includes("/frameworks/")) {
-          return Promise.resolve({
-            data: {
-              id: "11111111-1111-1111-1111-111111111111", slug: "test", title: "Test", description: "Test framework",
-              category: "test", difficulty: 2, estimated_time_minutes: 30, key_concepts: ["A", "B"], use_cases: ["Use"], concepts: [],
-            },
-          })
-        }
-        if (url.includes("frameworks")) {
-          return Promise.resolve({ data: [{ id: "1", slug: "s1", title: "T1", description: "D", category: "c", difficulty: 1, estimated_time_minutes: 30 }] })
-        }
-        if (url.includes("/scenarios/")) {
-          return Promise.resolve({
-            data: { id: "aaa", slug: "test-scenario", title: "Test Scenario", description: "A test", framework_id: "111", difficulty: 2,
-              context: { company: "Co", situation: "Sit", time_pressure: "N", data_provided: [] }, stages: [], outcome_branches: {} },
-          })
-        }
-        if (url.includes("scenarios")) {
-          return Promise.resolve({ data: [{ id: "1", slug: "s1", title: "S1", description: "D", framework_id: "1", difficulty: 2 }] })
-        }
-        return Promise.resolve({ data: [] })
-      }),
-      post: vi.fn(() => Promise.resolve({ data: { id: "new-id", status: "ok" } })),
-      patch: vi.fn(() => Promise.resolve({ data: { status: "updated" } })),
-    })),
-  }
-  return { default: mockAxios }
-})
+/**
+ * Catalog API tests use the dual-path scenarios-cache (bundled seed when no RTDB).
+ * User-data (journal/progress) is not part of api.ts — tested under user-data / firebase-crud.
+ */
+
+const state = vi.hoisted(() => ({
+  mockGet: vi.fn(),
+  db: null as object | null,
+}))
+
+vi.mock("@/lib/firebase", () => ({
+  get db() {
+    return state.db
+  },
+  ref: (_db: unknown, path: string) => ({ _path: path }),
+  get: (...args: unknown[]) => state.mockGet(...args),
+}))
+
+vi.mock("@/lib/rtdb-cache", () => ({
+  getCachedFrameworks: () => null,
+  loadFrameworks: async () => [],
+}))
 
 import {
   getFrameworks,
   getFrameworkBySlug,
   getScenarios,
   getScenario,
-  getJournalEntries,
-  createJournalEntry,
-  getProgress,
+  getBundledScenarioCatalog,
 } from "../api"
+import { clearScenariosCache } from "../scenarios-cache"
 
-describe("API Client", () => {
-  it("getFrameworks returns an array", async () => {
+describe("API Client (catalog)", () => {
+  beforeEach(() => {
+    state.db = null
+    state.mockGet.mockReset()
+    clearScenariosCache()
+  })
+
+  it("getFrameworks returns an array when cache empty", async () => {
     const result = await getFrameworks()
     expect(Array.isArray(result)).toBe(true)
   })
@@ -67,7 +49,7 @@ describe("API Client", () => {
     expect(result).toBeNull()
   })
 
-  it("getScenarios returns an array", async () => {
+  it("getScenarios returns an array from bundled seed", async () => {
     const result = await getScenarios()
     expect(Array.isArray(result)).toBe(true)
   })
@@ -76,7 +58,9 @@ describe("API Client", () => {
     const result = await getScenarios()
     expect(result.length).toBeGreaterThanOrEqual(12)
     expect(result.every((s) => typeof s.pack_id === "string" && s.pack_id.length > 0)).toBe(true)
-    expect(result.every((s) => typeof s.pack_title === "string" && s.pack_title.length > 0)).toBe(true)
+    expect(result.every((s) => typeof s.pack_title === "string" && s.pack_title.length > 0)).toBe(
+      true,
+    )
     expect(result.some((s) => s.pack_id === "core")).toBe(true)
     expect(result.some((s) => s.pack_id && s.pack_id !== "core")).toBe(true)
   })
@@ -84,7 +68,13 @@ describe("API Client", () => {
   it("getScenarios filters by framework_slugs", async () => {
     const finance = await getScenarios("financial-mastery")
     expect(finance.length).toBeGreaterThan(0)
-    expect(finance.every((s) => s.framework_slugs?.includes("financial-mastery") || s.framework_id === "financial-mastery")).toBe(true)
+    expect(
+      finance.every(
+        (s) =>
+          s.framework_slugs?.includes("financial-mastery") ||
+          s.framework_id === "financial-mastery",
+      ),
+    ).toBe(true)
   })
 
   it("getScenario returns pack scenario with stages and concept_ids", async () => {
@@ -107,25 +97,9 @@ describe("API Client", () => {
     expect(result).toHaveProperty("slug")
   })
 
-  it("getJournalEntries returns an array", async () => {
-    const result = await getJournalEntries()
-    expect(Array.isArray(result)).toBe(true)
-  })
-
-  it("createJournalEntry returns new entry", async () => {
-    const result = await createJournalEntry({
-      title: "Test",
-      context: "ctx",
-      decision: "d",
-      rationale: "r",
-      confidence: 8,
-      review_date: "2025-12-31",
-    })
-    expect(result).toHaveProperty("id")
-  })
-
-  it("getProgress returns null (use firebase user-data instead)", async () => {
-    const result = await getProgress()
-    expect(result).toBeNull()
+  it("getBundledScenarioCatalog matches seed size", () => {
+    const bundled = getBundledScenarioCatalog()
+    expect(bundled.length).toBeGreaterThanOrEqual(12)
+    expect(bundled.every((s) => Array.isArray(s.stages))).toBe(true)
   })
 })

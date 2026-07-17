@@ -67,6 +67,9 @@ cd agent; npm install; cd ..
 8. [Purge legacy device data](#8-purge-legacy-device-data-optional--destructive)
 9. [Verify AI status indicator modes](#9-verify-ai-status-indicator-modes)
 10. [Smoke tests](#10-smoke-tests)
+11. [App Check enforce (optional)](#11-app-check-enforce-optional)
+12. [Seed scenario catalog + index](#12-seed-scenario-catalog--index)
+13. [Cloud Functions artifact cleanup](#13-cloud-functions-artifact-cleanup)
 
 ---
 
@@ -496,15 +499,70 @@ npx next build
 
 ---
 
+## 11. App Check enforce (optional)
+
+Only after production traffic already attaches tokens (`NEXT_PUBLIC_APPCHECK_SITE_KEY` in the Pages deploy env).
+
+1. Firebase Console → **App Check** → register web app with **reCAPTCHA v3**.
+2. Put the **site** key in GitHub Actions secrets / local `.env` as `NEXT_PUBLIC_APPCHECK_SITE_KEY`.
+3. Deploy frontend; verify clients send App Check headers (no console enforce yet).
+4. Register **debug tokens** for localhost if you will develop with enforce on.
+5. Console → App Check → **Enforce** on Realtime Database (and Functions if used).
+6. Set `_config/feature_flags.app_check_enforced` to `true` (ops signal for the client warn path).
+
+If enforce is on without site keys, **all** clients lose RTDB access. Keep enforce off until ready.
+
+Full detail: [`docs/ENGINEERING.md`](./ENGINEERING.md) § App Check · [`docs/CORNERSTONE.md`](./CORNERSTONE.md).
+
+---
+
+## 12. Seed scenario catalog + index
+
+Browse UIs read **`scenario_index`** (light). Runners read **`scenarios/{slug}`** (full). Seed both:
+
+```bash
+# Requires service account (agent/*.json or GOOGLE_APPLICATION_CREDENTIALS)
+node scripts/seed-catalog-rtdb.mjs
+```
+
+Then redeploy rules if `scenario_index` is new:
+
+```bash
+node scripts/update-rtdb-rules.cjs
+```
+
+---
+
+## 13. Cloud Functions artifact cleanup
+
+Cloud Functions builds leave container images in Artifact Registry. Set a cleanup policy so disk cost does not grow forever:
+
+```bash
+# List repos first
+gcloud artifacts repositories list --project=YOUR_PROJECT_ID
+
+# Example policy: keep recent builds, delete images older than 30d
+gcloud artifacts repositories set-cleanup-policies gcf-artifacts \
+  --project=YOUR_PROJECT_ID \
+  --location=us-central1 \
+  --policy='[{"name":"keep-min","action":{"type":"Keep"},"mostRecentVersions":{"keepCount":5}},{"name":"delete-old","action":{"type":"Delete"},"condition":{"olderThan":"30d"}}]'
+```
+
+Repo name/region may differ; use the list command. See also Firebase docs: manage Functions build images.
+
+---
+
 ## Quick reference — scripts
 
 | Script | Purpose |
 |--------|---------|
 | `scripts/update-rtdb-rules.cjs` | Deploy `database.rules.json` (key in `agent/`) |
 | `scripts/bootstrap-admins.mjs <uid>` | `admins/{uid} = true` |
+| `scripts/seed-catalog-rtdb.mjs` | Seed `scenarios/` + `scenario_index/` + quotes |
 | `scripts/seed-mastery-graph.mjs` | Push mastery graph (`--dry-run` supported) |
 | `scripts/purge-legacy-device-data.mjs --yes` | Delete legacy device roots |
 | `agent/index.js` | Local agent (Ollama bridge + heartbeat) |
+| `npm run agent:cli` | Agent CLI (Admin SDK, no browser) |
 | `functions/` + `firebase deploy --only functions` | Cloud AI `processAIRequest` |
 
 ---

@@ -7,7 +7,24 @@ If the local pre-commit suite passes, GitHub Actions CI will pass.
 |----------|---------------------------|---------|
 | **CI** (`.github/workflows/ci.yml`) | **Yes — required** | Types, lint, unit tests, Next build, functions tests |
 | **Deploy to GitHub Pages** | Yes on `master` only | Static export + Pages publish (needs Firebase secrets) |
-| **E2E (Playwright)** | **No** (`continue-on-error: true`) | Optional smoke; failures do not fail the required CI check |
+| **E2E (Playwright)** | **No** (`continue-on-error: true`) | Optional smoke under Google flash-login gate; no OAuth in CI |
+
+---
+
+## E2E notes (auth gate)
+
+The product shell is gated by **flash-login** (Google redirect). Specs under `frontend/e2e/` assert either:
+
+1. `data-testid="flash-login"` / “Continue with Google”, or  
+2. Signed-in product shells when a session already exists.
+
+They do **not** complete real Google OAuth in CI. Promote e2e to a required check only after a stable headless auth strategy exists.
+
+Agent workflow smoke (local, not in GitHub CI):
+
+```bash
+npm run agent:cli -- help
+```
 
 ---
 

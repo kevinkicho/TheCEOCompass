@@ -1,5 +1,10 @@
 # Agent Instructions for CEO Compass
 
+## Cornerstone architecture (read first for product work)
+
+Foundation patterns (auth redirect, scenario list/detail, journal context, App Check/SW/ops):  
+**[`docs/CORNERSTONE.md`](docs/CORNERSTONE.md)** · engineering map: [`docs/ENGINEERING.md`](docs/ENGINEERING.md)
+
 ## CI Verification (MANDATORY)
 
 **Full requirements, failure patterns, and checklists:** [`docs/CI.md`](docs/CI.md)
