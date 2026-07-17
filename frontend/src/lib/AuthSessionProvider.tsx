@@ -74,8 +74,13 @@ async function fetchIsAdmin(uid: string): Promise<boolean> {
   }
 }
 
-const POPUP_FALLBACK_CODES = new Set([
+/** Only true hard blocks that may succeed via full-page redirect */
+const POPUP_REDIRECT_CODES = new Set([
   "auth/popup-blocked",
+])
+
+/** User cancelled — surface a friendly error, do not redirect */
+const POPUP_USER_CANCEL_CODES = new Set([
   "auth/popup-closed-by-user",
   "auth/cancelled-popup-request",
 ])
@@ -87,6 +92,33 @@ const CREDENTIAL_IN_USE_CODES = new Set([
 
 function authErrorCode(err: unknown): string | undefined {
   return (err as { code?: string })?.code
+}
+
+/** Human-readable message for Firebase Auth / unknown errors */
+export function formatAuthError(err: unknown): string {
+  if (!err) return "Sign-in failed. Please try again."
+  const code = authErrorCode(err)
+  const raw = err instanceof Error ? err.message : String(err)
+  switch (code) {
+    case "auth/popup-blocked":
+      return "Pop-up was blocked. Allow pop-ups for this site, or we will try a full-page redirect."
+    case "auth/popup-closed-by-user":
+    case "auth/cancelled-popup-request":
+      return "Sign-in was cancelled. Click Continue with Google to try again."
+    case "auth/unauthorized-domain":
+      return "This site domain is not authorized in Firebase Auth. Add localhost / your Pages domain under Authentication → Settings → Authorized domains."
+    case "auth/operation-not-allowed":
+      return "Google sign-in is disabled in Firebase Console. Enable the Google provider under Authentication → Sign-in method."
+    case "auth/network-request-failed":
+      return "Network error during sign-in. Check your connection and try again."
+    case "auth/credential-already-in-use":
+    case "auth/email-already-in-use":
+      return "That Google account is already linked to another session. Retry sign-in, or clear site data and try again."
+    case "auth/internal-error":
+      return "Firebase internal error during sign-in. Confirm Google provider is enabled and API keys are valid."
+    default:
+      return code ? `${raw} (${code})` : raw || "Sign-in failed. Please try again."
+  }
 }
 
 function credentialFromAuthError(err: unknown) {
@@ -312,9 +344,18 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
   }, [applyMergeStatus])
 
   const linkGoogle = useCallback(async () => {
-    if (!auth?.currentUser) return
+    if (!auth) {
+      throw new Error("Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.")
+    }
+    if (!auth.currentUser) {
+      // Ensure anonymous session exists before linking
+      await signInAnonymously(auth)
+    }
+    if (!auth.currentUser) {
+      throw new Error("Could not start a session before Google sign-in. Enable Anonymous auth in Firebase Console.")
+    }
 
-    const abortWithStatus = (message: string, fromUid?: string) => {
+    const abortWithStatus = (message: string, fromUid?: string): never => {
       const status: MergeStatus = {
         state: "error",
         message,
@@ -324,6 +365,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       }
       setLastMergeStatus(status)
       setMergeStatus(status)
+      throw new Error(message)
     }
 
     /**
@@ -336,13 +378,11 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         const prep = await prepareAnonMerge(anonUid)
         if (!prep.ok) {
           abortWithStatus(prep.message, prep.fromUid)
-          return
         }
       } else if (!peekPendingAnonMerge()) {
         abortWithStatus(
           "Google credential already in use, but no anonymous session snapshot is available to merge.",
         )
-        return
       }
 
       mergeInFlight.current = true
@@ -361,8 +401,10 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
           if (status) setMergeStatus(status)
         } catch (e2: unknown) {
           const c2 = authErrorCode(e2)
-          if (c2 && POPUP_FALLBACK_CODES.has(c2)) {
-            // pending already stashed; release lock so return path can merge
+          if (c2 && POPUP_USER_CANCEL_CODES.has(c2)) {
+            throw new Error(formatAuthError(e2))
+          }
+          if (c2 && POPUP_REDIRECT_CODES.has(c2)) {
             mergeInFlight.current = false
             await signInWithRedirect(auth!, googleProvider)
             return
@@ -383,13 +425,15 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       }
     } catch (err: unknown) {
       const code = authErrorCode(err)
-      if (code && POPUP_FALLBACK_CODES.has(code)) {
+      if (code && POPUP_USER_CANCEL_CODES.has(code)) {
+        throw new Error(formatAuthError(err))
+      }
+      if (code && POPUP_REDIRECT_CODES.has(code)) {
         // First-hop redirect: MUST snapshot before leaving the page
         if (auth.currentUser?.isAnonymous) {
           const prep = await prepareAnonMerge(auth.currentUser.uid)
           if (!prep.ok) {
             abortWithStatus(prep.message, prep.fromUid)
-            return
           }
           await linkWithRedirect(auth.currentUser, googleProvider)
         } else {
@@ -398,13 +442,23 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       } else if (code && CREDENTIAL_IN_USE_CODES.has(code)) {
         await tryCredentialInUseRecovery(err)
       } else {
-        throw err
+        throw new Error(formatAuthError(err))
       }
     }
   }, [])
 
   const signInWithGoogle = useCallback(async () => {
-    if (!auth) return
+    if (!auth) {
+      throw new Error("Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.")
+    }
+    // Prefer link path when we have (or can create) an anonymous session
+    if (!auth.currentUser) {
+      try {
+        await signInAnonymously(auth)
+      } catch {
+        // Anonymous may be disabled — fall through to direct Google popup
+      }
+    }
     if (auth.currentUser?.isAnonymous) {
       await linkGoogle()
       return
@@ -413,11 +467,14 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       await signInWithPopup(auth, googleProvider)
     } catch (err: unknown) {
       const code = authErrorCode(err)
-      if (code && POPUP_FALLBACK_CODES.has(code)) {
-        await signInWithRedirect(auth, googleProvider)
-      } else {
-        throw err
+      if (code && POPUP_USER_CANCEL_CODES.has(code)) {
+        throw new Error(formatAuthError(err))
       }
+      if (code && POPUP_REDIRECT_CODES.has(code)) {
+        await signInWithRedirect(auth, googleProvider)
+        return
+      }
+      throw new Error(formatAuthError(err))
     }
   }, [linkGoogle])
 

@@ -43,51 +43,60 @@ export function AppShellGate({ children }: { children: React.ReactNode }) {
     return () => window.clearTimeout(t)
   }, [authReady])
 
-  // Post-Google: load catalogs with a deliberate minimum transition (once per uid)
+  // Post-Google: load catalogs with a deliberate minimum transition (once per uid).
+  // Depend only on uid so auth object identity churn cannot cancel the enter sequence.
+  const googleUid = googleUser && user ? user.uid : null
   useEffect(() => {
-    if (!googleUser || !user) {
+    if (!googleUid) {
       setEnterDone(false)
       return
     }
 
-    if (enteredUid.current === user.uid) {
+    if (enteredUid.current === googleUid) {
       setEnterDone(true)
       return
     }
 
     let cancelled = false
     setEnterDone(false)
-    setEnterMessage("Signing you in securely…")
+    setEnterMessage("Signing you in securely...")
 
     const started = Date.now()
-    const uid = user.uid
 
     ;(async () => {
-      setEnterMessage("Loading frameworks and scenarios…")
-      await Promise.all([
-        loadFrameworks().catch(() => null),
-        getScenarios().catch(() => null),
-      ])
-      if (cancelled) return
-      setEnterMessage("Preparing your main menu…")
-      const elapsed = Date.now() - started
-      const wait = Math.max(0, MIN_ENTER_MS - elapsed)
-      await new Promise((r) => setTimeout(r, wait))
-      if (!initReady) {
-        setEnterMessage("Syncing settings…")
-        await new Promise((r) => setTimeout(r, 700))
-      } else {
-        await new Promise((r) => setTimeout(r, 400))
+      try {
+        setEnterMessage("Loading frameworks and scenarios...")
+        await Promise.all([
+          loadFrameworks().catch(() => null),
+          getScenarios().catch(() => null),
+        ])
+        if (cancelled) return
+        setEnterMessage("Preparing your main menu...")
+        const elapsed = Date.now() - started
+        const wait = Math.max(0, MIN_ENTER_MS - elapsed)
+        await new Promise((r) => setTimeout(r, wait))
+        if (cancelled) return
+        if (!initReady) {
+          setEnterMessage("Syncing settings...")
+          await new Promise((r) => setTimeout(r, 700))
+        } else {
+          await new Promise((r) => setTimeout(r, 400))
+        }
+      } catch (err) {
+        console.warn("[app-shell] enter transition error (continuing)", err)
+        await new Promise((r) => setTimeout(r, MIN_ENTER_MS))
       }
       if (cancelled) return
-      enteredUid.current = uid
+      enteredUid.current = googleUid
       setEnterDone(true)
     })()
 
     return () => {
       cancelled = true
     }
-  }, [googleUser, user, initReady])
+    // initReady intentionally omitted from deps — polled inside once enter starts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleUid])
 
   let phase: Phase = "boot"
   if (!authReady || !bootElapsed) phase = "boot"

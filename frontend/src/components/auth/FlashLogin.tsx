@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { useAuthSession } from "@/lib/AuthSessionProvider"
+import { formatAuthError, useAuthSession } from "@/lib/AuthSessionProvider"
 
 /**
  * Full-screen entry for users who are not signed in with Google.
@@ -13,18 +13,20 @@ export function FlashLogin() {
   const [error, setError] = useState<string | null>(null)
 
   const onGoogle = async () => {
-    if (!ready || busy) return
+    if (busy) return
+    if (!ready) {
+      setError("Still starting up — wait a moment, then try again.")
+      return
+    }
     setError(null)
     setBusy(true)
     try {
       await signInWithGoogle()
-      // AuthGate handles the post-login transition into the main menu.
+      // On success AppShellGate switches to the enter transition.
+      // Keep busy true briefly; unmount will clear UI.
     } catch (err) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : "Google sign-in failed. Please try again."
-      setError(msg)
+      console.error("[flash-login] Google sign-in failed", err)
+      setError(formatAuthError(err))
       setBusy(false)
     }
   }
@@ -61,7 +63,7 @@ export function FlashLogin() {
             {busy ? (
               <>
                 <Spinner className="text-dark-600" />
-                Connecting to Google…
+                Connecting to Google...
               </>
             ) : (
               <>
@@ -71,28 +73,38 @@ export function FlashLogin() {
             )}
           </button>
 
-          {error && (
-            <p className="mt-4 text-xs text-red-400 text-center leading-relaxed" role="alert">
-              {error}
+          {!ready && (
+            <p className="mt-3 text-[11px] text-dark-500 text-center">
+              Preparing secure session...
             </p>
+          )}
+
+          {error && (
+            <div
+              className="mt-4 rounded-lg border border-red-800/50 bg-red-950/40 px-3 py-2.5 text-xs text-red-300 text-left leading-relaxed"
+              role="alert"
+            >
+              {error}
+            </div>
           )}
 
           <p className="mt-5 text-[11px] text-dark-500 text-center leading-relaxed">
             Your progress, journal, and reviews sync to your Google account so you can continue on any device.
+            Allow pop-ups if the browser blocks the Google window.
           </p>
         </div>
 
         <ul className="mt-8 grid gap-3 text-left text-xs text-dark-400">
           <li className="flex gap-2">
-            <span className="text-primary-400">●</span>
+            <span className="text-primary-400">*</span>
             <span>57+ leadership frameworks with deep concepts</span>
           </li>
           <li className="flex gap-2">
-            <span className="text-primary-400">●</span>
+            <span className="text-primary-400">*</span>
             <span>Interactive scenarios and decision practice</span>
           </li>
           <li className="flex gap-2">
-            <span className="text-primary-400">●</span>
+            <span className="text-primary-400">*</span>
             <span>Spaced review, pathway, and decision journal</span>
           </li>
         </ul>
