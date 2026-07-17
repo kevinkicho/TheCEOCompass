@@ -138,6 +138,8 @@ export default function QuizPage() {
       const fw = frameworks.find((f) => f.id === selectedFramework)
       saveQuizResult(correctAnswers.filter(Boolean).length, questions.length, fw?.slug || selectedFramework)
     }
+    // Intentionally only when the quiz flips to complete (not on every answer tweak).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- save once at completion
   }, [isComplete])
 
   if (!questions.length) {

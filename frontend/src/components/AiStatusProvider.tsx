@@ -110,6 +110,8 @@ export function AiStatusProvider({ children }: { children: React.ReactNode }) {
       return { status: "unavailable" as const, reason: "stale" as const }
     }
     return getAiAvailability(heartbeat, false, provider)
+    // `tick` forces stale recalculation every 10s without new heartbeat events
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tick is a time pulse
   }, [heartbeat, localAiMode, provider, tick])
 
   return (

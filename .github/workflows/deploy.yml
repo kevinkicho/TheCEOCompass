@@ -26,7 +26,10 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm install --legacy-peer-deps
+          npm ci --legacy-peer-deps
+
+      - name: UTF-8 source encoding
+        run: node scripts/check-utf8.mjs frontend/src
 
       - name: Build static export
         env:
@@ -39,9 +42,17 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
           cd frontend
+          # Fail fast if required secrets are empty (export needs real Firebase config)
+          if [ -z "$NEXT_PUBLIC_FIREBASE_API_KEY" ] || [ -z "$NEXT_PUBLIC_FIREBASE_PROJECT_ID" ]; then
+            echo "Missing FIREBASE_* GitHub secrets required for Pages deploy."
+            exit 1
+          fi
           cp next.config.export.js next.config.js
           npx next build
-          cp next.config.js next.config.export.js
+          # restore tracked config name if needed
+          cp next.config.js next.config.export.js || true
+          test -d out
+
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

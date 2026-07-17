@@ -65,7 +65,7 @@ export function AppSidebar() {
       }
     }
     return [false, map]
-  }, [filter])
+  }, [filter, treeData])
 
   const displayItems = filteredFws
     ? treeData
