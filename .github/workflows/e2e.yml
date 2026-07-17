@@ -13,11 +13,12 @@ jobs:
     continue-on-error: true
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
+          package-manager-cache: false
 
       - name: Install frontend dependencies
         run: |
