@@ -1,5 +1,10 @@
 export { getDeviceId, requireUid, tryUid, getDb, userPath } from "./scope"
 export {
+  loadLearnerJournalContext,
+  loadLearnerJournalContextForUid,
+  type LearnerJournalContext,
+} from "./learner-context"
+export {
   migrateDeviceDataToUser,
   mergeUsersData,
   snapshotUserTree,

@@ -770,7 +770,12 @@ function isMetaJunkDraft(d: StructuredJournalDraft): boolean {
  */
 export async function structureJournalFromThoughts(
   thoughts: string,
-  extras?: { scenarioTitle?: string; scenarioContext?: string },
+  extras?: {
+    scenarioTitle?: string
+    scenarioContext?: string
+    /** Auto-loaded RTDB activity (viewed, scenarios, pathway, quizzes) */
+    learnerContextBlock?: string
+  },
 ): Promise<StructuredJournalDraft[]> {
   const reviewDefault = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -778,22 +783,26 @@ export async function structureJournalFromThoughts(
   const scenarioHint = extras?.scenarioTitle
     ? `\nScenario practice: ${extras.scenarioTitle}\n${extras.scenarioContext || ""}`
     : ""
+  const accountCtx = extras?.learnerContextBlock
+    ? `\n\n${extras.learnerContextBlock}\n`
+    : ""
 
   const prompt = `You are a CEO decision-journal scribe. Your job is to EXTRACT the learner's real activities, decisions, questions, and situations into concrete journal entries.
 
 CRITICAL RULES:
-1. Write about THEIR content (what they did, decided, faced, asked) — NEVER about the act of journaling itself.
+1. Write about THEIR content (what they did, decided, faced, asked) - NEVER about the act of journaling itself.
 2. FORBIDDEN titles/themes: "Activity Recordkeeping", "Recordkeeping Process", "Document questions", "Structure and record", "maintain a historical log".
-3. If they mention multiple activities, scenarios, decisions, or questions (e.g. "3 things I did"), create ONE entry per distinct item (up to 6).
-4. Use ONLY facts present or clearly implied in their notes. If a field is thin, keep it short — do not invent a corporate memo.
-5. Titles must name the real topic (e.g. "Pricing war scenario - stage 2 choice", "Hiring VP Eng vs contractor", "First-principles review of unit economics").
-6. "decision" = what they chose or concluded about that activity, NOT "document this in a journal".
-7. "context" = the real situation they faced.
-8. "rationale" = why they acted that way, or what they learned in the moment.
+3. If they ask to record "recent activities" / "N things I did" and their free-text is thin, USE the ACCOUNT LEARNING CONTEXT block below as the source of truth for those activities.
+4. If they mention multiple activities (or context lists several recent items), create ONE entry per distinct item (up to 6).
+5. Prefer concrete names from context: scenario slugs, framework/concept ids, pathway steps, quiz scores.
+6. Titles must name the real topic (e.g. "Pricing war scenario practice", "Viewed first-principles-thinking", "Quiz on financial-mastery 80%").
+7. "decision" = what they chose or concluded, NOT "document this in a journal".
+8. "context" = the real situation. "rationale" = takeaway. Keep thin fields short; do not invent corporate fluff.
 
-LEARNER NOTES:
-${thoughts}
+LEARNER FREE-TEXT NOTES:
+${thoughts || "(none - use account learning context only)"}
 ${scenarioHint}
+${accountCtx}
 
 Return ONLY a JSON array (even if length 1). No markdown:
 [

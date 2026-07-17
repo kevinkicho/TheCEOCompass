@@ -7,6 +7,7 @@ import {
   deleteJournalEntry,
   recordOutcome,
 } from "@/lib/firebase-crud"
+import { loadLearnerJournalContext } from "@/lib/user-data"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { PersistenceUnavailableBanner } from "@/components/RequiresBackend"
 import { useAuthSession } from "@/lib/AuthSessionProvider"
@@ -60,11 +61,22 @@ export default function JournalPage() {
     }
     setBusy(true)
     setJournalError("")
-    setStatus("AI is extracting your real activities (not meta notes)...")
+    setStatus("Loading your recent learning activity, then writing entries...")
     try {
-      const drafts = await structureJournalFromThoughts(text)
+      // No browser-nav CLI for agents — context comes from RTDB paths the app already writes.
+      const learnerCtx = await loadLearnerJournalContext(8)
+      setStatus(
+        learnerCtx.recentScenarios.length || learnerCtx.recentViewed.length
+          ? "AI is turning your recent activity into journal entries..."
+          : "AI is structuring your notes...",
+      )
+      const drafts = await structureJournalFromThoughts(text, {
+        learnerContextBlock: learnerCtx.promptBlock,
+      })
       if (!drafts.length) {
-        throw new Error("AI could not extract a concrete activity. Add more detail about what you did.")
+        throw new Error(
+          "AI could not extract a concrete activity. Mention what you practiced, or open a few concepts/scenarios first so we have account context.",
+        )
       }
       setStatus(
         drafts.length > 1
@@ -202,7 +214,7 @@ export default function JournalPage() {
             </p>
             <p className="text-sm text-dark-600 dark:text-dark-300 mt-0.5">
               {mode === "capture"
-                ? "Describe the real activities, decisions, or scenarios — e.g. three things you practiced. AI creates one entry per activity (never a meta 'recordkeeping' note)."
+                ? "Optional notes + auto context from what you already viewed, scenarios, quizzes, and pathway. Say \"record my last 3 activities\" and AI uses your account history."
                 : `What actually happened for "${outcomeTarget?.title}"? AI writes the outcome review.`}
             </p>
           </div>
