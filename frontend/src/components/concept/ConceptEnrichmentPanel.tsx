@@ -298,7 +298,7 @@ export function ConceptEnrichmentPanel({ framework, concept, frameworkSlug, conc
           <div className="space-y-1.5">{(aiEnrichment?.related_concepts || concept.related_concepts).map((rc: any, i: number) => (
             <div key={i} className="flex items-start gap-2 text-sm">
               <span className="text-primary-500 mt-0.5">&#8594;</span>
-              <div><span className="font-medium text-dark-800 dark:text-dark-200">{rc.name}</span><span className="text-dark-500 dark:text-dark-400"> &mdash; {rc.relationship}</span></div>
+              <div><span className="font-medium text-dark-800 dark:text-dark-200">{rc.name}</span><span className="text-dark-500 dark:text-dark-400"> — {rc.relationship}</span></div>
             </div>
           ))}</div>
         </div>

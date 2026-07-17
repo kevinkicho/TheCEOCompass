@@ -61,7 +61,7 @@ export default function FrameworkDetailPage() {
         onClick={() => router.push("/frameworks")}
         className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
       >
-        <span className="text-lg leading-none">&larr;</span> Back to Frameworks
+        <span className="text-lg leading-none">←</span> Back to Frameworks
       </button>
 
       {/* Header */}
@@ -143,7 +143,7 @@ export default function FrameworkDetailPage() {
                   <h3 className="font-semibold text-primary-900 dark:text-primary-200">{scenario.title}</h3>
                   <p className="text-sm text-primary-700 dark:text-primary-300">{scenario.description}</p>
                 </div>
-                <span className="text-primary-600">&rarr;</span>
+                <span className="text-primary-600">→</span>
               </button>
             ))}
           </div>

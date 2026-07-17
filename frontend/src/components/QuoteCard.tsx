@@ -144,7 +144,7 @@ export function QuoteCard({
                   before:content-['\201C'] before:mr-0.5 after:content-['\201D'] after:ml-0.5">
                   {q.text}
                 </p>
-                <p className="text-xs font-semibold text-dark-900 dark:text-dark-100">&mdash; {q.person}</p>
+                <p className="text-xs font-semibold text-dark-900 dark:text-dark-100">— {q.person}</p>
                 <p className="text-[11px] text-dark-500 dark:text-dark-400 mt-0.5">
                   {q.role}
                   {q.year && <span className="opacity-50 ml-1.5">{q.year}</span>}

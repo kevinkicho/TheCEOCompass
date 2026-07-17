@@ -69,7 +69,7 @@ export default function FrameworksPage() {
             <div className="flex items-center justify-between text-xs text-dark-400 dark:text-dark-300">
               <span>{fw.estimated_time_minutes} min to learn</span>
               <span className="text-primary-600 opacity-0 group-hover:opacity-100 transition">
-                Open &rarr;
+                Open →
               </span>
             </div>
           </Link>

@@ -107,7 +107,7 @@ export function AppSidebar() {
           <div className="px-3 pb-2.5">
             <div className="relative">
               <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dark-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search frameworks &amp; concepts..." className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800 py-1.5 pl-8 pr-3 text-xs text-dark-700 dark:text-dark-300 placeholder:text-dark-400 focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400/30 transition" />
+              <input type="text" value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search frameworks & concepts..." className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-dark-50 dark:bg-dark-800 py-1.5 pl-8 pr-3 text-xs text-dark-700 dark:text-dark-300 placeholder:text-dark-400 focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-400/30 transition" />
               {filter && <button onClick={() => setFilter("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-dark-400 hover:text-dark-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>}
             </div>
           </div>

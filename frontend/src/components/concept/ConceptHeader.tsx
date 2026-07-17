@@ -28,7 +28,7 @@ export function ConceptHeader({ framework, concept, frameworkSlug, conceptSlug }
         onClick={() => router.push(`/frameworks/${frameworkSlug}`)}
         className="mb-6 inline-flex items-center gap-1 text-sm text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
       >
-        <span className="text-lg leading-none">&larr;</span> Back to {framework.title}
+        <span className="text-lg leading-none">←</span> Back to {framework.title}
       </button>
 
       <div className="mb-6 flex items-center justify-between text-xs">
@@ -38,7 +38,7 @@ export function ConceptHeader({ framework, concept, frameworkSlug, conceptSlug }
               onClick={() => router.push(`/frameworks/${frameworkSlug}/${prevConcept.slug}`)}
               className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
             >
-              <span>&larr;</span> {prevConcept.name}
+              <span>←</span> {prevConcept.name}
             </button>
           )}
         </div>
@@ -53,7 +53,7 @@ export function ConceptHeader({ framework, concept, frameworkSlug, conceptSlug }
               onClick={() => router.push(`/frameworks/${frameworkSlug}/${nextConcept.slug}`)}
               className="inline-flex items-center gap-1 text-dark-500 hover:text-primary-600 transition dark:text-dark-300"
             >
-              {nextConcept.name} <span>&rarr;</span>
+              {nextConcept.name} <span>→</span>
             </button>
           )}
         </div>

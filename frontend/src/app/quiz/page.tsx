@@ -313,7 +313,7 @@ export default function QuizPage() {
           disabled={isFirstQ}
           className="flex items-center gap-1 rounded-lg border border-dark-200 dark:border-dark-700 px-4 py-2 text-sm font-medium text-dark-700 dark:text-dark-300 hover:bg-dark-50 dark:hover:bg-dark-800 disabled:opacity-30"
         >
-          <span className="text-lg leading-none">&larr;</span> Previous
+          <span className="text-lg leading-none">←</span> Previous
         </button>
 
         {evalResult && !isLastQ && (
@@ -321,7 +321,7 @@ export default function QuizPage() {
             onClick={handleNext}
             className="flex items-center gap-1 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
           >
-            Next <span className="text-lg leading-none">&rarr;</span>
+            Next <span className="text-lg leading-none">→</span>
           </button>
         )}
 
