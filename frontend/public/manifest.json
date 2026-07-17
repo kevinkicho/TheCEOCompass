@@ -1,7 +1,7 @@
 {
   "name": "CEO Compass",
   "short_name": "CEO Compass",
-  "description": "Navigate every leadership decision with 57 frameworks, interactive scenarios, and AI-powered coaching",
+  "description": "Navigate every leadership decision with frameworks, interactive scenarios, and AI-powered coaching",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

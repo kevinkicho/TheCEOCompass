@@ -578,7 +578,7 @@ export async function runDecisionSimulator(
 
   const isFirst = messages.length === 0
   const prompt = isFirst
-    ? `You are a CEO coach with deep knowledge of all 57 leadership frameworks. The user describes a real business challenge. Your job:
+    ? `You are a CEO coach with deep knowledge of the CEO Compass leadership frameworks. The user describes a real business challenge. Your job:
 
 1. Identify which 1-2 frameworks are most relevant to this challenge
 2. Walk through each framework's key diagnostic questions applied to THEIR specific situation

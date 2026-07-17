@@ -35,8 +35,9 @@ export default function Home() {
           Navigate Every <span className="text-primary-600">Leadership Decision</span>
         </h1>
         <p className="mx-auto mb-10 max-w-2xl text-lg text-dark-500 dark:text-dark-300">
-          Your compass through 57 frameworks across 12 domains: decision-making, financial analysis,
-          negotiation, competitive strategy, operations, innovation, and more.
+          {frameworks.length > 0
+            ? `Your compass through ${frameworks.length} frameworks across ${categories.length} domains — decision-making, financial analysis, negotiation, competitive strategy, operations, and more.`
+            : "Your compass through leadership frameworks across decision-making, financial analysis, negotiation, competitive strategy, operations, and more."}
         </p>
         <div className="flex justify-center gap-4">
           <Link

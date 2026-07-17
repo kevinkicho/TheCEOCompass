@@ -71,7 +71,9 @@ export default function FrameworkDetailPage() {
             {(framework.category || "General").replace(/-/g, " ")}
           </span>
           <span className="text-sm text-dark-400 dark:text-dark-300">
-            {framework.estimated_time_minutes ? `${framework.estimated_time_minutes} min · Difficulty ${framework.difficulty}/5` : `${(framework.concepts?.length || 6)} concepts`}
+            {framework.estimated_time_minutes
+              ? `${framework.estimated_time_minutes} min · Difficulty ${framework.difficulty}/5`
+              : `${framework.concepts?.length ?? 0} concepts`}
           </span>
           {totalConcepts > 0 && (
             <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-300">
