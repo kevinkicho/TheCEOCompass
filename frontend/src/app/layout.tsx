@@ -11,6 +11,7 @@ import { Navbar } from "@/components/Navbar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { SiteFooter } from "@/components/SiteFooter"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { AppShellGate } from "@/components/auth/AppShellGate"
 
 const inter = Inter({ subsets: ["latin"] })
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
@@ -47,14 +48,16 @@ export default function RootLayout({
           <AppInitProvider>
           <AiStatusProvider>
           <ErrorBoundary>
-          <Navbar />
-          <div className="flex pt-14">
-            <AppSidebar />
-            <main className="flex-1 min-w-0">
-              <ErrorBoundary>{children}</ErrorBoundary>
-            </main>
-          </div>
-          <SiteFooter />
+          <AppShellGate>
+            <Navbar />
+            <div className="flex pt-14">
+              <AppSidebar />
+              <main className="flex-1 min-w-0">
+                <ErrorBoundary>{children}</ErrorBoundary>
+              </main>
+            </div>
+            <SiteFooter />
+          </AppShellGate>
           </ErrorBoundary>
           </AiStatusProvider>
           </AppInitProvider>
