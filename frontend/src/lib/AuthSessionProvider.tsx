@@ -35,7 +35,7 @@ type AuthSession = {
   ready: boolean
   isAdmin: boolean
   isAnonymous: boolean
-  /** Status of the last anon→Google credential-in-use merge (for Profile banner). */
+  /** Status of the last anon->Google credential-in-use merge (for Profile banner). */
   mergeStatus: MergeStatus | null
   clearMergeStatus: () => void
   /** Retry a failed merge while already signed in as Google (uses stashed pending snapshot). */
@@ -106,9 +106,9 @@ export function formatAuthError(err: unknown): string {
     case "auth/cancelled-popup-request":
       return "Sign-in was cancelled. Click Continue with Google to try again."
     case "auth/unauthorized-domain":
-      return "This site domain is not authorized in Firebase Auth. Add localhost / your Pages domain under Authentication → Settings → Authorized domains."
+      return "This site domain is not authorized in Firebase Auth. Add localhost / your Pages domain under Authentication -> Settings -> Authorized domains."
     case "auth/operation-not-allowed":
-      return "Google sign-in is disabled in Firebase Console. Enable the Google provider under Authentication → Sign-in method."
+      return "Google sign-in is disabled in Firebase Console. Enable the Google provider under Authentication -> Sign-in method."
     case "auth/network-request-failed":
       return "Network error during sign-in. Check your connection and try again."
     case "auth/credential-already-in-use":
