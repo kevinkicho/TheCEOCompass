@@ -897,7 +897,7 @@ Return ONLY valid JSON:
     "journal_outcome",
     "journal",
   )
-  const parsed = extractJsonObject(result) as StructuredOutcomeDraft
+  const parsed = extractJsonValue(result) as StructuredOutcomeDraft
   const wr = String(parsed.was_right || "partially").toLowerCase()
   const was_right = wr === "yes" || wr === "no" ? wr : "partially"
   return {

@@ -71,7 +71,7 @@ export default function JournalPage() {
           ? `Saving ${drafts.length} entries from your activities...`
           : "Saving entry...",
       )
-      const created = []
+      const created: JournalEntry[] = []
       for (const draft of drafts) {
         const entry = await createJournalEntry({
           title: draft.title,
