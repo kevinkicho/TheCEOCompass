@@ -35,6 +35,16 @@ bash scripts/pre-commit-check.sh
 
 ## CI Pipeline
 
+**Authoritative guide (requirements, failure patterns, checklist):** [`docs/CI.md`](./CI.md)
+
+Before every push:
+
+```bash
+npm run ci
+# or: bash scripts/pre-commit-check.sh
+# or: powershell -File scripts/pre-commit-check.ps1
+```
+
 `.github/workflows/ci.yml` runs on every push:
 1. `frontend-tests`: UTF-8 check, mastery seed validation, scenario slug sync, `tsc`, ESLint, vitest
 2. `functions-tests`: Cloud Functions unit tests
@@ -43,6 +53,8 @@ bash scripts/pre-commit-check.sh
 `.github/workflows/deploy.yml` runs on master push:
 1. Builds static export (`next.config.export.js`)
 2. Uploads to GitHub Pages
+
+E2E Playwright is optional and does not fail required CI.
 
 ## Data sources (no hardcoded mock product data)
 

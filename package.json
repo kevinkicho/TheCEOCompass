@@ -9,6 +9,9 @@
     "lint": "npm run lint --prefix frontend",
     "test": "npm run test --prefix frontend",
     "typecheck": "npm run typecheck --prefix frontend",
-    "agent": "npm start --prefix agent"
+    "agent": "npm start --prefix agent",
+    "agent:cli": "node agent/cli/index.js",
+    "ci": "node scripts/run-ci-local.mjs",
+    "precommit": "node scripts/run-ci-local.mjs"
   }
 }
