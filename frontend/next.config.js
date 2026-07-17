@@ -1,16 +1,8 @@
-// Used only for GitHub Pages deployment
 /** @type {import('next').NextConfig} */
+// Local / CI default. GitHub Pages deploy copies next.config.export.js over this file.
 const nextConfig = {
   reactStrictMode: true,
-  output: "export",
-  distDir: "out",
-  basePath: "/TheCEOCompass",
-  assetPrefix: "/TheCEOCompass",
-  trailingSlash: true,
   images: { unoptimized: true },
-  env: {
-    NEXT_PUBLIC_BASE_PATH: "/TheCEOCompass",
-  },
 }
 
 module.exports = nextConfig
