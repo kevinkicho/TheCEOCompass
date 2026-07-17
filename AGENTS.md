@@ -2,26 +2,39 @@
 
 ## CI Verification (MANDATORY)
 
-Before committing any code changes, you MUST run the full pre-commit validation suite:
+Before committing/pushing, run the full pre-commit suite (same gates as GitHub Actions CI):
 
 ```bash
+# Git Bash / WSL / macOS / Linux
 bash scripts/pre-commit-check.sh
+
+# Windows PowerShell
+powershell -File scripts/pre-commit-check.ps1
+
+# Faster loop (skip Next build)
+bash scripts/pre-commit-check.sh --skip-build
 ```
 
-This runs 4 checks in sequence:
-1. **TypeScript type check** — `tsc --noEmit` catches type errors the build wouldn't
-2. **ESLint** — `next lint` catches code quality issues
-3. **Unit tests** — `vitest run` catches logic bugs, missing imports, broken mocks
-4. **Next.js build** — `next build` catches SSG/page errors, Firebase env issues
+Checks (all must pass — lint fails on warnings):
+0. **UTF-8 encoding** — `node scripts/check-utf8.mjs` (prevents Linux CI webpack “invalid UTF-8”)
+1. **Mastery seed** — `node scripts/validate-mastery-seed.mjs`
+2. **TypeScript** — `tsc --noEmit`
+3. **ESLint** — `next lint --max-warnings 0`
+4. **Unit tests** — `vitest run`
+5. **Next.js build** — `next build` (placeholder Firebase env if secrets missing)
+6. **Functions tests** — `cd functions && npm test`
 
-All 4 must pass. If any fails, fix before pushing. If the pre-commit script passes locally, it WILL pass on CI.
+CI workflow (`.github/workflows/ci.yml`) runs the same gates. Deploy (`.github/workflows/deploy.yml`) also UTF-8-checks then static-exports.
 
-To run individual checks:
+Individual commands:
 ```bash
-cd frontend && npx tsc --noEmit        # type check
-cd frontend && npx next lint            # lint
-cd frontend && npx vitest run           # tests (101 tests)
-cd frontend && npx next build           # build
+node scripts/check-utf8.mjs
+node scripts/validate-mastery-seed.mjs
+cd frontend && npx tsc --noEmit
+cd frontend && npx next lint --max-warnings 0
+cd frontend && npx vitest run
+cd frontend && npx next build
+cd functions && npm test
 ```
 
 ## Architecture
