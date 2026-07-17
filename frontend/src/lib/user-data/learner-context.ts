@@ -8,9 +8,10 @@
 
 import { db, ref, get } from "../firebase"
 import { tryUid, userPath, requireUid } from "./scope"
-import { loadPathwayProgress, buildPathway } from "./pathway"
+import { loadPathwayProgress, buildPathway } from "./progress"
 import { loadDueReviews } from "./reviews"
 import { loadFrameworks } from "../rtdb-cache"
+import type { FrameworkListItem } from "../types"
 
 export type LearnerJournalContext = {
   /** Human-readable block for AI prompts */
@@ -127,12 +128,12 @@ export async function loadLearnerJournalContext(limit = 8): Promise<LearnerJourn
       quizHighlights.sort((a, b) => b.pct - a.pct)
     }
 
-    const steps = buildPathway(frameworks as any[])
+    const steps = buildPathway(frameworks as FrameworkListItem[])
     const pct =
       steps.length > 0
         ? Math.round((pathway.completedIds.length / steps.length) * 100)
         : 0
-    const nextStep = steps.find((s) => !pathway.completedIds.includes(s.slug))
+    const nextStep = steps.find((s: FrameworkListItem) => !pathway.completedIds.includes(s.slug))
 
     const topViewed = recentViewed.slice(0, limit)
     const topScenarios = recentScenarios.slice(0, limit)
