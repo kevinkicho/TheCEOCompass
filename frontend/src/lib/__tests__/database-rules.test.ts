@@ -125,4 +125,16 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules._meta.mastery_graph[".read"]).toBe(true)
     expect(rules._meta.mastery_graph[".write"]).toContain("admins")
   })
+
+  it("exposes scenarios catalog as public read, admin write", () => {
+    expect(rules.scenarios[".read"]).toBe(true)
+    expect(rules.scenarios[".write"]).toContain("admins")
+  })
+
+  it("exposes quotes catalog + categories as public read, admin write", () => {
+    expect(rules.quotes.catalog[".read"]).toBe(true)
+    expect(rules.quotes.catalog[".write"]).toContain("admins")
+    expect(rules.quotes.categories[".read"]).toBe(true)
+    expect(rules.quotes.categories[".write"]).toContain("admins")
+  })
 })

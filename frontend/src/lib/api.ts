@@ -1,17 +1,15 @@
 import axios from "axios"
 import { getCachedFrameworks } from "./rtdb-cache"
+import { loadScenarios, getCachedScenarios, getBundledScenarios } from "./scenarios-cache"
 import type {
   Framework, FrameworkListItem, Scenario, ScenarioAttempt, ScenarioListItem,
   StageResult, JournalEntry, Progress, CalibrationSummary,
 } from "./types"
-import staticScenarioData from "@/data/scenarios.json"
 import { useFastApiScenarios } from "@/lib/constants"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:50128/api"
 
 const api = axios.create({ baseURL: API_BASE, headers: { "Content-Type": "application/json" } })
-
-const staticScenarios = staticScenarioData as Scenario[]
 
 export async function getFrameworks(category?: string): Promise<FrameworkListItem[]> {
   const fws = getCachedFrameworks()
@@ -56,36 +54,44 @@ function matchesFramework(s: Scenario, frameworkIdOrSlug: string): boolean {
 
 /** frameworkIdOrSlug: RTDB/framework id or slug. Prefer slug — pack scenarios join via framework_slugs. */
 export async function getScenarios(frameworkIdOrSlug?: string): Promise<ScenarioListItem[]> {
-  if (!useFastApiScenarios) {
-    let list = staticScenarios
-    if (frameworkIdOrSlug) list = list.filter((s) => matchesFramework(s, frameworkIdOrSlug))
-    return list.map(toScenarioListItem)
+  if (useFastApiScenarios) {
+    try {
+      const { data } = await api.get("/scenarios", {
+        params: frameworkIdOrSlug ? { framework_id: frameworkIdOrSlug } : {},
+      })
+      const rows = (data as ScenarioListItem[]) || []
+      return rows.map((s) => ({
+        ...s,
+        pack_id: s.pack_id ?? "core",
+        pack_title: s.pack_title ?? "Core",
+      }))
+    } catch {
+      return []
+    }
   }
-  try {
-    const { data } = await api.get("/scenarios", {
-      params: frameworkIdOrSlug ? { framework_id: frameworkIdOrSlug } : {},
-    })
-    const rows = (data as ScenarioListItem[]) || []
-    return rows.map((s) => ({
-      ...s,
-      pack_id: s.pack_id ?? "core",
-      pack_title: s.pack_title ?? "Core",
-    }))
-  } catch {
-    return []
-  }
+
+  let list = await loadScenarios()
+  if (frameworkIdOrSlug) list = list.filter((s) => matchesFramework(s, frameworkIdOrSlug))
+  return list.map(toScenarioListItem)
 }
 
 export async function getScenario(id: string): Promise<Scenario | null> {
-  if (!useFastApiScenarios) {
-    return staticScenarios.find((s) => s.slug === id || s.id === id) || null
+  if (useFastApiScenarios) {
+    try {
+      const { data } = await api.get(`/scenarios/slug/${id}`)
+      return data
+    } catch {
+      return null
+    }
   }
-  try {
-    const { data } = await api.get(`/scenarios/slug/${id}`)
-    return data
-  } catch {
-    return null
-  }
+
+  const list = getCachedScenarios() || (await loadScenarios())
+  return list.find((s) => s.slug === id || s.id === id) || null
+}
+
+/** Bundled seed only — for offline unit tests that skip Firebase. */
+export function getBundledScenarioCatalog(): Scenario[] {
+  return getBundledScenarios()
 }
 
 export async function startScenario(id: string): Promise<ScenarioAttempt> {

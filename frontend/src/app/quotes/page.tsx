@@ -1,24 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import quotesData from "@/data/quotes.json"
 import { db, ref, onValue, off } from "@/lib/firebase"
 import { generateQuote } from "@/lib/ollama"
 import { useAuth } from "@/lib/useAuth"
 import { toggleFavoriteQuote, loadFavoriteQuotes } from "@/lib/firebase-crud"
 import { canUseFirebasePersistence } from "@/lib/capabilities"
 import { QuoteCard } from "@/components/QuoteCard"
+import {
+  loadQuotesCatalog,
+  getBundledQuoteCategories,
+  type QuoteCategory,
+} from "@/lib/quotes-catalog"
 import type { QuoteEntry } from "@/lib/types"
-
-type CategoryInfo = {
-  id: string
-  name: string
-  icon: string
-  color: string
-}
-
-const categories: CategoryInfo[] = (quotesData as any).categories
-const staticQuotes: QuoteEntry[] = (quotesData as any).quotes
 
 const TAB_COLORS: Record<string, { active: string; inactive: string }> = {
   rose: { active: "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300", inactive: "text-dark-500 dark:text-dark-400 hover:text-dark-700 dark:hover:text-dark-200" },
@@ -29,7 +23,7 @@ const TAB_COLORS: Record<string, { active: string; inactive: string }> = {
   emerald: { active: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300", inactive: "text-dark-500 dark:text-dark-400 hover:text-dark-700 dark:hover:text-dark-200" },
 }
 
-function getTabClasses(catId: string, selected: boolean): string {
+function getTabClasses(categories: QuoteCategory[], catId: string, selected: boolean): string {
   const cat = categories.find((c) => c.id === catId)
   const colors = cat ? TAB_COLORS[cat.color] : TAB_COLORS.blue
   return selected ? colors.active : colors.inactive
@@ -39,6 +33,9 @@ export default function QuotesPage() {
   const { isAdmin } = useAuth()
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [catalogQuotes, setCatalogQuotes] = useState<QuoteEntry[]>([])
+  const [categories, setCategories] = useState<QuoteCategory[]>(() => getBundledQuoteCategories())
+  const [catalogLoading, setCatalogLoading] = useState(true)
   const [generatedQuotes, setGeneratedQuotes] = useState<QuoteEntry[]>([])
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set())
   const [aiLoading, setAiLoading] = useState(false)
@@ -47,6 +44,17 @@ export default function QuotesPage() {
   const [editForm, setEditForm] = useState<Partial<QuoteEntry>>({})
   const [saving, setSaving] = useState(false)
   const [showPrompt, setShowPrompt] = useState(false)
+
+  useEffect(() => {
+    loadQuotesCatalog()
+      .then(({ quotes, categories: cats }) => {
+        setCatalogQuotes(quotes)
+        setCategories(cats)
+        if (cats[0]?.id) setAiCategory((prev) => cats.some((c) => c.id === prev) ? prev : cats[0].id)
+      })
+      .catch(console.error)
+      .finally(() => setCatalogLoading(false))
+  }, [])
 
   useEffect(() => {
     if (canUseFirebasePersistence()) {
@@ -92,7 +100,7 @@ export default function QuotesPage() {
     return () => off(genRef, "value", cb)
   }, [])
 
-  const allQuotes = [...staticQuotes, ...generatedQuotes]
+  const allQuotes = [...catalogQuotes, ...generatedQuotes]
   const searched = searchQuery.trim()
     ? allQuotes.filter((q) =>
         [q.text, q.person, q.role, q.context, q.source, q.year].some(
@@ -174,7 +182,7 @@ Return ONLY valid JSON:
           }`}>♥ Saved ({favoriteIds.size})</button>
         {categories.map((cat) => (
           <button key={cat.id} onClick={() => setSelectedCategory(cat.id)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-full transition ${getTabClasses(cat.id, selectedCategory === cat.id)}`}
+            className={`px-3 py-1.5 text-xs font-medium rounded-full transition ${getTabClasses(categories, cat.id, selectedCategory === cat.id)}`}
           >{cat.name}</button>
         ))}
       </div>
@@ -185,6 +193,7 @@ Return ONLY valid JSON:
           <QuoteCard
             key={q.id}
             q={q}
+            categories={categories}
             isAdmin={isAdmin}
             isEditing={editingId === q.id}
             editingId={editingId}
@@ -199,7 +208,7 @@ Return ONLY valid JSON:
         ))}
         {filteredQuotes.length === 0 && (
           <div className="col-span-full text-center py-12 text-dark-400 dark:text-dark-500 text-sm">
-            No quotes in this category yet.
+            {catalogLoading ? "Loading quotes…" : "No quotes in this category yet."}
           </div>
         )}
       </div>

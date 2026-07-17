@@ -40,28 +40,38 @@ cd functions && npm test
 ## Architecture
 
 ### Data sources (NO hardcoded mock data)
-- All framework + concept data lives in **Firebase RTDB** at `frameworks/{slug}` and `frameworks/{slug}/concepts/{id}`
-- Cached at module level via `rtdb-cache.ts` → `loadFrameworks()` / `getCachedFrameworks()`
-- If Firebase is unavailable, the app shows clear error messages — no silent fallback to static data
-- `staticData.ts` has been removed. A minimal `framework-meta.json` exists only for SSG build-time params/metadata
+- **Frameworks + concepts** — RTDB `frameworks/{slug}` via `rtdb-cache.ts` (error if missing; no silent mock)
+- **Scenarios** — RTDB `scenarios/{slug}` via `scenarios-cache.ts`; bundled `scenarios.json` is seed + SSG fallback only
+- **Quotes catalog** — RTDB `quotes/catalog` + `quotes/categories` via `quotes-catalog.ts`; `quotes.json` is seed; AI quotes at `quotes/generated`
+- **Mastery graph** — RTDB `mastery/*` only when Firebase is configured (empty until seeded); bundled `mastery-edges.json` for tests / `seed-mastery-graph.mjs`
+- **SSG only** — `framework-meta.json`, `slugs.json` (build-time params/metadata)
+- `staticData.ts` has been removed
 
 ### Seeding data to RTDB
-If RTDB needs to be reseeded with framework data:
 ```bash
-# 1. Export framework data to JSON
-cd frontend && npx tsx -e "import { getCachedFrameworks } from './src/lib/rtdb-cache'; import { writeFileSync } from 'fs'; ..."
+# Frameworks (existing)
+cd agent && node seed-rtdb.mjs   # reads /tmp/frameworks.json
 
-# 2. Push to RTDB
-cd agent && node seed-rtdb.mjs
+# Scenarios + quotes catalog
+node scripts/seed-catalog-rtdb.mjs
+# optional: --dry-run | --scenarios-only | --quotes-only
+
+# Mastery graph
+node scripts/seed-mastery-graph.mjs
 ```
-The `agent/seed-rtdb.mjs` script reads `/tmp/frameworks.json` and pushes to `frameworks/{slug}`.
+Requires `GOOGLE_APPLICATION_CREDENTIALS` or a service-account JSON in `agent/`.
 
 ### RTDB paths
 - `frameworks/{slug}` — Framework metadata (title, description, category, difficulty)
 - `frameworks/{slug}/concepts/{id}` — Concept data (name, definition, tags, etc.)
+- `scenarios/{slug}` — Full scenario objects (curriculum)
+- `_meta/scenario_slugs` — Scenario slug list
+- `quotes/catalog/{id}`, `quotes/categories/{id}` — Curated quotes
+- `quotes/generated/{id}` — AI-generated quotes
+- `mastery/concepts`, `mastery/edges`, `_meta/mastery_graph`
 - `_meta/framework_slugs` — Array of framework slugs for fast listing
 - `comparisons/{frameworkSlug}/{slugA}/{slugB}/{mode}/{requestId}` — Saved comparison results with pagination
-- All other paths: requests, framework/{slug}/{concept}/{category}/{id}, conceptChats, scenario-evaluations, quotes/generated, reviews, journal, progress, viewed, favoriteQuotes, quizResults, scenarioHistory
+- All other paths: requests, framework/{slug}/{concept}/{category}/{id}, conceptChats, scenario-evaluations, reviews, journal, progress, viewed, favoriteQuotes, quizResults, scenarioHistory
 
 ### Common CI failure patterns to watch for:
 - **Missing `import React from "react"`** in files with JSX — vitest/jsdom needs explicit React import for JSX transform when `esbuild: { jsx: "automatic" }` doesn't apply

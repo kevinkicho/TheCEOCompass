@@ -3,9 +3,7 @@
 import { useState } from "react"
 import { db, ref, set, remove } from "@/lib/firebase"
 import type { QuoteEntry } from "@/lib/types"
-import quotesData from "@/data/quotes.json"
-
-const categories: { id: string; name: string; icon: string; color: string }[] = (quotesData as any).categories
+import type { QuoteCategory } from "@/lib/quotes-catalog"
 
 const CAT_COLORS: Record<string, string> = {
   rose: "border-rose-400 dark:border-rose-500",
@@ -16,11 +14,17 @@ const CAT_COLORS: Record<string, string> = {
   emerald: "border-emerald-400 dark:border-emerald-500",
 }
 
-function getCat(catId: string) { return categories.find((c) => c.id === catId) }
-function getBorder(catId: string) { const c = getCat(catId); return c ? CAT_COLORS[c.color] || CAT_COLORS.blue : CAT_COLORS.blue }
+function getCat(categories: QuoteCategory[], catId: string) {
+  return categories.find((c) => c.id === catId)
+}
+function getBorder(categories: QuoteCategory[], catId: string) {
+  const c = getCat(categories, catId)
+  return c ? CAT_COLORS[c.color] || CAT_COLORS.blue : CAT_COLORS.blue
+}
 
 interface Props {
   q: QuoteEntry
+  categories: QuoteCategory[]
   isAdmin: boolean
   isEditing: boolean
   editingId: string | null
@@ -34,11 +38,11 @@ interface Props {
 }
 
 export function QuoteCard({
-  q, isAdmin, isEditing, editingId, editForm, saving, favoriteIds,
+  q, categories, isAdmin, isEditing, editingId, editForm, saving, favoriteIds,
   setEditingId, setEditForm, setSaving, onToggleFavorite,
 }: Props) {
   const [flipped, setFlipped] = useState(false)
-  const cat = getCat(q.category)
+  const cat = getCat(categories, q.category)
 
   const startEdit = () => {
     setEditingId(q.id)
@@ -78,7 +82,7 @@ export function QuoteCard({
     if (editingId !== q.id) setFlipped((f) => !f)
   }
 
-  const borderCls = getBorder(q.category)
+  const borderCls = getBorder(categories, q.category)
 
   return (
     <div className="rounded-xl cursor-pointer" style={{ perspective: "1000px" }} onClick={handleClick}>

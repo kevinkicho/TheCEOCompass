@@ -49,13 +49,19 @@ bash scripts/pre-commit-check.sh
 | Content | Source |
 |---------|--------|
 | Frameworks + concepts | **Firebase RTDB** `frameworks/{slug}` (via `rtdb-cache.ts`) |
-| Scenarios | Static catalog `frontend/src/data/scenarios.json` (curriculum) |
-| Quotes catalog | Static `frontend/src/data/quotes.json` + RTDB `quotes/generated` for AI quotes |
-| Mastery graph | RTDB `mastery/*` with seed fallback `mastery-edges.json` |
+| Scenarios | RTDB `scenarios/{slug}` (seed from `scenarios.json` via `scripts/seed-catalog-rtdb.mjs`) |
+| Quotes catalog | RTDB `quotes/catalog` + `quotes/categories` (seed from `quotes.json`); AI at `quotes/generated` |
+| Mastery graph | RTDB `mastery/*` (seed via `scripts/seed-mastery-graph.mjs`); no silent static product fallback when Firebase is configured |
 | User progress | RTDB under the signed-in (or anonymous) uid |
-| SSG params only | `framework-meta.json`, `slugs.json` — build-time metadata, not runtime mock data |
+| SSG params only | `framework-meta.json`, `slugs.json`, `scenarios.json` for `generateStaticParams` |
 
 `staticData.ts` has been **removed**. If RTDB frameworks are unavailable, the app surfaces an error — it does not silently inject fake frameworks or progress.
+
+```bash
+# Seed scenarios + quotes (service account required)
+node scripts/seed-catalog-rtdb.mjs
+node scripts/seed-mastery-graph.mjs
+```
 
 ## Adding a New Framework
 

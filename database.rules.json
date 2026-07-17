@@ -48,11 +48,36 @@
     },
 
     "quotes": {
+      "catalog": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+        "$quoteId": {
+          ".read": true,
+          ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+        }
+      },
+      "categories": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+        "$catId": {
+          ".read": true,
+          ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+        }
+      },
       "generated": {
         "$quoteId": {
           ".read": true,
           ".write": false
         }
+      }
+    },
+
+    "scenarios": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).val() === true",
+      "$slug": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
       }
     },
 
@@ -180,6 +205,14 @@
         }
       },
       "mastery_graph": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+      },
+      "scenario_slugs": {
+        ".read": true,
+        ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
+      },
+      "quotes_catalog": {
         ".read": true,
         ".write": "auth != null && root.child('admins').child(auth.uid).val() === true"
       }

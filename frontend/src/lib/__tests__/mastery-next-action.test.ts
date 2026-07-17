@@ -648,7 +648,7 @@ describe("loadMasteryGraph", () => {
     expect(getMasteryGraphSource()).toBe("rtdb")
   })
 
-  it("falls back to static seed when RTDB is empty", async () => {
+  it("returns empty graph when Firebase is configured but RTDB mastery is empty (no silent static fallback)", async () => {
     const { get } = await import("@/lib/firebase")
     vi.mocked(get).mockResolvedValue(makeSnap(null, false) as any)
 
@@ -656,11 +656,11 @@ describe("loadMasteryGraph", () => {
       await import("../mastery/load")
     clearMasteryGraphCache()
     const g = await loadMasteryGraph()
-    expect(Object.keys(g.concepts).length).toBeGreaterThan(0)
-    expect(getMasteryGraphSource()).toBe("static")
+    expect(Object.keys(g.concepts).length).toBe(0)
+    expect(getMasteryGraphSource()).toBe("empty")
   })
 
-  it("falls back to static seed when RTDB get throws", async () => {
+  it("returns empty graph when RTDB get throws (Firebase configured)", async () => {
     const { get } = await import("@/lib/firebase")
     vi.mocked(get).mockRejectedValue(new Error("network"))
 
@@ -668,8 +668,8 @@ describe("loadMasteryGraph", () => {
       await import("../mastery/load")
     clearMasteryGraphCache()
     const g = await loadMasteryGraph()
-    expect(Object.keys(g.concepts).length).toBeGreaterThan(0)
-    expect(getMasteryGraphSource()).toBe("static")
+    expect(Object.keys(g.concepts).length).toBe(0)
+    expect(getMasteryGraphSource()).toBe("empty")
   })
 
   it("loadMasteryGraphFromStatic is sync and non-empty", async () => {
@@ -696,4 +696,5 @@ describe("loadMasteryGraph", () => {
     expect(mockGet.mock.calls.length).toBe(callsAfterFirst)
     expect(callsAfterFirst).toBeGreaterThan(0)
   })
+
 })
