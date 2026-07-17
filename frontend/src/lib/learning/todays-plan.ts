@@ -30,6 +30,8 @@ function preferDomain(prefs: LearnerPrefs | undefined, text: string): number {
 
 /**
  * Build a compact daily plan from current learning state.
+ * Returns empty:true with no filler cards when the learner has no real progress —
+ * home should show WelcomeSplash instead of placeholder plan shells.
  */
 export function buildTodaysPlan(input: {
   dueReviews: ReviewRecord[]
@@ -41,7 +43,7 @@ export function buildTodaysPlan(input: {
   const items: PlanItem[] = []
   const prefs = input.prefs
 
-  // 1) Spaced review (most overdue first if multiple)
+  // 1) Spaced review (most overdue first if multiple) — omit if nothing due
   const due = [...input.dueReviews].sort((a, b) => {
     const ta = a.nextReviewAt ? new Date(a.nextReviewAt).getTime() : 0
     const tb = b.nextReviewAt ? new Date(b.nextReviewAt).getTime() : 0
@@ -62,17 +64,9 @@ export function buildTodaysPlan(input: {
           ? `${due.length} concepts due — start with this one`
           : "Due for review today",
     })
-  } else {
-    items.push({
-      kind: "review",
-      title: "Review session",
-      subtitle: "Spaced repetition",
-      href: "/review",
-      reason: "No cards due — check weekly review or rate a concept",
-    })
   }
 
-  // 2) Concept to learn (mastery rec or pathway)
+  // 2) Concept to learn (mastery rec or pathway only — no generic "Explore" filler)
   const rec = input.recommended[0]
   if (rec) {
     items.push({
@@ -90,54 +84,46 @@ export function buildTodaysPlan(input: {
       href: `/frameworks/${input.pathwayNext.slug}`,
       reason: "Next step on your learning pathway",
     })
-  } else {
-    items.push({
-      kind: "concept",
-      title: "Explore frameworks",
-      subtitle: "Learn",
-      href: "/frameworks",
-      reason: "Browse a framework to start building mastery",
-    })
   }
 
-  // 3) Scenario practice
-  const scenarios = [...input.scenarios]
-  scenarios.sort((a, b) => {
-    const sa =
-      preferDomain(prefs, `${a.title} ${a.pack_id || ""} ${a.description || ""}`) +
-      (prefs?.timeBudgetMinutes && prefs.timeBudgetMinutes <= 15
-        ? (a.difficulty || 3) <= 2
-          ? 1
-          : 0
-        : 0)
-    const sb =
-      preferDomain(prefs, `${b.title} ${b.pack_id || ""} ${b.description || ""}`) +
-      (prefs?.timeBudgetMinutes && prefs.timeBudgetMinutes <= 15
-        ? (b.difficulty || 3) <= 2
-          ? 1
-          : 0
-        : 0)
-    return sb - sa
-  })
-  const sc = scenarios[0]
-  if (sc) {
-    items.push({
-      kind: "scenario",
-      title: sc.title,
-      subtitle: sc.pack_title || sc.pack_id || "Practice",
-      href: `/scenarios/${sc.slug || sc.id}`,
-      reason: prefs?.industry
-        ? `Practice scenario${sc.pack_id ? ` · ${sc.pack_id}` : ""}`
-        : "Apply frameworks under pressure",
+  // 3) Scenario practice — only when we already have at least one personal item
+  //    (avoids a lonely catalog card on an empty home)
+  const hasPersonal = items.length > 0
+  if (hasPersonal) {
+    const scenarios = [...input.scenarios]
+    scenarios.sort((a, b) => {
+      const sa =
+        preferDomain(prefs, `${a.title} ${a.pack_id || ""} ${a.description || ""}`) +
+        (prefs?.timeBudgetMinutes && prefs.timeBudgetMinutes <= 15
+          ? (a.difficulty || 3) <= 2
+            ? 1
+            : 0
+          : 0)
+      const sb =
+        preferDomain(prefs, `${b.title} ${b.pack_id || ""} ${b.description || ""}`) +
+        (prefs?.timeBudgetMinutes && prefs.timeBudgetMinutes <= 15
+          ? (b.difficulty || 3) <= 2
+            ? 1
+            : 0
+          : 0)
+      return sb - sa
     })
-  } else {
-    items.push({
-      kind: "scenario",
-      title: "Scenarios",
-      subtitle: "Practice",
-      href: "/scenarios",
-      reason: "Try a multi-stage leadership scenario",
-    })
+    const sc = scenarios[0]
+    if (sc) {
+      items.push({
+        kind: "scenario",
+        title: sc.title,
+        subtitle: sc.pack_title || sc.pack_id || "Practice",
+        href: `/scenarios/${sc.slug || sc.id}`,
+        reason: prefs?.industry
+          ? `Practice scenario${sc.pack_id ? ` · ${sc.pack_id}` : ""}`
+          : "Apply frameworks under pressure",
+      })
+    }
+  }
+
+  if (items.length === 0) {
+    return { items: [], empty: true }
   }
 
   // Cap for short sessions

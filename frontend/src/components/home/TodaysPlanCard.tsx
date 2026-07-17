@@ -64,6 +64,11 @@ export function TodaysPlanCard() {
     },
   })
 
+  // Empty learner — home shows WelcomeSplash instead of filler cards
+  if (plan.empty || plan.items.length === 0) {
+    return null
+  }
+
   return (
     <section className="mx-auto max-w-4xl px-4 pb-8" data-testid="todays-plan">
       <div className="mb-3 flex items-end justify-between gap-3">

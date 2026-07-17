@@ -43,6 +43,11 @@ export function NextActionsDashboard() {
     !state.lastViewed &&
     recommended.length === 0
 
+  // First-time / no progress — WelcomeSplash on home covers this; avoid empty shells
+  if (empty) {
+    return null
+  }
+
   return (
     <section className="mx-auto max-w-4xl px-4 pb-12" data-testid="next-actions">
       <div className="mb-4 flex items-end justify-between">
@@ -59,85 +64,62 @@ export function NextActionsDashboard() {
         )}
       </div>
 
-      {empty ? (
-        <div className="rounded-xl border border-dashed border-dark-200 dark:border-dark-700 p-6 text-center">
-          <p className="text-sm text-dark-600 dark:text-dark-300 mb-4">
-            Explore frameworks — progress saves automatically
-            {state.isAnonymous ? " on this device" : ""}.
-          </p>
-          <div className="flex justify-center gap-3">
-            <Link
-              href="/frameworks"
-              className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-            >
-              Browse frameworks
-            </Link>
-            <Link
-              href="/scenarios"
-              className="rounded-lg border border-dark-200 dark:border-dark-700 px-4 py-2 text-sm text-dark-700 dark:text-dark-300 hover:bg-dark-50 dark:hover:bg-dark-800"
-            >
-              Try a scenario
-            </Link>
-          </div>
+      <div className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <ActionCard
+            href="/review"
+            label="Spaced reviews due"
+            value={String(state.dueReviewCount)}
+            hint={
+              state.dueReviews[0]
+                ? `Next: ${state.dueReviews[0].conceptName || state.dueReviews[0].conceptSlug}`
+                : "Nothing overdue — keep learning"
+            }
+            accent="amber"
+          />
+          <ActionCard
+            href={state.pathway.nextSlug ? `/frameworks/${state.pathway.nextSlug}` : "/pathway"}
+            label="Pathway progress"
+            value={`${state.pathway.pct}%`}
+            hint={state.pathway.nextTitle ? `Up next: ${state.pathway.nextTitle}` : "Pathway complete"}
+            accent="primary"
+          />
+          <ActionCard
+            href="/journal"
+            label="Journal outcomes due"
+            value={String(state.journalOutcomesDue)}
+            hint="Capture what happened to improve calibration"
+            accent="violet"
+          />
+          <ActionCard
+            href="/scenarios"
+            label="Practice"
+            value="Scenarios"
+            hint="Apply frameworks under pressure with AI coaching"
+            accent="emerald"
+          />
         </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <ActionCard
-              href="/review"
-              label="Spaced reviews due"
-              value={String(state.dueReviewCount)}
-              hint={
-                state.dueReviews[0]
-                  ? `Next: ${state.dueReviews[0].conceptName || state.dueReviews[0].conceptSlug}`
-                  : "Nothing overdue — keep learning"
-              }
-              accent="amber"
-            />
-            <ActionCard
-              href={state.pathway.nextSlug ? `/frameworks/${state.pathway.nextSlug}` : "/pathway"}
-              label="Pathway progress"
-              value={`${state.pathway.pct}%`}
-              hint={state.pathway.nextTitle ? `Up next: ${state.pathway.nextTitle}` : "Pathway complete"}
-              accent="primary"
-            />
-            <ActionCard
-              href="/journal"
-              label="Journal outcomes due"
-              value={String(state.journalOutcomesDue)}
-              hint="Capture what happened to improve calibration"
-              accent="violet"
-            />
-            <ActionCard
-              href="/scenarios"
-              label="Practice"
-              value="Scenarios"
-              hint="Apply frameworks under pressure with AI coaching"
-              accent="emerald"
-            />
-          </div>
 
-          {recommended.length > 0 && (
-            <div data-testid="recommended-concepts">
-              <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-200">
-                Recommended concepts
-              </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {recommended.map((rec) => (
-                  <ActionCard
-                    key={`${rec.kind}-${rec.conceptId}`}
-                    href={nextActionHref(rec)}
-                    label={nextActionKindLabel(rec.kind)}
-                    value={formatConceptTitle(rec.conceptSlug)}
-                    hint={rec.reason}
-                    accent="sky"
-                  />
-                ))}
-              </div>
+        {recommended.length > 0 && (
+          <div data-testid="recommended-concepts">
+            <h3 className="mb-2 text-sm font-semibold text-dark-700 dark:text-dark-200">
+              Recommended concepts
+            </h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {recommended.map((rec) => (
+                <ActionCard
+                  key={`${rec.kind}-${rec.conceptId}`}
+                  href={nextActionHref(rec)}
+                  label={nextActionKindLabel(rec.kind)}
+                  value={formatConceptTitle(rec.conceptSlug)}
+                  hint={rec.reason}
+                  accent="sky"
+                />
+              ))}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </section>
   )
 }
