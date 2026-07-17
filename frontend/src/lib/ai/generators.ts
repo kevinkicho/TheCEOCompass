@@ -708,13 +708,22 @@ export type StructuredOutcomeDraft = {
   lesson: string
 }
 
-function extractJsonObject(raw: string): unknown {
+function extractJsonValue(raw: string): unknown {
   const trimmed = raw.trim()
   try {
     return JSON.parse(trimmed)
   } catch {
-    const start = trimmed.indexOf("{")
-    const end = trimmed.lastIndexOf("}")
+    const objStart = trimmed.indexOf("{")
+    const arrStart = trimmed.indexOf("[")
+    let start = -1
+    let end = -1
+    if (arrStart >= 0 && (objStart < 0 || arrStart < objStart)) {
+      start = arrStart
+      end = trimmed.lastIndexOf("]")
+    } else {
+      start = objStart
+      end = trimmed.lastIndexOf("}")
+    }
     if (start >= 0 && end > start) {
       return JSON.parse(trimmed.slice(start, end + 1))
     }
@@ -722,54 +731,18 @@ function extractJsonObject(raw: string): unknown {
   }
 }
 
-/** Turn free-form thoughts into a complete journal entry. */
-export async function structureJournalFromThoughts(
-  thoughts: string,
-  extras?: { scenarioTitle?: string; scenarioContext?: string },
-): Promise<StructuredJournalDraft> {
-  const reviewDefault = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split("T")[0]
-  const scenarioHint = extras?.scenarioTitle
-    ? `\nScenario practice: ${extras.scenarioTitle}\n${extras.scenarioContext || ""}`
-    : ""
+const META_JUNK =
+  /record[- ]?keeping|activity record|document three|formal decision journal|structure and record the activity|maintain a historical log|key questions and situational context into a formal/i
 
-  const prompt = `You are a CEO decision-journal coach. The learner shared rough notes (not a polished write-up).
-Structure them into a clean decision journal entry. Infer missing structure reasonably. Do not invent facts that contradict the notes.
-
-LEARNER NOTES:
-${thoughts}
-${scenarioHint}
-
-Return ONLY valid JSON (no markdown):
-{
-  "title": "short decision title",
-  "context": "situation in 1-3 sentences",
-  "decision": "what they decided / will do",
-  "rationale": "why, in plain language",
-  "confidence": 1-10,
-  "review_date": "YYYY-MM-DD (use ${reviewDefault} if unclear)",
-  "alternatives_considered": [{"name":"","description":""}],
-  "key_assumptions": [{"assumption":"","test":""}],
-  "success_metrics": [{"metric":"","target":""}]
-}
-
-Use empty arrays if none. confidence must be integer 1-10.`
-
-  const { result } = await callOllamaViaFirebase(
-    "",
-    prompt,
-    0.4,
-    "journal",
-    null,
-    "journal_structure",
-    "journal",
-  )
-  const parsed = extractJsonObject(result) as StructuredJournalDraft
+function normalizeDraft(
+  parsed: Partial<StructuredJournalDraft>,
+  fallbackThoughts: string,
+  reviewDefault: string,
+): StructuredJournalDraft {
   const conf = Math.max(1, Math.min(10, Math.round(Number(parsed.confidence) || 7)))
   return {
-    title: String(parsed.title || "Decision").slice(0, 200),
-    context: String(parsed.context || thoughts).slice(0, 4000),
+    title: String(parsed.title || "Learning activity").slice(0, 200),
+    context: String(parsed.context || fallbackThoughts).slice(0, 4000),
     decision: String(parsed.decision || "").slice(0, 2000),
     rationale: String(parsed.rationale || "").slice(0, 2000),
     confidence: conf,
@@ -784,6 +757,113 @@ Use empty arrays if none. confidence must be integer 1-10.`
       ? parsed.success_metrics.filter((m) => m && m.metric)
       : [],
   }
+}
+
+function isMetaJunkDraft(d: StructuredJournalDraft): boolean {
+  const blob = `${d.title}\n${d.context}\n${d.decision}\n${d.rationale}`
+  return META_JUNK.test(blob)
+}
+
+/**
+ * Turn free-form thoughts into one or more journal entries.
+ * Multiple activities/decisions -> multiple entries (never one meta "recordkeeping" blob).
+ */
+export async function structureJournalFromThoughts(
+  thoughts: string,
+  extras?: { scenarioTitle?: string; scenarioContext?: string },
+): Promise<StructuredJournalDraft[]> {
+  const reviewDefault = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0]
+  const scenarioHint = extras?.scenarioTitle
+    ? `\nScenario practice: ${extras.scenarioTitle}\n${extras.scenarioContext || ""}`
+    : ""
+
+  const prompt = `You are a CEO decision-journal scribe. Your job is to EXTRACT the learner's real activities, decisions, questions, and situations into concrete journal entries.
+
+CRITICAL RULES:
+1. Write about THEIR content (what they did, decided, faced, asked) — NEVER about the act of journaling itself.
+2. FORBIDDEN titles/themes: "Activity Recordkeeping", "Recordkeeping Process", "Document questions", "Structure and record", "maintain a historical log".
+3. If they mention multiple activities, scenarios, decisions, or questions (e.g. "3 things I did"), create ONE entry per distinct item (up to 6).
+4. Use ONLY facts present or clearly implied in their notes. If a field is thin, keep it short — do not invent a corporate memo.
+5. Titles must name the real topic (e.g. "Pricing war scenario - stage 2 choice", "Hiring VP Eng vs contractor", "First-principles review of unit economics").
+6. "decision" = what they chose or concluded about that activity, NOT "document this in a journal".
+7. "context" = the real situation they faced.
+8. "rationale" = why they acted that way, or what they learned in the moment.
+
+LEARNER NOTES:
+${thoughts}
+${scenarioHint}
+
+Return ONLY a JSON array (even if length 1). No markdown:
+[
+  {
+    "title": "concrete topic title",
+    "context": "what situation they were in",
+    "decision": "what they decided, chose, or concluded",
+    "rationale": "why / what they took away",
+    "confidence": 1-10,
+    "review_date": "YYYY-MM-DD (default ${reviewDefault})",
+    "alternatives_considered": [{"name":"","description":""}],
+    "key_assumptions": [{"assumption":"","test":""}],
+    "success_metrics": [{"metric":"","target":""}]
+  }
+]
+
+Use empty arrays for missing lists. confidence integer 1-10.`
+
+  const { result } = await callOllamaViaFirebase(
+    "",
+    prompt,
+    0.35,
+    "journal",
+    null,
+    "journal_structure",
+    "journal",
+  )
+  const parsed = extractJsonValue(result)
+  const rawList: Partial<StructuredJournalDraft>[] = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === "object"
+      ? [parsed as Partial<StructuredJournalDraft>]
+      : []
+
+  let drafts = rawList
+    .map((p) => normalizeDraft(p, thoughts, reviewDefault))
+    .filter((d) => d.title.trim() && (d.decision.trim() || d.context.trim()))
+    .filter((d) => !isMetaJunkDraft(d))
+
+  if (drafts.length === 0) {
+    // Last-resort: one entry that quotes the learner's words, never meta process language
+    drafts = [
+      normalizeDraft(
+        {
+          title: thoughts.slice(0, 80).replace(/\s+/g, " ").trim() || "Recent learning activity",
+          context: thoughts.slice(0, 1500),
+          decision: "Continue reflecting on this activity and the choices involved.",
+          rationale: "Captured from the learner's own notes for later review.",
+          confidence: 6,
+          review_date: reviewDefault,
+          alternatives_considered: [],
+          key_assumptions: [],
+          success_metrics: [],
+        },
+        thoughts,
+        reviewDefault,
+      ),
+    ]
+  }
+
+  return drafts.slice(0, 6)
+}
+
+/** @deprecated Prefer structureJournalFromThoughts (returns array). Single-entry helper. */
+export async function structureOneJournalFromThoughts(
+  thoughts: string,
+  extras?: { scenarioTitle?: string; scenarioContext?: string },
+): Promise<StructuredJournalDraft> {
+  const list = await structureJournalFromThoughts(thoughts, extras)
+  return list[0]
 }
 
 /** Turn a short outcome note into a structured outcome review. */

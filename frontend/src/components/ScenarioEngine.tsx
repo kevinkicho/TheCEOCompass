@@ -381,10 +381,12 @@ export function ScenarioEngine({ scenario }: Props) {
                 ]
                   .filter(Boolean)
                   .join("\n")
-                const draft = await structureJournalFromThoughts(thoughts, {
+                const drafts = await structureJournalFromThoughts(thoughts, {
                   scenarioTitle: scenario.title,
                   scenarioContext: scenario.description,
                 })
+                const draft = drafts[0]
+                if (!draft) throw new Error("AI could not structure a journal entry from this scenario.")
                 await createJournalEntry({
                   title: draft.title,
                   context: draft.context,

@@ -60,25 +60,40 @@ export default function JournalPage() {
     }
     setBusy(true)
     setJournalError("")
-    setStatus("AI is structuring your decision...")
+    setStatus("AI is extracting your real activities (not meta notes)...")
     try {
-      const draft = await structureJournalFromThoughts(text)
-      setStatus("Saving entry...")
-      const entry = await createJournalEntry({
-        title: draft.title,
-        context: draft.context,
-        decision: draft.decision,
-        rationale: draft.rationale,
-        confidence: draft.confidence,
-        review_date: draft.review_date,
-        alternatives_considered: draft.alternatives_considered,
-        key_assumptions: draft.key_assumptions,
-        success_metrics: draft.success_metrics,
-      })
-      setEntries((prev) => [entry, ...prev])
-      setLastSavedId(entry.id)
+      const drafts = await structureJournalFromThoughts(text)
+      if (!drafts.length) {
+        throw new Error("AI could not extract a concrete activity. Add more detail about what you did.")
+      }
+      setStatus(
+        drafts.length > 1
+          ? `Saving ${drafts.length} entries from your activities...`
+          : "Saving entry...",
+      )
+      const created = []
+      for (const draft of drafts) {
+        const entry = await createJournalEntry({
+          title: draft.title,
+          context: draft.context,
+          decision: draft.decision,
+          rationale: draft.rationale,
+          confidence: draft.confidence,
+          review_date: draft.review_date,
+          alternatives_considered: draft.alternatives_considered,
+          key_assumptions: draft.key_assumptions,
+          success_metrics: draft.success_metrics,
+        })
+        created.push(entry)
+      }
+      setEntries((prev) => [...created, ...prev])
+      setLastSavedId(created[0]?.id ?? null)
       setThoughts("")
-      setStatus("Saved. Keep learning - AI handled the write-up.")
+      setStatus(
+        created.length > 1
+          ? `Saved ${created.length} journal entries about your activities.`
+          : "Saved. Entry is about your activity — not about recordkeeping.",
+      )
     } catch (err) {
       setJournalError(err instanceof Error ? err.message : "AI capture failed")
       setStatus("")
@@ -187,7 +202,7 @@ export default function JournalPage() {
             </p>
             <p className="text-sm text-dark-600 dark:text-dark-300 mt-0.5">
               {mode === "capture"
-                ? "Dump the situation, options, and what you lean toward. AI fills title, rationale, assumptions, and metrics."
+                ? "Describe the real activities, decisions, or scenarios — e.g. three things you practiced. AI creates one entry per activity (never a meta 'recordkeeping' note)."
                 : `What actually happened for "${outcomeTarget?.title}"? AI writes the outcome review.`}
             </p>
           </div>
@@ -209,7 +224,7 @@ export default function JournalPage() {
           disabled={busy || !canUseFirebasePersistence()}
           placeholder={
             mode === "capture"
-              ? "Example: We need to choose between raising Series B now or waiting 6 months. Competitors are pricing down. I am 70% sure we should raise but burn is high..."
+              ? "Example: 1) Pricing war scenario — I chose to match competitor price short-term. 2) Reviewed unit economics for SaaS. 3) Pathway step on negotiation — still unsure about BATNA..."
               : "Example: We raised. Dilution was worse than expected. Market window closed for wait-and-see. Lesson: move before the window, not after."
           }
           className="w-full resize-none rounded-xl border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-4 py-3 text-sm text-dark-800 dark:text-dark-100 focus:border-primary-400 focus:outline-none disabled:opacity-60"
