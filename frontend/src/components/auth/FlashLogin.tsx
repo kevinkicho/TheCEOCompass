@@ -21,9 +21,11 @@ export function FlashLogin() {
     setError(null)
     setBusy(true)
     try {
-      await signInWithGoogle()
-      // On success AppShellGate switches to the enter transition.
-      // Keep busy true briefly; unmount will clear UI.
+      // Redirect (not popup) avoids Chrome COOP warnings on window.closed
+      // and is more reliable on localhost / GitHub Pages.
+      await signInWithGoogle({ preferRedirect: true })
+      // Page navigates to Google; when it returns, AuthSessionProvider
+      // handles getRedirectResult and AppShellGate opens the main menu.
     } catch (err) {
       console.error("[flash-login] Google sign-in failed", err)
       setError(formatAuthError(err))
@@ -63,7 +65,7 @@ export function FlashLogin() {
             {busy ? (
               <>
                 <Spinner className="text-dark-600" />
-                Connecting to Google...
+                Redirecting to Google...
               </>
             ) : (
               <>
@@ -90,7 +92,7 @@ export function FlashLogin() {
 
           <p className="mt-5 text-[11px] text-dark-500 text-center leading-relaxed">
             Your progress, journal, and reviews sync to your Google account so you can continue on any device.
-            Allow pop-ups if the browser blocks the Google window.
+            You will be sent to Google and then returned here.
           </p>
         </div>
 

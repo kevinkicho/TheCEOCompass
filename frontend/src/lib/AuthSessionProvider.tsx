@@ -42,7 +42,11 @@ type AuthSession = {
   retryPendingMerge: () => Promise<void>
   ensureAnonymous: () => Promise<void>
   linkGoogle: () => Promise<void>
-  signInWithGoogle: () => Promise<void>
+  /**
+   * Google sign-in. Prefer redirect for the flash page to avoid COOP popup noise.
+   * @param opts.preferRedirect - use full-page redirect instead of popup (default false)
+   */
+  signInWithGoogle: (opts?: { preferRedirect?: boolean }) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -457,7 +461,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     }
   }, [])
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async (opts?: { preferRedirect?: boolean }) => {
     if (!auth) {
       throw new Error("Firebase Auth is not configured. Check frontend/.env.local NEXT_PUBLIC_FIREBASE_* values.")
     }
@@ -466,9 +470,28 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       try {
         await signInAnonymously(auth)
       } catch {
-        // Anonymous may be disabled - fall through to direct Google popup
+        // Anonymous may be disabled - fall through to direct Google sign-in
       }
     }
+
+    // Redirect avoids Cross-Origin-Opener-Policy / window.closed spam from popups
+    if (opts?.preferRedirect) {
+      try {
+        if (auth.currentUser?.isAnonymous) {
+          const prep = await prepareAnonMerge(auth.currentUser.uid)
+          if (!prep.ok) {
+            throw new Error(prep.message)
+          }
+          await linkWithRedirect(auth.currentUser, googleProvider)
+          return
+        }
+        await signInWithRedirect(auth, googleProvider)
+        return
+      } catch (err: unknown) {
+        throw new Error(formatAuthError(err))
+      }
+    }
+
     if (auth.currentUser?.isAnonymous) {
       await linkGoogle()
       return
