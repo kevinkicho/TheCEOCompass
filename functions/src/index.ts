@@ -11,6 +11,7 @@ import { defineSecret, defineString } from "firebase-functions/params"
 import { generateText } from "./llm"
 import { handleCloudRequest } from "./handler"
 import { runCallableGenerate } from "./callable-core"
+import { recordAiMetric } from "./metrics"
 import type { AiRequestData } from "./response-path"
 
 const DEFAULT_DATABASE_URL =
@@ -112,17 +113,27 @@ export const generateAI = onCall(
           },
         },
       )
+      recordAiMetric(rtdb as unknown as import("./metrics").MetricsDbLike, "callable_ok").catch(
+        () => {},
+      )
       return result
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
+      const rtdb = admin.database()
+      if (/rate limit/i.test(message)) {
+        recordAiMetric(rtdb as unknown as import("./metrics").MetricsDbLike, "rate_limited").catch(
+          () => {},
+        )
+        throw new HttpsError("resource-exhausted", message)
+      }
+      recordAiMetric(rtdb as unknown as import("./metrics").MetricsDbLike, "callable_err").catch(
+        () => {},
+      )
       if (message.startsWith("UNAUTHENTICATED")) {
         throw new HttpsError("unauthenticated", message)
       }
       if (message.startsWith("INVALID_ARGUMENT")) {
         throw new HttpsError("invalid-argument", message)
-      }
-      if (/rate limit/i.test(message)) {
-        throw new HttpsError("resource-exhausted", message)
       }
       throw new HttpsError("internal", message)
     }

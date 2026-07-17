@@ -19,9 +19,13 @@ test.describe("learning loop smoke", () => {
       page.getByRole("heading", { name: /Navigate Every/i }),
     ).toBeVisible({ timeout: 30_000 })
 
-    // Firebase available → next-actions dashboard; otherwise hero CTAs remain.
+    // Firebase available → Today's plan / next-actions; otherwise hero CTAs remain.
+    const todaysPlan = page.getByTestId("todays-plan")
     const nextActions = page.getByTestId("next-actions")
-    if ((await nextActions.count()) > 0) {
+    if ((await todaysPlan.count()) > 0) {
+      await expect(todaysPlan).toBeVisible()
+      await expect(page.getByText(/Today.?s plan/i)).toBeVisible()
+    } else if ((await nextActions.count()) > 0) {
       await expect(nextActions).toBeVisible()
       await expect(page.getByText(/Your next actions/i)).toBeVisible()
     } else {

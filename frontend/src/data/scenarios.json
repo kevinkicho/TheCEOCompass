@@ -2042,5 +2042,220 @@
         "description": "Mass exodus and synergy miss."
       }
     }
+  },
+  {
+    "id": "dddddddd-dddd-dddd-dddd-dddddddd0001",
+    "slug": "cybersecurity-board-brief",
+    "title": "Cybersecurity Board Brief After Near-Miss",
+    "description": "A ransomware attempt was blocked. The board wants a cyber strategy brief in 10 days.",
+    "framework_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaa00000011",
+    "difficulty": 3,
+    "pack_id": "risk",
+    "pack_title": "Risk & Resilience",
+    "concept_ids": [
+      "risk-matrix",
+      "crisis-first-hour",
+      "defense-in-depth",
+      "tabletop-exercises"
+    ],
+    "framework_slugs": [
+      "risk-management",
+      "crisis-management"
+    ],
+    "context": {
+      "company": "B2B fintech, $80M ARR, SOC2 Type II",
+      "situation": "Phishing-led attempt blocked by EDR. No confirmed exfiltration. Customers asking for assurance letters.",
+      "time_pressure": "Board risk committee in 10 days.",
+      "data_provided": [
+        "MTTD 4h, MTTR 18h on last incident class",
+        "Patch SLA: critical 7 days (currently 62% on time)",
+        "Third-party SaaS: 140 vendors, 12 critical",
+        "Cyber insurance renewal in 60 days"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What should the board brief emphasize first?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Material residual risk, control gaps, and a time-bound remediation plan",
+            "score": 0.9,
+            "rationale": "Boards need residual risk and ownership, not jargon"
+          },
+          {
+            "id": "b",
+            "label": "A long threat landscape lecture",
+            "score": 0.25,
+            "rationale": "Context without decisions"
+          },
+          {
+            "id": "c",
+            "label": "Only good news that nothing happened",
+            "score": 0.15,
+            "rationale": "Undermines trust"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate board communication."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Select the 90-day program focus:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Identity hardening + vendor tiering + tabletop + patch SLA recovery; named exec owner.",
+            "score": 0.9,
+            "rationale": "High leverage controls"
+          },
+          {
+            "id": "b",
+            "label": "Buy a new SIEM only",
+            "score": 0.3,
+            "rationale": "Tool without process"
+          },
+          {
+            "id": "c",
+            "label": "Outsource all security tomorrow",
+            "score": 0.35,
+            "rationale": "May help later; not a 10-day brief"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate program design."
+      },
+      {
+        "id": "stage-3",
+        "type": "analysis",
+        "prompt": "List 3 KPIs for the board risk dashboard.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Prefer leading indicators over vanity counts.",
+        "sample_answer": "Critical patch SLA %, phishing fail rate, critical vendor review completion."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Board Confidence",
+        "description": "Clear residual risk and funded plan."
+      },
+      "acceptable": {
+        "title": "Partial Plan",
+        "description": "Some controls funded; gaps remain."
+      },
+      "failure": {
+        "title": "False Assurance",
+        "description": "Board underestimates residual risk."
+      }
+    }
+  },
+  {
+    "id": "dddddddd-dddd-dddd-dddd-dddddddd0002",
+    "slug": "pricing-packaging-plg-to-enterprise",
+    "title": "Pricing Packaging: PLG to Enterprise",
+    "description": "Self-serve growth is strong but enterprise ACV is stuck. Redesign packaging without angering the base.",
+    "framework_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbb00000011",
+    "difficulty": 3,
+    "pack_id": "growth",
+    "pack_title": "Growth & Pricing",
+    "concept_ids": [
+      "value-based-pricing",
+      "good-better-best",
+      "willingness-to-pay",
+      "land-and-expand"
+    ],
+    "framework_slugs": [
+      "pricing-strategy"
+    ],
+    "context": {
+      "company": "PLG analytics, $25M ARR, 12% free-to-paid",
+      "situation": "Enterprise deals stall on SSO and audit logs only available in custom quotes. Self-serve users hate price hikes.",
+      "time_pressure": "Sales kickoff in 6 weeks; pricing change freezes after that.",
+      "data_provided": [
+        "Median self-serve ACV $1.2k; enterprise ACV $28k",
+        "Feature usage: SSO requested in 70% of deals >$15k",
+        "Churn reasons: price 22%, missing features 18%",
+        "Competitor: free tier + expensive enterprise seat model"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What is the packaging problem?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Value metrics and gates misaligned with enterprise WTP vs self-serve",
+            "score": 0.9,
+            "rationale": "Good-better-best must map to WTP segments"
+          },
+          {
+            "id": "b",
+            "label": "Sales people are weak",
+            "score": 0.2,
+            "rationale": "Ignores product packaging"
+          },
+          {
+            "id": "c",
+            "label": "Just cut prices",
+            "score": 0.15,
+            "rationale": "Leaves money on table"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate packaging diagnosis."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Choose packaging move:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Three tiers: Free/Pro/Business; SSO+audit on Business; grandfather self-serve 12 months; land-and-expand playbook.",
+            "score": 0.9,
+            "rationale": "Segment-aligned and fair"
+          },
+          {
+            "id": "b",
+            "label": "Force all users to enterprise contracts",
+            "score": 0.15,
+            "rationale": "Kills PLG motion"
+          },
+          {
+            "id": "c",
+            "label": "Infinite custom SKUs",
+            "score": 0.25,
+            "rationale": "Ops chaos"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate pricing design."
+      },
+      {
+        "id": "stage-3",
+        "type": "analysis",
+        "prompt": "Write the 3 bullet customer FAQ for the packaging change.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Clarity and grandfathering reduce churn.",
+        "sample_answer": "What changes on Pro; what moves to Business; how grandfathering works for 12 months."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "ACV Up, Churn Contained",
+        "description": "Enterprise attach rises with limited base backlash."
+      },
+      "acceptable": {
+        "title": "Mixed Migration",
+        "description": "Some churn; enterprise pipeline improves."
+      },
+      "failure": {
+        "title": "PLG Breakage",
+        "description": "Self-serve collapses after poorly messaged hike."
+      }
+    }
   }
 ]

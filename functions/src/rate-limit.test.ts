@@ -5,6 +5,7 @@ import {
   consumeRateLimit,
   RATE_LIMIT_MAX_REQUESTS,
   RATE_LIMIT_WINDOW_MS,
+  RATE_LIMIT_DAILY_MAX,
   RATE_LIMIT_ERROR_MESSAGE,
   type RateState,
   type RateDbLike,
@@ -79,6 +80,24 @@ describe("applyRateLimit", () => {
     const r = applyRateLimit({ timestamps: [100, 200] }, 250, 2, 1000)
     assert.equal(r.allowed, false)
     assert.equal(r.remaining, 0)
+  })
+
+  it("denies when daily cap reached", () => {
+    const now = Date.parse("2026-07-16T12:00:00.000Z")
+    const r = applyRateLimit(
+      { timestamps: [], dayKey: "2026-07-16", dayCount: RATE_LIMIT_DAILY_MAX },
+      now,
+    )
+    assert.equal(r.allowed, false)
+    assert.equal(r.reason, "daily")
+  })
+
+  it("increments dayCount on allow", () => {
+    const now = Date.parse("2026-07-16T12:00:00.000Z")
+    const r = applyRateLimit({ timestamps: [], dayKey: "2026-07-16", dayCount: 3 }, now)
+    assert.equal(r.allowed, true)
+    assert.equal(r.next.dayCount, 4)
+    assert.equal(r.next.dayKey, "2026-07-16")
   })
 })
 

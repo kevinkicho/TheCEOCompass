@@ -11,6 +11,9 @@ export const RATE_LIMIT_MAX_REQUESTS = 20
 /** Sliding window length (10 minutes). */
 export const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
 
+/** Soft daily cap per uid (UTC day) — cost control. */
+export const RATE_LIMIT_DAILY_MAX = 200
+
 /**
  * Clear, user-facing message when the limit is hit.
  * Keep in sync with frontend `AI_RATE_LIMIT_ERROR_MESSAGE` in transport.ts.
@@ -18,10 +21,21 @@ export const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
 export const RATE_LIMIT_ERROR_MESSAGE =
   "AI rate limit exceeded: maximum 20 cloud requests per 10 minutes. Please wait and try again."
 
+export const RATE_LIMIT_DAILY_ERROR_MESSAGE =
+  "AI daily limit exceeded: maximum 200 cloud requests per day. Try again tomorrow."
+
 /** RTDB shape at `_rate/{uid}`. */
 export type RateState = {
   /** Request timestamps (ms since epoch) still inside the window. */
   timestamps?: number[]
+  /** UTC calendar day key YYYY-MM-DD for daily quota. */
+  dayKey?: string
+  /** Count of cloud requests on dayKey. */
+  dayCount?: number
+}
+
+export function utcDayKey(nowMs: number): string {
+  return new Date(nowMs).toISOString().slice(0, 10)
 }
 
 export type RateLimitResult = {
@@ -50,27 +64,56 @@ export function applyRateLimit(
   now: number,
   maxRequests: number = RATE_LIMIT_MAX_REQUESTS,
   windowMs: number = RATE_LIMIT_WINDOW_MS,
-): { allowed: boolean; next: RateState; remaining: number; retryAfterMs: number } {
+  dailyMax: number = RATE_LIMIT_DAILY_MAX,
+): {
+  allowed: boolean
+  next: RateState
+  remaining: number
+  retryAfterMs: number
+  reason?: "window" | "daily"
+} {
   const cutoff = now - windowMs
   const recent = (state?.timestamps ?? []).filter(
     (t) => typeof t === "number" && Number.isFinite(t) && t > cutoff,
   )
+  const day = utcDayKey(now)
+  const dayCount =
+    state?.dayKey === day && typeof state.dayCount === "number" ? state.dayCount : 0
+
+  if (dayCount >= dailyMax) {
+    return {
+      allowed: false,
+      next: {
+        timestamps: recent,
+        dayKey: day,
+        dayCount,
+      },
+      remaining: 0,
+      retryAfterMs: 0,
+      reason: "daily",
+    }
+  }
 
   if (recent.length >= maxRequests) {
     const oldest = Math.min(...recent)
     const retryAfterMs = Math.max(0, oldest + windowMs - now)
     return {
       allowed: false,
-      next: { timestamps: recent },
+      next: { timestamps: recent, dayKey: day, dayCount },
       remaining: 0,
       retryAfterMs,
+      reason: "window",
     }
   }
 
   const nextTimestamps = [...recent, now]
   return {
     allowed: true,
-    next: { timestamps: nextTimestamps },
+    next: {
+      timestamps: nextTimestamps,
+      dayKey: day,
+      dayCount: dayCount + 1,
+    },
     remaining: maxRequests - nextTimestamps.length,
     retryAfterMs: 0,
   }
@@ -108,7 +151,11 @@ export async function consumeRateLimit(
       allowed: result.allowed,
       remaining: result.remaining,
       retryAfterMs: result.retryAfterMs,
-      message: result.allowed ? undefined : RATE_LIMIT_ERROR_MESSAGE,
+      message: result.allowed
+        ? undefined
+        : result.reason === "daily"
+          ? RATE_LIMIT_DAILY_ERROR_MESSAGE
+          : RATE_LIMIT_ERROR_MESSAGE,
     }
     // Always write cleaned (+ maybe new) timestamps so the window slides
     return result.next

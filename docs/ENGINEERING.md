@@ -39,7 +39,9 @@ The original FastAPI backend handled scenarios, journal, progress, and quiz endp
 |-------|---------|-----|
 | Unit / component (Vitest) | `cd frontend && npx vitest run` | **Yes** — required green |
 | Typecheck | `cd frontend && npx tsc --noEmit` | **Yes** |
-| E2E smoke (Playwright) | `cd frontend && npm run test:e2e` | **Optional job** — `.github/workflows/e2e.yml` (`continue-on-error`) |
+| E2E smoke (Playwright) | `cd frontend && npm run test:e2e` | **Optional** — `.github/workflows/e2e.yml` (`continue-on-error`) |
+| Production verify | `node scripts/verify-production.mjs` | Ops (local) |
+| Mastery seed validate | `node scripts/validate-mastery-seed.mjs` | Ops (local) |
 
 ### Playwright e2e
 
@@ -48,8 +50,13 @@ The original FastAPI backend handled scenarios, journal, progress, and quiz endp
 - Specs tolerate missing Firebase env (assert hero/review shells and optional `data-testid` regions)
 - With `NEXT_PUBLIC_FIREBASE_*` set (e.g. `.env.local`), next-actions and SR panels appear when RTDB is reachable
 - First run may need: `npx playwright install chromium`
+- Promote e2e to a required GitHub check only after several consecutive green runs on `master`
 
-Do **not** add Playwright to the default GitHub Actions job unless a dedicated optional workflow is added later — keep vitest CI stable and fast.
+### Cloud AI limits
+
+- Sliding window: **20 / 10 min** per uid (`_rate/{uid}`)
+- Daily soft cap: **200 / UTC day** per uid
+- Metrics (admin read): `_meta/ai_metrics/{YYYY-MM-DD}`
 
 ## Static Generation
 

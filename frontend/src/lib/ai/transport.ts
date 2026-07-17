@@ -16,10 +16,13 @@ export function generateId(): string {
 export const AI_RATE_LIMIT_ERROR_MESSAGE =
   "AI rate limit exceeded: maximum 20 cloud requests per 10 minutes. Please wait and try again."
 
+export const AI_DAILY_LIMIT_ERROR_MESSAGE =
+  "AI daily limit exceeded: maximum 200 cloud requests per day. Try again tomorrow."
+
 /** True when an error message indicates the server-side per-uid rate limit. */
 export function isRateLimitError(message: string | null | undefined): boolean {
   if (!message) return false
-  return /rate limit exceeded/i.test(message)
+  return /rate limit exceeded|daily limit exceeded/i.test(message)
 }
 
 /**

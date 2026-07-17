@@ -1,6 +1,6 @@
-# Operator Runbook — CEO Compass (Phase 0–3 ops)
+# Operator Runbook — CEO Compass (Phase 0–6 ops)
 
-Copy-pasteable steps for production setup after Phase 0–1 identity work and Phase 2–3
+Copy-pasteable steps for production setup after Phase 0–1 identity work and Phase 2–6
 platform pieces (remote flags, Cloud Functions skeleton, mastery seed).
 
 | Related docs | Path |
@@ -10,6 +10,14 @@ platform pieces (remote flags, Cloud Functions skeleton, mastery seed).
 | Engineering notes / RTDB map | [`docs/ENGINEERING.md`](./ENGINEERING.md) |
 | Phase 0–1 design | [`docs/DESIGN_PHASE_0_1.md`](./DESIGN_PHASE_0_1.md) |
 | Phase 2–3 design | [`docs/DESIGN_PHASE_2_3.md`](./DESIGN_PHASE_2_3.md) |
+| Phase 6 Learning OS | [`docs/DESIGN_PHASE_6.md`](./DESIGN_PHASE_6.md) |
+
+**Quick verify (from repo root):**
+
+```bash
+node scripts/verify-production.mjs
+node scripts/validate-mastery-seed.mjs
+```
 
 **Never commit secrets.** Service account JSON, `OPENAI_API_KEY`, and `functions/.env` stay out of git (see root `.gitignore`).
 

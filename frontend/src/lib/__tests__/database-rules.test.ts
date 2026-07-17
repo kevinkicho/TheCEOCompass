@@ -73,6 +73,11 @@ describe("database.rules.json intermediate cutover", () => {
     expect(rules._meta.cloud_worker_heartbeat[".write"]).toBe(false)
   })
 
+  it("restricts ai_metrics to admins read, client write false", () => {
+    expect(String(rules._meta.ai_metrics[".read"])).toContain("admins")
+    expect(rules._meta.ai_metrics[".write"]).toBe(false)
+  })
+
   it("scopes _config: parent deny-read, feature_flags public read, admin-only write", () => {
     expect(rules._config[".read"]).toBe(false)
     expect(rules._config[".write"]).toContain("admins")

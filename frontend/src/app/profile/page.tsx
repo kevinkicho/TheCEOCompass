@@ -643,6 +643,73 @@ cd frontend && npm run dev
         </div>
       </div>
 
+      {/* Learner preferences — Today&apos;s Plan + next-actions */}
+      <div className="mb-8" data-testid="learner-prefs">
+        <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Learning preferences</h2>
+        <div className="rounded-xl border border-dark-200 dark:border-dark-700 p-5 space-y-4">
+          <p className="text-xs text-dark-500 dark:text-dark-400">
+            Shapes Today&apos;s plan (home) and scenario suggestions. Stored only on this device in settings.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Role</label>
+              <select
+                value={settings.learnerPrefs?.role || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    learnerPrefs: { ...settings.learnerPrefs, role: e.target.value || undefined },
+                  })
+                }
+                className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-3 py-2 text-sm"
+              >
+                <option value="">Any</option>
+                <option value="ceo">CEO / founder</option>
+                <option value="operator">Operator / COO</option>
+                <option value="pm">Product / PM</option>
+                <option value="finance">Finance</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Industry focus</label>
+              <input
+                type="text"
+                value={settings.learnerPrefs?.industry || ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    learnerPrefs: { ...settings.learnerPrefs, industry: e.target.value || undefined },
+                  })
+                }
+                placeholder="e.g. SaaS, healthcare"
+                className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-dark-700 dark:text-dark-300">Session budget</label>
+              <select
+                value={settings.learnerPrefs?.timeBudgetMinutes ?? ""}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    learnerPrefs: {
+                      ...settings.learnerPrefs,
+                      timeBudgetMinutes: e.target.value ? Number(e.target.value) : undefined,
+                    },
+                  })
+                }
+                className="w-full rounded-lg border border-dark-200 dark:border-dark-700 bg-white dark:bg-dark-900 px-3 py-2 text-sm"
+              >
+                <option value="">Flexible</option>
+                <option value="10">~10 minutes</option>
+                <option value="20">~20 minutes</option>
+                <option value="45">~45 minutes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Account */}
       <div className="mb-8">
         <h2 className="mb-4 text-xl font-semibold text-dark-900 dark:text-dark-100">Account</h2>
