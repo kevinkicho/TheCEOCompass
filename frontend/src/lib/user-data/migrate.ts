@@ -66,6 +66,33 @@ export type PrepareAnonMergeResult =
  * Copy legacy top-level device trees into users/{uid}/ once per deviceId.
  * Re-entry: if deviceId ∉ migrated_device_ids, merge again (second browser/device).
  */
+function isPermissionDenied(err: unknown): boolean {
+  const code = (err as { code?: string })?.code || ""
+  const msg = err instanceof Error ? err.message : String(err)
+  return (
+    code === "PERMISSION_DENIED" ||
+    /permission[_\s-]?denied/i.test(code) ||
+    /permission[_\s-]?denied/i.test(msg)
+  )
+}
+
+/** RTDB get that returns null on missing path or locked-down legacy roots. */
+async function softGet(database: ReturnType<typeof getDb>, path: string) {
+  try {
+    return await get(ref(database, path))
+  } catch (err) {
+    if (isPermissionDenied(err)) return null
+    throw err
+  }
+}
+
+/**
+ * Copy legacy top-level device trees into users/{uid}/ once per deviceId.
+ * Re-entry: if deviceId not in migrated_device_ids, merge again (second browser/device).
+ *
+ * Permission denied on legacy roots is expected (those paths are locked in rules) —
+ * treated as "nothing to migrate" and the device is marked done so we stop retrying.
+ */
 export async function migrateDeviceDataToUser(uid: string): Promise<void> {
   if (typeof window === "undefined") return
   const database = getDb()
@@ -73,71 +100,89 @@ export async function migrateDeviceDataToUser(uid: string): Promise<void> {
   if (!deviceId || deviceId === "server") return
 
   const metaPath = userPath(uid, "_meta")
-  const metaSnap = await get(ref(database, metaPath))
-  const meta = metaSnap.exists() ? metaSnap.val() : {}
+  const metaSnap = await softGet(database, metaPath)
+  const meta = metaSnap?.exists() ? metaSnap.val() : {}
   const migrated: string[] = Array.isArray(meta.migrated_device_ids)
     ? meta.migrated_device_ids
     : []
 
   if (migrated.includes(deviceId)) return
 
-  // journal/{deviceId}/entries → users/{uid}/journal/entries
-  const journalSnap = await get(ref(database, `journal/${deviceId}/entries`))
-  if (journalSnap.exists()) {
-    const existing = await get(ref(database, userPath(uid, "journal", "entries")))
-    const merged = { ...(existing.exists() ? existing.val() : {}), ...journalSnap.val() }
-    await set(ref(database, userPath(uid, "journal", "entries")), merged)
-  }
+  try {
+    // journal/{deviceId}/entries -> users/{uid}/journal/entries
+    const journalSnap = await softGet(database, `journal/${deviceId}/entries`)
+    if (journalSnap?.exists()) {
+      const existing = await softGet(database, userPath(uid, "journal", "entries"))
+      const merged = { ...(existing?.exists() ? existing.val() : {}), ...journalSnap.val() }
+      await set(ref(database, userPath(uid, "journal", "entries")), merged)
+    }
 
-  // reviews/{deviceId} → users/{uid}/reviews
-  const reviewsSnap = await get(ref(database, `reviews/${deviceId}`))
-  if (reviewsSnap.exists()) {
-    const existing = await get(ref(database, userPath(uid, "reviews")))
-    const merged = { ...(existing.exists() ? existing.val() : {}), ...reviewsSnap.val() }
-    await set(ref(database, userPath(uid, "reviews")), merged)
-  }
+    // reviews/{deviceId} -> users/{uid}/reviews
+    const reviewsSnap = await softGet(database, `reviews/${deviceId}`)
+    if (reviewsSnap?.exists()) {
+      const existing = await softGet(database, userPath(uid, "reviews"))
+      const merged = { ...(existing?.exists() ? existing.val() : {}), ...reviewsSnap.val() }
+      await set(ref(database, userPath(uid, "reviews")), merged)
+    }
 
-  // progress/{deviceId} → users/{uid}/progress
-  const progressSnap = await get(ref(database, `progress/${deviceId}`))
-  if (progressSnap.exists()) {
-    const existing = await get(ref(database, userPath(uid, "progress")))
-    const cur = existing.exists() ? existing.val() : {}
-    const leg = progressSnap.val()
-    const completed = Array.from(
-      new Set([...(cur.completed_ids || []), ...(leg.completed_ids || [])]),
-    )
-    await set(ref(database, userPath(uid, "progress")), {
-      completed_ids: completed,
-      current_module_id: cur.current_module_id || leg.current_module_id || null,
+    // progress/{deviceId} -> users/{uid}/progress
+    const progressSnap = await softGet(database, `progress/${deviceId}`)
+    if (progressSnap?.exists()) {
+      const existing = await softGet(database, userPath(uid, "progress"))
+      const cur = existing?.exists() ? existing.val() : {}
+      const leg = progressSnap.val()
+      const completed = Array.from(
+        new Set([...(cur.completed_ids || []), ...(leg.completed_ids || [])]),
+      )
+      await set(ref(database, userPath(uid, "progress")), {
+        completed_ids: completed,
+        current_module_id: cur.current_module_id || leg.current_module_id || null,
+      })
+    }
+
+    // viewed/{deviceId} -> users/{uid}/viewed
+    const viewedSnap = await softGet(database, `viewed/${deviceId}`)
+    if (viewedSnap?.exists()) {
+      const existing = await softGet(database, userPath(uid, "viewed"))
+      const merged = deepMergePreferDest(
+        existing?.exists() ? existing.val() : {},
+        viewedSnap.val(),
+      )
+      await set(ref(database, userPath(uid, "viewed")), merged)
+    }
+
+    // quizResults, scenarioHistory, favoriteQuotes - merge by key
+    for (const root of ["quizResults", "scenarioHistory", "favoriteQuotes"] as const) {
+      const snap = await softGet(database, `${root}/${deviceId}`)
+      if (!snap?.exists()) continue
+      const dest = userPath(uid, root)
+      const existing = await softGet(database, dest)
+      const merged = deepMergePreferDest(existing?.exists() ? existing.val() : {}, snap.val())
+      await set(ref(database, dest), merged)
+    }
+
+    await update(ref(database, metaPath), {
+      migrated_device_ids: [...migrated, deviceId],
+      last_migrated_device: deviceId,
+      last_migrated_at: Date.now(),
     })
+  } catch (err) {
+    if (isPermissionDenied(err)) {
+      // Legacy locked or user meta write denied - do not surface to console
+      try {
+        await update(ref(database, metaPath), {
+          migrated_device_ids: [...migrated, deviceId],
+          last_migrated_device: deviceId,
+          last_migrated_at: Date.now(),
+          migration_skipped: "permission_denied",
+        })
+      } catch {
+        // ignore
+      }
+      return
+    }
+    throw err
   }
-
-  // viewed/{deviceId} → users/{uid}/viewed
-  const viewedSnap = await get(ref(database, `viewed/${deviceId}`))
-  if (viewedSnap.exists()) {
-    const existing = await get(ref(database, userPath(uid, "viewed")))
-    const merged = deepMergePreferDest(
-      existing.exists() ? existing.val() : {},
-      viewedSnap.val(),
-    )
-    await set(ref(database, userPath(uid, "viewed")), merged)
-  }
-
-  // quizResults, scenarioHistory, favoriteQuotes — merge by key
-  for (const root of ["quizResults", "scenarioHistory", "favoriteQuotes"] as const) {
-    const snap = await get(ref(database, `${root}/${deviceId}`))
-    if (!snap.exists()) continue
-    const dest = userPath(uid, root)
-    const existing = await get(ref(database, dest))
-    const merged = deepMergePreferDest(existing.exists() ? existing.val() : {}, snap.val())
-    await set(ref(database, dest), merged)
-  }
-
-  await update(ref(database, metaPath), {
-    migrated_device_ids: [...migrated, deviceId],
-    last_migrated_device: deviceId,
-    last_migrated_at: Date.now(),
-  })
 
   // Silence unused import warning for documentation of roots
   void LEGACY_DEVICE_ROOTS

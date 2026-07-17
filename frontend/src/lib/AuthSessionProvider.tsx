@@ -323,7 +323,17 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       try {
         await migrateDeviceDataToUser(u.uid)
       } catch (err) {
-        console.warn("[auth] device migration skipped/failed", err)
+        // Permission denied on legacy device trees is expected (rules lock those paths).
+        // Only log unexpected failures, and never as a red console.error.
+        const msg = err instanceof Error ? err.message : String(err)
+        const code = (err as { code?: string })?.code || ""
+        const expected =
+          /permission[_\s-]?denied/i.test(msg) ||
+          /permission[_\s-]?denied/i.test(code) ||
+          code === "PERMISSION_DENIED"
+        if (!expected && process.env.NODE_ENV === "development") {
+          console.debug("[auth] device migration skipped", msg)
+        }
       }
       const admin = await fetchIsAdmin(u.uid)
       const allowEmailFallback =
