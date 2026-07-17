@@ -49,7 +49,7 @@ export function NextActionsDashboard() {
         <div>
           <h2 className="text-lg font-semibold text-dark-900 dark:text-dark-100">Your next actions</h2>
           <p className="text-sm text-dark-500 dark:text-dark-400">
-            Due reviews, pathway, and open decisions — in one place.
+            Due reviews, pathway, and open decisions - in one place.
           </p>
         </div>
         {state.isAnonymous && (
@@ -62,7 +62,7 @@ export function NextActionsDashboard() {
       {empty ? (
         <div className="rounded-xl border border-dashed border-dark-200 dark:border-dark-700 p-6 text-center">
           <p className="text-sm text-dark-600 dark:text-dark-300 mb-4">
-            Explore frameworks — progress saves automatically
+            Explore frameworks - progress saves automatically
             {state.isAnonymous ? " on this device" : ""}.
           </p>
           <div className="flex justify-center gap-3">
@@ -90,7 +90,7 @@ export function NextActionsDashboard() {
               hint={
                 state.dueReviews[0]
                   ? `Next: ${state.dueReviews[0].conceptName || state.dueReviews[0].conceptSlug}`
-                  : "Nothing overdue — keep learning"
+                  : "Nothing overdue - keep learning"
               }
               accent="amber"
             />

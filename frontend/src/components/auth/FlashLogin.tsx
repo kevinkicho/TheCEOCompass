@@ -15,7 +15,7 @@ export function FlashLogin() {
   const onGoogle = async () => {
     if (busy) return
     if (!ready) {
-      setError("Still starting up — wait a moment, then try again.")
+      setError("Still starting up - wait a moment, then try again.")
       return
     }
     setError(null)

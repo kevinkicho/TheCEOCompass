@@ -70,7 +70,7 @@ export function TodaysPlanCard() {
         <div>
           <h2 className="text-lg font-semibold text-dark-900 dark:text-dark-100">Today&apos;s plan</h2>
           <p className="text-sm text-dark-500 dark:text-dark-400">
-            One review, one concept, one scenario — then stop or continue.
+            One review, one concept, one scenario - then stop or continue.
           </p>
         </div>
         <Link

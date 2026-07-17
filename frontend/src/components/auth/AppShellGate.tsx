@@ -27,7 +27,7 @@ export function AppShellGate({ children }: { children: React.ReactNode }) {
   const { ready: initReady } = useAppInit()
   const [bootElapsed, setBootElapsed] = useState(false)
   const [enterDone, setEnterDone] = useState(false)
-  const [enterMessage, setEnterMessage] = useState("Opening your workspace…")
+  const [enterMessage, setEnterMessage] = useState("Opening your workspace...")
   /** Uids that finished the post-login transition this page lifetime */
   const enteredUid = useRef<string | null>(null)
 
@@ -94,7 +94,7 @@ export function AppShellGate({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true
     }
-    // initReady intentionally omitted from deps — polled inside once enter starts
+    // initReady intentionally omitted from deps - polled inside once enter starts
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [googleUid])
 
@@ -108,7 +108,7 @@ export function AppShellGate({ children }: { children: React.ReactNode }) {
     return (
       <FullScreenStatus
         title="CEO Compass"
-        message="Starting up…"
+        message="Starting up..."
         detail="Preparing a reliable session"
       />
     )

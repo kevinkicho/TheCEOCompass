@@ -1,5 +1,5 @@
 /**
- * Pure "Today's Plan" builder — one review, one concept, one scenario.
+ * Pure "Today's Plan" builder - one review, one concept, one scenario.
  */
 
 import type { ReviewRecord } from "../spaced-repetition"
@@ -59,7 +59,7 @@ export function buildTodaysPlan(input: {
           : "/review/session",
       reason:
         due.length > 1
-          ? `${due.length} concepts due — start with this one`
+          ? `${due.length} concepts due - start with this one`
           : "Due for review today",
     })
   } else {
@@ -68,7 +68,7 @@ export function buildTodaysPlan(input: {
       title: "Review session",
       subtitle: "Spaced repetition",
       href: "/review",
-      reason: "No cards due — check weekly review or rate a concept",
+      reason: "No cards due - check weekly review or rate a concept",
     })
   }
 
@@ -127,7 +127,7 @@ export function buildTodaysPlan(input: {
       subtitle: sc.pack_title || sc.pack_id || "Practice",
       href: `/scenarios/${sc.slug || sc.id}`,
       reason: prefs?.industry
-        ? `Practice scenario${sc.pack_id ? ` · ${sc.pack_id}` : ""}`
+        ? `Practice scenario${sc.pack_id ? ` - ${sc.pack_id}` : ""}`
         : "Apply frameworks under pressure",
     })
   } else {

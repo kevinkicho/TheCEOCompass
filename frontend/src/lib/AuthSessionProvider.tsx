@@ -79,7 +79,7 @@ const POPUP_REDIRECT_CODES = new Set([
   "auth/popup-blocked",
 ])
 
-/** User cancelled — surface a friendly error, do not redirect */
+/** User cancelled - surface a friendly error, do not redirect */
 const POPUP_USER_CANCEL_CODES = new Set([
   "auth/popup-closed-by-user",
   "auth/cancelled-popup-request",
@@ -217,7 +217,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         // linkWithRedirect / signInWithRedirect can throw credential-in-use on return
         if (code && CREDENTIAL_IN_USE_CODES.has(code)) {
           try {
-            // Still anonymous on this error path — snapshot now if we somehow didn't pre-stash
+            // Still anonymous on this error path - snapshot now if we somehow didn't pre-stash
             // (should have prepared before linkWithRedirect; prepare again is safe if still anon)
             if (auth!.currentUser?.isAnonymous && !peekPendingAnonMerge()) {
               const prep = await prepareAnonMerge(auth!.currentUser.uid)
@@ -286,7 +286,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
             if (!cancelled) applyMergeStatus(status)
           }
         }
-        // Other getRedirectResult errors (no pending redirect, etc.) — ignore
+        // Other getRedirectResult errors (no pending redirect, etc.) - ignore
       }
     })()
 
@@ -297,7 +297,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
         try {
           await signInAnonymously(auth!)
         } catch (err) {
-          console.error("[auth] anonymous sign-in failed — enable Anonymous in Firebase Console", err)
+          console.error("[auth] anonymous sign-in failed - enable Anonymous in Firebase Console", err)
           if (!cancelled) {
             setUser(null)
             setIsAdmin(false)
@@ -419,7 +419,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
     try {
       if (auth.currentUser.isAnonymous) {
         await linkWithPopup(auth.currentUser, googleProvider)
-        // Link success: same uid upgraded — no cross-uid merge needed
+        // Link success: same uid upgraded - no cross-uid merge needed
       } else {
         await signInWithPopup(auth, googleProvider)
       }
@@ -456,7 +456,7 @@ export function AuthSessionProvider({ children }: { children: React.ReactNode })
       try {
         await signInAnonymously(auth)
       } catch {
-        // Anonymous may be disabled — fall through to direct Google popup
+        // Anonymous may be disabled - fall through to direct Google popup
       }
     }
     if (auth.currentUser?.isAnonymous) {
