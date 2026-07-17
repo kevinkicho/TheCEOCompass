@@ -1,0 +1,14 @@
+{
+  "name": "the-ceo-compass",
+  "private": true,
+  "description": "Root scripts proxy into frontend/ (and agent). Prefer working from those packages directly for installs.",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend",
+    "lint": "npm run lint --prefix frontend",
+    "test": "npm run test --prefix frontend",
+    "typecheck": "npm run typecheck --prefix frontend",
+    "agent": "npm start --prefix agent"
+  }
+}
