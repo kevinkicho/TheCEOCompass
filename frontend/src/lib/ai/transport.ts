@@ -283,16 +283,36 @@ export async function callOllamaViaFirebase(
     return { result, cached: false, prompt: fullPrompt }
   }
 
-  // Agent + Cloud share the RTDB request path; Cloud Function handles provider==="cloud"
-  if (!db) {
-    throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
-  }
-  const database = db!
-
   if (!skipCache) {
     const cached = await checkCache(frameworkSlug, conceptSlug, category)
     if (cached) return { result: cached.result, cached: true, prompt: fullPrompt }
   }
+
+  // Cloud preferred path: HTTPS callable (no RTDB wait)
+  if (provider === "cloud") {
+    const { isCallableAiEnabled, callGenerateAI } = await import("./callable")
+    if (isCallableAiEnabled()) {
+      try {
+        console.log(`[AI] Callable generateAI for ${frameworkSlug}/${conceptSlug}/${category}`)
+        const r = await callGenerateAI({
+          prompt: fullPrompt,
+          model: actualModel,
+          temperature,
+        })
+        return { result: r.text, cached: false, prompt: fullPrompt }
+      } catch (err) {
+        console.warn(
+          `[AI] Callable failed (${err instanceof Error ? err.message : err}); falling back to RTDB cloud trigger`,
+        )
+      }
+    }
+  }
+
+  // Agent + Cloud RTDB request bus
+  if (!db) {
+    throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
+  }
+  const database = db!
 
   const requestId = generateId()
 
@@ -321,9 +341,9 @@ export async function callOllamaViaFirebase(
   } catch (err) {
     // Agent offline / timeout: fall back to local Ollama or cloud API key
     const { generateWithOllamaFallback, hasOllamaApiKey } = await import("./ollama-client")
-    if (provider === "agent" && hasOllamaApiKey()) {
+    if ((provider === "agent" || provider === "cloud") && hasOllamaApiKey()) {
       console.warn(
-        `[AI] Agent path failed (${err instanceof Error ? err.message : err}); falling back to Ollama client`,
+        `[AI] RTDB path failed (${err instanceof Error ? err.message : err}); falling back to Ollama client`,
       )
       const r = await generateWithOllamaFallback({
         prompt: fullPrompt,
@@ -378,7 +398,31 @@ export async function runWithAiProvider(args: {
     return { result, data, prompt: fullPrompt }
   }
 
-  // provider === "agent" | "cloud" — same RTDB push; tag provider for worker selection
+  if (provider === "cloud") {
+    const { isCallableAiEnabled, callGenerateAI } = await import("./callable")
+    if (isCallableAiEnabled()) {
+      try {
+        const r = await callGenerateAI({
+          prompt: fullPrompt,
+          model,
+          temperature: args.temperature,
+        })
+        let data: any = null
+        try {
+          data = JSON.parse(r.text)
+        } catch {
+          /* plain text */
+        }
+        return { result: r.text, data, prompt: fullPrompt }
+      } catch (err) {
+        console.warn(
+          `[AI] Callable failed (${err instanceof Error ? err.message : err}); falling back to RTDB`,
+        )
+      }
+    }
+  }
+
+  // provider === "agent" | "cloud" RTDB bus
   if (!db) {
     throw new Error("Firebase not configured. Set NEXT_PUBLIC_FIREBASE_* env vars or add them to .env.local")
   }
@@ -414,9 +458,9 @@ export async function runWithAiProvider(args: {
     return { result, data, prompt: fullPrompt }
   } catch (err) {
     const { generateWithOllamaFallback, hasOllamaApiKey } = await import("./ollama-client")
-    if (provider === "agent" && hasOllamaApiKey()) {
+    if ((provider === "agent" || provider === "cloud") && hasOllamaApiKey()) {
       console.warn(
-        `[AI] Agent path failed (${err instanceof Error ? err.message : err}); falling back to Ollama client`,
+        `[AI] RTDB path failed (${err instanceof Error ? err.message : err}); falling back to Ollama client`,
       )
       const r = await generateWithOllamaFallback({
         prompt: fullPrompt,

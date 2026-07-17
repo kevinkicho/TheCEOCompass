@@ -13,6 +13,7 @@ import {
   onAuthStateChanged,
   signOut,
 } from "firebase/auth"
+import { getFunctions, httpsCallable, type Functions } from "firebase/functions"
 import { initAppCheckIfConfigured } from "@/lib/app-check"
 
 const firebaseConfig = {
@@ -30,6 +31,7 @@ const hasConfig = firebaseConfig.apiKey.length > 0 && firebaseConfig.projectId.l
 let app: FirebaseApp | null = null
 let db: ReturnType<typeof getDatabase> | null = null
 let auth: ReturnType<typeof getAuth> | null = null
+let functions: Functions | null = null
 
 if (hasConfig) {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
@@ -38,12 +40,14 @@ if (hasConfig) {
   initAppCheckIfConfigured(app)
   db = getDatabase(app)
   auth = getAuth(app)
+  // Match Cloud Functions region (us-central1)
+  functions = getFunctions(app, "us-central1")
 }
 
 const googleProvider = new GoogleAuthProvider()
 
 export {
-  app, db, auth, googleProvider, GoogleAuthProvider,
+  app, db, auth, functions, googleProvider, GoogleAuthProvider, httpsCallable,
   ref, set, push, onValue, off, get, child, query, orderByChild, equalTo, limitToLast, update, remove, onChildAdded,
   signInWithPopup, signInWithRedirect, signInWithCredential, getRedirectResult, linkWithPopup, linkWithRedirect,
   signInAnonymously, onAuthStateChanged, signOut,

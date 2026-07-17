@@ -1717,5 +1717,330 @@
         "description": "Single-threaded plan fails the shock."
       }
     }
+  },
+  {
+    "id": "cccccccc-cccc-cccc-cccc-cccccccc0001",
+    "slug": "brand-crisis-social-backlash",
+    "title": "Brand Crisis After Social Backlash",
+    "description": "A viral post accuses your brand of greenwashing. Engagement is tanking and retail partners want a statement in 48 hours.",
+    "framework_id": "77777777-7777-7777-7777-777777777777",
+    "difficulty": 3,
+    "pack_id": "marketing",
+    "pack_title": "Marketing & Brand",
+    "concept_ids": [
+      "crisis-communications",
+      "brand-equity",
+      "stakeholder-mapping",
+      "jobs-to-be-done"
+    ],
+    "framework_slugs": [
+      "crisis-communications",
+      "stakeholder-mapping"
+    ],
+    "context": {
+      "company": "DTC apparel, $120M annual revenue, 40% online",
+      "situation": "Influencer video alleges false sustainability claims. Stock -8% pre-market. Three enterprise wholesale accounts pause orders.",
+      "time_pressure": "Retail partner call in 48 hours; earnings quiet period starts in 5 days.",
+      "data_provided": [
+        "NPS dropped from 42 to 28 in 72 hours among app users",
+        "Paid social CPA +60% day-over-day",
+        "Legal: no material false claim proven yet; one supplier audit overdue",
+        "Share of voice: 70% negative on brand keywords"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What should you protect first?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Trust with customers and partners via transparent facts + corrective plan",
+            "score": 0.9,
+            "rationale": "Brand equity and stakeholder trust compound; denial amplifies crises"
+          },
+          {
+            "id": "b",
+            "label": "Silence until legal finishes a full investigation",
+            "score": 0.25,
+            "rationale": "Creates vacuum filled by adversaries"
+          },
+          {
+            "id": "c",
+            "label": "Attack the influencer publicly",
+            "score": 0.1,
+            "rationale": "Escalates and looks defensive"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate crisis framing."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Select the 48-hour response package:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Acknowledge concern; publish known facts + timeline; pause disputed claims in ads; independent audit kickoff; partner brief with same narrative.",
+            "score": 0.9,
+            "rationale": "Credibility + operational control"
+          },
+          {
+            "id": "b",
+            "label": "Only legal boilerplate denial",
+            "score": 0.2,
+            "rationale": "Cold and incomplete"
+          },
+          {
+            "id": "c",
+            "label": "Deep discount campaign to buy back customers",
+            "score": 0.3,
+            "rationale": "Signals panic; does not fix trust"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate communications strategy."
+      },
+      {
+        "id": "stage-3",
+        "type": "analysis",
+        "prompt": "Draft three bullets for the retail partner call (facts, actions, ask).",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Good partner briefs are factual, time-bound, and bilateral.",
+        "sample_answer": "1) What we know / do not know. 2) Actions in 7/30/90 days (audit, claims review, supplier). 3) Ask: 2-week pause on delist decisions while we share weekly updates."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Trust Stabilized",
+        "description": "Narrative owned; partners stayed; CPA normalized within 3 weeks."
+      },
+      "acceptable": {
+        "title": "Contained",
+        "description": "No delists, but brand recovery takes a quarter."
+      },
+      "failure": {
+        "title": "Trust Collapse",
+        "description": "Wholesale exits and lasting brand damage."
+      }
+    }
+  },
+  {
+    "id": "cccccccc-cccc-cccc-cccc-cccccccc0002",
+    "slug": "board-governance-ceo-eval",
+    "title": "Board Governance: CEO Evaluation Redesign",
+    "description": "The board wants a clearer CEO scorecard after two quarters of missed guidance. You must redesign evaluation without politics.",
+    "framework_id": "88888888-8888-8888-8888-888888888888",
+    "difficulty": 3,
+    "pack_id": "governance",
+    "pack_title": "Governance & Board",
+    "concept_ids": [
+      "okrs",
+      "balanced-scorecard",
+      "agency-problem",
+      "stakeholder-mapping"
+    ],
+    "framework_slugs": [
+      "okr",
+      "balanced-scorecard"
+    ],
+    "context": {
+      "company": "Public software, $900M revenue, 6 independent directors",
+      "situation": "Compensation committee flags lagging NRR and high ramped sales cost. Founder-CEO resists pure financial scorecards.",
+      "time_pressure": "Comp committee in 3 weeks; proxy season in 4 months.",
+      "data_provided": [
+        "NRR 98% (target 110%)",
+        "Rule of 40: 28",
+        "Employee eNPS: 12 (down from 32)",
+        "Board skills matrix missing cyber and AI expertise"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What is the core governance problem?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Misaligned CEO objectives vs multi-year value creation and risk",
+            "score": 0.9,
+            "rationale": "Scorecards shape behavior; short-term EPS only creates agency issues"
+          },
+          {
+            "id": "b",
+            "label": "Fire the CEO immediately",
+            "score": 0.2,
+            "rationale": "Premature without a designed alternative"
+          },
+          {
+            "id": "c",
+            "label": "Ignore board and focus on ops",
+            "score": 0.1,
+            "rationale": "Escalates trust break"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate governance diagnosis."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Choose scorecard design:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Balanced set: growth quality (NRR), efficiency (Rule of 40), talent (eNPS/regrettable attrition), strategic milestones; 3-year equity cliff aligned.",
+            "score": 0.9,
+            "rationale": "Balances stakeholders and horizon"
+          },
+          {
+            "id": "b",
+            "label": "100% stock price relative to peers",
+            "score": 0.35,
+            "rationale": "Noisy and gameable short-term"
+          },
+          {
+            "id": "c",
+            "label": "Only qualitative narrative with no metrics",
+            "score": 0.2,
+            "rationale": "Unaccountable"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate board-ready design."
+      },
+      {
+        "id": "stage-3",
+        "type": "analysis",
+        "prompt": "List 4 CEO KPIs with weights that sum to 100%.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Weights should be explicit and board-defendable.",
+        "sample_answer": "NRR 30%; Rule of 40 25%; strategic product milestones 25%; talent health 20%."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Aligned Board",
+        "description": "Scorecard adopted; CEO incentives multi-year."
+      },
+      "acceptable": {
+        "title": "Partial Alignment",
+        "description": "Metrics accepted with negotiation on weights."
+      },
+      "failure": {
+        "title": "Governance Fracture",
+        "description": "Proxy fight risk rises."
+      }
+    }
+  },
+  {
+    "id": "cccccccc-cccc-cccc-cccc-cccccccc0003",
+    "slug": "culture-post-acquisition-integration",
+    "title": "Culture Clash After Acquisition",
+    "description": "You acquired a 200-person startup. Flight risk among their eng leads is high. Integration is stalling product roadmaps.",
+    "framework_id": "99999999-9999-9999-9999-999999999999",
+    "difficulty": 3,
+    "pack_id": "culture",
+    "pack_title": "Culture & Talent",
+    "concept_ids": [
+      "change-management",
+      "psychological-safety",
+      "okrs",
+      "team-topologies"
+    ],
+    "framework_slugs": [
+      "change-management",
+      "okr",
+      "team-topologies"
+    ],
+    "context": {
+      "company": "Acquirer: 2,000 employees enterprise SaaS; Target: 200-person PLG tool",
+      "situation": "Day 60 post-close. Target CEO left. Three staff engineers resigned. Corporate process is crushing PLG experiment velocity.",
+      "time_pressure": "Board synergy review in 30 days; customer conference in 45 days.",
+      "data_provided": [
+        "Target regretted attrition 18% annualized post-close",
+        "Shared services migration planned for identity in 90 days",
+        "Target NPS 55 vs acquirer 32",
+        "Synergy model assumed $12M cost savings Year 1"
+      ]
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "type": "diagnosis",
+        "prompt": "What is the primary integration failure mode?",
+        "options": [
+          {
+            "id": "a",
+            "label": "Culture and operating system collision without a deliberate integration thesis",
+            "score": 0.9,
+            "rationale": "Most value destruction in tech M&A is people and process, not product"
+          },
+          {
+            "id": "b",
+            "label": "They are just entitled engineers",
+            "score": 0.1,
+            "rationale": "Blames individuals; ignores system"
+          },
+          {
+            "id": "c",
+            "label": "Synergy model is wrong so abandon the deal narrative",
+            "score": 0.3,
+            "rationale": "May need revise, but first stop the bleeding"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate integration diagnosis."
+      },
+      {
+        "id": "stage-2",
+        "type": "decision",
+        "prompt": "Pick the 30-day integration reset:",
+        "options": [
+          {
+            "id": "a",
+            "label": "Preserve target mission team autonomy for 2 quarters; dual OKRs (synergy + product velocity); appoint integration lead with CEO air cover; freeze non-critical process migrations.",
+            "score": 0.9,
+            "rationale": "Buys trust and learning speed"
+          },
+          {
+            "id": "b",
+            "label": "Force full process migration this month",
+            "score": 0.2,
+            "rationale": "Accelerates flight"
+          },
+          {
+            "id": "c",
+            "label": "Spin out and forget synergies",
+            "score": 0.35,
+            "rationale": "May be later option; premature without reset attempt"
+          }
+        ],
+        "feedback_prompt_template": "User chose {option}. Evaluate change management design."
+      },
+      {
+        "id": "stage-3",
+        "type": "analysis",
+        "prompt": "Write a 5-line note to target engineers stating what will not change for 6 months.",
+        "options": [],
+        "free_response": true,
+        "feedback_prompt_template": "User wrote {response}. Clarity and credibility beat slogans.",
+        "sample_answer": "Your roadmap ownership stays local. Review cadence weekly with product, not corporate PMO. Comp bands protected through cycle. Tooling migrations only with eng lead veto. Open AMA with me monthly."
+      }
+    ],
+    "outcome_branches": {
+      "optimal": {
+        "title": "Integration Stabilized",
+        "description": "Attrition slows; conference ships joint story."
+      },
+      "acceptable": {
+        "title": "Mixed Retention",
+        "description": "Some talent loss but core team holds."
+      },
+      "failure": {
+        "title": "Value Destroyed",
+        "description": "Mass exodus and synergy miss."
+      }
+    }
   }
 ]

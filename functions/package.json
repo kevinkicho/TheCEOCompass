@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "node --import tsx --test src/llm.test.ts src/response-path.test.ts src/handler.test.ts src/rate-limit.test.ts",
+    "test": "node --import tsx --test src/llm.test.ts src/response-path.test.ts src/handler.test.ts src/rate-limit.test.ts src/callable-core.test.ts",
     "serve": "npm run build && firebase emulators:start --only functions,database",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"

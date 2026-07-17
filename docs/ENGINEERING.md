@@ -39,7 +39,7 @@ The original FastAPI backend handled scenarios, journal, progress, and quiz endp
 |-------|---------|-----|
 | Unit / component (Vitest) | `cd frontend && npx vitest run` | **Yes** — required green |
 | Typecheck | `cd frontend && npx tsc --noEmit` | **Yes** |
-| E2E smoke (Playwright) | `cd frontend && npm run test:e2e` | **No** (optional; does not block merge) |
+| E2E smoke (Playwright) | `cd frontend && npm run test:e2e` | **Optional job** — `.github/workflows/e2e.yml` (`continue-on-error`) |
 
 ### Playwright e2e
 

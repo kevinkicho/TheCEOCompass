@@ -147,13 +147,18 @@ firebase functions:log --only processAIRequest
 
 ## Frontend wiring
 
-The Cloud Function processes RTDB creates when `provider === "cloud"`. The frontend router +
-Profile (Agent / Local / Cloud) set `provider` on requests when Cloud is selected.
+Cloud AI has two server paths:
 
-1. Set RTDB `_config/feature_flags.cloud_ai_enabled = true` (admin write).
+| Path | Function | When |
+|------|----------|------|
+| **HTTPS callable (preferred)** | `generateAI` | Provider `cloud` and `NEXT_PUBLIC_AI_CALLABLE` not `0` |
+| **RTDB trigger (fallback)** | `processAIRequest` | Callable fails, or `NEXT_PUBLIC_AI_CALLABLE=0` |
+
+1. Set RTDB `_config/feature_flags.cloud_ai_enabled = true` (admin write) — or rely on client defaults.
 2. Profile → AI provider → **Cloud**, or `NEXT_PUBLIC_AI_PROVIDER=cloud` + rebuild.
 3. Navbar shows **AI cloud** when cloud is selected and Firebase is configured.
-4. After a successful cloud completion, `_meta/cloud_worker_heartbeat` is updated (public read).
+4. After success, `_meta/cloud_worker_heartbeat` is updated (public read; Admin write).
+5. Deploy both functions: `firebase deploy --only functions`.
 
 ### Feature flag
 

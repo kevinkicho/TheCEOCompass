@@ -4,5 +4,6 @@
 export * from "./provider"
 export * from "./router"
 export * from "./ollama-client"
+export * from "./callable"
 export * from "./transport"
 export * from "./generators"

@@ -1,21 +1,16 @@
 /**
- * processAIRequest — Firebase Function (v2 RTDB trigger)
- *
- * On create of /requests/{requestId}, if provider === "cloud":
- *   1. Claim pending → processing (transaction; retry-safe)
- *   2. Per-uid rate limit via Admin SDK `_rate/{uid}` (20 / 10 min sliding window)
- *   3. Call OpenAI-compatible chat API (server-side secrets)
- *   4. Write result to the same response path the local agent uses
- *   5. Mark request done | error (rate-limit errors surface a clear message)
- *
- * Agent-mode requests (no provider / provider === "agent") are ignored.
+ * Cloud AI Functions:
+ * - processAIRequest — RTDB onCreate for provider === "cloud"
+ * - generateAI — HTTPS callable (preferred cloud path from static frontend)
  */
 
 import * as admin from "firebase-admin"
 import { onValueCreated } from "firebase-functions/v2/database"
+import { onCall, HttpsError } from "firebase-functions/v2/https"
 import { defineSecret, defineString } from "firebase-functions/params"
 import { generateText } from "./llm"
 import { handleCloudRequest } from "./handler"
+import { runCallableGenerate } from "./callable-core"
 import type { AiRequestData } from "./response-path"
 
 const DEFAULT_DATABASE_URL =
@@ -41,6 +36,14 @@ const cloudAiModel = defineString("CLOUD_AI_MODEL", {
   description: "Default model when request.payload.model is absent",
 })
 
+function llmConfigFromParams() {
+  return {
+    apiKey: openaiApiKey.value(),
+    apiBase: openaiApiBase.value(),
+    model: cloudAiModel.value(),
+  }
+}
+
 export const processAIRequest = onValueCreated(
   {
     ref: "/requests/{requestId}",
@@ -62,12 +65,66 @@ export const processAIRequest = onValueCreated(
       // Admin Database matches DbLike (ref/update/set/transaction)
       db: admin.database() as unknown as import("./handler").DbLike,
       generateText,
-      llmConfig: {
-        apiKey: openaiApiKey.value(),
-        apiBase: openaiApiBase.value(),
-        model: cloudAiModel.value(),
-      },
+      llmConfig: llmConfigFromParams(),
       llmTimeoutMs: 100_000,
     })
+  },
+)
+
+/**
+ * HTTPS callable cloud AI — auth required, rate-limited, no RTDB request bus.
+ * Frontend cloud provider prefers this path.
+ */
+export const generateAI = onCall(
+  {
+    region: "us-central1",
+    secrets: [openaiApiKey],
+    memory: "256MiB",
+    timeoutSeconds: 120,
+    // Allow GitHub Pages origin; tighten in Console if needed
+    invoker: "public",
+  },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Sign in required for cloud AI")
+    }
+    const data = (request.data || {}) as {
+      prompt?: string
+      model?: string
+      temperature?: number
+    }
+    try {
+      const rtdb = admin.database()
+      const result = await runCallableGenerate(
+        {
+          prompt: data.prompt || "",
+          model: data.model,
+          temperature: data.temperature,
+          uid: request.auth.uid,
+        },
+        {
+          db: rtdb as unknown as import("./rate-limit").RateDbLike,
+          generateText,
+          llmConfig: llmConfigFromParams(),
+          llmTimeoutMs: 100_000,
+          writeHeartbeat: async (payload) => {
+            await rtdb.ref("_meta/cloud_worker_heartbeat").set(payload)
+          },
+        },
+      )
+      return result
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      if (message.startsWith("UNAUTHENTICATED")) {
+        throw new HttpsError("unauthenticated", message)
+      }
+      if (message.startsWith("INVALID_ARGUMENT")) {
+        throw new HttpsError("invalid-argument", message)
+      }
+      if (/rate limit/i.test(message)) {
+        throw new HttpsError("resource-exhausted", message)
+      }
+      throw new HttpsError("internal", message)
+    }
   },
 )
